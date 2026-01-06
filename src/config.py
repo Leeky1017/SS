@@ -9,12 +9,59 @@ from typing import Mapping
 @dataclass(frozen=True)
 class Config:
     jobs_dir: Path
+    queue_dir: Path
+    queue_lease_ttl_seconds: int
     log_level: str
+    worker_id: str
+    worker_idle_sleep_seconds: float
+    worker_max_attempts: int
+    worker_retry_backoff_base_seconds: float
+    worker_retry_backoff_max_seconds: float
+
+
+def _int_value(raw: str, *, default: int) -> int:
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return default
+
+
+def _float_value(raw: str, *, default: float) -> float:
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return default
 
 
 def load_config(env: Mapping[str, str] | None = None) -> Config:
     """Load config from environment variables with explicit defaults."""
     e = os.environ if env is None else env
     jobs_dir = Path(str(e.get("SS_JOBS_DIR", "./jobs"))).expanduser()
+    queue_dir = Path(str(e.get("SS_QUEUE_DIR", "./queue"))).expanduser()
+    queue_lease_ttl_seconds = _int_value(str(e.get("SS_QUEUE_LEASE_TTL_SECONDS", "60")), default=60)
     log_level = str(e.get("SS_LOG_LEVEL", "INFO")).strip().upper()
-    return Config(jobs_dir=jobs_dir, log_level=log_level)
+    worker_id = str(e.get("SS_WORKER_ID", "worker-local")).strip()
+    worker_idle_sleep_seconds = _float_value(
+        str(e.get("SS_WORKER_IDLE_SLEEP_SECONDS", "1.0")),
+        default=1.0,
+    )
+    worker_max_attempts = _int_value(str(e.get("SS_WORKER_MAX_ATTEMPTS", "3")), default=3)
+    worker_retry_backoff_base_seconds = _float_value(
+        str(e.get("SS_WORKER_RETRY_BACKOFF_BASE_SECONDS", "1.0")),
+        default=1.0,
+    )
+    worker_retry_backoff_max_seconds = _float_value(
+        str(e.get("SS_WORKER_RETRY_BACKOFF_MAX_SECONDS", "30.0")),
+        default=30.0,
+    )
+    return Config(
+        jobs_dir=jobs_dir,
+        queue_dir=queue_dir,
+        queue_lease_ttl_seconds=queue_lease_ttl_seconds,
+        log_level=log_level,
+        worker_id=worker_id,
+        worker_idle_sleep_seconds=worker_idle_sleep_seconds,
+        worker_max_attempts=worker_max_attempts,
+        worker_retry_backoff_base_seconds=worker_retry_backoff_base_seconds,
+        worker_retry_backoff_max_seconds=worker_retry_backoff_max_seconds,
+    )
