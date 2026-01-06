@@ -2,7 +2,7 @@
 
 - Issue: #17
 - Branch: task/17-arch-t012
-- PR: (pending)
+- PR: https://github.com/Leeky1017/SS/pull/48
 
 ## Plan
 - Define domain state machine (statuses, allowed transitions, guard)
@@ -30,3 +30,9 @@
   - `12 passed in 0.05s`
 - Evidence:
   - `tests/`
+
+### 2026-01-06 10:37 PR
+- Command:
+  - `gh pr create --base main --head task/17-arch-t012 ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/48`
