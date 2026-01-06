@@ -28,3 +28,11 @@
 - 创建 worktree：`scripts/agent_worktree_setup.sh <N> <slug>`
 - 同步控制面：`scripts/agent_controlplane_sync.sh`
 
+## Repo Settings（一次性配置）
+
+在 GitHub 仓库设置中：
+- 开启 auto-merge
+- 为 `main` 分支设置保护规则，并将 required checks 设为：
+  - `ci`
+  - `openspec-log-guard`
+  - `merge-serial`
