@@ -37,6 +37,9 @@ Rulebook tasks are the execution checklist:
 Detailed workflow (“how we actually ship”):
 - `openspec/specs/ss-delivery-workflow/README.md`
 
+Worktree hygiene (mandatory after merge):
+- After the PR is merged and controlplane `main` is synced, run: `scripts/agent_worktree_cleanup.sh <N> <slug>`
+
 ## Spec writing (strict)
 
 All active specs MUST pass:

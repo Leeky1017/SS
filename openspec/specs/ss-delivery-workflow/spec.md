@@ -37,3 +37,10 @@ Each Issue MUST have a run log at `openspec/_ops/task_runs/ISSUE-N.md` that reco
 - **WHEN** reviewing a PR for Issue `#N`
 - **THEN** the PR includes `openspec/_ops/task_runs/ISSUE-N.md`
 
+### Requirement: Worktrees are cleaned after merge
+
+After a PR is merged and the controlplane `main` is synced to `origin/main`, the corresponding worktree directory under `.worktrees/issue-<N>-<slug>` MUST be removed to avoid stale state and accidental reuse.
+
+#### Scenario: Worktree cleanup command succeeds
+- **WHEN** running `scripts/agent_worktree_cleanup.sh <N> <slug>` from the controlplane root
+- **THEN** the worktree directory `.worktrees/issue-<N>-<slug>` no longer exists
