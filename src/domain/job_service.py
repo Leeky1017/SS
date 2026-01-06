@@ -4,7 +4,7 @@ import logging
 import uuid
 from dataclasses import dataclass
 
-from src.domain.models import Job, JobStatus
+from src.domain.models import JOB_SCHEMA_VERSION_V1, Job, JobStatus
 from src.infra.job_store import JobStore
 from src.utils.time import utc_now
 
@@ -34,6 +34,7 @@ class JobService:
     def create_job(self, *, requirement: str | None) -> Job:
         job_id = f"job_{uuid.uuid4().hex[:16]}"
         job = Job(
+            schema_version=JOB_SCHEMA_VERSION_V1,
             job_id=job_id,
             status=JobStatus.CREATED.value,
             requirement=requirement,

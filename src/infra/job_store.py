@@ -6,7 +6,9 @@ import os
 import tempfile
 from pathlib import Path
 
-from src.domain.models import Draft, Job
+from pydantic import ValidationError
+
+from src.domain.models import JOB_SCHEMA_VERSION_V1, Draft, Job
 from src.infra.exceptions import (
     JobAlreadyExistsError,
     JobDataCorruptedError,
@@ -29,10 +31,29 @@ class JobStore:
     def _job_path(self, job_id: str) -> Path:
         return self._job_dir(job_id) / "job.json"
 
+    def _assert_supported_schema_version(self, *, job_id: str, path: Path, payload: dict) -> None:
+        schema_version = payload.get("schema_version")
+        if schema_version != JOB_SCHEMA_VERSION_V1:
+            logger.warning(
+                "SS_JOB_JSON_SCHEMA_VERSION_UNSUPPORTED",
+                extra={"job_id": job_id, "path": str(path), "schema_version": schema_version},
+            )
+            raise JobDataCorruptedError(job_id=job_id)
+
     def create(self, job: Job) -> None:
         path = self._job_path(job.job_id)
         if path.exists():
             raise JobAlreadyExistsError(job_id=job.job_id)
+        if job.schema_version != JOB_SCHEMA_VERSION_V1:
+            logger.warning(
+                "SS_JOB_JSON_SCHEMA_VERSION_UNSUPPORTED",
+                extra={
+                    "job_id": job.job_id,
+                    "path": str(path),
+                    "schema_version": job.schema_version,
+                },
+            )
+            raise JobDataCorruptedError(job_id=job.job_id)
         self._job_dir(job.job_id).mkdir(parents=True, exist_ok=True)
         try:
             self._atomic_write(path, job.model_dump(mode="json"))
@@ -55,12 +76,36 @@ class JobStore:
         except OSError as e:
             logger.warning("SS_JOB_JSON_READ_FAILED", extra={"job_id": job_id, "path": str(path)})
             raise JobStoreIOError(operation="read", job_id=job_id) from e
-        return Job.model_validate(raw)
+        if not isinstance(raw, dict):
+            logger.warning(
+                "SS_JOB_JSON_CORRUPTED",
+                extra={"job_id": job_id, "path": str(path), "reason": "not_object"},
+            )
+            raise JobDataCorruptedError(job_id=job_id)
+        self._assert_supported_schema_version(job_id=job_id, path=path, payload=raw)
+        try:
+            return Job.model_validate(raw)
+        except ValidationError as e:
+            logger.warning(
+                "SS_JOB_JSON_INVALID",
+                extra={"job_id": job_id, "path": str(path), "errors": e.errors()},
+            )
+            raise JobDataCorruptedError(job_id=job_id) from e
 
     def save(self, job: Job) -> None:
         path = self._job_path(job.job_id)
         if not path.exists():
             raise JobNotFoundError(job_id=job.job_id)
+        if job.schema_version != JOB_SCHEMA_VERSION_V1:
+            logger.warning(
+                "SS_JOB_JSON_SCHEMA_VERSION_UNSUPPORTED",
+                extra={
+                    "job_id": job.job_id,
+                    "path": str(path),
+                    "schema_version": job.schema_version,
+                },
+            )
+            raise JobDataCorruptedError(job_id=job.job_id)
         try:
             self._atomic_write(path, job.model_dump(mode="json"))
         except OSError as e:
