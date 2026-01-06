@@ -2,7 +2,7 @@
 
 - Issue: #42
 - Branch: task/42-worktree-cleanup
-- PR: (fill)
+- PR: https://github.com/Leeky1017/SS/pull/43
 
 ## Plan
 - Add worktree cleanup step to delivery workflow.
