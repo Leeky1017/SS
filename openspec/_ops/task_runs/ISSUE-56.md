@@ -42,3 +42,9 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-06 00:00 Update branch (auto-merge requires up-to-date)
+- Command:
+  - `git fetch origin main`
+  - `git rebase origin/main`
+  - `git push --force-with-lease`
