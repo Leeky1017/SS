@@ -19,7 +19,7 @@
 - Epic #11：#18、#19
 - Epic #12：#20、#21
 - Epic #13：#22、#23
-- Epic #14：#24、#25
+- Epic #14：#24、#25、#36（Do 模板库接入）
 - Epic #15：#26、#27
 
 ## DoD（每个 Issue 的 Definition of Done）
@@ -27,4 +27,3 @@
 - 有对应的 spec（OpenSpec）与 tasks（Rulebook）
 - `ruff check .` + `pytest -q` 全绿
 - run log `openspec/_ops/task_runs/ISSUE-N.md` 记录关键命令与输出
-

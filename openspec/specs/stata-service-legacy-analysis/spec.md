@@ -38,3 +38,10 @@ The analysis content SHOULD be placed in `openspec/specs/stata-service-legacy-an
 - **WHEN** browsing OpenSpec
 - **THEN** `analysis.md` exists and is explicitly labeled as non-canonical
 
+### Requirement: Legacy do templates are treated as a data asset (optional)
+
+If SS reuses the legacy `stata_service/tasks/` folder as a do-template library, SS MUST treat it as a versioned data asset with an explicit contract and loader port, not as an architectural template.
+
+#### Scenario: Do template reuse does not leak legacy architecture
+- **WHEN** SS integrates legacy do templates
+- **THEN** the integration follows `openspec/specs/ss-constitution/11-do-template-library.md` and avoids copying legacy service structure
