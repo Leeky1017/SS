@@ -2,7 +2,7 @@
 
 - Issue: #5
 - Branch: task/5-agent-automerge-sync
-- PR: (fill after created)
+- PR: https://github.com/Leeky1017/SS/pull/6
 
 ## Plan
 - Add script to auto-create PR + enable auto-merge + wait + sync local main
