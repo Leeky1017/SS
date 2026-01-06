@@ -28,3 +28,12 @@
 - Key output:
   - `All checks passed!`
   - `23 passed in 0.28s`
+
+### 2026-01-06 12:57 follow-up: split queue module (repo file size limit)
+- Command:
+  - `scripts/agent_worktree_setup.sh 22 arch-t041-queue-claim-split`
+  - `. .venv/bin/activate && ruff check .`
+  - `. .venv/bin/activate && pytest -q`
+- Key output:
+  - `All checks passed!`
+  - `32 passed in 0.36s`
