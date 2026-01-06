@@ -48,3 +48,17 @@ The legacy `stata_service` repository MAY be used for semantics and edge-case di
 - **WHEN** reading legacy analysis docs
 - **THEN** they are used as test vectors and semantic references, not as implementation templates
 
+### Requirement: Delivery workflow is issue-gated and auditable
+
+All changes MUST follow the SS delivery hard gates:
+- GitHub Issue `#N` is the task ID
+- branch name: `task/<N>-<slug>`
+- every commit message contains `(#N)`
+- PR body contains `Closes #N`
+- PR includes run log: `openspec/_ops/task_runs/ISSUE-N.md`
+- required checks are green: `ci` / `openspec-log-guard` / `merge-serial`
+- auto-merge is enabled for PRs
+
+#### Scenario: PR metadata and run log are enforced
+- **WHEN** a PR is opened for Issue `#N`
+- **THEN** `openspec-log-guard` fails if the branch/commit/PR body/run log rules are violated

@@ -34,6 +34,9 @@ Rulebook tasks are the execution checklist:
 - `rulebook/tasks/issue-<N>-<slug>/proposal.md`
 - `rulebook/tasks/issue-<N>-<slug>/tasks.md`
 
+Detailed workflow (“how we actually ship”):
+- `openspec/specs/ss-constitution/10-delivery-workflow.md`
+
 ## Spec writing (strict)
 
 All active specs MUST pass:
@@ -55,3 +58,6 @@ Spec format baseline (required):
 `openspec/changes/` is reserved for cross-issue initiatives that need a dedicated change proposal.
 If used, changes MUST also be mapped to a GitHub Issue and follow the same PR hard gates.
 
+OpenSpec official workflow reference (two-folder model):
+- source-of-truth specs: `openspec/specs/`
+- proposed deltas: `openspec/changes/` → archive back into specs via `openspec archive <change-id> --yes`

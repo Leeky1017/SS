@@ -14,4 +14,5 @@
 - `openspec/specs/ss-constitution/07-stata-runner.md`：StataRunner、do-file、执行隔离与产物
 - `openspec/specs/ss-constitution/08-api-contract.md`：API 契约（保持薄层）
 - `openspec/specs/ss-constitution/09-roadmap.md`：Issues roadmap（Epics + 子 Issue）
-
+- `openspec/specs/ss-constitution/10-delivery-workflow.md`：OpenSpec × Rulebook × GitHub 协作与交付流程
+- `openspec/specs/ss-constitution/11-do-template-library.md`：Do 模板库（legacy tasks）复用策略与边界
