@@ -2,7 +2,7 @@
 
 - Issue: #24
 - Branch: task/24-arch-t051-stata-runner
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/51
 
 ## Plan
 - Add `StataRunner` port and `LocalStataRunner` subprocess runner
