@@ -35,3 +35,10 @@
   - `pytest -q`
 - Key output:
   - `33 passed`
+
+### 2026-01-06 00:00 Preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
