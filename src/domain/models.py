@@ -27,6 +27,8 @@ class ArtifactKind(str, Enum):
     STATA_LOG = "stata.log"
     RUN_STDOUT = "run.stdout"
     RUN_STDERR = "run.stderr"
+    RUN_META_JSON = "run.meta.json"
+    RUN_ERROR_JSON = "run.error.json"
     STATA_EXPORT_TABLE = "stata.export.table"
     STATA_EXPORT_FIGURE = "stata.export.figure"
 
