@@ -9,11 +9,6 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(_REPO_ROOT))
-
-from src.utils.roadmap_dependencies import parse_issue_dependencies_from_execution_plan  # noqa: E402
-
 _TASK_BRANCH_RE = re.compile(r"^task/(?P<issue_number>[0-9]+)-(?P<slug>[a-z0-9-]+)$")
 
 
@@ -145,8 +140,18 @@ def _load_execution_plan(repo_root: Path, path: str) -> str:
         raise RuntimeError(f"execution plan not found: {plan_path}") from exc
 
 
+def _deps_from_execution_plan(markdown: str) -> dict[int, set[int]]:
+    repo_root = Path(__file__).resolve().parents[1]
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+
+    from src.utils.roadmap_dependencies import parse_issue_dependencies_from_execution_plan
+
+    return parse_issue_dependencies_from_execution_plan(markdown)
+
+
 def _dependencies_for_issue(markdown: str, issue_number: int) -> list[int]:
-    deps = parse_issue_dependencies_from_execution_plan(markdown).get(issue_number, set())
+    deps = _deps_from_execution_plan(markdown).get(issue_number, set())
     return sorted(deps)
 
 
