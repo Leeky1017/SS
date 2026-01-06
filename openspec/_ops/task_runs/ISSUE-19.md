@@ -2,7 +2,7 @@
 
 - Issue: #19
 - Branch: task/19-arch-t022-artifacts-api
-- PR: <fill>
+- PR: https://github.com/Leeky1017/SS/pull/54
 
 ## Plan
 - Implement artifacts index/download endpoints (path-safe).
@@ -26,3 +26,9 @@
 - Key output:
   - `All checks passed!`
   - `25 passed`
+
+### 2026-01-06 20:17 PR
+- Command:
+  - `gh pr create --base main --head task/19-arch-t022-artifacts-api ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/54`
