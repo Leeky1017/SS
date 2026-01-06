@@ -24,6 +24,11 @@
 - 引入真实数据库/对象存储（仍可用文件系统 store）
 - 引入真实 LLM provider 或真实 Stata 执行
 
+## Dependencies & parallelism
+
+- Hard dependencies: 无（Foundation，建议最先做）
+- Can run in parallel after this merges: #18 / #21 / #24
+
 ## Acceptance checklist
 
 - [ ] `job.json` v1 字段清单 + 语义说明文档完整
@@ -39,4 +44,3 @@
   - `openspec validate --specs --strict --no-interactive`
   - `ruff check .`
   - `pytest -q`
-

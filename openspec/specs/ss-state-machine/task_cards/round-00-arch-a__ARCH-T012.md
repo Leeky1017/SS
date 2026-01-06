@@ -23,6 +23,11 @@
 
 - 分布式锁/数据库事务（先保证 file-store 最小正确性）
 
+## Dependencies & parallelism
+
+- Hard dependencies: #16（job.json v1 + models）
+- Can run in parallel after this merges: #19 / #20 / #22
+
 ## Acceptance checklist
 
 - [ ] 状态机迁移规则在 domain 中集中定义
@@ -34,4 +39,3 @@
 ## Evidence
 
 - Run log: `openspec/_ops/task_runs/ISSUE-17.md`
-

@@ -15,6 +15,12 @@
 
 在早期就固化安全边界：路径遍历、命令注入、敏感信息泄露等，避免后续返工。
 
+## Dependencies & parallelism
+
+- Hard dependencies: #16（工作区/rel_path 口径）
+- Recommended pairing: 与 #19（download path safety）+ #24（runner 隔离）同步推进
+- Also touches: #36（模板执行边界）与 #21（LLM artifacts 脱敏）
+
 ## Acceptance checklist
 
 - [ ] artifacts 下载与路径解析防 `..` 与符号链接逃逸
@@ -22,4 +28,3 @@
 - [ ] do-file 生成与 runner 执行限制工作目录与可写范围
 - [ ] 测试覆盖：典型攻击输入被拒绝
 - [ ] `openspec/_ops/task_runs/ISSUE-27.md` 记录关键命令与输出
-

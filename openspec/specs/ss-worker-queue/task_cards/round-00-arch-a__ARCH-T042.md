@@ -19,10 +19,15 @@ worker 独立执行 queued job：创建 run_id、执行各 step、归档 artifac
 - 每次执行生成 `runs/<run_id>/`，把日志/产物写入
 - retry/backoff 与最大重试次数可配置（来自 Config）
 
+## Dependencies & parallelism
+
+- Hard dependencies: #22（queue claim）+ #20（plan 冻结）+ #16 + #17
+- Soft dependencies: #24/#25（如果 worker 要执行真实 stata steps；MVP 可先用 fake runner）
+- Merge strategy: 强建议在 queue+plan 稳定后再合并，避免返工
+
 ## Acceptance checklist
 
 - [ ] worker 可独立启动并能消费队列
 - [ ] 每次 attempt 生成 run 目录并写入 meta/artifacts
 - [ ] 测试覆盖：成功一次、失败后重试成功、失败到达上限
 - [ ] `openspec/_ops/task_runs/ISSUE-23.md` 记录关键命令与输出
-

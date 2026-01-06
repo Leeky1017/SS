@@ -19,10 +19,14 @@
 - PlanService：输入 job + confirmation，输出 LLMPlan 并写回 job.json（冻结）
 - stub 实现不依赖网络；真实 provider 只在 infra
 
+## Dependencies & parallelism
+
+- Hard dependencies: #16（job 合同）+ #17（状态机/幂等口径）
+- Parallelizable with: #19 / #22 / #24
+
 ## Acceptance checklist
 
 - [ ] LLMPlan schema 与 PlanService 行为清晰（冻结、可回放）
 - [ ] stub 不触网，可在 CI 稳定运行
 - [ ] 单元测试覆盖：plan 生成、冻结、重复生成幂等
 - [ ] `openspec/_ops/task_runs/ISSUE-20.md` 记录关键命令与输出
-
