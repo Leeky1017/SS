@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections import Counter
 from dataclasses import dataclass
 
 from src.domain.idempotency import JobIdempotency
@@ -118,3 +119,36 @@ class JobService:
             extra={"job_id": job_id, "status": job.status.value},
         )
         return job
+
+    def get_job_summary(self, *, job_id: str) -> dict:
+        job = self._store.load(job_id)
+        draft_summary = None
+        if job.draft is not None:
+            draft_summary = {
+                "created_at": job.draft.created_at,
+                "text_chars": len(job.draft.text),
+            }
+
+        kinds = Counter(ref.kind.value for ref in job.artifacts_index)
+        artifacts_summary = {"total": len(job.artifacts_index), "by_kind": dict(kinds)}
+
+        latest_run = None
+        if job.runs:
+            attempt = job.runs[-1]
+            latest_run = {
+                "run_id": attempt.run_id,
+                "attempt": attempt.attempt,
+                "status": attempt.status,
+                "started_at": attempt.started_at,
+                "ended_at": attempt.ended_at,
+                "artifacts_count": len(attempt.artifacts),
+            }
+
+        return {
+            "job_id": job.job_id,
+            "status": job.status.value,
+            "timestamps": {"created_at": job.created_at, "scheduled_at": job.scheduled_at},
+            "draft": draft_summary,
+            "artifacts": artifacts_summary,
+            "latest_run": latest_run,
+        }

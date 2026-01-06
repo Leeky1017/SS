@@ -10,6 +10,7 @@ from src.domain.job_service import JobService, NoopJobScheduler
 from src.domain.llm_client import StubLLMClient
 from src.domain.state_machine import JobStateMachine
 from src.infra.job_store import JobStore
+from src.infra.llm_tracing import TracedLLMClient
 
 
 @pytest.fixture
@@ -47,5 +48,12 @@ def job_service(
 
 
 @pytest.fixture
-def draft_service(store: JobStore, state_machine: JobStateMachine) -> DraftService:
-    return DraftService(store=store, llm=StubLLMClient(), state_machine=state_machine)
+def draft_service(store: JobStore, state_machine: JobStateMachine, jobs_dir: Path) -> DraftService:
+    llm = TracedLLMClient(
+        inner=StubLLMClient(),
+        jobs_dir=jobs_dir,
+        model="stub",
+        temperature=0.0,
+        seed=None,
+    )
+    return DraftService(store=store, llm=llm, state_machine=state_machine)

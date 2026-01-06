@@ -9,6 +9,7 @@ from src.domain.job_service import JobScheduler, JobService, NoopJobScheduler
 from src.domain.llm_client import LLMClient, StubLLMClient
 from src.domain.state_machine import JobStateMachine
 from src.infra.job_store import JobStore
+from src.infra.llm_tracing import TracedLLMClient
 
 
 @lru_cache
@@ -23,7 +24,13 @@ def get_job_store() -> JobStore:
 
 @lru_cache
 def get_llm_client() -> LLMClient:
-    return StubLLMClient()
+    return TracedLLMClient(
+        inner=StubLLMClient(),
+        jobs_dir=get_config().jobs_dir,
+        model="stub",
+        temperature=0.0,
+        seed=None,
+    )
 
 
 @lru_cache

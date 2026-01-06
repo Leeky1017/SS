@@ -8,6 +8,7 @@ from src.api.schemas import (
     ConfirmJobResponse,
     CreateJobRequest,
     CreateJobResponse,
+    GetJobResponse,
 )
 from src.domain.job_service import JobService
 
@@ -21,6 +22,14 @@ def create_job(
 ) -> CreateJobResponse:
     job = svc.create_job(requirement=payload.requirement)
     return CreateJobResponse(job_id=job.job_id, status=job.status.value)
+
+
+@router.get("/jobs/{job_id}", response_model=GetJobResponse)
+def get_job(
+    job_id: str,
+    svc: JobService = Depends(get_job_service),
+) -> GetJobResponse:
+    return GetJobResponse.model_validate(svc.get_job_summary(job_id=job_id))
 
 
 @router.post("/jobs/{job_id}/confirm", response_model=ConfirmJobResponse)

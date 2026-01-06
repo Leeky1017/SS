@@ -1,0 +1,85 @@
+from __future__ import annotations
+
+from fastapi.testclient import TestClient
+
+from src.api import deps
+from src.domain.models import ArtifactKind, ArtifactRef, Draft, RunAttempt
+from src.main import create_app
+
+
+def test_get_job_with_valid_job_returns_summary(job_service, store):
+    app = create_app()
+    app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    client = TestClient(app)
+
+    job = job_service.create_job(requirement="hello")
+
+    persisted = store.load(job.job_id)
+    persisted.draft = Draft(text="draft text", created_at="2026-01-06T00:00:00+00:00")
+    persisted.artifacts_index = [
+        ArtifactRef(kind=ArtifactKind.LLM_PROMPT, rel_path="artifacts/llm/prompt.txt"),
+        ArtifactRef(kind=ArtifactKind.LLM_PROMPT, rel_path="artifacts/llm/prompt2.txt"),
+        ArtifactRef(kind=ArtifactKind.STATA_LOG, rel_path="artifacts/stata/stata.log"),
+    ]
+    persisted.runs = [
+        RunAttempt(
+            run_id="run_1",
+            attempt=1,
+            status="failed",
+            started_at="2026-01-06T00:01:00+00:00",
+            ended_at="2026-01-06T00:02:00+00:00",
+            artifacts=[
+                ArtifactRef(
+                    kind=ArtifactKind.RUN_STDERR,
+                    rel_path="runs/run_1/artifacts/stderr.txt",
+                ),
+            ],
+        )
+    ]
+    store.save(persisted)
+
+    response = client.get(f"/jobs/{job.job_id}")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["job_id"] == job.job_id
+    assert payload["status"] == "created"
+    assert payload["timestamps"]["created_at"] == persisted.created_at
+    assert payload["timestamps"]["scheduled_at"] is None
+
+    assert payload["draft"]["created_at"] == "2026-01-06T00:00:00+00:00"
+    assert payload["draft"]["text_chars"] == len("draft text")
+
+    assert payload["artifacts"]["total"] == 3
+    assert payload["artifacts"]["by_kind"]["llm.prompt"] == 2
+    assert payload["artifacts"]["by_kind"]["stata.log"] == 1
+
+    assert payload["latest_run"]["run_id"] == "run_1"
+    assert payload["latest_run"]["artifacts_count"] == 1
+
+
+def test_get_job_with_missing_job_returns_404(job_service):
+    app = create_app()
+    app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    client = TestClient(app)
+
+    response = client.get("/jobs/job_missing")
+
+    assert response.status_code == 404
+    assert response.json()["error_code"] == "JOB_NOT_FOUND"
+
+
+def test_get_job_with_corrupted_job_json_returns_500(job_service, jobs_dir):
+    job_id = "job_corrupt_json"
+    job_dir = jobs_dir / job_id
+    job_dir.mkdir(parents=True, exist_ok=True)
+    (job_dir / "job.json").write_text("{", encoding="utf-8")
+
+    app = create_app()
+    app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    client = TestClient(app)
+
+    response = client.get(f"/jobs/{job_id}")
+
+    assert response.status_code == 500
+    assert response.json()["error_code"] == "JOB_DATA_CORRUPTED"
