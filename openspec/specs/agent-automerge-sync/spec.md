@@ -27,3 +27,11 @@
 3) Repo docs
 - `CONTRIBUTING.md` 指导优先使用新脚本完成 PR + auto-merge + sync
 
+## Scenarios (verifiable)
+
+### Scenario: PR auto-merge and controlplane sync work end-to-end
+
+Given a branch `task/<N>-<slug>` with a valid run log `openspec/_ops/task_runs/ISSUE-N.md`  
+When running `scripts/agent_pr_automerge_and_sync.sh` from a worktree  
+Then a PR is created (if missing), auto-merge is enabled, checks pass, PR is merged, and local controlplane `main` equals `origin/main`.
+

@@ -1,5 +1,7 @@
 # Spec — SS master brain architecture plan
 
+NOTE: This spec is historical. Canonical engineering constraints now live in `openspec/specs/ss-constitution/spec.md`.
+
 ## Goal
 
 为 SS（LLM 作为“大脑”的 Stata 实证自动化系统）建立一份可执行、可维护的总体规划文档（主脑形态），用于指导后续所有模块的拆解、实现与验收。
@@ -21,4 +23,3 @@
 ## Scenarios (verifiable)
 
 - `ruff check .` 与 `pytest -q` 在 PR checks 中保持全绿。
-
