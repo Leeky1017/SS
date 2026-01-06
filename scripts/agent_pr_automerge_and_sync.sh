@@ -95,15 +95,15 @@ gh pr merge "$PR_NUMBER" --auto --squash
 gh pr checks "$PR_NUMBER" --watch
 
 for _ in 1 2 3 4 5 6 7 8 9 10; do
-  MERGED="$(gh pr view "$PR_NUMBER" --json merged --jq '.merged')"
-  if [[ "$MERGED" == "true" ]]; then
+  MERGED_AT="$(gh pr view "$PR_NUMBER" --json mergedAt --jq '.mergedAt')"
+  if [[ "$MERGED_AT" != "null" && -n "$MERGED_AT" ]]; then
     break
   fi
   sleep 6
 done
 
-MERGED="$(gh pr view "$PR_NUMBER" --json merged --jq '.merged')"
-if [[ "$MERGED" != "true" ]]; then
+MERGED_AT="$(gh pr view "$PR_NUMBER" --json mergedAt --jq '.mergedAt')"
+if [[ "$MERGED_AT" == "null" || -z "$MERGED_AT" ]]; then
   echo "ERROR: PR not merged yet: #$PR_NUMBER" >&2
   exit 1
 fi
