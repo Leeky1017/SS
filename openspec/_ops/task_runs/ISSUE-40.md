@@ -2,7 +2,7 @@
 
 - Issue: #40
 - Branch: task/40-taskcards-per-spec-deps-map
-- PR: (fill)
+- PR: https://github.com/Leeky1017/SS/pull/41
 
 ## Plan
 - Distribute task cards under owning specs.
