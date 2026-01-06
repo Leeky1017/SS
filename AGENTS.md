@@ -43,6 +43,12 @@
   - 每个 commit message 必须包含 `(#N)`
   - PR body 必须包含 `Closes #N`
   - 必须新增/更新：`openspec/_ops/task_runs/ISSUE-N.md`
+- 每个 Issue 必须使用 worktree 隔离开发（控制面 `main` + 工作面 worktree）：
+  - 在控制面执行：`scripts/agent_controlplane_sync.sh`
+  - 创建 worktree：`scripts/agent_worktree_setup.sh "$N" "$SLUG"`
+  - 进入工作面：`cd ".worktrees/issue-${N}-${SLUG}"`
+- 当 PR **已合并** 且控制面 `main` **已同步到** `origin/main` 后，必须清理 worktree（不遗留）：
+  - 在控制面执行：`scripts/agent_worktree_cleanup.sh "$N" "$SLUG"`
 - PR 需要通过 required checks：`ci` / `openspec-log-guard` / `merge-serial`。
 
 ## 本地验证
