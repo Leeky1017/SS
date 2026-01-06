@@ -1,59 +1,50 @@
-# Spec — SS constitution (canonical engineering law)
+# Spec: ss-constitution
 
-## Goal
+## Purpose
 
-把 SS 的工程约束、分层边界、数据契约与交付纪律固化为 OpenSpec：后续所有实现 Issue 都必须以本 spec 为“圣旨”，并在各自的 spec 中显式引用与继承这些硬约束。
-
-## Context
-
-SS 的目标是“LLM 作为大脑的 Stata 实证分析自动化系统”。如果不先把边界、契约与验收方式固定，后续功能迭代会自然滑向：
-- 业务散落在 API routes
-- 隐式依赖与全局耦合
-- 异常吞掉导致不可观测
-- LLM 黑箱输出不可回放/不可审计
+Define non-negotiable SS engineering boundaries (architecture + delivery), so future development treats OpenSpec as enforceable “law”.
 
 ## Requirements
 
-### R1 — Canonical documentation lives in OpenSpec
+### Requirement: Canonical docs live in OpenSpec
 
-- SS 的**权威项目文档** MUST 位于 `openspec/specs/`。
-- `docs/` 目录 MUST 只作为“指针/入口”，不得承载权威约束（避免第二套文档体系）。
+SS canonical project docs MUST live under `openspec/specs/`.
+The `docs/` directory MUST only contain pointers and MUST NOT introduce conflicting rules.
 
-### R2 — Follow repository hard constraints
+#### Scenario: Canonical docs are under openspec
+- **WHEN** browsing `openspec/specs/ss-constitution/`
+- **THEN** constitutional docs exist and are treated as canonical
 
-- 所有实现 MUST 遵守仓库 `AGENTS.md` 的硬约束（分层、依赖注入、异常与日志、尺寸上限等）。
-- 禁止动态代理/隐式转发（`__getattr__`、延迟 import 绕循环依赖等）。
+### Requirement: Repository hard constraints are binding
 
-### R3 — Architecture contracts are binding
+All implementations MUST follow repository hard constraints in `AGENTS.md`, including:
+- explicit dependency injection
+- no dynamic proxies / implicit forwarding
+- no silent failures; structured errors and logs
+- file/function size limits
 
-下列契约 MUST 作为全系统一致口径（细节见本目录的补充文档）：
-- 分层与依赖方向：`api -> domain -> ports <- infra`（以及独立 worker）
-- 数据契约：`job.json` v1（含 `schema_version`）与 artifacts 索引
-- 状态机与幂等键：合法迁移、并发写入策略、重试语义
-- LLM Brain：结构化 `LLMPlan`、prompt/response artifacts、脱敏与安全边界
-- Stata Runner：do-file 生成、执行隔离、日志与产物归档
+#### Scenario: A PR follows hard constraints
+- **WHEN** a new PR is reviewed
+- **THEN** it does not introduce dynamic proxies or swallowed exceptions
 
-### R4 — Legacy reference policy
+### Requirement: Architecture contracts are binding
 
-- 旧 `stata_service` MAY 作为“需求与边界案例”参考来源。
-- 实现 MUST NOT 复刻旧工程的架构模式（动态代理、全局单例、超大 routes 文件、吞异常）。
+The system MUST maintain these architectural contracts (details in `openspec/specs/ss-constitution/`):
+- layering direction: `api -> domain -> ports <- infra` and a separate worker
+- data contract: `job.json` v1 with `schema_version` and an artifacts index
+- state machine + idempotency + concurrency strategy
+- LLM Brain: schema-bound plan and auditable prompt/response artifacts with redaction
+- Stata Runner: do-file generation, execution isolation, and archived outputs
 
-## Scenarios (verifiable)
+#### Scenario: Changes reference the architecture contracts
+- **WHEN** a new capability spec is added or modified
+- **THEN** it aligns with the contracts above (or updates this constitution first)
 
-### Scenario: canonical docs are under openspec
+### Requirement: Legacy reference policy is enforced
 
-Given the repository on `main`  
-When browsing `openspec/specs/ss-constitution/`  
-Then the SS constitutional docs exist and `docs/` only contains pointers to them.
+The legacy `stata_service` repository MAY be used for semantics and edge-case discovery, but implementations MUST NOT copy its architectural anti-patterns (dynamic proxies, global singletons, giant routes, swallowed exceptions).
 
-### Scenario: future work uses spec-first
-
-Given a new Issue introduces behavior changes  
-When its PR is created  
-Then it includes a spec under `openspec/specs/**/spec.md` and it references the SS constitution in its Requirements.
-
-## Links
-
-- Constitution docs index: `openspec/specs/ss-constitution/README.md`
-- Roadmap: `openspec/specs/ss-constitution/09-roadmap.md`
+#### Scenario: Legacy is used only as input
+- **WHEN** reading legacy analysis docs
+- **THEN** they are used as test vectors and semantic references, not as implementation templates
 

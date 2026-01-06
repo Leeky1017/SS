@@ -13,6 +13,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install OpenSpec CLI
+        run: npm install -g @fission-ai/openspec@0.17.2
+
+      - name: OpenSpec validate (strict)
+        run: openspec validate --specs --strict --no-interactive
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -23,9 +34,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-
-      - name: OpenSpec guard
-        run: python scripts/openspec_spec_guard.py
 
       - name: Lint
         run: ruff check .
