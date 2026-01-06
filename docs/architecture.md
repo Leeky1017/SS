@@ -48,3 +48,8 @@
 - Draft Preview：`GET /jobs/{id}/draft/preview` → 读取 job → 调用 `LLMClient` → 写回草案 → 返回草案
 - Confirm Job：`POST /jobs/{id}/confirm` → 更新状态为 `queued` → 记录 `scheduled_at`（预留 scheduler 接口）
 
+---
+
+## 主脑规划（Master Brain）
+
+更详细的总体规划与路线图见：`docs/brain/README.md`。
