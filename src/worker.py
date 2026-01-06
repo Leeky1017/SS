@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 import time
 
 from src.config import load_config
@@ -9,11 +8,12 @@ from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store import JobStore
+from src.infra.logging_config import configure_logging
 
 
 def main() -> None:
     config = load_config()
-    logging.basicConfig(level=config.log_level)
+    configure_logging(log_level=config.log_level)
 
     store = JobStore(jobs_dir=config.jobs_dir)
     queue = FileWorkerQueue(
@@ -45,4 +45,3 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         raise SystemExit(0) from None
-
