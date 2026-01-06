@@ -22,6 +22,14 @@ Queue claiming MUST be atomic and MUST ensure the same job is not executed concu
 - **WHEN** two workers attempt to claim the same queued job
 - **THEN** at most one claim succeeds
 
+### Requirement: Claim leases expire and are reclaimable
+
+A claim MUST have a bounded lease duration, and an expired claim MUST be reclaimable so jobs cannot be permanently lost when a worker crashes or hangs.
+
+#### Scenario: Expired claim can be reclaimed
+- **WHEN** a worker claims a job and does not ack/release before the lease expires
+- **THEN** another worker can reclaim and claim the same job
+
 ### Requirement: Each run attempt is isolated and archived
 
 Each execution attempt MUST create a new `run_id` directory and MUST persist attempt metadata and artifacts for audit and retry.
@@ -37,4 +45,3 @@ Retry/backoff and maximum attempts MUST be configurable via `src/config.py`, and
 #### Scenario: Retries stop after max_attempts
 - **WHEN** repeated failures reach the configured attempt limit
 - **THEN** the job ends in `failed` with preserved evidence
-

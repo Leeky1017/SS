@@ -66,6 +66,7 @@ class LLMArtifactsWriteError(SSError):
             status_code=500,
         )
 
+
 class ArtifactNotFoundError(SSError):
     def __init__(self, *, job_id: str, rel_path: str):
         super().__init__(
@@ -109,3 +110,22 @@ class PlanArtifactsWriteError(SSError):
             message=f"plan artifacts write failed: {job_id}",
             status_code=500,
         )
+
+
+class QueueIOError(SSError):
+    def __init__(self, *, operation: str, path: str):
+        super().__init__(
+            error_code="QUEUE_IO_ERROR",
+            message=f"queue io error ({operation}): {path}",
+            status_code=500,
+        )
+
+
+class QueueDataCorruptedError(SSError):
+    def __init__(self, *, path: str):
+        super().__init__(
+            error_code="QUEUE_DATA_CORRUPTED",
+            message=f"queue data corrupted: {path}",
+            status_code=500,
+        )
+
