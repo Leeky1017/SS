@@ -1,20 +1,67 @@
 from __future__ import annotations
 
+import asyncio
+
+import pytest
+
+from src.domain.models import JobStatus
+from src.domain.state_machine import JobIllegalTransitionError
+
 
 def test_create_job_writes_job_json(job_service, store, jobs_dir):
-    job = job_service.create_job(requirement="hello")
+    job = job_service.create_job(requirement="hello", inputs_fingerprint="fp_1")
     path = jobs_dir / job.job_id / "job.json"
     assert path.exists()
     loaded = store.load(job.job_id)
     assert loaded.job_id == job.job_id
-    assert loaded.status == "created"
+    assert loaded.status == JobStatus.CREATED
 
 
-def test_confirm_job_sets_queued(job_service, store):
+def test_create_job_with_same_fingerprint_and_normalized_requirement_is_idempotent(job_service):
+    job_1 = job_service.create_job(requirement=" hello   world ", inputs_fingerprint="fp_1")
+    job_2 = job_service.create_job(requirement="hello\nworld", inputs_fingerprint="fp_1")
+    assert job_1.job_id == job_2.job_id
+    assert job_2.status == JobStatus.CREATED
+
+
+def test_create_job_with_different_plan_revision_creates_different_job(job_service):
+    job_1 = job_service.create_job(
+        requirement="hello",
+        inputs_fingerprint="fp_1",
+        plan_revision=1,
+    )
+    job_2 = job_service.create_job(
+        requirement="hello",
+        inputs_fingerprint="fp_1",
+        plan_revision=2,
+    )
+    assert job_1.job_id != job_2.job_id
+
+
+def test_confirm_job_with_created_status_raises_job_illegal_transition_error(job_service):
     job = job_service.create_job(requirement=None)
+    with pytest.raises(JobIllegalTransitionError) as exc_info:
+        job_service.confirm_job(job_id=job.job_id, confirmed=True)
+    assert exc_info.value.error_code == "JOB_ILLEGAL_TRANSITION"
+
+
+def test_confirm_job_after_draft_preview_sets_queued(job_service, draft_service, store):
+    job = job_service.create_job(requirement=None)
+    asyncio.run(draft_service.preview(job_id=job.job_id))
+
     updated = job_service.confirm_job(job_id=job.job_id, confirmed=True)
-    assert updated.status == "queued"
+    assert updated.status == JobStatus.QUEUED
     assert updated.scheduled_at is not None
 
     loaded = store.load(job.job_id)
-    assert loaded.status == "queued"
+    assert loaded.status == JobStatus.QUEUED
+
+
+def test_confirm_job_when_already_queued_is_idempotent(job_service, draft_service):
+    job = job_service.create_job(requirement=None)
+    asyncio.run(draft_service.preview(job_id=job.job_id))
+
+    first = job_service.confirm_job(job_id=job.job_id, confirmed=True)
+    second = job_service.confirm_job(job_id=job.job_id, confirmed=True)
+    assert second.status == JobStatus.QUEUED
+    assert second.scheduled_at == first.scheduled_at

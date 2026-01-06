@@ -20,7 +20,7 @@ def create_job(
     svc: JobService = Depends(get_job_service),
 ) -> CreateJobResponse:
     job = svc.create_job(requirement=payload.requirement)
-    return CreateJobResponse(job_id=job.job_id, status=job.status)
+    return CreateJobResponse(job_id=job.job_id, status=job.status.value)
 
 
 @router.post("/jobs/{job_id}/confirm", response_model=ConfirmJobResponse)
@@ -30,4 +30,8 @@ def confirm_job(
     svc: JobService = Depends(get_job_service),
 ) -> ConfirmJobResponse:
     job = svc.confirm_job(job_id=job_id, confirmed=payload.confirmed)
-    return ConfirmJobResponse(job_id=job.job_id, status=job.status, scheduled_at=job.scheduled_at)
+    return ConfirmJobResponse(
+        job_id=job.job_id,
+        status=job.status.value,
+        scheduled_at=job.scheduled_at,
+    )

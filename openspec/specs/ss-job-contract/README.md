@@ -57,7 +57,7 @@ jobs/<job_id>/
 
 - `schema_version`: 版本号（v1 固定为 `1`）。
 - `job_id`: job 唯一标识（建议前缀 `job_`，其余为安全的短 token）。
-- `status`: job 状态（枚举；当前实现最小集合为 `created` / `queued`，后续在状态机 spec 扩展）。
+- `status`: job 状态（枚举；v1 为 `created` / `draft_ready` / `confirmed` / `queued` / `running` / `succeeded` / `failed`；允许迁移见 `openspec/specs/ss-state-machine/spec.md`）。
 - `created_at`: job 创建时间（ISO8601）。
 - `requirement`: 用户需求文本；允许为 `null`（表示尚未提供/为空）。
 
