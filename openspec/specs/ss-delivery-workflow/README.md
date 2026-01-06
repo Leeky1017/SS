@@ -98,6 +98,12 @@ pytest -q
 - required checks：`ci` / `openspec-log-guard` / `merge-serial`
 - 必须启用 auto-merge
 
+提交 PR 前先做预检（依赖 + 冲突风险）：
+
+```bash
+scripts/agent_pr_preflight.sh
+```
+
 推荐用仓库脚本一键完成 PR + auto-merge：
 
 ```bash

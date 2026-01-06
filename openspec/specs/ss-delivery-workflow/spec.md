@@ -44,3 +44,26 @@ After a PR is merged and the controlplane `main` is synced to `origin/main`, the
 #### Scenario: Worktree cleanup command succeeds
 - **WHEN** running `scripts/agent_worktree_cleanup.sh <N> <slug>` from the controlplane root
 - **THEN** the worktree directory `.worktrees/issue-<N>-<slug>` no longer exists
+
+### Requirement: PR preflight checks conflicts and roadmap dependencies
+
+Before creating a PR or enabling auto-merge, the agent MUST run the preflight check:
+- `scripts/agent_pr_preflight.sh`
+
+The preflight MUST:
+- detect file overlap with other open PRs (conflict risk)
+- detect blocked dependencies from the roadmap execution plan:
+  - `openspec/specs/ss-roadmap/execution_plan.md`
+
+If preflight reports problems (non-zero exit code), the agent MUST either:
+- resolve/coordinate (preferred), or
+- keep the PR as draft and wait until unblocked, or
+- proceed with `--force` / `--skip-preflight` and record the rationale + output in `openspec/_ops/task_runs/ISSUE-N.md`.
+
+#### Scenario: Preflight surfaces file overlap with open PRs
+- **WHEN** running `scripts/agent_pr_preflight.sh` on a task branch
+- **THEN** it prints overlapping file paths and the corresponding open PR numbers
+
+#### Scenario: Preflight surfaces blocked roadmap dependencies
+- **WHEN** running `scripts/agent_pr_preflight.sh` on a task branch with hard dependencies
+- **THEN** it prints the dependency issues and their states, and exits non-zero if any are still open

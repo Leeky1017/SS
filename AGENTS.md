@@ -50,6 +50,7 @@
 - 当 PR **已合并** 且控制面 `main` **已同步到** `origin/main` 后，必须清理 worktree（不遗留）：
   - 在控制面执行：`scripts/agent_worktree_cleanup.sh "$N" "$SLUG"`
 - PR 需要通过 required checks：`ci` / `openspec-log-guard` / `merge-serial`。
+- PR 前（或启用 auto-merge 前）必须运行：`scripts/agent_pr_preflight.sh`（roadmap 依赖 + open PR 文件重叠预警）。
 
 ## 本地验证
 
