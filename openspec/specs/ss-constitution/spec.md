@@ -29,12 +29,16 @@ All implementations MUST follow repository hard constraints in `AGENTS.md`, incl
 
 ### Requirement: Architecture contracts are binding
 
-The system MUST maintain these architectural contracts (details in `openspec/specs/ss-constitution/`):
-- layering direction: `api -> domain -> ports <- infra` and a separate worker
-- data contract: `job.json` v1 with `schema_version` and an artifacts index
-- state machine + idempotency + concurrency strategy
-- LLM Brain: schema-bound plan and auditable prompt/response artifacts with redaction
-- Stata Runner: do-file generation, execution isolation, and archived outputs
+The system MUST maintain these architectural contracts (details in the SS contract specs):
+- layering direction: `api -> domain -> ports <- infra` and a separate worker (`openspec/specs/ss-ports-and-services/spec.md`)
+- data contract: `job.json` v1 with `schema_version` and an artifacts index (`openspec/specs/ss-job-contract/spec.md`)
+- state machine + idempotency + concurrency strategy (`openspec/specs/ss-state-machine/spec.md`)
+- LLM Brain: schema-bound plan and auditable prompt/response artifacts with redaction (`openspec/specs/ss-llm-brain/spec.md`)
+- Worker/Queue: claim + run attempts + retry (`openspec/specs/ss-worker-queue/spec.md`)
+- API contract: status + artifacts + run trigger (`openspec/specs/ss-api-surface/spec.md`)
+- Stata Runner: do-file generation, execution isolation, and archived outputs (`openspec/specs/ss-stata-runner/spec.md`)
+- Do template library integration (`openspec/specs/ss-do-template-library/spec.md`)
+- delivery workflow gates (`openspec/specs/ss-delivery-workflow/spec.md`)
 
 #### Scenario: Changes reference the architecture contracts
 - **WHEN** a new capability spec is added or modified
@@ -50,14 +54,8 @@ The legacy `stata_service` repository MAY be used for semantics and edge-case di
 
 ### Requirement: Delivery workflow is issue-gated and auditable
 
-All changes MUST follow the SS delivery hard gates:
-- GitHub Issue `#N` is the task ID
-- branch name: `task/<N>-<slug>`
-- every commit message contains `(#N)`
-- PR body contains `Closes #N`
-- PR includes run log: `openspec/_ops/task_runs/ISSUE-N.md`
-- required checks are green: `ci` / `openspec-log-guard` / `merge-serial`
-- auto-merge is enabled for PRs
+All changes MUST follow the SS delivery hard gates defined by:
+- `openspec/specs/ss-delivery-workflow/spec.md`
 
 #### Scenario: PR metadata and run log are enforced
 - **WHEN** a PR is opened for Issue `#N`
