@@ -19,7 +19,7 @@ jobs:
             }
 
             const body = pr.body || "";
-            const m = body.match(/Closes\\s+#(\\d+)/i);
+            const m = body.match(/Closes\s+#(\d+)/i);
             if (!m) {
               core.setFailed("PR body must contain: 'Closes #<issue-number>'");
               return;
@@ -67,4 +67,3 @@ jobs:
               );
               return;
             }
-
