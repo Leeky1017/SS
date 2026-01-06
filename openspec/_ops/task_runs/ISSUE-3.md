@@ -2,7 +2,7 @@
 
 - Issue: #3
 - Branch: task/3-align-required-checks
-- PR: (fill after created)
+- PR: https://github.com/Leeky1017/SS/pull/4
 
 ## Plan
 - Align workflow job names with required check contract
