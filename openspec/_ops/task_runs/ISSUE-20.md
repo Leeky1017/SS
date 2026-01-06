@@ -2,7 +2,7 @@
 
 - Issue: #20
 - Branch: task/20-arch-t031-planservice
-- PR: (fill)
+- PR: https://github.com/Leeky1017/SS/pull/53
 
 ## Plan
 - Define `LLMPlan` schema (steps + dependencies + expected artifacts)
