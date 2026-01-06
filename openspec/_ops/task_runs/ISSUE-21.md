@@ -2,7 +2,7 @@
 
 - Issue: #21
 - Branch: task/21-arch-t032
-- PR: TBD
+- PR: https://github.com/Leeky1017/SS/pull/50
 
 ## Plan
 - Define LLM artifacts layout + meta schema
@@ -38,3 +38,9 @@
 - Key output:
   - `All checks passed!`
   - `17 passed in 0.24s`
+
+### 2026-01-06 11:49 PR
+- Command:
+  - `gh pr create --base main --head task/21-arch-t032 ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/50`
