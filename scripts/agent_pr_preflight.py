@@ -9,7 +9,10 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from src.utils.roadmap_dependencies import parse_issue_dependencies_from_execution_plan
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(_REPO_ROOT))
+
+from src.utils.roadmap_dependencies import parse_issue_dependencies_from_execution_plan  # noqa: E402
 
 _TASK_BRANCH_RE = re.compile(r"^task/(?P<issue_number>[0-9]+)-(?P<slug>[a-z0-9-]+)$")
 
