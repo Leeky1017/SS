@@ -46,3 +46,21 @@
   - `Successfully rebased and updated refs/heads/task/25-arch-t052-dofile-generator.`
   - `All checks passed!`
   - `50 passed`
+
+### 2026-01-06 23:05 merge + cleanup
+- Evidence:
+  - `PR merged: https://github.com/Leeky1017/SS/pull/61`
+- Command:
+  - `scripts/agent_pr_automerge_and_sync.sh --pr 61`
+  - `scripts/agent_worktree_cleanup.sh 25 arch-t052-dofile-generator`
+- Key output:
+  - `OK: merged PR #61 and synced controlplane main`
+  - `OK: cleaned worktree .worktrees/issue-25-arch-t052-dofile-generator and local branch task/25-arch-t052-dofile-generator`
+
+### 2026-01-06 23:07 archive rulebook task
+- Command:
+  - `rulebook task validate issue-25-arch-t052-dofile-generator`
+  - `rulebook task archive issue-25-arch-t052-dofile-generator`
+- Key output:
+  - `✅ Task issue-25-arch-t052-dofile-generator is valid`
+  - `✅ Task issue-25-arch-t052-dofile-generator archived successfully`
