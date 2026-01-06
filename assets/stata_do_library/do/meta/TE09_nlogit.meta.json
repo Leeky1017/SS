@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "nlogit command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Nested logit for hierarchical choice data",
+  "family": "limited_dependent",
+  "id": "TE09",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "E",
+  "outputs": [
+    {
+      "description": "Nested Logit results",
+      "file": "table_TE09_nlogit.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TE09_nlogit.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Nest variable",
+      "name": "__NEST_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "nlogit",
+  "tags": [
+    "nlogit",
+    "nested",
+    "hierarchical"
+  ],
+  "title": "Nested Logit",
+  "title_zh": "嵌套Logit",
+  "version": "2.0.1"
+}

@@ -1,0 +1,86 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Panel regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Compare fixed effects and random effects models with Hausman specification test to select appropriate model",
+  "family": "panel",
+  "id": "T33",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "F",
+  "outputs": [
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "FE/RE coefficient comparison",
+      "file": "table_T33_comparison.csv",
+      "type": "table"
+    },
+    {
+      "description": "Hausman test results",
+      "file": "table_T33_hausman.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_T33_paper.rtf",
+      "type": "report"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Individual identifier",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "panel_fe_re_hausman",
+  "tags": [
+    "panel",
+    "hausman",
+    "fe",
+    "re",
+    "specification_test"
+  ],
+  "title": "Hausman Specification Test",
+  "title_zh": "FE/RE比较与Hausman检验",
+  "version": "2.0.1"
+}

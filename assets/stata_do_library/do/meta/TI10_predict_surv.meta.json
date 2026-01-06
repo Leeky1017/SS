@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "stcurve command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Predict survival probabilities from fitted model",
+  "family": "survival",
+  "id": "TI10",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "I",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TI10_predict.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Predictions",
+      "file": "table_TI10_predict.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Failure indicator",
+      "name": "__FAILVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Covariates",
+      "name": "__INDEPVARS__",
+      "required": false,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "predict_surv",
+  "tags": [
+    "survival",
+    "prediction",
+    "curves"
+  ],
+  "title": "Survival Prediction",
+  "title_zh": "生存预测",
+  "version": "2.0.1"
+}

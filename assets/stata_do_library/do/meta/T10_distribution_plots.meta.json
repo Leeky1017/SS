@@ -1,0 +1,94 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core graphics commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Generate multiple distribution plots for numeric variables including histogram, kernel density, box plot, and QQ plot with normality tests",
+  "family": "descriptive",
+  "id": "T10",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Box plot",
+      "file": "fig_T10_boxplot.png",
+      "type": "graph"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_T10_boxplot_grouped.png",
+      "type": "graph"
+    },
+    {
+      "description": "Histogram with normal curve",
+      "file": "fig_T10_histogram.png",
+      "type": "graph"
+    },
+    {
+      "description": "Kernel density plot",
+      "file": "fig_T10_kdensity.png",
+      "type": "graph"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_T10_kdensity_grouped.png",
+      "type": "graph"
+    },
+    {
+      "description": "Normal QQ plot",
+      "file": "fig_T10_qqplot.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Normality test results",
+      "file": "table_T10_normality_test.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Numeric variable to analyze",
+      "name": "__NUMERIC_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Grouping variable (optional)",
+      "name": "__GROUP_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "distribution_plots",
+  "tags": [
+    "distribution",
+    "histogram",
+    "boxplot",
+    "normality",
+    "visualization"
+  ],
+  "title": "Distribution Plots",
+  "title_zh": "变量分布可视化（直方图/箱线图/核密度/QQ图）",
+  "version": "2.0.1"
+}

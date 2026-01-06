@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "stsplit command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Piecewise exponential survival model using stsplit",
+  "family": "survival",
+  "id": "TI08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "I",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TI08_piecewise.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TI08_piecewise.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Failure indicator",
+      "name": "__FAILVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Covariates",
+      "name": "__INDEPVARS__",
+      "required": false,
+      "type": "list[string]"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "stsplit",
+  "tags": [
+    "survival",
+    "piecewise",
+    "exponential"
+  ],
+  "title": "Piecewise Exponential",
+  "title_zh": "分段指数模型",
+  "version": "2.0.1"
+}

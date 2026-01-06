@@ -1,0 +1,67 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core correlation commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Calculate Pearson and Spearman correlation matrices with significance tests, identify highly correlated variable pairs for multicollinearity detection",
+  "family": "descriptive",
+  "id": "T09",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Pearson correlation matrix",
+      "file": "table_T09_corr_pearson.csv",
+      "type": "table"
+    },
+    {
+      "description": "Spearman correlation matrix",
+      "file": "table_T09_corr_spearman.csv",
+      "type": "table"
+    },
+    {
+      "description": "Pairwise correlation details with N and p-values",
+      "file": "table_T09_corr_pairwise.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Numeric variables to analyze (space-separated)",
+      "name": "__NUMERIC_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "corr_matrix",
+  "tags": [
+    "correlation",
+    "pearson",
+    "spearman",
+    "multicollinearity"
+  ],
+  "title": "Correlation Matrix",
+  "title_zh": "相关系数矩阵（Pearson与Spearman）",
+  "version": "2.0.1"
+}

@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "mixlogit",
+      "purpose": "mixed logit model",
+      "source": "ssc"
+    }
+  ],
+  "description": "Mixed logit for discrete choice data",
+  "family": "limited_dependent",
+  "id": "TE08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "E",
+  "outputs": [
+    {
+      "description": "Mixed Logit results",
+      "file": "table_TE08_mixlogit.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TE08_mixlogit.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Group variable",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Random coefficient variables",
+      "name": "__RAND_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "mixlogit",
+  "tags": [
+    "mixlogit",
+    "mixed",
+    "discrete-choice"
+  ],
+  "title": "Mixed Logit",
+  "title_zh": "混合Logit",
+  "version": "2.0.1"
+}

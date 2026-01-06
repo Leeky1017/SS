@@ -1,0 +1,85 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "power command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Power curve visualization across effect sizes",
+  "family": "sample_size_power",
+  "id": "TT10",
+  "inputs": [],
+  "level": "L1",
+  "module": "T",
+  "outputs": [
+    {
+      "description": "Power curve plot",
+      "file": "fig_TT10_power_curve.png",
+      "type": "graph"
+    },
+    {
+      "description": "Power values",
+      "file": "table_TT10_power.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TT10_power.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Test type: twomeans/oneproportion",
+      "name": "__TEST_TYPE__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "twomeans",
+        "oneproportion"
+      ]
+    },
+    {
+      "description": "Minimum effect size",
+      "name": "__EFFECT_MIN__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Maximum effect size",
+      "name": "__EFFECT_MAX__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Significance level (default 0.05)",
+      "name": "__ALPHA__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Sample size",
+      "name": "__N_SAMPLE__",
+      "required": true,
+      "type": "integer"
+    }
+  ],
+  "slug": "power_graph",
+  "tags": [
+    "power",
+    "sample_size",
+    "visualization",
+    "curve"
+  ],
+  "title": "Power Graph",
+  "title_zh": "功效曲线可视化",
+  "version": "2.0.1"
+}

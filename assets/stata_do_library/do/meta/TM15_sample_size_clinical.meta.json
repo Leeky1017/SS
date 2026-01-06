@@ -1,0 +1,81 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "power command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Sample size calculation for clinical trials",
+  "family": "medical",
+  "id": "TM15",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "M",
+  "outputs": [
+    {
+      "description": "Sample size results",
+      "file": "table_TM15_ss.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TM15_ss.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Significance level",
+      "name": "__ALPHA__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Proportion in group 1 (p1)",
+      "name": "__P1__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Proportion in group 2 (p2)",
+      "name": "__P2__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Power",
+      "name": "__POWER__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Sample size ratio n2/n1 (nratio)",
+      "name": "__RATIO__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "sample_size_clinical",
+  "tags": [
+    "sample_size",
+    "power",
+    "clinical_trial",
+    "medical"
+  ],
+  "title": "Clinical Sample Size",
+  "title_zh": "临床样本量",
+  "version": "2.0.1"
+}

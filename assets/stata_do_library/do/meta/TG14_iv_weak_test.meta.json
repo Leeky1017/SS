@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "ivreg2",
+      "purpose": "IV regression",
+      "source": "ssc"
+    },
+    {
+      "pkg": "ranktest",
+      "purpose": "Rank test",
+      "source": "ssc"
+    }
+  ],
+  "description": "Weak instrument tests for IV",
+  "family": "causal_inference",
+  "id": "TG14",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Weak IV tests",
+      "file": "table_TG14_weak_iv_tests.csv",
+      "type": "table"
+    },
+    {
+      "description": "Critical values",
+      "file": "table_TG14_critical_values.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Endogenous variable",
+      "name": "__ENDOG_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Instruments",
+      "name": "__INSTRUMENTS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Exogenous controls",
+      "name": "__EXOG_VARS__",
+      "required": false,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "iv_weak_test",
+  "tags": [
+    "iv",
+    "weak",
+    "stockyogo",
+    "causal"
+  ],
+  "title": "IV Weak Test",
+  "title_zh": "弱工具变量检验",
+  "version": "2.0.1"
+}

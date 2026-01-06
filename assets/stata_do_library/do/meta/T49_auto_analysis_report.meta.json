@@ -1,0 +1,84 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Analysis commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Automatically perform descriptive statistics, regression analysis and generate comprehensive report",
+  "family": "reporting",
+  "id": "T49",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "J",
+  "outputs": [
+    {
+      "description": "Descriptive statistics",
+      "file": "table_T49_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Correlation matrix",
+      "file": "table_T49_correlation.csv",
+      "type": "table"
+    },
+    {
+      "description": "Regression results",
+      "file": "table_T49_regression.csv",
+      "type": "table"
+    },
+    {
+      "description": "Distribution plot",
+      "file": "fig_T49_distribution.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Numeric variables (space-separated)",
+      "name": "__NUMERIC_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables (space-separated)",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "auto_analysis_report",
+  "tags": [
+    "report",
+    "automated",
+    "descriptive",
+    "regression"
+  ],
+  "title": "Automated Analysis Report",
+  "title_zh": "自动化分析报告",
+  "version": "2.0.1"
+}

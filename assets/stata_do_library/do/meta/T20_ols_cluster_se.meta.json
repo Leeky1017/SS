@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "OLS regression with cluster-robust standard errors for handling within-group correlation, comparing OLS, robust, and cluster SE",
+  "family": "regression",
+  "id": "T20",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "D",
+  "outputs": [
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_T20_paper.rtf",
+      "type": "report"
+    },
+    {
+      "description": "Cluster regression results",
+      "file": "table_T20_reg_cluster.csv",
+      "type": "table"
+    },
+    {
+      "description": "SE comparison table",
+      "file": "table_T20_se_comparison.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables (space-separated)",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Clustering variable",
+      "name": "__CLUSTER_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "ols_cluster_se",
+  "tags": [
+    "ols",
+    "regression",
+    "cluster",
+    "standard_errors",
+    "panel"
+  ],
+  "title": "OLS with Cluster SE",
+  "title_zh": "聚类稳健标准误OLS回归",
+  "version": "2.0.1"
+}

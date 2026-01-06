@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "twoway command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Plot scatter diagram with optional fit lines and grouping",
+  "family": "visualization",
+  "id": "TU02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "U",
+  "outputs": [
+    {
+      "description": "Scatter plot",
+      "file": "fig_TU02_scatter.png",
+      "type": "graph"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TU02_scatter.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "X variable",
+      "name": "__XVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Y variable",
+      "name": "__YVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Fit line: none/linear/lowess",
+      "name": "__FITLINE__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "none",
+        "linear",
+        "lowess"
+      ]
+    },
+    {
+      "description": "Grouping variable",
+      "name": "__GROUP_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "scatter",
+  "tags": [
+    "visualization",
+    "scatter",
+    "correlation"
+  ],
+  "title": "Scatter Plot",
+  "title_zh": "散点图",
+  "version": "2.0.1"
+}

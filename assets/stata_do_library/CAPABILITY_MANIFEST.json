@@ -1,0 +1,332 @@
+{
+  "version": "1.0.0",
+  "ado_path": "C:\\SS_ADO\\plus",
+  "command_capabilities": {
+    "reghdfe": {
+      "category": "panel",
+      "description": "高维固定效应回归，支持多维固定效应吸收和聚类标准误，是面板数据分析的核心命令",
+      "use_cases": [
+        "双向固定效应回归（个体+时间）",
+        "高维固定效应回归（多维度吸收）",
+        "多维聚类标准误估计",
+        "大规模面板数据高效估计"
+      ],
+      "related_templates": ["TD01", "TD02", "T31", "TP01", "TP04"]
+    },
+    "psmatch2": {
+      "category": "causal",
+      "description": "倾向得分匹配，支持多种匹配方法和平衡性检验，是因果推断的基础工具",
+      "use_cases": [
+        "一对一最近邻匹配",
+        "一对多匹配（k近邻）",
+        "卡尺匹配（caliper matching）",
+        "核匹配（kernel matching）",
+        "分层匹配（stratification）"
+      ],
+      "related_templates": ["TG01", "TG02", "TG04", "TG07", "TG08"]
+    },
+    "rdrobust": {
+      "category": "causal",
+      "description": "断点回归设计，支持锐断点和模糊断点，提供稳健推断和最优带宽选择",
+      "use_cases": [
+        "锐断点回归（sharp RDD）",
+        "模糊断点回归（fuzzy RDD）",
+        "最优带宽选择（MSE-optimal）",
+        "稳健偏差校正推断"
+      ],
+      "related_templates": ["TG09", "TG10", "TG11", "TG12"]
+    },
+    "did_multiplegt": {
+      "category": "causal",
+      "description": "交叠双重差分估计，处理异质性处理效应和交错处理时点问题",
+      "use_cases": [
+        "交叠DID（staggered adoption）",
+        "异质性处理效应估计",
+        "动态处理效应分析",
+        "处理效应异质性检验"
+      ],
+      "related_templates": ["TG20", "TG23"]
+    },
+    "csdid": {
+      "category": "causal",
+      "description": "Callaway-Sant'Anna双重差分估计器，处理多期DID和异质性处理效应",
+      "use_cases": [
+        "多期双重差分",
+        "组别-时间平均处理效应（ATT(g,t)）",
+        "事件研究设计",
+        "聚合处理效应估计"
+      ],
+      "related_templates": ["TG19", "TG20", "TG21", "TG22"]
+    },
+    "synth": {
+      "category": "causal",
+      "description": "合成控制法，构建反事实对照组进行政策评估",
+      "use_cases": [
+        "合成控制法估计",
+        "安慰剂检验（placebo test）",
+        "预测误差分析",
+        "权重优化"
+      ],
+      "related_templates": ["TG17", "TG18"]
+    },
+    "ivreg2": {
+      "category": "causal",
+      "description": "工具变量回归，支持2SLS、GMM和LIML估计，提供弱工具变量检验",
+      "use_cases": [
+        "两阶段最小二乘（2SLS）",
+        "广义矩估计（GMM）",
+        "有限信息极大似然（LIML）",
+        "弱工具变量检验",
+        "过度识别检验"
+      ],
+      "related_templates": ["TG13", "TG14", "TG15", "TG16"]
+    },
+    "estout": {
+      "category": "output",
+      "description": "回归结果导出，支持多种格式输出专业级回归表格",
+      "use_cases": [
+        "HTML格式表格导出",
+        "LaTeX格式表格导出",
+        "Word/RTF格式表格导出",
+        "多模型对比表格",
+        "自定义表格样式"
+      ],
+      "related_templates": ["TO01", "TO02", "TO03", "TO06"]
+    },
+    "outreg2": {
+      "category": "output",
+      "description": "回归结果导出的替代方案，语法简洁，适合快速导出",
+      "use_cases": [
+        "Excel格式导出",
+        "Word格式导出",
+        "快速回归表格生成"
+      ],
+      "related_templates": ["TO06"]
+    },
+    "xtabond2": {
+      "category": "panel",
+      "description": "动态面板GMM估计，实现Arellano-Bond和Blundell-Bond估计器",
+      "use_cases": [
+        "差分GMM估计",
+        "系统GMM估计",
+        "动态面板数据分析",
+        "内生性处理"
+      ],
+      "related_templates": ["TF05", "TF06", "TP03"]
+    },
+    "xtscc": {
+      "category": "panel",
+      "description": "Driscoll-Kraay标准误，处理面板数据的截面相关和异方差",
+      "use_cases": [
+        "截面相关稳健标准误",
+        "长面板数据推断",
+        "宏观面板分析"
+      ],
+      "related_templates": ["TF04", "TP08"]
+    },
+    "cem": {
+      "category": "causal",
+      "description": "粗化精确匹配，通过粗化协变量实现精确匹配",
+      "use_cases": [
+        "粗化精确匹配",
+        "多变量匹配",
+        "匹配质量评估"
+      ],
+      "related_templates": ["TG05"]
+    },
+    "arch": {
+      "category": "time_series",
+      "description": "ARCH/GARCH族模型，分析金融时间序列的波动聚集",
+      "use_cases": [
+        "GARCH模型估计",
+        "EGARCH非对称效应",
+        "GJR-GARCH杠杆效应",
+        "波动率预测"
+      ],
+      "related_templates": ["TH05", "TH06", "TH07", "TK04"]
+    },
+    "mgarch": {
+      "category": "time_series",
+      "description": "多元GARCH模型，分析多资产波动率的动态相关",
+      "use_cases": [
+        "DCC-GARCH动态相关",
+        "多资产波动率建模",
+        "投资组合风险分析"
+      ],
+      "related_templates": ["TH08"]
+    },
+    "var": {
+      "category": "time_series",
+      "description": "向量自回归模型，分析多变量时间序列的动态关系",
+      "use_cases": [
+        "VAR模型估计",
+        "脉冲响应分析",
+        "方差分解",
+        "Granger因果检验"
+      ],
+      "related_templates": ["T40", "TH11", "TH12", "TH13", "TF14"]
+    },
+    "vec": {
+      "category": "time_series",
+      "description": "向量误差修正模型，分析协整变量的长短期关系",
+      "use_cases": [
+        "协整检验",
+        "VECM估计",
+        "长期均衡分析",
+        "短期调整动态"
+      ],
+      "related_templates": ["TH09", "TH10"]
+    },
+    "stcox": {
+      "category": "survival",
+      "description": "Cox比例风险模型，分析生存数据的风险因素",
+      "use_cases": [
+        "Cox回归估计",
+        "分层Cox模型",
+        "时变协变量分析",
+        "比例风险检验"
+      ],
+      "related_templates": ["T43", "T44", "TI05", "TI06", "TI07"]
+    },
+    "streg": {
+      "category": "survival",
+      "description": "参数生存模型，支持多种分布假设的生存分析",
+      "use_cases": [
+        "Weibull模型",
+        "指数模型",
+        "加速失效时间模型（AFT）",
+        "参数生存预测"
+      ],
+      "related_templates": ["TI01", "TI02", "TI03"]
+    },
+    "stcrreg": {
+      "category": "survival",
+      "description": "竞争风险模型，分析存在多种失败类型的生存数据",
+      "use_cases": [
+        "Fine-Gray竞争风险模型",
+        "累积发生函数估计",
+        "多失败类型分析"
+      ],
+      "related_templates": ["TI04"]
+    },
+    "sem": {
+      "category": "multivariate",
+      "description": "结构方程模型，分析潜变量和观测变量的复杂关系",
+      "use_cases": [
+        "验证性因子分析（CFA）",
+        "结构方程建模",
+        "路径分析",
+        "模型拟合评估"
+      ],
+      "related_templates": ["TJ01", "TJ02"]
+    },
+    "spmatrix": {
+      "category": "spatial",
+      "description": "空间权重矩阵构建，是空间计量分析的基础",
+      "use_cases": [
+        "邻接矩阵构建",
+        "距离权重矩阵",
+        "K近邻权重矩阵",
+        "空间权重标准化"
+      ],
+      "related_templates": ["TN01", "TR01"]
+    },
+    "spregress": {
+      "category": "spatial",
+      "description": "空间回归模型，分析空间相关性和空间溢出效应",
+      "use_cases": [
+        "空间滞后模型（SAR）",
+        "空间误差模型（SEM）",
+        "空间杜宾模型（SDM）",
+        "直接和间接效应分解"
+      ],
+      "related_templates": ["TN03", "TN04", "TN05", "TN06", "TN07", "TN09"]
+    },
+    "metan": {
+      "category": "medical",
+      "description": "元分析，综合多个研究结果进行系统评价",
+      "use_cases": [
+        "固定效应元分析",
+        "随机效应元分析",
+        "异质性检验",
+        "森林图绘制"
+      ],
+      "related_templates": ["TM06", "TM07"]
+    },
+    "roctab": {
+      "category": "medical",
+      "description": "ROC曲线分析，评估诊断试验的准确性",
+      "use_cases": [
+        "ROC曲线绘制",
+        "AUC计算",
+        "最优截断点选择",
+        "诊断准确性评估"
+      ],
+      "related_templates": ["TM01", "TM02"]
+    },
+    "lasso": {
+      "category": "machine_learning",
+      "description": "LASSO回归，实现变量选择和正则化估计",
+      "use_cases": [
+        "LASSO变量选择",
+        "交叉验证调参",
+        "高维数据分析",
+        "稀疏模型估计"
+      ],
+      "related_templates": ["TD07", "TS01"]
+    },
+    "elasticnet": {
+      "category": "machine_learning",
+      "description": "弹性网络回归，结合LASSO和岭回归的优点",
+      "use_cases": [
+        "弹性网络估计",
+        "混合惩罚正则化",
+        "相关变量处理"
+      ],
+      "related_templates": ["TD09", "TS03"]
+    },
+    "ftools": {
+      "category": "panel",
+      "description": "快速数据操作工具，是reghdfe等命令的依赖",
+      "use_cases": [
+        "快速分组操作",
+        "高效数据聚合",
+        "大数据集处理"
+      ],
+      "related_templates": ["TD01", "TD02"]
+    },
+    "winsor2": {
+      "category": "data_management",
+      "description": "缩尾处理，处理极端值对分析的影响",
+      "use_cases": [
+        "变量缩尾处理",
+        "分组缩尾",
+        "极端值处理"
+      ],
+      "related_templates": ["TA01"]
+    },
+    "asdoc": {
+      "category": "output",
+      "description": "自动化文档生成，快速导出描述统计和回归结果",
+      "use_cases": [
+        "描述统计表格导出",
+        "回归结果导出",
+        "Word文档生成"
+      ],
+      "related_templates": ["TO05"]
+    }
+  },
+  "category_descriptions": {
+    "panel": "面板数据分析方法，包括固定效应、随机效应、动态面板等",
+    "causal": "因果推断方法，包括倾向得分匹配、断点回归、双重差分、工具变量、合成控制等",
+    "time_series": "时间序列分析方法，包括ARIMA、GARCH、VAR、协整分析等",
+    "survival": "生存分析方法，包括Cox模型、参数生存模型、竞争风险模型等",
+    "multivariate": "多元统计方法，包括因子分析、结构方程模型、聚类分析等",
+    "spatial": "空间计量方法，包括空间权重矩阵、空间回归模型、空间面板等",
+    "medical": "医学统计方法，包括ROC分析、元分析、诊断试验、流行病学分析等",
+    "machine_learning": "机器学习方法，包括LASSO、岭回归、弹性网络、随机森林等",
+    "finance": "金融分析方法，包括CAPM、多因子模型、事件研究、风险度量等",
+    "output": "结果导出工具，支持多种格式的表格和图形导出",
+    "data_management": "数据管理工具，包括缩尾、标准化、缺失值处理等"
+  }
+}

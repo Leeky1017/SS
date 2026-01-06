@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "String functions",
+      "source": "built-in"
+    }
+  ],
+  "description": "Clean and transform string variables with trim, case conversion, regex operations",
+  "family": "data_management",
+  "id": "TA07",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "String processing summary",
+      "file": "table_TA07_string_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Processed data",
+      "file": "data_TA07_processed.dta",
+      "type": "data"
+    },
+    {
+      "description": "Processed CSV",
+      "file": "data_TA07_processed.csv",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "String variables to process",
+      "name": "__STRING_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Operation type",
+      "name": "__OPERATION__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Regex pattern",
+      "name": "__PATTERN__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Replacement string",
+      "name": "__REPLACEMENT__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "New variable suffix",
+      "name": "__NEW_SUFFIX__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "string_process",
+  "tags": [
+    "string",
+    "text",
+    "clean",
+    "regex",
+    "trim"
+  ],
+  "title": "String Process",
+  "title_zh": "字符串变量处理",
+  "version": "2.0.1"
+}

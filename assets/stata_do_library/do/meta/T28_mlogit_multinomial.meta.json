@@ -1,0 +1,70 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Multinomial logit commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate multinomial logistic regression for unordered categorical outcomes with relative risk ratios and marginal effects",
+  "family": "limited_dependent",
+  "id": "T28",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "E",
+  "outputs": [
+    {
+      "description": "Goodness of fit",
+      "file": "table_T28_mlogit_gof.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Unordered categorical dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Base category for comparison",
+      "name": "__BASE_CATEGORY__",
+      "required": true,
+      "type": "integer"
+    }
+  ],
+  "slug": "mlogit_multinomial",
+  "tags": [
+    "mlogit",
+    "multinomial",
+    "rrr",
+    "marginal_effects",
+    "categorical"
+  ],
+  "title": "Multinomial Logit Model",
+  "title_zh": "多项Logit模型",
+  "version": "2.0.1"
+}

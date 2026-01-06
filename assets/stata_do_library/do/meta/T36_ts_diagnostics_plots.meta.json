@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Time series commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Generate time series plot, ACF and PACF for pattern identification and ARIMA order selection",
+  "family": "time_series",
+  "id": "T36",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Time series plot",
+      "file": "fig_T36_ts_line.png",
+      "type": "graph"
+    },
+    {
+      "description": "ACF/PACF plots",
+      "file": "fig_T36_acf_pacf.png",
+      "type": "graph"
+    },
+    {
+      "description": "Autocorrelation table",
+      "file": "table_T36_corrgram.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time series variable",
+      "name": "__SERIES_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "ts_diagnostics_plots",
+  "tags": [
+    "time_series",
+    "acf",
+    "pacf",
+    "arima",
+    "diagnostics"
+  ],
+  "title": "Time Series Diagnostics",
+  "title_zh": "时间序列诊断图",
+  "version": "2.0.1"
+}

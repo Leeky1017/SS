@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "psmatch2",
+      "purpose": "Mahalanobis matching",
+      "source": "ssc"
+    }
+  ],
+  "description": "Mahalanobis distance matching",
+  "family": "causal_inference",
+  "id": "TG06",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Mahal match results",
+      "file": "table_TG06_mahal_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Balance after matching",
+      "file": "table_TG06_balance.csv",
+      "type": "table"
+    },
+    {
+      "description": "Matched data",
+      "file": "data_TG06_mahal_matched.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Treatment variable",
+      "name": "__TREATMENT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Matching variables",
+      "name": "__MATCH_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Exact matching variables",
+      "name": "__EXACT_VARS__",
+      "required": false,
+      "type": "list[string]"
+    },
+    {
+      "description": "Number of neighbors",
+      "name": "__N_NEIGHBORS__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Random seed (optional)",
+      "name": "__SEED__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "mahal_match",
+  "tags": [
+    "mahalanobis",
+    "matching",
+    "att",
+    "causal"
+  ],
+  "title": "Mahal Match",
+  "title_zh": "马氏距离匹配",
+  "version": "2.0.1"
+}

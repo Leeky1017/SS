@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core data management commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Filter samples based on conditions and optionally perform random sampling, outputting cleaned dataset",
+  "family": "data_management",
+  "id": "T03",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Filter process summary",
+      "file": "table_T03_filter_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Filtered dataset CSV",
+      "file": "table_T03_filtered_data.csv",
+      "type": "table"
+    },
+    {
+      "description": "Filtered dataset Stata",
+      "file": "data_T03_filtered_data.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Filter condition expression",
+      "name": "__FILTER_CONDITION__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Sampling ratio (0-1) or count (>=1), 0 means no sampling",
+      "name": "__SAMPLE_FRACTION__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Key variables to check for missing",
+      "name": "__KEY_VARS__",
+      "required": false,
+      "type": "list[string]"
+    },
+    {
+      "description": "Random seed (default 12345)",
+      "name": "__RANDOM_SEED__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Entity variable",
+      "name": "__ID_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "filter_and_sample",
+  "tags": [
+    "filter",
+    "sample",
+    "data_cleaning",
+    "preprocessing"
+  ],
+  "title": "Data Filtering and Sampling",
+  "title_zh": "数据筛选与抽样",
+  "version": "2.0.1"
+}

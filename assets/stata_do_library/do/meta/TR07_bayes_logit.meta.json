@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "bayes logit",
+      "source": "built-in"
+    }
+  ],
+  "description": "Bayesian logistic regression",
+  "family": "bayesian",
+  "id": "TR07",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "R",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TR07_blogit.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TR07_blogit.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Binary dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "MCMC sample size (mcmcsize)",
+      "name": "__MCMC__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "bayes_logit",
+  "tags": [
+    "bayesian",
+    "logit",
+    "mcmc"
+  ],
+  "title": "Bayesian Logit",
+  "title_zh": "贝叶斯Logit",
+  "version": "2.0.1"
+}

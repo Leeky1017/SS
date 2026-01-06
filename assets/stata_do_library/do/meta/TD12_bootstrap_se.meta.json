@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "bootstrap vce",
+      "source": "built-in"
+    }
+  ],
+  "description": "Regression with bootstrap standard errors",
+  "family": "linear_regression",
+  "id": "TD12",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "D",
+  "outputs": [
+    {
+      "description": "Bootstrap results",
+      "file": "table_TD12_boot.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TD12_boot.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Bootstrap replications (50-1000)",
+      "name": "__REPS__",
+      "required": true,
+      "type": "integer"
+    },
+    {
+      "description": "Random seed (optional)",
+      "name": "__SEED__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "bootstrap_se",
+  "tags": [
+    "bootstrap",
+    "standard-error",
+    "regression"
+  ],
+  "title": "Bootstrap SE",
+  "title_zh": "Bootstrap标准误",
+  "version": "2.0.1"
+}

@@ -14,6 +14,17 @@ If SS integrates a do-template library, SS MUST treat it as a versioned data ass
 - **WHEN** placing the template library in the SS repository
 - **THEN** the directory name avoids `tasks/` to prevent confusion with `openspec/tasks` and `rulebook/tasks`
 
+### Requirement: Library layout is stable and index-driven
+
+SS MUST load templates from a library root directory that contains an index file and a stable `do/` layout.
+
+#### Scenario: Index-driven filesystem layout
+- **GIVEN** a library root directory
+- **WHEN** loading templates
+- **THEN** SS reads `DO_LIBRARY_INDEX.json` and resolves:
+  - do-file: `do/<do_file>`
+  - meta: `do/meta/<do_file_stem>.meta.json`
+
 ### Requirement: Template loading uses an explicit port
 
 SS MUST load templates via an explicit repository/loader port (e.g., `DoTemplateRepository`) so the library location can be configured and tested.
@@ -22,6 +33,15 @@ SS MUST load templates via an explicit repository/loader port (e.g., `DoTemplate
 - **WHEN** SS is configured to point at a template library directory
 - **THEN** templates and metadata can be enumerated and fetched via the loader port
 
+### Requirement: Placeholder replacement is deterministic and validated
+
+SS MUST render do-files deterministically from the same template + parameter map, and MUST fail fast when required parameters are missing.
+
+#### Scenario: Missing required parameter fails with structured error
+- **GIVEN** a template meta that declares a required parameter (e.g. `__DEPVAR__`)
+- **WHEN** running without providing that parameter
+- **THEN** SS fails with a structured error code and archives the run attempt evidence
+
 ### Requirement: Template execution is constrained and auditable
 
 Template execution MUST be constrained to the job/run workspace and MUST archive template source, metadata, parameters, logs, and declared outputs as artifacts.
@@ -29,4 +49,4 @@ Template execution MUST be constrained to the job/run workspace and MUST archive
 #### Scenario: Execution produces complete evidence
 - **WHEN** a template-based run is executed
 - **THEN** artifacts include template source, meta, parameter map, stdout/stderr, and log files
-
+- **AND** declared outputs are copied into the run `artifacts/outputs/` directory (no traversal, no absolute paths)

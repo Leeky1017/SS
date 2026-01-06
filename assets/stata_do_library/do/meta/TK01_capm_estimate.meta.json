@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Capital Asset Pricing Model estimation with rolling beta",
+  "family": "finance",
+  "id": "TK01",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "CAPM results",
+      "file": "table_TK01_capm_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Rolling beta",
+      "file": "table_TK01_rolling_beta.csv",
+      "type": "table"
+    },
+    {
+      "description": "SML plot",
+      "file": "fig_TK01_sml.png",
+      "type": "graph"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TK01_capm.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Return variable",
+      "name": "__RETURN_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Market return",
+      "name": "__MARKET_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Risk-free rate",
+      "name": "__RF_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Stock identifier",
+      "name": "__STOCK_ID__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Rolling window",
+      "name": "__WINDOW__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "capm_estimate",
+  "tags": [
+    "capm",
+    "beta",
+    "finance",
+    "asset_pricing"
+  ],
+  "title": "CAPM Estimate",
+  "title_zh": "CAPM估计",
+  "version": "2.0.1"
+}

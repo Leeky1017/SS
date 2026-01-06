@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Market microstructure analysis including bid-ask spread",
+  "family": "finance",
+  "id": "TK11",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TK11_micro.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK11_spread_intraday.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK11_liquidity.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK11_spread_stats.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Ask price",
+      "name": "__ASK_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Bid price",
+      "name": "__BID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Price variable",
+      "name": "__PRICE_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Stock identifier",
+      "name": "__STOCK_ID__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Volume",
+      "name": "__VOLUME_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "market_micro",
+  "tags": [
+    "microstructure",
+    "spread",
+    "liquidity",
+    "finance"
+  ],
+  "title": "Market Microstructure",
+  "title_zh": "市场微观结构",
+  "version": "2.0.1"
+}

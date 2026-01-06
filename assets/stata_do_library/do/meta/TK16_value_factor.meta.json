@@ -1,0 +1,90 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Value factor construction (B/M, E/P)",
+  "family": "finance",
+  "id": "TK16",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TK16_value.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK16_value.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK16_factor.csv",
+      "type": "table"
+    },
+    {
+      "description": "Value factor results",
+      "file": "table_TK16_value.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Book-to-market",
+      "name": "__BM_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Number of groups",
+      "name": "__N_GROUPS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Return variable",
+      "name": "__RETURN_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Stock identifier",
+      "name": "__STOCK_ID__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "value_factor",
+  "tags": [
+    "value",
+    "factor",
+    "finance"
+  ],
+  "title": "Value Factor",
+  "title_zh": "价值因子",
+  "version": "2.0.1"
+}

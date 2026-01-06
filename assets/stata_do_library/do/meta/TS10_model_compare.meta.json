@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Compare multiple models using AIC, BIC, and RMSE criteria",
+  "family": "machine_learning",
+  "id": "TS10",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "S",
+  "outputs": [
+    {
+      "description": "Model comparison",
+      "file": "table_TS10_comparison.csv",
+      "type": "table"
+    },
+    {
+      "description": "Comparison plot",
+      "file": "fig_TS10_comparison.png",
+      "type": "graph"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TS10_compare.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "model_compare",
+  "tags": [
+    "model_comparison",
+    "aic",
+    "bic",
+    "machine_learning"
+  ],
+  "title": "Model Comparison",
+  "title_zh": "模型比较",
+  "version": "2.0.1"
+}

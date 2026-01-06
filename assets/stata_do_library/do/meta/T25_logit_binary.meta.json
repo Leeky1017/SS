@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Logit regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate binary logistic regression with coefficients, odds ratios, marginal effects, goodness of fit, and ROC analysis",
+  "family": "limited_dependent",
+  "id": "T25",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "E",
+  "outputs": [
+    {
+      "description": "Coefficients and odds ratios",
+      "file": "table_T25_logit_coef.csv",
+      "type": "table"
+    },
+    {
+      "description": "Goodness of fit metrics",
+      "file": "table_T25_logit_gof.csv",
+      "type": "table"
+    },
+    {
+      "description": "ROC curve",
+      "file": "fig_T25_roc.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Binary dependent variable (0/1)",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "logit_binary",
+  "tags": [
+    "logit",
+    "binary",
+    "odds_ratio",
+    "roc",
+    "classification"
+  ],
+  "title": "Binary Logit Model",
+  "title_zh": "二元Logit模型",
+  "version": "2.0.1"
+}

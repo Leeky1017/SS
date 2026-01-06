@@ -1,0 +1,56 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "String functions",
+      "source": "built-in"
+    }
+  ],
+  "description": "Calculate text readability metrics including word count, sentence count, and average lengths",
+  "family": "text_analysis",
+  "id": "TT05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "T",
+  "outputs": [
+    {
+      "description": "Readability statistics",
+      "file": "table_TT05_readability.csv",
+      "type": "table"
+    },
+    {
+      "description": "Readability data",
+      "file": "data_TT05_read.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Text variable",
+      "name": "__TEXT_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "readability",
+  "tags": [
+    "text",
+    "readability",
+    "analysis"
+  ],
+  "title": "Readability Analysis",
+  "title_zh": "可读性分析",
+  "version": "2.0.1"
+}

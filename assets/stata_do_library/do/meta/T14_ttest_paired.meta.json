@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core statistical commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Test paired sample mean differences (before-after measurements, matched samples) with difference distribution tests, effect size calculation, and visualization",
+  "family": "hypothesis_testing",
+  "id": "T14",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "C",
+  "outputs": [
+    {
+      "description": "Paired t-test results summary",
+      "file": "table_T14_paired_ttest.csv",
+      "type": "table"
+    },
+    {
+      "description": "Before-after boxplot comparison",
+      "file": "fig_T14_boxplot.png",
+      "type": "graph"
+    },
+    {
+      "description": "Difference distribution histogram",
+      "file": "fig_T14_diff_histogram.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Before/baseline variable",
+      "name": "__VAR_BEFORE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "After/intervention variable",
+      "name": "__VAR_AFTER__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "ttest_paired",
+  "tags": [
+    "ttest",
+    "hypothesis",
+    "paired",
+    "before_after",
+    "mean_comparison"
+  ],
+  "title": "Paired Sample T-Test",
+  "title_zh": "配对样本t检验",
+  "version": "2.0.1"
+}

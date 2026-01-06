@@ -1,0 +1,86 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "cem",
+      "purpose": "Coarsened exact matching",
+      "source": "ssc"
+    }
+  ],
+  "description": "Coarsened exact matching for causal inference",
+  "family": "causal_inference",
+  "id": "TG05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "CEM results",
+      "file": "table_TG05_cem_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "CEM balance",
+      "file": "table_TG05_cem_balance.csv",
+      "type": "table"
+    },
+    {
+      "description": "CEM matched data",
+      "file": "data_TG05_cem_matched.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Treatment variable",
+      "name": "__TREATMENT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Matching variables",
+      "name": "__MATCH_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Coarsening method",
+      "name": "__CUTPOINTS__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Random seed (optional)",
+      "name": "__SEED__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "cem_match",
+  "tags": [
+    "cem",
+    "matching",
+    "satt",
+    "causal"
+  ],
+  "title": "CEM Match",
+  "title_zh": "粗化精确匹配",
+  "version": "2.0.1"
+}

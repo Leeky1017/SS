@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Modified Jones model for discretionary accruals",
+  "family": "accounting",
+  "id": "TL02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "Modified Jones results",
+      "file": "table_TL02_modjones.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL02_modjones.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Total assets",
+      "name": "__ASSETS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Panel variable (firm ID)",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Property, plant and equipment",
+      "name": "__PPE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Receivables",
+      "name": "__REC__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Revenue",
+      "name": "__REV__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Total accruals",
+      "name": "__TA__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "mod_jones",
+  "tags": [
+    "modified_jones",
+    "accruals",
+    "accounting"
+  ],
+  "title": "Modified Jones",
+  "title_zh": "修正Jones模型",
+  "version": "2.0.1"
+}

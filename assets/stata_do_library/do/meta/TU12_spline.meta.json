@@ -1,0 +1,85 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "mkspline command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Spline regression using mkspline for flexible nonlinear relationships",
+  "family": "advanced_methods",
+  "id": "TU12",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "U",
+  "outputs": [
+    {
+      "description": "Spline fit plot",
+      "file": "fig_TU12_spline.png",
+      "type": "graph"
+    },
+    {
+      "description": "Spline regression results",
+      "file": "table_TU12_spline.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TU12_spline.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variable",
+      "name": "__XVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Number of knots (default 3)",
+      "name": "__N_KNOTS__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Spline type: linear/cubic",
+      "name": "__SPLINE_TYPE__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "linear",
+        "cubic"
+      ]
+    }
+  ],
+  "slug": "spline",
+  "tags": [
+    "spline",
+    "regression",
+    "nonlinear",
+    "flexible"
+  ],
+  "title": "Spline Regression",
+  "title_zh": "样条回归",
+  "version": "2.0.1"
+}

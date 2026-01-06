@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "ivreg2",
+      "purpose": "IV regression",
+      "source": "ssc"
+    }
+  ],
+  "description": "Local average treatment effect estimation",
+  "family": "causal_inference",
+  "id": "TG24",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "LATE results",
+      "file": "table_TG24_late_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Complier chars",
+      "file": "table_TG24_complier_chars.csv",
+      "type": "table"
+    },
+    {
+      "description": "LATE data",
+      "file": "data_TG24_late.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Treatment variable",
+      "name": "__TREATMENT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Instrument",
+      "name": "__INSTRUMENT__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Covariates",
+      "name": "__COVARIATES__",
+      "required": false,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "late_estimate",
+  "tags": [
+    "late",
+    "iv",
+    "complier",
+    "causal"
+  ],
+  "title": "LATE Estimate",
+  "title_zh": "LATE估计",
+  "version": "2.0.1"
+}

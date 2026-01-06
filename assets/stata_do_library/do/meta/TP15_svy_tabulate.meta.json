@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "svy tabulate command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Survey-weighted tabulation",
+  "family": "survey",
+  "id": "TP15",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "P",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TP15_svy.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Survey tabulation results",
+      "file": "table_TP15_svytab.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Primary sampling unit (PSU) variable",
+      "name": "__PSU__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Sampling weight variable (pweight)",
+      "name": "__PWEIGHT__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Strata variable",
+      "name": "__STRATA__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Row variable for svy: tabulate",
+      "name": "__VAR1__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Column variable for svy: tabulate",
+      "name": "__VAR2__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "svy_tabulate",
+  "tags": [
+    "survey",
+    "tabulate",
+    "weighted"
+  ],
+  "title": "Survey Tabulate",
+  "title_zh": "调查列联表",
+  "version": "2.0.1"
+}

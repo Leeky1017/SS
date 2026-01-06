@@ -1,0 +1,64 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "diagt command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Sensitivity, specificity, PPV, NPV calculation",
+  "family": "medical",
+  "id": "TM02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "M",
+  "outputs": [
+    {
+      "description": "Diagnostic results",
+      "file": "table_TM02_diag.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TM02_diag.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Gold standard variable",
+      "name": "__GOLD__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Test variable",
+      "name": "__TEST__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "diagnostic_test",
+  "tags": [
+    "sensitivity",
+    "specificity",
+    "ppv",
+    "npv",
+    "medical"
+  ],
+  "title": "Diagnostic Test",
+  "title_zh": "诊断试验",
+  "version": "2.0.1"
+}

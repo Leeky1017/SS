@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "String functions",
+      "source": "built-in"
+    }
+  ],
+  "description": "Dictionary-based sentiment analysis calculating text sentiment scores",
+  "family": "text_analysis",
+  "id": "TT03",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "T",
+  "outputs": [
+    {
+      "description": "Sentiment statistics",
+      "file": "table_TT03_sentiment.csv",
+      "type": "table"
+    },
+    {
+      "description": "Sentiment data",
+      "file": "data_TT03_sentiment.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Text variable",
+      "name": "__TEXT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Positive words (comma-separated)",
+      "name": "__POS_WORDS__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Negative words (comma-separated)",
+      "name": "__NEG_WORDS__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "sentiment",
+  "tags": [
+    "text",
+    "sentiment",
+    "analysis"
+  ],
+  "title": "Sentiment Analysis",
+  "title_zh": "情感分析",
+  "version": "2.0.1"
+}

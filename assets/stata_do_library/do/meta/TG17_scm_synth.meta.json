@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "synth",
+      "purpose": "Synthetic control",
+      "source": "ssc"
+    }
+  ],
+  "description": "Synthetic control method",
+  "family": "causal_inference",
+  "id": "TG17",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Synth path",
+      "file": "table_TG17_synth_path.csv",
+      "type": "table"
+    },
+    {
+      "description": "Synth path plot",
+      "file": "fig_TG17_synth_path.png",
+      "type": "figure"
+    },
+    {
+      "description": "Synth data",
+      "file": "data_TG17_synth.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Treated unit ID",
+      "name": "__TREATED_UNIT__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Treatment time",
+      "name": "__TREATMENT_TIME__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Unit ID",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Predictors",
+      "name": "__PREDICTORS__",
+      "required": false,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "scm_synth",
+  "tags": [
+    "scm",
+    "synth",
+    "policy",
+    "causal"
+  ],
+  "title": "SCM Synth",
+  "title_zh": "合成控制法",
+  "version": "2.0.1"
+}

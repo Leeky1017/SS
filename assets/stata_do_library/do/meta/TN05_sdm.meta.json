@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "spregress",
+      "purpose": "Spatial regression",
+      "source": "stata"
+    }
+  ],
+  "description": "Spatial Durbin Model",
+  "family": "spatial",
+  "id": "TN05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "N",
+  "outputs": [
+    {
+      "description": "SDM results",
+      "file": "table_TN05_sdm.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TN05_sdm.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "sdm",
+  "tags": [
+    "sdm",
+    "spatial_durbin",
+    "spatial"
+  ],
+  "title": "SDM Model",
+  "title_zh": "空间杜宾模型",
+  "version": "2.0.1"
+}

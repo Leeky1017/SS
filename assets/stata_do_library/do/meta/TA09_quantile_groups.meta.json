@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "xtile command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Generate group variables based on quantiles, equal intervals, or custom cutpoints",
+  "family": "data_management",
+  "id": "TA09",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Group summary",
+      "file": "table_TA09_group_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Grouped data",
+      "file": "data_TA09_grouped.dta",
+      "type": "data"
+    },
+    {
+      "description": "Grouped CSV",
+      "file": "data_TA09_grouped.csv",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Source variable",
+      "name": "__SOURCE_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Number of groups",
+      "name": "__N_GROUPS__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Method",
+      "name": "__METHOD__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Custom cutpoints",
+      "name": "__CUTPOINTS__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "By variable",
+      "name": "__BY_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "New variable name",
+      "name": "__NEW_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "quantile_groups",
+  "tags": [
+    "quantile",
+    "group",
+    "categorize",
+    "xtile"
+  ],
+  "title": "Quantile Groups",
+  "title_zh": "分组变量生成",
+  "version": "2.0.1"
+}

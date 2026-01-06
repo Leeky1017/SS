@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "nptrend command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Cochran-Armitage trend test for ordinal data",
+  "family": "hypothesis_testing",
+  "id": "TC08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "C",
+  "outputs": [
+    {
+      "description": "Trend test results",
+      "file": "table_TC08_trend.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TC08_trend.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Test variable",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Group variable",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "trend_test",
+  "tags": [
+    "trend",
+    "ordinal",
+    "cochran-armitage"
+  ],
+  "title": "Trend Test",
+  "title_zh": "趋势检验",
+  "version": "2.0.1"
+}

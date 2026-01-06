@@ -1,0 +1,87 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Jones accruals model for earnings management detection",
+  "family": "accounting",
+  "id": "TL01",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "Jones model results",
+      "file": "table_TL01_jones.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL01_jones.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Total assets",
+      "name": "__ASSETS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Panel variable (firm ID)",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Property, plant and equipment",
+      "name": "__PPE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Revenue",
+      "name": "__REV__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Total accruals",
+      "name": "__TA__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "jones_model",
+  "tags": [
+    "jones",
+    "accruals",
+    "earnings_management",
+    "accounting"
+  ],
+  "title": "Jones Model",
+  "title_zh": "Jones模型",
+  "version": "2.0.1"
+}

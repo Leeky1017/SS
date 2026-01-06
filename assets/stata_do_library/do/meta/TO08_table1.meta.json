@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "table1_mc",
+      "purpose": "Table 1 creation",
+      "source": "ssc"
+    }
+  ],
+  "description": "Create publication-ready Table 1 with descriptive statistics",
+  "family": "output",
+  "id": "TO08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "O",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TO08_export.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TO08_table1.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TO08_table1.doc",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variables",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Group variable",
+      "name": "__BY_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "table1",
+  "tags": [
+    "table1",
+    "descriptive",
+    "publication",
+    "output"
+  ],
+  "title": "Table 1",
+  "title_zh": "描述性统计表",
+  "version": "2.0.1"
+}

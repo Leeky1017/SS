@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "roctab command",
+      "source": "built-in"
+    }
+  ],
+  "description": "ROC curve analysis for diagnostic test evaluation",
+  "family": "medical",
+  "id": "TM01",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "M",
+  "outputs": [
+    {
+      "description": "ROC results",
+      "file": "table_TM01_roc.csv",
+      "type": "table"
+    },
+    {
+      "description": "ROC curve",
+      "file": "fig_TM01_roc.png",
+      "type": "graph"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TM01_roc.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Binary outcome",
+      "name": "__OUTCOME__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Predictor variable",
+      "name": "__PREDICTOR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "roc_analysis",
+  "tags": [
+    "roc",
+    "auc",
+    "diagnostic",
+    "medical"
+  ],
+  "title": "ROC Analysis",
+  "title_zh": "ROC分析",
+  "version": "2.0.1"
+}

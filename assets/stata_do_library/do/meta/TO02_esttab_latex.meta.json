@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "estout",
+      "purpose": "Table export",
+      "source": "ssc"
+    }
+  ],
+  "description": "Export regression tables to LaTeX format",
+  "family": "output",
+  "id": "TO02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "O",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TO02_export.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TO02_reg.tex",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "esttab_latex",
+  "tags": [
+    "esttab",
+    "latex",
+    "export",
+    "output"
+  ],
+  "title": "Esttab LaTeX",
+  "title_zh": "LaTeX表格导出",
+  "version": "2.0.1"
+}

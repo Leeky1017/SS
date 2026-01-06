@@ -1,0 +1,61 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "qnorm command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Plot Q-Q diagram for normality testing",
+  "family": "visualization",
+  "id": "TU09",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "U",
+  "outputs": [
+    {
+      "description": "Q-Q plot",
+      "file": "fig_TU09_qq.png",
+      "type": "graph"
+    },
+    {
+      "description": "Normality test results",
+      "file": "table_TU09_normality.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TU09_qq.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable to test",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "qq_plot",
+  "tags": [
+    "visualization",
+    "qq",
+    "normality"
+  ],
+  "title": "Q-Q Plot",
+  "title_zh": "Q-Q图",
+  "version": "2.0.1"
+}

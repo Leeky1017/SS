@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "glm command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Log-binomial regression for risk ratios",
+  "family": "medical",
+  "id": "TM13",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "M",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TM13_pr.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TM13_pr.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Binary outcome",
+      "name": "__OUTCOME__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Predictors",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "log_binomial",
+  "tags": [
+    "log_binomial",
+    "risk_ratio",
+    "medical"
+  ],
+  "title": "Log Binomial",
+  "title_zh": "对数二项回归",
+  "version": "2.0.1"
+}

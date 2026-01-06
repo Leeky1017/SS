@@ -1,0 +1,61 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "heatplot",
+      "purpose": "heatmap visualization",
+      "source": "ssc"
+    }
+  ],
+  "description": "Draw correlation matrix heatmap",
+  "family": "descriptive_statistics",
+  "id": "TB06",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Correlation heatplot",
+      "file": "fig_TB06_heatplot.png",
+      "type": "figure"
+    },
+    {
+      "description": "Correlation matrix",
+      "file": "table_TB06_corr.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TB06_heat.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variables",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "heatplot",
+  "tags": [
+    "heatmap",
+    "correlation",
+    "visualization"
+  ],
+  "title": "Heatplot",
+  "title_zh": "热力图",
+  "version": "2.0.1"
+}

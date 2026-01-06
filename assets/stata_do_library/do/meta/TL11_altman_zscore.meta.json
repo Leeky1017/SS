@@ -1,0 +1,93 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Altman Z-Score for bankruptcy prediction",
+  "family": "accounting",
+  "id": "TL11",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "Z-Score results",
+      "file": "table_TL11_zscore.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL11_zscore.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Earnings before interest and taxes",
+      "name": "__EBIT__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Market value of equity",
+      "name": "__MVE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Retained earnings",
+      "name": "__RE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Sales",
+      "name": "__SALES__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Total assets",
+      "name": "__TA__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Total liabilities",
+      "name": "__TL__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Working capital",
+      "name": "__WC__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "altman_zscore",
+  "tags": [
+    "altman",
+    "zscore",
+    "bankruptcy",
+    "accounting"
+  ],
+  "title": "Altman Z-Score",
+  "title_zh": "Altman Z分数",
+  "version": "2.0.1"
+}

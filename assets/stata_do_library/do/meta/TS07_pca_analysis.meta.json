@@ -1,0 +1,72 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "pca command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Principal Component Analysis for dimensionality reduction",
+  "family": "machine_learning",
+  "id": "TS07",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "S",
+  "outputs": [
+    {
+      "description": "Eigenvalues",
+      "file": "table_TS07_eigenvalues.csv",
+      "type": "table"
+    },
+    {
+      "description": "Component loadings",
+      "file": "table_TS07_loadings.csv",
+      "type": "table"
+    },
+    {
+      "description": "Scree plot",
+      "file": "fig_TS07_scree.png",
+      "type": "graph"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TS07_pca.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Analysis variables",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Number of components",
+      "name": "__N_COMPONENTS__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "pca_analysis",
+  "tags": [
+    "pca",
+    "dimensionality_reduction",
+    "machine_learning"
+  ],
+  "title": "PCA Analysis",
+  "title_zh": "主成分分析",
+  "version": "2.0.1"
+}

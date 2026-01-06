@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "xtreg re command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Panel data random effects estimation",
+  "family": "panel",
+  "id": "TP02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "P",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TP02_re.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TP02_hausman.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TP02_re_result.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Panel identifier variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Time variable for panel setting",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "panel_re",
+  "tags": [
+    "panel",
+    "random_effects",
+    "re"
+  ],
+  "title": "Panel RE",
+  "title_zh": "面板随机效应",
+  "version": "2.0.1"
+}

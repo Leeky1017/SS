@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "kap command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Cohen's Kappa for inter-rater agreement",
+  "family": "medical",
+  "id": "TM03",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "M",
+  "outputs": [
+    {
+      "description": "Kappa results",
+      "file": "table_TM03_kappa.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TM03_kappa.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Rater 1",
+      "name": "__RATER1__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Rater 2",
+      "name": "__RATER2__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "kappa",
+  "tags": [
+    "kappa",
+    "agreement",
+    "reliability",
+    "medical"
+  ],
+  "title": "Kappa Agreement",
+  "title_zh": "Kappa一致性",
+  "version": "2.0.1"
+}

@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core tabulation commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Output frequency distributions for categorical variables including counts, percentages, and cumulative percentages with bar charts",
+  "family": "descriptive",
+  "id": "T08",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Frequency summary table",
+      "file": "table_T08_freq_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Detailed frequency table",
+      "file": "table_T08_freq_detail.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Categorical variables to analyze (space-separated)",
+      "name": "__CATEGORICAL_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "freq_categorical",
+  "tags": [
+    "frequency",
+    "categorical",
+    "distribution",
+    "crosstab"
+  ],
+  "title": "Categorical Frequency Tables",
+  "title_zh": "分类变量频数分布表",
+  "version": "2.0.1"
+}

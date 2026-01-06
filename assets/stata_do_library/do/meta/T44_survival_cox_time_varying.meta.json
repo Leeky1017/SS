@@ -1,0 +1,81 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Survival analysis commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate Cox model with time-varying covariates using counting process data format",
+  "family": "survival_analysis",
+  "id": "T44",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "H",
+  "outputs": [
+    {
+      "description": "Time-varying Cox coefficients",
+      "file": "table_T44_cox_tv_coef.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Subject ID variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Interval start variable",
+      "name": "__START_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Interval stop variable",
+      "name": "__STOP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Event variable (0=censored, 1=event)",
+      "name": "__EVENT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Covariate list (space-separated)",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "survival_cox_time_varying",
+  "tags": [
+    "survival",
+    "cox",
+    "time_varying",
+    "counting_process"
+  ],
+  "title": "Time-Varying Cox Model",
+  "title_zh": "时变协变量Cox模型",
+  "version": "2.0.1"
+}

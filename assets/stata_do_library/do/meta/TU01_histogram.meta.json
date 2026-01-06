@@ -1,0 +1,84 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "histogram command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Plot histogram with optional normal distribution overlay",
+  "family": "visualization",
+  "id": "TU01",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "U",
+  "outputs": [
+    {
+      "description": "Histogram",
+      "file": "fig_TU01_histogram.png",
+      "type": "graph"
+    },
+    {
+      "description": "Distribution statistics",
+      "file": "table_TU01_hist_stats.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TU01_hist.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable to plot",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Number of bins (default auto)",
+      "name": "__BINS__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Overlay normal curve: yes/no",
+      "name": "__NORMAL__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "yes",
+        "no"
+      ]
+    },
+    {
+      "description": "Chart title",
+      "name": "__TITLE__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "histogram",
+  "tags": [
+    "visualization",
+    "histogram",
+    "distribution"
+  ],
+  "title": "Histogram",
+  "title_zh": "直方图",
+  "version": "2.0.1"
+}

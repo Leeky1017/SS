@@ -1,0 +1,86 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "logit command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Going concern opinion prediction model",
+  "family": "audit",
+  "id": "TL14",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "GC opinion results",
+      "file": "table_TL14_gc.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL14_gc.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Going concern opinion indicator",
+      "name": "__GC__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Lagged going concern opinion",
+      "name": "__LAGGC__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Leverage ratio",
+      "name": "__LEVERAGE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Log of total assets",
+      "name": "__LNTA__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Loss indicator",
+      "name": "__LOSS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Altman Z-Score",
+      "name": "__ZSCORE__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "gc_opinion",
+  "tags": [
+    "going_concern",
+    "audit",
+    "opinion"
+  ],
+  "title": "Going Concern Opinion",
+  "title_zh": "持续经营意见",
+  "version": "2.0.1"
+}

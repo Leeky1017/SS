@@ -1,0 +1,104 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [],
+  "description": "Seasonal ARIMA model estimation",
+  "family": "time_series",
+  "id": "TH04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "H",
+  "outputs": [
+    {
+      "description": "SARIMA results",
+      "file": "table_TH04_sarima.csv",
+      "type": "table"
+    },
+    {
+      "description": "Forecast plot",
+      "file": "fig_TH04_forecast.png",
+      "type": "figure"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TH04_sarima.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "AR order",
+      "name": "__P__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Differencing order",
+      "name": "__D__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "MA order",
+      "name": "__Q__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Seasonal AR",
+      "name": "__SP__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Seasonal diff",
+      "name": "__SD__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Seasonal MA",
+      "name": "__SQ__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Season length",
+      "name": "__SEASON__",
+      "required": true,
+      "type": "number"
+    }
+  ],
+  "slug": "sarima",
+  "tags": [
+    "arima",
+    "sarima",
+    "forecast",
+    "time_series"
+  ],
+  "title": "SARIMA Model",
+  "title_zh": "季节性ARIMA",
+  "version": "2.0.1"
+}

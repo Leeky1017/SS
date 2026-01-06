@@ -1,0 +1,86 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Date functions",
+      "source": "built-in"
+    }
+  ],
+  "description": "Parse and transform date/time variables, extract components, calculate differences",
+  "family": "data_management",
+  "id": "TA08",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Datetime summary",
+      "file": "table_TA08_datetime_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Processed data",
+      "file": "data_TA08_processed.dta",
+      "type": "data"
+    },
+    {
+      "description": "Processed CSV",
+      "file": "data_TA08_processed.csv",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Date variables",
+      "name": "__DATE_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Input format",
+      "name": "__INPUT_FORMAT__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Operations",
+      "name": "__OPERATIONS__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Reference date",
+      "name": "__REFERENCE_DATE__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "datetime_process",
+  "tags": [
+    "date",
+    "time",
+    "datetime",
+    "extract",
+    "parse"
+  ],
+  "title": "Datetime Process",
+  "title_zh": "日期时间变量处理",
+  "version": "2.0.1"
+}

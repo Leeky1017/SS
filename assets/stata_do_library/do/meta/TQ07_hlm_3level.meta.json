@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "mixed command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Three-level hierarchical linear model",
+  "family": "multilevel",
+  "id": "TQ07",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "Q",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TQ07_hlm.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "HLM results",
+      "file": "table_TQ07_hlm3.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Level-2 (nested) grouping variable",
+      "name": "__LEVEL2__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Level-3 (highest-level) grouping variable",
+      "name": "__LEVEL3__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "hlm_3level",
+  "tags": [
+    "hlm",
+    "multilevel",
+    "three_level"
+  ],
+  "title": "HLM 3-Level",
+  "title_zh": "三层HLM",
+  "version": "2.0.1"
+}

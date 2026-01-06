@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Panel regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate panel fixed effects regression to control for unobserved individual heterogeneity with clustered standard errors",
+  "family": "panel",
+  "id": "T31",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "F",
+  "outputs": [
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "FE regression coefficients",
+      "file": "table_T31_fe_coef.csv",
+      "type": "table"
+    },
+    {
+      "description": "Goodness of fit",
+      "file": "table_T31_fe_gof.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_T31_paper.rtf",
+      "type": "report"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Cluster variable for standard errors (defaults to __ID_VAR__ if empty)",
+      "name": "__CLUSTER_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Individual identifier",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "panel_fe_basic",
+  "tags": [
+    "panel",
+    "fixed_effects",
+    "xtreg",
+    "fe",
+    "cluster_se"
+  ],
+  "title": "Panel Fixed Effects",
+  "title_zh": "面板固定效应回归",
+  "version": "2.0.1"
+}

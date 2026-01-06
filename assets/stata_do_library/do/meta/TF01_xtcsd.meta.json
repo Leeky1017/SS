@@ -1,0 +1,75 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "xtcsd command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Pesaran CD test for cross-sectional dependence",
+  "family": "panel_data",
+  "id": "TF01",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "F",
+  "outputs": [
+    {
+      "description": "XTCSD results",
+      "file": "table_TF01_xtcsd.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TF01_xtcsd.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Panel variable",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "xtcsd",
+  "tags": [
+    "panel",
+    "cross-sectional",
+    "dependence",
+    "pesaran"
+  ],
+  "title": "XTCSD",
+  "title_zh": "面板截面相关检验",
+  "version": "2.0.1"
+}

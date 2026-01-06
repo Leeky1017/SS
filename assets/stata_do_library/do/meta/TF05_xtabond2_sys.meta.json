@@ -1,0 +1,75 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "xtabond2",
+      "purpose": "System GMM estimation",
+      "source": "ssc"
+    }
+  ],
+  "description": "System GMM estimation for dynamic panels",
+  "family": "panel_data",
+  "id": "TF05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "F",
+  "outputs": [
+    {
+      "description": "System GMM results",
+      "file": "table_TF05_sysgmm.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TF05_sysgmm.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Panel variable",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "xtabond2_sys",
+  "tags": [
+    "panel",
+    "gmm",
+    "dynamic",
+    "blundell-bond"
+  ],
+  "title": "System GMM",
+  "title_zh": "系统GMM",
+  "version": "2.0.1"
+}

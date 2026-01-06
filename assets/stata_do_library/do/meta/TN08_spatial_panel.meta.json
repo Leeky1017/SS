@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "xsmle",
+      "purpose": "Spatial panel",
+      "source": "ssc"
+    }
+  ],
+  "description": "Spatial panel data models",
+  "family": "spatial",
+  "id": "TN08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "N",
+  "outputs": [
+    {
+      "description": "Spatial panel results",
+      "file": "table_TN08_sppanel.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TN08_sppanel.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Panel variable",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "spatial_panel",
+  "tags": [
+    "spatial_panel",
+    "panel",
+    "spatial"
+  ],
+  "title": "Spatial Panel",
+  "title_zh": "空间面板模型",
+  "version": "2.0.1"
+}

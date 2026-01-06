@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "stcox command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Stratified Cox proportional hazards model",
+  "family": "survival",
+  "id": "TI05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "I",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TI05_stratacox.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TI05_stratacox.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Failure indicator",
+      "name": "__FAILVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Covariates",
+      "name": "__INDEPVARS__",
+      "required": false,
+      "type": "list[string]"
+    },
+    {
+      "description": "Stratification variable",
+      "name": "__STRATA_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "stcox_strata",
+  "tags": [
+    "survival",
+    "cox",
+    "stratified"
+  ],
+  "title": "Stratified Cox",
+  "title_zh": "分层Cox模型",
+  "version": "2.0.1"
+}

@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "spregress",
+      "purpose": "Spatial regression",
+      "source": "stata"
+    }
+  ],
+  "description": "Spatial Lag of X model",
+  "family": "spatial",
+  "id": "TN07",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "N",
+  "outputs": [
+    {
+      "description": "SLX results",
+      "file": "table_TN07_slx.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TN07_slx.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "slx",
+  "tags": [
+    "slx",
+    "spatial_lag_x",
+    "spatial"
+  ],
+  "title": "SLX Model",
+  "title_zh": "空间滞后X模型",
+  "version": "2.0.1"
+}

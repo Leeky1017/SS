@@ -1,0 +1,67 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "graph pie command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Plot pie chart showing proportional distribution of categorical data",
+  "family": "visualization",
+  "id": "TU07",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "U",
+  "outputs": [
+    {
+      "description": "Pie chart",
+      "file": "fig_TU07_pie.png",
+      "type": "graph"
+    },
+    {
+      "description": "Proportion data",
+      "file": "table_TU07_pie_data.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TU07_pie.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Category variable",
+      "name": "__CAT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Value variable (default count)",
+      "name": "__VALUE_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "pie_chart",
+  "tags": [
+    "visualization",
+    "pie",
+    "proportion"
+  ],
+  "title": "Pie Chart",
+  "title_zh": "饼图",
+  "version": "2.0.1"
+}

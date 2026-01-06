@@ -1,0 +1,75 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "power twomeans equivalence",
+      "source": "built-in"
+    }
+  ],
+  "description": "Sample size calculation for equivalence and non-inferiority tests",
+  "family": "sample_size_power",
+  "id": "TT09",
+  "inputs": [],
+  "level": "L1",
+  "module": "T",
+  "outputs": [
+    {
+      "description": "Power analysis results",
+      "file": "table_TT09_power.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TT09_power.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "True difference (default 0)",
+      "name": "__DELTA__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Standard deviation",
+      "name": "__SD__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Equivalence margin",
+      "name": "__MARGIN__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Significance level (default 0.05)",
+      "name": "__ALPHA__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Target power (default 0.8)",
+      "name": "__POWER__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "power_equivalence",
+  "tags": [
+    "power",
+    "sample_size",
+    "equivalence",
+    "non-inferiority"
+  ],
+  "title": "Power Equivalence",
+  "title_zh": "等价性检验样本量",
+  "version": "2.0.1"
+}

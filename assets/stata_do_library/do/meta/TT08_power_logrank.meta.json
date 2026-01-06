@@ -1,0 +1,69 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "power logrank command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Sample size calculation for survival analysis log-rank test",
+  "family": "sample_size_power",
+  "id": "TT08",
+  "inputs": [],
+  "level": "L1",
+  "module": "T",
+  "outputs": [
+    {
+      "description": "Power analysis results",
+      "file": "table_TT08_power.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TT08_power.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Hazard ratio",
+      "name": "__HR__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Proportion in group 1 (default 0.5)",
+      "name": "__P1__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Significance level (default 0.05)",
+      "name": "__ALPHA__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Target power (default 0.8)",
+      "name": "__POWER__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "power_logrank",
+  "tags": [
+    "power",
+    "sample_size",
+    "survival",
+    "logrank"
+  ],
+  "title": "Power Logrank",
+  "title_zh": "生存分析样本量",
+  "version": "2.0.1"
+}

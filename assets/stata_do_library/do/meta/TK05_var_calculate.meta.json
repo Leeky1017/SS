@@ -1,0 +1,95 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "percentile command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Value at Risk calculation",
+  "family": "finance",
+  "id": "TK05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TK05_var.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK05_var_plot.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK05_backtest.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK05_var_result.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Confidence level",
+      "name": "__CONFIDENCE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time horizon",
+      "name": "__HORIZON__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Method: historical/parametric",
+      "name": "__METHOD__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "historical",
+        "parametric"
+      ]
+    },
+    {
+      "description": "Portfolio value",
+      "name": "__PORTFOLIO_VALUE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Return variable",
+      "name": "__RETURN_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "var_calculate",
+  "tags": [
+    "var",
+    "risk",
+    "finance"
+  ],
+  "title": "VaR Calculate",
+  "title_zh": "VaR计算",
+  "version": "2.0.1"
+}

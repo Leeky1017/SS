@@ -1,0 +1,69 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "power oneway command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Sample size calculation for one-way ANOVA",
+  "family": "sample_size_power",
+  "id": "TT07",
+  "inputs": [],
+  "level": "L1",
+  "module": "T",
+  "outputs": [
+    {
+      "description": "Power analysis results",
+      "file": "table_TT07_power.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TT07_power.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Number of groups",
+      "name": "__N_GROUPS__",
+      "required": true,
+      "type": "integer"
+    },
+    {
+      "description": "Effect size (Cohen's f)",
+      "name": "__EFFECT_SIZE__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Significance level (default 0.05)",
+      "name": "__ALPHA__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Target power (default 0.8)",
+      "name": "__POWER__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "power_oneway",
+  "tags": [
+    "power",
+    "sample_size",
+    "anova",
+    "oneway"
+  ],
+  "title": "Power Oneway ANOVA",
+  "title_zh": "单因素方差分析样本量",
+  "version": "2.0.1"
+}

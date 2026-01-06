@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "vioplot",
+      "purpose": "violin plot visualization",
+      "source": "ssc"
+    }
+  ],
+  "description": "Draw violin plot to show data distribution",
+  "family": "descriptive_statistics",
+  "id": "TB07",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Violin plot",
+      "file": "fig_TB07_violin.png",
+      "type": "figure"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TB07_vio.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Group variable",
+      "name": "__BY_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "vioplot",
+  "tags": [
+    "violin",
+    "distribution",
+    "visualization"
+  ],
+  "title": "Vioplot",
+  "title_zh": "小提琴图",
+  "version": "2.0.1"
+}

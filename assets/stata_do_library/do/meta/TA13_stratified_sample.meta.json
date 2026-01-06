@@ -1,0 +1,91 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Sample command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Perform stratified random sampling with proportional/equal/fixed methods",
+  "family": "data_management",
+  "id": "TA13",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Sample summary",
+      "file": "table_TA13_sample_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Sampled data",
+      "file": "data_TA13_sampled.dta",
+      "type": "data"
+    },
+    {
+      "description": "Sampled CSV",
+      "file": "data_TA13_sampled.csv",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Strata variable",
+      "name": "__STRATA_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Sample size or proportion",
+      "name": "__SAMPLE_SIZE__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Sampling method",
+      "name": "__METHOD__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Random seed",
+      "name": "__RANDOM_SEED__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "With replacement",
+      "name": "__WITH_REPLACE__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "stratified_sample",
+  "tags": [
+    "sample",
+    "stratified",
+    "random",
+    "subset"
+  ],
+  "title": "Stratified Sample",
+  "title_zh": "数据集抽样",
+  "version": "2.0.1"
+}

@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "mixed command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Cross-classified multilevel model",
+  "family": "multilevel",
+  "id": "TQ11",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "Q",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TQ11_cross.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TQ11_cross.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "First grouping",
+      "name": "__GROUP1__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Second grouping",
+      "name": "__GROUP2__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "cross_classified",
+  "tags": [
+    "cross_classified",
+    "multilevel",
+    "mixed"
+  ],
+  "title": "Cross-Classified",
+  "title_zh": "交叉分类模型",
+  "version": "2.0.1"
+}

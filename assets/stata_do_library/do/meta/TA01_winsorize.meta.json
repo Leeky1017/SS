@@ -1,0 +1,96 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "winsor2",
+      "purpose": "Winsorize command",
+      "source": "ssc"
+    }
+  ],
+  "description": "Winsorize numeric variables to replace extreme values with specified percentile values",
+  "family": "data_management",
+  "id": "TA01",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Winsorize summary",
+      "file": "table_TA01_winsor_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Winsorized data",
+      "file": "data_TA01_winsorized.dta",
+      "type": "data"
+    },
+    {
+      "description": "Winsorized data CSV",
+      "file": "table_TA01_winsorized.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variables to winsorize",
+      "name": "__WINSOR_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Lower percentile (default 1)",
+      "name": "__LOWER_PCTL__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Upper percentile (default 99)",
+      "name": "__UPPER_PCTL__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Method: trim/winsor",
+      "name": "__TRIM_OR_WINSOR__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "trim",
+        "winsor"
+      ]
+    },
+    {
+      "description": "Grouping variable (optional)",
+      "name": "__BY_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "winsorize",
+  "tags": [
+    "winsorize",
+    "outliers",
+    "data_cleaning",
+    "percentile"
+  ],
+  "title": "Winsorize",
+  "title_zh": "缩尾处理",
+  "version": "2.0.1"
+}

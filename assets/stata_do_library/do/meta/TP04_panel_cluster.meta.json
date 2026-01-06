@@ -1,0 +1,96 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "vce(cluster) option",
+      "source": "built-in"
+    }
+  ],
+  "description": "Panel regression with clustered standard errors",
+  "family": "panel",
+  "id": "TP04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "P",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TP04_cluster.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TP04_cluster_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TP04_comparison.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Clustering type: one, two (default: one)",
+      "kind": "enum",
+      "name": "__CLUSTER_TYPE__",
+      "options": [
+        "one",
+        "two"
+      ],
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Cluster variable for one-way clustering",
+      "name": "__CLUSTER_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Panel identifier variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Time variable for panel setting",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "panel_cluster",
+  "tags": [
+    "panel",
+    "cluster",
+    "robust_se"
+  ],
+  "title": "Panel Cluster SE",
+  "title_zh": "面板聚类标准误",
+  "version": "2.0.1"
+}

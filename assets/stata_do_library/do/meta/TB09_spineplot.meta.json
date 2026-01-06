@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "spineplot",
+      "purpose": "spine plot visualization",
+      "source": "ssc"
+    }
+  ],
+  "description": "Draw spine plot for categorical variable relationships",
+  "family": "descriptive_statistics",
+  "id": "TB09",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Spine plot",
+      "file": "fig_TB09_spine.png",
+      "type": "figure"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TB09_spine.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable 1",
+      "name": "__VAR1__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Variable 2",
+      "name": "__VAR2__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "spineplot",
+  "tags": [
+    "spineplot",
+    "categorical",
+    "mosaic"
+  ],
+  "title": "Spineplot",
+  "title_zh": "脊柱图",
+  "version": "2.0.1"
+}

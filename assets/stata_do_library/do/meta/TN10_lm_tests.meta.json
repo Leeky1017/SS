@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "spatdiag",
+      "purpose": "Spatial diagnostics",
+      "source": "ssc"
+    }
+  ],
+  "description": "Lagrange Multiplier tests for spatial dependence",
+  "family": "spatial",
+  "id": "TN10",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "N",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TN10_lm.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TN10_lm.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "lm_tests",
+  "tags": [
+    "lm_test",
+    "spatial_dependence",
+    "diagnostics",
+    "spatial"
+  ],
+  "title": "Spatial LM Tests",
+  "title_zh": "空间LM检验",
+  "version": "2.0.1"
+}

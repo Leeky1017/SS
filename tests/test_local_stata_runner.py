@@ -99,3 +99,25 @@ def test_run_when_subprocess_times_out_writes_error_artifact_and_returns_failed(
     assert (artifacts_dir / "run.stdout").read_text(encoding="utf-8") == "partial"
     assert (artifacts_dir / "run.stderr").read_text(encoding="utf-8") == "late"
     assert (artifacts_dir / "run.error.json").exists()
+
+
+def test_run_when_windows_stata_cmd_uses_e_flag(job_service, jobs_dir: Path):
+    # Arrange
+    job = job_service.create_job(requirement="win")
+    run_id = "run_win"
+
+    def fake_run(cmd, *, cwd, timeout, text, capture_output, check):
+        assert cmd[-3:] == ["/e", "do", "stata.do"]
+        return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
+
+    runner = LocalStataRunner(
+        jobs_dir=jobs_dir,
+        stata_cmd=["C:/Program Files/Stata18/StataMP-64.exe"],
+        subprocess_runner=fake_run,
+    )
+
+    # Act
+    result = runner.run(job_id=job.job_id, run_id=run_id, do_file="display 1\n", timeout_seconds=1)
+
+    # Assert
+    assert result.ok is True

@@ -1,0 +1,102 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Fama-French three/five factor model estimation",
+  "family": "finance",
+  "id": "TK02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TK02_ff.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK02_alpha_dist.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK02_factor_loadings.csv",
+      "type": "table"
+    },
+    {
+      "description": "FF results",
+      "file": "table_TK02_ff_result.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "CMA factor (Conservative Minus Aggressive)",
+      "name": "__CMA_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "HML factor",
+      "name": "__HML_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Market factor",
+      "name": "__MKT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Return variable",
+      "name": "__RETURN_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "RMW factor (Robust Minus Weak)",
+      "name": "__RMW_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "SMB factor",
+      "name": "__SMB_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Stock identifier",
+      "name": "__STOCK_ID__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "fama_french",
+  "tags": [
+    "fama_french",
+    "factor_model",
+    "finance"
+  ],
+  "title": "Fama-French Model",
+  "title_zh": "Fama-French模型",
+  "version": "2.0.1"
+}

@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core ANOVA commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Compare means of three or more groups with variance homogeneity test, post-hoc multiple comparisons, effect size calculation, and visualization",
+  "family": "hypothesis_testing",
+  "id": "T15",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "C",
+  "outputs": [
+    {
+      "description": "ANOVA results summary",
+      "file": "table_T15_anova_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Group descriptive statistics",
+      "file": "table_T15_group_stats.csv",
+      "type": "table"
+    },
+    {
+      "description": "Group boxplot comparison",
+      "file": "fig_T15_boxplot.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable (continuous)",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Grouping variable (categorical)",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "anova_oneway",
+  "tags": [
+    "anova",
+    "hypothesis",
+    "multiple_groups",
+    "mean_comparison",
+    "posthoc"
+  ],
+  "title": "One-way ANOVA",
+  "title_zh": "单因素方差分析",
+  "version": "2.0.1"
+}

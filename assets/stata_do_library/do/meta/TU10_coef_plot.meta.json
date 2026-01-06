@@ -1,0 +1,73 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Plot regression coefficient estimates with confidence intervals",
+  "family": "visualization",
+  "id": "TU10",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "U",
+  "outputs": [
+    {
+      "description": "Coefficient plot",
+      "file": "fig_TU10_coef.png",
+      "type": "graph"
+    },
+    {
+      "description": "Coefficient table",
+      "file": "table_TU10_coef.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TU10_coef.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Confidence level (default 95)",
+      "name": "__CI_LEVEL__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "coef_plot",
+  "tags": [
+    "visualization",
+    "coefficient",
+    "regression"
+  ],
+  "title": "Coefficient Plot",
+  "title_zh": "系数图",
+  "version": "2.0.1"
+}

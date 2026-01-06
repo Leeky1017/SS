@@ -1,0 +1,69 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "rifreg",
+      "purpose": "RIF regression",
+      "source": "ssc"
+    }
+  ],
+  "description": "Unconditional quantile regression using RIF (Recentered Influence Function)",
+  "family": "advanced_methods",
+  "id": "TU11",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "U",
+  "outputs": [
+    {
+      "description": "RIF regression results",
+      "file": "table_TU11_rifhdreg.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TU11_rifhdreg.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Quantile (default 0.5)",
+      "name": "__QUANTILE__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "rifhdreg",
+  "tags": [
+    "quantile",
+    "regression",
+    "rif",
+    "unconditional"
+  ],
+  "title": "RIF-HDReg",
+  "title_zh": "无条件分位数回归",
+  "version": "2.0.1"
+}

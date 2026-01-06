@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "cs command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Cohort study relative risk analysis",
+  "family": "medical",
+  "id": "TM09",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "M",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TM09_rr.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "RR results",
+      "file": "table_TM09_rr.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Outcome",
+      "name": "__OUTCOME__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Exposure",
+      "name": "__EXPOSURE__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "cohort_rr",
+  "tags": [
+    "cohort",
+    "relative_risk",
+    "epidemiology",
+    "medical"
+  ],
+  "title": "Cohort RR",
+  "title_zh": "队列研究相对危险度",
+  "version": "2.0.1"
+}

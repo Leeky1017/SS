@@ -1,0 +1,85 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "rforest command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Random Forest for classification or regression with variable importance",
+  "family": "machine_learning",
+  "id": "TS04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "S",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TS04_rf.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TS04_rf_importance.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TS04_rf_result.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Number of trees",
+      "name": "__N_TREES__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Type: classify/regress",
+      "name": "__TYPE__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Random seed (optional)",
+      "name": "__SEED__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "random_forest",
+  "tags": [
+    "random_forest",
+    "ensemble",
+    "machine_learning"
+  ],
+  "title": "Random Forest",
+  "title_zh": "随机森林",
+  "version": "2.0.1"
+}

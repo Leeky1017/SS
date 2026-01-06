@@ -1,0 +1,86 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "xtpcse command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Panel-corrected standard errors",
+  "family": "panel",
+  "id": "TP08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "P",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TP08_pcse.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TP08_pcse_result.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Error correlation structure: independent, ar1, psar1 (default: ar1)",
+      "kind": "enum",
+      "name": "__CORR__",
+      "options": [
+        "independent",
+        "ar1",
+        "psar1"
+      ],
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Panel identifier variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Time variable for panel setting",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "panel_pcse",
+  "tags": [
+    "panel",
+    "pcse",
+    "beck_katz"
+  ],
+  "title": "Panel PCSE",
+  "title_zh": "面板校正标准误",
+  "version": "2.0.1"
+}

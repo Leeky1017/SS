@@ -1,0 +1,69 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "power rsquared command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Sample size calculation for regression R-squared test",
+  "family": "sample_size_power",
+  "id": "TT06",
+  "inputs": [],
+  "level": "L1",
+  "module": "T",
+  "outputs": [
+    {
+      "description": "Power analysis results",
+      "file": "table_TT06_power.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TT06_power.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Target R-squared value",
+      "name": "__RSQUARED__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Number of predictors",
+      "name": "__N_PREDICTORS__",
+      "required": true,
+      "type": "integer"
+    },
+    {
+      "description": "Significance level (default 0.05)",
+      "name": "__ALPHA__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Target power (default 0.8)",
+      "name": "__POWER__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "power_rsquared",
+  "tags": [
+    "power",
+    "sample_size",
+    "regression",
+    "rsquared"
+  ],
+  "title": "Power R-squared",
+  "title_zh": "回归R²检验样本量",
+  "version": "2.0.1"
+}

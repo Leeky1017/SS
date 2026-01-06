@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "mixed command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Mixed effects model with random coefficients",
+  "family": "panel_data",
+  "id": "TF12",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "F",
+  "outputs": [
+    {
+      "description": "Mixed effects results",
+      "file": "table_TF12_mixed.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TF12_mixed.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Panel variable",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "xtmixed",
+  "tags": [
+    "panel",
+    "mixed-effects",
+    "random-coefficients"
+  ],
+  "title": "XTMIXED",
+  "title_zh": "混合效应模型",
+  "version": "2.0.1"
+}

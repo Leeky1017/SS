@@ -1,0 +1,83 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "PCA command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Perform PCA, output eigenvalues, loadings and component scores",
+  "family": "multivariate",
+  "id": "T45",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "I",
+  "outputs": [
+    {
+      "description": "Eigenvalue table",
+      "file": "table_T45_eigenvalues.csv",
+      "type": "table"
+    },
+    {
+      "description": "Loading matrix",
+      "file": "table_T45_loadings.csv",
+      "type": "table"
+    },
+    {
+      "description": "Component scores",
+      "file": "table_T45_scores.csv",
+      "type": "table"
+    },
+    {
+      "description": "Scree plot",
+      "file": "fig_T45_scree.png",
+      "type": "graph"
+    },
+    {
+      "description": "PC1-PC2 scatter",
+      "file": "fig_T45_pca_scatter.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Analysis variables (space-separated)",
+      "name": "__NUMERIC_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Number of components to extract",
+      "name": "__N_COMPONENTS__",
+      "required": true,
+      "type": "integer"
+    }
+  ],
+  "slug": "pca_principal_components",
+  "tags": [
+    "pca",
+    "dimensionality_reduction",
+    "multivariate",
+    "unsupervised"
+  ],
+  "title": "Principal Component Analysis",
+  "title_zh": "主成分分析",
+  "version": "2.0.1"
+}

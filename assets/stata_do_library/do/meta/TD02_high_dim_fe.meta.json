@@ -1,0 +1,73 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "reghdfe",
+      "purpose": "high-dimensional fixed effects",
+      "source": "ssc"
+    },
+    {
+      "pkg": "estout",
+      "purpose": "table export",
+      "source": "ssc"
+    }
+  ],
+  "description": "High-dimensional fixed effects regression",
+  "family": "linear_regression",
+  "id": "TD02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "D",
+  "outputs": [
+    {
+      "description": "HDFE results",
+      "file": "table_TD02_hdfe.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TD02_hdfe.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Absorb variables",
+      "name": "__ABSORB_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "high_dim_fe",
+  "tags": [
+    "fixed-effects",
+    "high-dimensional",
+    "reghdfe"
+  ],
+  "title": "High Dim FE",
+  "title_zh": "高维固定效应",
+  "version": "2.0.1"
+}

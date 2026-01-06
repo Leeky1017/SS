@@ -1,0 +1,85 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "mtefe",
+      "purpose": "MTE estimation",
+      "source": "ssc"
+    }
+  ],
+  "description": "Marginal treatment effect estimation",
+  "family": "causal_inference",
+  "id": "TG25",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L3",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "MTE results",
+      "file": "table_TG25_mte_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Policy params",
+      "file": "table_TG25_policy_params.csv",
+      "type": "table"
+    },
+    {
+      "description": "MTE curve",
+      "file": "fig_TG25_mte_curve.png",
+      "type": "figure"
+    },
+    {
+      "description": "MTE data",
+      "file": "data_TG25_mte.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Treatment variable",
+      "name": "__TREATMENT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Instrument",
+      "name": "__INSTRUMENT__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Covariates",
+      "name": "__COVARIATES__",
+      "required": false,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "mte_estimate",
+  "tags": [
+    "mte",
+    "heterogeneity",
+    "policy",
+    "causal"
+  ],
+  "title": "MTE Estimate",
+  "title_zh": "MTE估计",
+  "version": "2.0.1"
+}

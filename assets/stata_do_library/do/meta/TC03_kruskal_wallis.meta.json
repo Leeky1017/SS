@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "kwallis command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Kruskal-Wallis H test for multiple groups",
+  "family": "hypothesis_testing",
+  "id": "TC03",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "C",
+  "outputs": [
+    {
+      "description": "KW test results",
+      "file": "table_TC03_kw.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TC03_kw.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Test variable",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Group variable",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "kruskal_wallis",
+  "tags": [
+    "nonparametric",
+    "kruskal-wallis",
+    "multiple-groups"
+  ],
+  "title": "Kruskal Wallis",
+  "title_zh": "Kruskal-Wallis非参数检验",
+  "version": "2.0.1"
+}

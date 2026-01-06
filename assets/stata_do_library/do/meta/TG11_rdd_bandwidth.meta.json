@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "rdrobust",
+      "purpose": "RDD bandwidth",
+      "source": "ssc"
+    }
+  ],
+  "description": "RDD optimal bandwidth selection",
+  "family": "causal_inference",
+  "id": "TG11",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Bandwidth results",
+      "file": "table_TG11_bandwidth_results.csv",
+      "type": "table"
+    },
+    {
+      "description": "Sensitivity results",
+      "file": "table_TG11_sensitivity.csv",
+      "type": "table"
+    },
+    {
+      "description": "Bandwidth plot",
+      "file": "fig_TG11_bandwidth_plot.png",
+      "type": "figure"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Cutoff value",
+      "name": "__CUTOFF__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Running variable",
+      "name": "__RUNNING_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "rdd_bandwidth",
+  "tags": [
+    "rdd",
+    "bandwidth",
+    "mse",
+    "causal"
+  ],
+  "title": "RDD Bandwidth",
+  "title_zh": "RDD带宽选择",
+  "version": "2.0.1"
+}

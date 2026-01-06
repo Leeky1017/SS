@@ -1,0 +1,61 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "correlate command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Plot correlation matrix heatmap",
+  "family": "visualization",
+  "id": "TU06",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "U",
+  "outputs": [
+    {
+      "description": "Heatmap",
+      "file": "fig_TU06_heatmap.png",
+      "type": "graph"
+    },
+    {
+      "description": "Correlation matrix",
+      "file": "table_TU06_corr.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TU06_heat.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variables for correlation",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "heatmap",
+  "tags": [
+    "visualization",
+    "heatmap",
+    "correlation"
+  ],
+  "title": "Heatmap",
+  "title_zh": "热力图",
+  "version": "2.0.1"
+}

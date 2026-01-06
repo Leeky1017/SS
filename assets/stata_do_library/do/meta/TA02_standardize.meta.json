@@ -1,0 +1,91 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "egen command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Standardize (Z-score) or normalize (Min-Max) numeric variables",
+  "family": "data_management",
+  "id": "TA02",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Transform summary",
+      "file": "table_TA02_transform_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Standardized data",
+      "file": "data_TA02_standardized.dta",
+      "type": "data"
+    },
+    {
+      "description": "Standardized CSV",
+      "file": "table_TA02_standardized.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variables to transform",
+      "name": "__TRANSFORM_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Method: zscore/minmax/rank",
+      "name": "__METHOD__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "zscore",
+        "minmax",
+        "rank"
+      ]
+    },
+    {
+      "description": "Grouping variable",
+      "name": "__BY_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "New variable suffix",
+      "name": "__SUFFIX__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "standardize",
+  "tags": [
+    "standardize",
+    "normalize",
+    "zscore",
+    "minmax"
+  ],
+  "title": "Standardize",
+  "title_zh": "标准化与归一化",
+  "version": "2.0.1"
+}

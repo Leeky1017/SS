@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Abnormal production costs",
+  "family": "accounting",
+  "id": "TL07",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "Ab Prod results",
+      "file": "table_TL07_abprod.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL07_abprod.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Total assets",
+      "name": "__ASSETS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Panel variable (firm ID)",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Production costs",
+      "name": "__PROD__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Revenue",
+      "name": "__REV__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "ab_prod",
+  "tags": [
+    "abnormal_production",
+    "rem",
+    "accounting"
+  ],
+  "title": "Abnormal Production",
+  "title_zh": "异常生产成本",
+  "version": "2.0.1"
+}

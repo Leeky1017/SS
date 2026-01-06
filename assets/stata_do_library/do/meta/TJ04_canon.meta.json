@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "canon command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Canonical Correlation Analysis",
+  "family": "multivariate",
+  "id": "TJ04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "J",
+  "outputs": [
+    {
+      "description": "CCA results",
+      "file": "table_TJ04_canon.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TJ04_canon.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "First variable set",
+      "name": "__VARS1__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Second variable set",
+      "name": "__VARS2__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "canon",
+  "tags": [
+    "canonical",
+    "correlation",
+    "multivariate"
+  ],
+  "title": "Canonical Correlation",
+  "title_zh": "典型相关分析",
+  "version": "2.0.1"
+}

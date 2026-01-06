@@ -1,0 +1,69 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core statistical commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Compare means of two independent groups with variance homogeneity test, Welch t-test, effect size calculation, and visualization",
+  "family": "hypothesis_testing",
+  "id": "T13",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "C",
+  "outputs": [
+    {
+      "description": "T-test results summary",
+      "file": "table_T13_ttest_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Group boxplot comparison",
+      "file": "fig_T13_boxplot.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Continuous variable to test",
+      "name": "__TEST_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Grouping variable (0/1 or two categories)",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "ttest_two_sample_indep",
+  "tags": [
+    "ttest",
+    "hypothesis",
+    "two_sample",
+    "independent",
+    "mean_comparison"
+  ],
+  "title": "Two Sample Independent T-Test",
+  "title_zh": "独立样本t检验（两组均值比较）",
+  "version": "2.0.1"
+}

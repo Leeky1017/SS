@@ -1,0 +1,128 @@
+* ==============================================================================
+* SS_TEMPLATE: id=TT06  level=L1  module=T  title="Power R-squared"
+* INPUTS:
+*   - (parameters only)
+* OUTPUTS:
+*   - table_TT06_power.csv type=table desc="Power results"
+*   - data_TT06_power.dta type=data desc="Output data"
+*   - result.log type=log desc="Execution log"
+* DEPENDENCIES: none
+* ==============================================================================
+
+* ============ 初始化 ============
+capture log close _all
+if _rc != 0 { }
+clear all
+set more off
+version 18
+
+timer clear 1
+timer on 1
+
+log using "result.log", text replace
+
+display "SS_TASK_BEGIN|id=TT06|level=L1|title=Power_Rsquared"
+display "SS_TASK_VERSION:2.0.1"
+display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+* ============ 参数设置 ============
+local rsquared = __RSQUARED__
+local n_predictors = __N_PREDICTORS__
+local alpha = __ALPHA__
+local power = __POWER__
+
+if `rsquared' <= 0 | `rsquared' >= 1 { local rsquared = 0.1 }
+if `n_predictors' < 1 { local n_predictors = 3 }
+if `alpha' <= 0 | `alpha' >= 1 { local alpha = 0.05 }
+if `power' <= 0 | `power' >= 1 { local power = 0.8 }
+
+display ""
+display ">>> 回归R²检验样本量参数:"
+display "    目标R²: `rsquared'"
+display "    预测变量数: `n_predictors'"
+display "    显著性水平: `alpha'"
+display "    检验功效: `power'"
+
+display "SS_STEP_BEGIN|step=S01_load_data"
+display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
+display "SS_STEP_BEGIN|step=S02_validate_inputs"
+display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
+
+display "SS_STEP_BEGIN|step=S03_analysis"
+
+* ============ 样本量计算 ============
+display ""
+display "═══════════════════════════════════════════════════════════════════════════════"
+display "SECTION 1: 回归R²检验样本量计算"
+display "═══════════════════════════════════════════════════════════════════════════════"
+
+* 计算效应量 f² = R² / (1 - R²)
+local f2 = `rsquared' / (1 - `rsquared')
+
+* 使用 power rsquared 命令
+power rsquared `rsquared', ntested(`n_predictors') alpha(`alpha') power(`power')
+
+local n = r(N)
+local actual_power = r(power)
+
+display ""
+display ">>> 样本量计算结果:"
+display "    效应量 f²: " %8.4f `f2'
+display "    所需样本量: " %8.0f `n'
+display "    实际功效: " %8.4f `actual_power'
+
+display "SS_METRIC|name=sample_size|value=`n'"
+display "SS_METRIC|name=effect_size_f2|value=`f2'"
+display "SS_METRIC|name=actual_power|value=`actual_power'"
+
+* ============ 导出结果 ============
+clear
+set obs 1
+gen double rsquared = `rsquared'
+gen int n_predictors = `n_predictors'
+gen double alpha = `alpha'
+gen double power = `power'
+gen double effect_size_f2 = `f2'
+gen double sample_size = `n'
+gen double actual_power = `actual_power'
+
+export delimited using "table_TT06_power.csv", replace
+display "SS_OUTPUT_FILE|file=table_TT06_power.csv|type=table|desc=power_results"
+
+local n_input = 1
+local n_output = 1
+display "SS_METRIC|name=n_input|value=`n_input'"
+display "SS_METRIC|name=n_output|value=`n_output'"
+
+save "data_TT06_power.dta", replace
+display "SS_OUTPUT_FILE|file=data_TT06_power.dta|type=data|desc=power_data"
+display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
+
+* ============ 任务完成摘要 ============
+display ""
+display "═══════════════════════════════════════════════════════════════════════════════"
+display "TT06 任务完成摘要"
+display "═══════════════════════════════════════════════════════════════════════════════"
+display ""
+display "  目标R²:          " %10.4f `rsquared'
+display "  预测变量数:      " %10.0f `n_predictors'
+display "  所需样本量:      " %10.0f `n'
+display ""
+display "═══════════════════════════════════════════════════════════════════════════════"
+
+local n_dropped = 0
+display "SS_METRIC|name=n_dropped|value=`n_dropped'"
+
+display "SS_SUMMARY|key=n_input|value=`n_input'"
+display "SS_SUMMARY|key=n_output|value=`n_output'"
+display "SS_SUMMARY|key=sample_size|value=`n'"
+
+timer off 1
+quietly timer list 1
+local elapsed = r(t1)
+display "SS_METRIC|name=n_missing|value=0"
+display "SS_METRIC|name=task_success|value=1"
+display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+
+display "SS_TASK_END|id=TT06|status=ok|elapsed_sec=`elapsed'"
+log close

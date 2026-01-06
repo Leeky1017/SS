@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "xtscc",
+      "purpose": "Driscoll-Kraay SE",
+      "source": "ssc"
+    }
+  ],
+  "description": "Driscoll-Kraay standard errors for panel data",
+  "family": "panel_data",
+  "id": "TF04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "F",
+  "outputs": [
+    {
+      "description": "XTSCC results",
+      "file": "table_TF04_xtscc.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TF04_xtscc.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Panel variable",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "xtscc",
+  "tags": [
+    "panel",
+    "driscoll-kraay",
+    "standard-error"
+  ],
+  "title": "XTSCC",
+  "title_zh": "Driscoll-Kraay标准误",
+  "version": "2.0.1"
+}

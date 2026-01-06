@@ -1,0 +1,81 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [],
+  "description": "Placebo tests for DID",
+  "family": "causal_inference",
+  "id": "TG22",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Placebo results",
+      "file": "table_TG22_placebo_results.csv",
+      "type": "table"
+    },
+    {
+      "description": "Placebo distribution",
+      "file": "fig_TG22_placebo_dist.png",
+      "type": "figure"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Treatment indicator",
+      "name": "__TREAT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Post indicator",
+      "name": "__POST_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Placebo type",
+      "name": "__PLACEBO_TYPE__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Permutations",
+      "name": "__N_PERMUTATIONS__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "did_placebo",
+  "tags": [
+    "did",
+    "placebo",
+    "inference",
+    "causal"
+  ],
+  "title": "DID Placebo",
+  "title_zh": "DID安慰剂检验",
+  "version": "2.0.1"
+}

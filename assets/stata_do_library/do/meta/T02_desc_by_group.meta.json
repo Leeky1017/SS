@@ -1,0 +1,73 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core statistical commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Grouped descriptive statistics by specified grouping variable, including sample size, mean, standard deviation, percentiles for each group, with preliminary group comparison",
+  "family": "data_management",
+  "id": "T02",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Grouped descriptive statistics",
+      "file": "table_T02_group_stats.csv",
+      "type": "table"
+    },
+    {
+      "description": "Group means summary",
+      "file": "table_T02_group_means.csv",
+      "type": "table"
+    },
+    {
+      "description": "Grouped boxplot",
+      "file": "fig_T02_group_boxplot.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Numeric variables to analyze",
+      "name": "__NUMERIC_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Grouping variable",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "desc_by_group",
+  "tags": [
+    "descriptive",
+    "grouped",
+    "comparison",
+    "anova"
+  ],
+  "title": "Descriptive Statistics by Group",
+  "title_zh": "分组描述统计",
+  "version": "2.0.1"
+}

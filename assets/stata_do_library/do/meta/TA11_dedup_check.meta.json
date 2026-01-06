@@ -1,0 +1,90 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "distinct",
+      "purpose": "Count distinct values",
+      "source": "ssc"
+    }
+  ],
+  "description": "Check for duplicates and perform deduplication based on key variables",
+  "family": "data_management",
+  "id": "TA11",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Duplicate summary",
+      "file": "table_TA11_dup_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Duplicate details",
+      "file": "table_TA11_dup_details.csv",
+      "type": "table"
+    },
+    {
+      "description": "Deduplicated data",
+      "file": "data_TA11_deduped.dta",
+      "type": "data"
+    },
+    {
+      "description": "Deduplicated CSV",
+      "file": "data_TA11_deduped.csv",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Key variables",
+      "name": "__KEY_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Action type",
+      "name": "__ACTION__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Sort variable",
+      "name": "__SORT_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Sort order",
+      "name": "__SORT_ORDER__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "dedup_check",
+  "tags": [
+    "duplicate",
+    "dedup",
+    "unique",
+    "distinct"
+  ],
+  "title": "Dedup Check",
+  "title_zh": "数据去重与唯一性检查",
+  "version": "2.0.1"
+}

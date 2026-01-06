@@ -1,0 +1,85 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Portfolio performance attribution analysis",
+  "family": "finance",
+  "id": "TK13",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TK13_perf.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK13_attribution.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK13_attribution.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Benchmark return",
+      "name": "__BENCH_RETURN__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Benchmark weight",
+      "name": "__BENCH_WEIGHT__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Portfolio return",
+      "name": "__PORT_RETURN__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Portfolio weight",
+      "name": "__PORT_WEIGHT__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Sector variable",
+      "name": "__SECTOR_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "performance_attr",
+  "tags": [
+    "attribution",
+    "performance",
+    "finance"
+  ],
+  "title": "Performance Attribution",
+  "title_zh": "业绩归因",
+  "version": "2.0.1"
+}

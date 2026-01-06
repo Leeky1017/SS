@@ -1,0 +1,75 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "dfuller command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Augmented Dickey-Fuller unit root test",
+  "family": "time_series",
+  "id": "TQ04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "Q",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TQ04_adf.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TQ04_adf_result.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Number of lags",
+      "name": "__LAGS__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Time series variable",
+      "name": "__SERIES_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable for tsset",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Trend option string passed to dfuller/pperron (default: drift)",
+      "name": "__TREND__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "adf_test",
+  "tags": [
+    "adf",
+    "unit_root",
+    "stationarity",
+    "time_series"
+  ],
+  "title": "ADF Test",
+  "title_zh": "ADF单位根检验",
+  "version": "2.0.1"
+}

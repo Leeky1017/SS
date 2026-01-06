@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "spmat",
+      "purpose": "Spatial matrix",
+      "source": "stata"
+    }
+  ],
+  "description": "Create spatial weight matrix",
+  "family": "spatial",
+  "id": "TR01",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "R",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TR01_spatial.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TR01_weight_summary.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Distance band threshold for adjacency weights (auto-determined if <=0)",
+      "name": "__DISTANCE_BAND__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Region identifier variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Number of nearest neighbors for knn weights (default: 5)",
+      "name": "__K_NEIGHBORS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Weight matrix type: distance, knn, band (default: distance)",
+      "kind": "enum",
+      "name": "__WEIGHT_TYPE__",
+      "options": [
+        "distance",
+        "knn",
+        "band"
+      ],
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "X coordinate variable",
+      "name": "__X_COORD__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Y coordinate variable",
+      "name": "__Y_COORD__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "spatial_weight",
+  "tags": [
+    "spatial",
+    "weight",
+    "matrix"
+  ],
+  "title": "Spatial Weight",
+  "title_zh": "空间权重",
+  "version": "2.0.1"
+}

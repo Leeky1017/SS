@@ -1,0 +1,73 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core append commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Vertically append multiple datasets, check variable consistency, generate source markers, handle variable structure differences",
+  "family": "data_merge",
+  "id": "T05",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data_append.dta",
+      "required": true,
+      "role": "append_table"
+    }
+  ],
+  "level": "L1",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Append diagnostics report",
+      "file": "table_T05_append_report.csv",
+      "type": "table"
+    },
+    {
+      "description": "Appended dataset CSV",
+      "file": "table_T05_appended_data.csv",
+      "type": "table"
+    },
+    {
+      "description": "Appended dataset Stata",
+      "file": "data_T05_appended_data.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Entity variable (optional)",
+      "name": "__ID_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Time variable (optional)",
+      "name": "__TIME_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "append_datasets",
+  "tags": [
+    "append",
+    "stack",
+    "vertical_merge",
+    "data_integration"
+  ],
+  "title": "Append Datasets Vertical",
+  "title_zh": "数据集追加（纵向合并）",
+  "version": "2.0.1"
+}

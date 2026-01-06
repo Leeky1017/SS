@@ -1,0 +1,73 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "estat phtest command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Test proportional hazards assumption",
+  "family": "survival",
+  "id": "TI06",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "I",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TI06_phtest.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TI06_ph.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "PH test results",
+      "file": "table_TI06_phtest.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Failure indicator",
+      "name": "__FAILVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Covariates",
+      "name": "__INDEPVARS__",
+      "required": false,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "phtest",
+  "tags": [
+    "survival",
+    "cox",
+    "diagnostics"
+  ],
+  "title": "PH Test",
+  "title_zh": "比例风险检验",
+  "version": "2.0.1"
+}

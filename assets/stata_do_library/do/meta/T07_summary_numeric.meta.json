@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core statistical commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Complete descriptive statistics for numeric variables in academic paper Table 1 format, including N, Mean, SD, Min, percentiles, Max, skewness, kurtosis",
+  "family": "descriptive",
+  "id": "T07",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Descriptive statistics (Table 1 format)",
+      "file": "table_T07_desc_stats.csv",
+      "type": "table"
+    },
+    {
+      "description": "Extended statistics with skewness and kurtosis",
+      "file": "table_T07_desc_extended.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Numeric variables to analyze (space-separated)",
+      "name": "__NUMERIC_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "summary_numeric",
+  "tags": [
+    "descriptive",
+    "summary",
+    "table1",
+    "statistics"
+  ],
+  "title": "Numeric Summary Statistics",
+  "title_zh": "数值变量描述统计（论文表1）",
+  "version": "2.0.1"
+}

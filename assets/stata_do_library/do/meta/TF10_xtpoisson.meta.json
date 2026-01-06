@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "xtpoisson command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Panel Poisson model for count data",
+  "family": "panel_data",
+  "id": "TF10",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "F",
+  "outputs": [
+    {
+      "description": "Panel Poisson results",
+      "file": "table_TF10_xtpois.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TF10_xtpois.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Panel variable",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "xtpoisson",
+  "tags": [
+    "panel",
+    "poisson",
+    "count"
+  ],
+  "title": "XTPOISSON",
+  "title_zh": "面板Poisson",
+  "version": "2.0.1"
+}

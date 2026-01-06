@@ -1,0 +1,103 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "logit command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Inverse probability weighting for ATE/ATT estimation",
+  "family": "causal_inference",
+  "id": "TG03",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "IPW results",
+      "file": "table_TG03_ipw_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Weight summary",
+      "file": "table_TG03_weight_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Balance weighted",
+      "file": "table_TG03_balance_weighted.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data with weights",
+      "file": "data_TG03_with_weights.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Treatment variable",
+      "name": "__TREATMENT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Covariates",
+      "name": "__COVARIATES__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Estimand type",
+      "name": "__ESTIMAND__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Trim percentile",
+      "name": "__TRIM_PCTL__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Stabilize weights",
+      "name": "__STABILIZE__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Random seed (optional)",
+      "name": "__SEED__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "ipw_weight",
+  "tags": [
+    "ipw",
+    "weighting",
+    "ate",
+    "causal"
+  ],
+  "title": "IPW Weight",
+  "title_zh": "逆概率加权",
+  "version": "2.0.1"
+}

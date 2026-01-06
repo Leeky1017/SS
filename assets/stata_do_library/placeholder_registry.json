@@ -1,0 +1,2457 @@
+{
+  "generated_at": "2025-12-21T15:44:59.594214+00:00",
+  "placeholders": {
+    "__ABSORB_VARS__": {
+      "aliases": [
+        "__ABSORB_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__ACTION__": {
+      "aliases": [
+        "__ACTION__"
+      ],
+      "needs_meta": false
+    },
+    "__ALPHA__": {
+      "aliases": [
+        "__ALPHA__"
+      ],
+      "needs_meta": false
+    },
+    "__AQI__": {
+      "aliases": [
+        "__AQI__"
+      ],
+      "needs_meta": false
+    },
+    "__ARCH__": {
+      "aliases": [
+        "__ARCH__"
+      ],
+      "needs_meta": false
+    },
+    "__AR_ORDER__": {
+      "aliases": [
+        "__AR_ORDER__"
+      ],
+      "needs_meta": true
+    },
+    "__ASK_VAR__": {
+      "aliases": [
+        "__ASK_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__ASSETS_VAR__": {
+      "aliases": [
+        "__ASSETS_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__ASSETS__": {
+      "aliases": [
+        "__ASSETS__"
+      ],
+      "needs_meta": true
+    },
+    "__ASSET_VARS__": {
+      "aliases": [
+        "__ASSET_VARS__"
+      ],
+      "needs_meta": true
+    },
+    "__BANDWIDTH__": {
+      "aliases": [
+        "__BANDWIDTH__"
+      ],
+      "needs_meta": false
+    },
+    "__BASE_CATEGORY__": {
+      "aliases": [
+        "__BASE_CATEGORY__"
+      ],
+      "needs_meta": false
+    },
+    "__BASE_VARS__": {
+      "aliases": [
+        "__BASE_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__BENCHMARK_RET__": {
+      "aliases": [
+        "__BENCHMARK_RET__"
+      ],
+      "needs_meta": false
+    },
+    "__BENCHMARK_VAR__": {
+      "aliases": [
+        "__BENCHMARK_VAR__"
+      ],
+      "needs_meta": true
+    },
+    "__BENCH_RETURN__": {
+      "aliases": [
+        "__BENCH_RETURN__"
+      ],
+      "needs_meta": true
+    },
+    "__BENCH_WEIGHT__": {
+      "aliases": [
+        "__BENCH_WEIGHT__"
+      ],
+      "needs_meta": true
+    },
+    "__BETA_VAR__": {
+      "aliases": [
+        "__BETA_VAR__"
+      ],
+      "needs_meta": true
+    },
+    "__BID_VAR__": {
+      "aliases": [
+        "__BID_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__BIG4__": {
+      "aliases": [
+        "__BIG4__"
+      ],
+      "needs_meta": true
+    },
+    "__BINS__": {
+      "aliases": [
+        "__BINS__"
+      ],
+      "needs_meta": false
+    },
+    "__BM_VAR__": {
+      "aliases": [
+        "__BM_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__BW_RANGE__": {
+      "aliases": [
+        "__BW_RANGE__"
+      ],
+      "needs_meta": false
+    },
+    "__BY_VAR__": {
+      "aliases": [
+        "__BY_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__CALIPER__": {
+      "aliases": [
+        "__CALIPER__"
+      ],
+      "needs_meta": false
+    },
+    "__CASES__": {
+      "aliases": [
+        "__CASES__"
+      ],
+      "needs_meta": true
+    },
+    "__CASE__": {
+      "aliases": [
+        "__CASE__"
+      ],
+      "needs_meta": false
+    },
+    "__CATEGORICAL_VARS__": {
+      "aliases": [
+        "__CATEGORICAL_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__CAT_VARS__": {
+      "aliases": [
+        "__CAT_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__CAT_VAR__": {
+      "aliases": [
+        "__CAT_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__CFO_VAR__": {
+      "aliases": [
+        "__CFO_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__CFO__": {
+      "aliases": [
+        "__CFO__"
+      ],
+      "needs_meta": false
+    },
+    "__CHECK_VARS__": {
+      "aliases": [
+        "__CHECK_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__CHG_CASH__": {
+      "aliases": [
+        "__CHG_CASH__"
+      ],
+      "needs_meta": true
+    },
+    "__CHG_INV__": {
+      "aliases": [
+        "__CHG_INV__"
+      ],
+      "needs_meta": true
+    },
+    "__CHG_REC__": {
+      "aliases": [
+        "__CHG_REC__"
+      ],
+      "needs_meta": true
+    },
+    "__CHG_ROA__": {
+      "aliases": [
+        "__CHG_ROA__"
+      ],
+      "needs_meta": true
+    },
+    "__CHIN__": {
+      "aliases": [
+        "__CHIN__"
+      ],
+      "needs_meta": true
+    },
+    "__CI_LEVEL__": {
+      "aliases": [
+        "__CI_LEVEL__"
+      ],
+      "needs_meta": false
+    },
+    "__CLCA__": {
+      "aliases": [
+        "__CLCA__"
+      ],
+      "needs_meta": true
+    },
+    "__CLUSTER_TYPE__": {
+      "aliases": [
+        "__CLUSTER_TYPE__"
+      ],
+      "needs_meta": true
+    },
+    "__CLUSTER_VAR__": {
+      "aliases": [
+        "__CLUSTER_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__CLUSTER__": {
+      "aliases": [
+        "__CLUSTER__"
+      ],
+      "needs_meta": false
+    },
+    "__CMA_VAR__": {
+      "aliases": [
+        "__CMA_VAR__"
+      ],
+      "needs_meta": true
+    },
+    "__COL_VAR__": {
+      "aliases": [
+        "__COLVAR__",
+        "__COL_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__COMMON_SUPPORT__": {
+      "aliases": [
+        "__COMMON_SUPPORT__"
+      ],
+      "needs_meta": false
+    },
+    "__CONFIDENCE__": {
+      "aliases": [
+        "__CONFIDENCE__"
+      ],
+      "needs_meta": true
+    },
+    "__CONF_LEVEL__": {
+      "aliases": [
+        "__CONF_LEVEL__"
+      ],
+      "needs_meta": false
+    },
+    "__CONTROLS__": {
+      "aliases": [
+        "__CONTROLS__"
+      ],
+      "needs_meta": false
+    },
+    "__CONTROL_VARS__": {
+      "aliases": [
+        "__CONTROL_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__COPULA_TYPE__": {
+      "aliases": [
+        "__COPULA_TYPE__"
+      ],
+      "needs_meta": false
+    },
+    "__CORR_TYPE__": {
+      "aliases": [
+        "__CORR_TYPE__"
+      ],
+      "needs_meta": true
+    },
+    "__CORR__": {
+      "aliases": [
+        "__CORR__"
+      ],
+      "needs_meta": false
+    },
+    "__COUPON_RATE__": {
+      "aliases": [
+        "__COUPON_RATE__"
+      ],
+      "needs_meta": true
+    },
+    "__COUPON__": {
+      "aliases": [
+        "__COUPON__"
+      ],
+      "needs_meta": false
+    },
+    "__COVARIATES__": {
+      "aliases": [
+        "__COVARIATES__"
+      ],
+      "needs_meta": false
+    },
+    "__CUTOFF__": {
+      "aliases": [
+        "__CUTOFF__"
+      ],
+      "needs_meta": false
+    },
+    "__CUTPOINTS__": {
+      "aliases": [
+        "__CUTPOINTS__"
+      ],
+      "needs_meta": false
+    },
+    "__CV_FOLDS__": {
+      "aliases": [
+        "__CV_FOLDS__"
+      ],
+      "needs_meta": false
+    },
+    "__DATE_VARS__": {
+      "aliases": [
+        "__DATE_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__DATE_VAR__": {
+      "aliases": [
+        "__DATE_VAR__"
+      ],
+      "needs_meta": true
+    },
+    "__DEFAULT_VAR__": {
+      "aliases": [
+        "__DEFAULT_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__DEGREE__": {
+      "aliases": [
+        "__DEGREE__"
+      ],
+      "needs_meta": false
+    },
+    "__DELTA__": {
+      "aliases": [
+        "__DELTA__"
+      ],
+      "needs_meta": false
+    },
+    "__DEPI__": {
+      "aliases": [
+        "__DEPI__"
+      ],
+      "needs_meta": true
+    },
+    "__DEP_VAR__": {
+      "aliases": [
+        "__DEPVAR__",
+        "__DEP_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__DICT_FILE__": {
+      "aliases": [
+        "__DICT_FILE__"
+      ],
+      "needs_meta": false
+    },
+    "__DIFF_ORDER__": {
+      "aliases": [
+        "__DIFF_ORDER__"
+      ],
+      "needs_meta": false
+    },
+    "__DISEXP_VAR__": {
+      "aliases": [
+        "__DISEXP_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__DISEXP__": {
+      "aliases": [
+        "__DISEXP__"
+      ],
+      "needs_meta": true
+    },
+    "__DISTANCE_BAND__": {
+      "aliases": [
+        "__DISTANCE_BAND__"
+      ],
+      "needs_meta": true
+    },
+    "__DIST__": {
+      "aliases": [
+        "__DIST__"
+      ],
+      "needs_meta": false
+    },
+    "__DROP_FIRST__": {
+      "aliases": [
+        "__DROP_FIRST__"
+      ],
+      "needs_meta": false
+    },
+    "__DSRI__": {
+      "aliases": [
+        "__DSRI__"
+      ],
+      "needs_meta": false
+    },
+    "__D__": {
+      "aliases": [
+        "__D__"
+      ],
+      "needs_meta": false
+    },
+    "__EBIT_TA__": {
+      "aliases": [
+        "__EBIT_TA__"
+      ],
+      "needs_meta": false
+    },
+    "__EBIT__": {
+      "aliases": [
+        "__EBIT__"
+      ],
+      "needs_meta": true
+    },
+    "__EFFECT_MAX__": {
+      "aliases": [
+        "__EFFECT_MAX__"
+      ],
+      "needs_meta": false
+    },
+    "__EFFECT_MIN__": {
+      "aliases": [
+        "__EFFECT_MIN__"
+      ],
+      "needs_meta": false
+    },
+    "__EFFECT_SIZE__": {
+      "aliases": [
+        "__EFFECT_SIZE__"
+      ],
+      "needs_meta": false
+    },
+    "__EFFECT__": {
+      "aliases": [
+        "__EFFECT__"
+      ],
+      "needs_meta": false
+    },
+    "__ENDOG_VARS__": {
+      "aliases": [
+        "__ENDOG_VARS__"
+      ],
+      "needs_meta": true
+    },
+    "__ENDOG_VAR__": {
+      "aliases": [
+        "__ENDOG_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__ENTITY_VAR__": {
+      "aliases": [
+        "__ENTITY_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__EP_VAR__": {
+      "aliases": [
+        "__EP_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__ESTIMAND__": {
+      "aliases": [
+        "__ESTIMAND__"
+      ],
+      "needs_meta": false
+    },
+    "__EST_WINDOW__": {
+      "aliases": [
+        "__EST_WINDOW__"
+      ],
+      "needs_meta": true
+    },
+    "__EVENTS__": {
+      "aliases": [
+        "__EVENTS__"
+      ],
+      "needs_meta": false
+    },
+    "__EVENT_DATE__": {
+      "aliases": [
+        "__EVENT_DATE__"
+      ],
+      "needs_meta": false
+    },
+    "__EVENT_TIME__": {
+      "aliases": [
+        "__EVENT_TIME__"
+      ],
+      "needs_meta": false
+    },
+    "__EVENT_VAR__": {
+      "aliases": [
+        "__EVENT_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__EVENT_WINDOW__": {
+      "aliases": [
+        "__EVENT_WINDOW__"
+      ],
+      "needs_meta": true
+    },
+    "__EXACT_VARS__": {
+      "aliases": [
+        "__EXACT_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__EXOG_VARS__": {
+      "aliases": [
+        "__EXOG_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__EXPOSURE__": {
+      "aliases": [
+        "__EXPOSURE__"
+      ],
+      "needs_meta": false
+    },
+    "__FACE_VALUE__": {
+      "aliases": [
+        "__FACE_VALUE__"
+      ],
+      "needs_meta": true
+    },
+    "__FACTOR1__": {
+      "aliases": [
+        "__FACTOR1__"
+      ],
+      "needs_meta": false
+    },
+    "__FACTOR2__": {
+      "aliases": [
+        "__FACTOR2__"
+      ],
+      "needs_meta": false
+    },
+    "__FAILVAR__": {
+      "aliases": [
+        "__FAILVAR__"
+      ],
+      "needs_meta": false
+    },
+    "__FAMILY__": {
+      "aliases": [
+        "__FAMILY__"
+      ],
+      "needs_meta": false
+    },
+    "__FEE_VAR__": {
+      "aliases": [
+        "__FEE_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__FE_TYPE__": {
+      "aliases": [
+        "__FE_TYPE__"
+      ],
+      "needs_meta": true
+    },
+    "__FILL_VALUE__": {
+      "aliases": [
+        "__FILL_VALUE__"
+      ],
+      "needs_meta": false
+    },
+    "__FILTER_CONDITION__": {
+      "aliases": [
+        "__FILTER_CONDITION__"
+      ],
+      "needs_meta": false
+    },
+    "__FITLINE__": {
+      "aliases": [
+        "__FITLINE__"
+      ],
+      "needs_meta": false
+    },
+    "__FORECAST_H__": {
+      "aliases": [
+        "__FORECAST_H__"
+      ],
+      "needs_meta": true
+    },
+    "__FOREIGN__": {
+      "aliases": [
+        "__FOREIGN__"
+      ],
+      "needs_meta": true
+    },
+    "__FORMAT__": {
+      "aliases": [
+        "__FORMAT__"
+      ],
+      "needs_meta": false
+    },
+    "__FREQUENCY__": {
+      "aliases": [
+        "__FREQUENCY__"
+      ],
+      "needs_meta": true
+    },
+    "__FULL_VARS__": {
+      "aliases": [
+        "__FULL_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__FUTL__": {
+      "aliases": [
+        "__FUTL__"
+      ],
+      "needs_meta": true
+    },
+    "__GAMMA_MAX__": {
+      "aliases": [
+        "__GAMMA_MAX__"
+      ],
+      "needs_meta": false
+    },
+    "__GAMMA_STEP__": {
+      "aliases": [
+        "__GAMMA_STEP__"
+      ],
+      "needs_meta": false
+    },
+    "__GARCH__": {
+      "aliases": [
+        "__GARCH__"
+      ],
+      "needs_meta": false
+    },
+    "__GC_VAR__": {
+      "aliases": [
+        "__GC_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__GC__": {
+      "aliases": [
+        "__GC__"
+      ],
+      "needs_meta": true
+    },
+    "__GMI__": {
+      "aliases": [
+        "__GMI__"
+      ],
+      "needs_meta": false
+    },
+    "__GMM_TYPE__": {
+      "aliases": [
+        "__GMM_TYPE__"
+      ],
+      "needs_meta": true
+    },
+    "__GOLD__": {
+      "aliases": [
+        "__GOLD__"
+      ],
+      "needs_meta": true
+    },
+    "__GROUP1__": {
+      "aliases": [
+        "__GROUP1__"
+      ],
+      "needs_meta": false
+    },
+    "__GROUP2__": {
+      "aliases": [
+        "__GROUP2__"
+      ],
+      "needs_meta": false
+    },
+    "__GROUP3__": {
+      "aliases": [
+        "__GROUP3__"
+      ],
+      "needs_meta": false
+    },
+    "__GROUP_VAR__": {
+      "aliases": [
+        "__GROUPVAR__",
+        "__GROUP_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__GROUP__": {
+      "aliases": [
+        "__GROUP__"
+      ],
+      "needs_meta": false
+    },
+    "__GROWTH_TYPE__": {
+      "aliases": [
+        "__GROWTH_TYPE__"
+      ],
+      "needs_meta": false
+    },
+    "__GROWTH__": {
+      "aliases": [
+        "__GROWTH__"
+      ],
+      "needs_meta": true
+    },
+    "__HML_VAR__": {
+      "aliases": [
+        "__HML_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__HORIZON__": {
+      "aliases": [
+        "__HORIZON__"
+      ],
+      "needs_meta": false
+    },
+    "__HR__": {
+      "aliases": [
+        "__HR__"
+      ],
+      "needs_meta": false
+    },
+    "__ICW_VAR__": {
+      "aliases": [
+        "__ICW_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__ICW__": {
+      "aliases": [
+        "__ICW__"
+      ],
+      "needs_meta": true
+    },
+    "__ID_VAR__": {
+      "aliases": [
+        "__ID_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__ID__": {
+      "aliases": [
+        "__ID__"
+      ],
+      "needs_meta": true
+    },
+    "__IMPUTE_VARS__": {
+      "aliases": [
+        "__IMPUTE_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__INDEPVARS1__": {
+      "aliases": [
+        "__INDEPVARS1__"
+      ],
+      "needs_meta": false
+    },
+    "__INDEPVARS2__": {
+      "aliases": [
+        "__INDEPVARS2__"
+      ],
+      "needs_meta": false
+    },
+    "__INDEP_VARS__": {
+      "aliases": [
+        "__INDEPVARS__",
+        "__INDEP_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__INDEP_VAR__": {
+      "aliases": [
+        "__INDEPVAR__",
+        "__INDEP_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__INFLATE_VARS__": {
+      "aliases": [
+        "__INFLATE_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__INPUT_FORMAT__": {
+      "aliases": [
+        "__INPUT_FORMAT__"
+      ],
+      "needs_meta": false
+    },
+    "__INSTRUMENTS__": {
+      "aliases": [
+        "__INSTRUMENTS__"
+      ],
+      "needs_meta": false
+    },
+    "__INSTRUMENT__": {
+      "aliases": [
+        "__INSTRUMENT__"
+      ],
+      "needs_meta": false
+    },
+    "__INTERACTION__": {
+      "aliases": [
+        "__INTERACTION__"
+      ],
+      "needs_meta": false
+    },
+    "__INTERACT_VAR1__": {
+      "aliases": [
+        "__INTERACT_VAR1__"
+      ],
+      "needs_meta": false
+    },
+    "__INTERACT_VAR2__": {
+      "aliases": [
+        "__INTERACT_VAR2__"
+      ],
+      "needs_meta": false
+    },
+    "__INTWO__": {
+      "aliases": [
+        "__INTWO__"
+      ],
+      "needs_meta": true
+    },
+    "__INVREC__": {
+      "aliases": [
+        "__INVREC__"
+      ],
+      "needs_meta": true
+    },
+    "__ISSUE__": {
+      "aliases": [
+        "__ISSUE__"
+      ],
+      "needs_meta": true
+    },
+    "__KEEP_OPTION__": {
+      "aliases": [
+        "__KEEP_OPTION__"
+      ],
+      "needs_meta": false
+    },
+    "__KERNEL__": {
+      "aliases": [
+        "__KERNEL__"
+      ],
+      "needs_meta": false
+    },
+    "__KEY_VARS__": {
+      "aliases": [
+        "__KEY_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__KNOT__": {
+      "aliases": [
+        "__KNOT__"
+      ],
+      "needs_meta": false
+    },
+    "__K_FOLDS__": {
+      "aliases": [
+        "__K_FOLDS__"
+      ],
+      "needs_meta": false
+    },
+    "__K_NEIGHBORS__": {
+      "aliases": [
+        "__K_NEIGHBORS__"
+      ],
+      "needs_meta": true
+    },
+    "__K__": {
+      "aliases": [
+        "__K__"
+      ],
+      "needs_meta": false
+    },
+    "__LAGGC__": {
+      "aliases": [
+        "__LAGGC__"
+      ],
+      "needs_meta": true
+    },
+    "__LAGS__": {
+      "aliases": [
+        "__LAGS__"
+      ],
+      "needs_meta": false
+    },
+    "__LAG_PERIODS__": {
+      "aliases": [
+        "__LAG_PERIODS__"
+      ],
+      "needs_meta": false
+    },
+    "__LAT__": {
+      "aliases": [
+        "__LAT__"
+      ],
+      "needs_meta": false
+    },
+    "__LEARNING_RATE__": {
+      "aliases": [
+        "__LEARNING_RATE__"
+      ],
+      "needs_meta": false
+    },
+    "__LEVEL1_VARS__": {
+      "aliases": [
+        "__LEVEL1_VARS__"
+      ],
+      "needs_meta": true
+    },
+    "__LEVEL2_VARS__": {
+      "aliases": [
+        "__LEVEL2_VARS__"
+      ],
+      "needs_meta": true
+    },
+    "__LEVEL2__": {
+      "aliases": [
+        "__LEVEL2__"
+      ],
+      "needs_meta": true
+    },
+    "__LEVEL3__": {
+      "aliases": [
+        "__LEVEL3__"
+      ],
+      "needs_meta": true
+    },
+    "__LEVERAGE__": {
+      "aliases": [
+        "__LEVERAGE__"
+      ],
+      "needs_meta": false
+    },
+    "__LINKAGE_METHOD__": {
+      "aliases": [
+        "__LINKAGE_METHOD__"
+      ],
+      "needs_meta": false
+    },
+    "__LL__": {
+      "aliases": [
+        "__LL__"
+      ],
+      "needs_meta": false
+    },
+    "__LNFEE__": {
+      "aliases": [
+        "__LNFEE__"
+      ],
+      "needs_meta": true
+    },
+    "__LNTA__": {
+      "aliases": [
+        "__LNTA__"
+      ],
+      "needs_meta": true
+    },
+    "__LON__": {
+      "aliases": [
+        "__LON__"
+      ],
+      "needs_meta": false
+    },
+    "__LOOKBACK__": {
+      "aliases": [
+        "__LOOKBACK__"
+      ],
+      "needs_meta": false
+    },
+    "__LOSS__": {
+      "aliases": [
+        "__LOSS__"
+      ],
+      "needs_meta": true
+    },
+    "__LOWERCASE__": {
+      "aliases": [
+        "__LOWERCASE__"
+      ],
+      "needs_meta": false
+    },
+    "__LOWER_PCTL__": {
+      "aliases": [
+        "__LOWER_PCTL__"
+      ],
+      "needs_meta": false
+    },
+    "__LVGI__": {
+      "aliases": [
+        "__LVGI__"
+      ],
+      "needs_meta": true
+    },
+    "__MARGIN__": {
+      "aliases": [
+        "__MARGIN__"
+      ],
+      "needs_meta": false
+    },
+    "__MARKET_PRICE__": {
+      "aliases": [
+        "__MARKET_PRICE__"
+      ],
+      "needs_meta": true
+    },
+    "__MARKET_VAR__": {
+      "aliases": [
+        "__MARKET_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__MATCH_ID__": {
+      "aliases": [
+        "__MATCH_ID__"
+      ],
+      "needs_meta": false
+    },
+    "__MATCH_VARS__": {
+      "aliases": [
+        "__MATCH_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__MATURITY__": {
+      "aliases": [
+        "__MATURITY__"
+      ],
+      "needs_meta": false
+    },
+    "__MAXLAG__": {
+      "aliases": [
+        "__MAXLAG__"
+      ],
+      "needs_meta": false
+    },
+    "__MAX_DEPTH__": {
+      "aliases": [
+        "__MAX_DEPTH__"
+      ],
+      "needs_meta": false
+    },
+    "__MAX_K__": {
+      "aliases": [
+        "__MAX_K__"
+      ],
+      "needs_meta": false
+    },
+    "__MA_ORDER__": {
+      "aliases": [
+        "__MA_ORDER__"
+      ],
+      "needs_meta": true
+    },
+    "__MCMC__": {
+      "aliases": [
+        "__MCMC__"
+      ],
+      "needs_meta": false
+    },
+    "__MERGE_KEYS__": {
+      "aliases": [
+        "__MERGE_KEYS__"
+      ],
+      "needs_meta": false
+    },
+    "__MERGE_TYPE__": {
+      "aliases": [
+        "__MERGE_TYPE__"
+      ],
+      "needs_meta": false
+    },
+    "__METHOD__": {
+      "aliases": [
+        "__METHOD__"
+      ],
+      "needs_meta": false
+    },
+    "__MIN_FREQ__": {
+      "aliases": [
+        "__MIN_FREQ__"
+      ],
+      "needs_meta": false
+    },
+    "__MIN_PERIODS__": {
+      "aliases": [
+        "__MIN_PERIODS__"
+      ],
+      "needs_meta": false
+    },
+    "__MKTCAP_VAR__": {
+      "aliases": [
+        "__MKTCAP_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__MKT_VAR__": {
+      "aliases": [
+        "__MKT_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__MODELS__": {
+      "aliases": [
+        "__MODELS__"
+      ],
+      "needs_meta": false
+    },
+    "__MODEL_SPEC__": {
+      "aliases": [
+        "__MODEL_SPEC__"
+      ],
+      "needs_meta": true
+    },
+    "__MODEL_TYPE__": {
+      "aliases": [
+        "__MODEL_TYPE__"
+      ],
+      "needs_meta": false
+    },
+    "__MODEL__": {
+      "aliases": [
+        "__MODEL__"
+      ],
+      "needs_meta": false
+    },
+    "__MVE__": {
+      "aliases": [
+        "__MVE__"
+      ],
+      "needs_meta": true
+    },
+    "__NEG_WORDS__": {
+      "aliases": [
+        "__NEG_WORDS__"
+      ],
+      "needs_meta": false
+    },
+    "__NEST_VAR__": {
+      "aliases": [
+        "__NEST_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__NEW_SUFFIX__": {
+      "aliases": [
+        "__NEW_SUFFIX__"
+      ],
+      "needs_meta": false
+    },
+    "__NEW_VAR__": {
+      "aliases": [
+        "__NEW_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__NITA__": {
+      "aliases": [
+        "__NITA__"
+      ],
+      "needs_meta": true
+    },
+    "__NI__": {
+      "aliases": [
+        "__NI__"
+      ],
+      "needs_meta": false
+    },
+    "__NORMAL__": {
+      "aliases": [
+        "__NORMAL__"
+      ],
+      "needs_meta": false
+    },
+    "__NULL_VALUE__": {
+      "aliases": [
+        "__NULL_VALUE__"
+      ],
+      "needs_meta": false
+    },
+    "__NUMERIC_VARS__": {
+      "aliases": [
+        "__NUMERIC_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__NUMERIC_VAR__": {
+      "aliases": [
+        "__NUMERIC_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__N_CLUSTERS__": {
+      "aliases": [
+        "__N_CLUSTERS__"
+      ],
+      "needs_meta": false
+    },
+    "__N_COMPONENTS__": {
+      "aliases": [
+        "__N_COMPONENTS__"
+      ],
+      "needs_meta": false
+    },
+    "__N_FACTORS__": {
+      "aliases": [
+        "__N_FACTORS__"
+      ],
+      "needs_meta": false
+    },
+    "__N_GROUPS__": {
+      "aliases": [
+        "__N_GROUPS__"
+      ],
+      "needs_meta": false
+    },
+    "__N_IMPUTATIONS__": {
+      "aliases": [
+        "__N_IMPUTATIONS__"
+      ],
+      "needs_meta": false
+    },
+    "__N_KNOTS__": {
+      "aliases": [
+        "__N_KNOTS__"
+      ],
+      "needs_meta": false
+    },
+    "__N_NEIGHBORS__": {
+      "aliases": [
+        "__N_NEIGHBORS__"
+      ],
+      "needs_meta": false
+    },
+    "__N_PERMUTATIONS__": {
+      "aliases": [
+        "__N_PERMUTATIONS__"
+      ],
+      "needs_meta": false
+    },
+    "__N_PREDICTORS__": {
+      "aliases": [
+        "__N_PREDICTORS__"
+      ],
+      "needs_meta": false
+    },
+    "__N_ROUNDS__": {
+      "aliases": [
+        "__N_ROUNDS__"
+      ],
+      "needs_meta": false
+    },
+    "__N_SAMPLE__": {
+      "aliases": [
+        "__N_SAMPLE__"
+      ],
+      "needs_meta": false
+    },
+    "__N_STRATA__": {
+      "aliases": [
+        "__N_STRATA__"
+      ],
+      "needs_meta": false
+    },
+    "__N_TREES__": {
+      "aliases": [
+        "__N_TREES__"
+      ],
+      "needs_meta": false
+    },
+    "__N__": {
+      "aliases": [
+        "__N__"
+      ],
+      "needs_meta": false
+    },
+    "__OENEG__": {
+      "aliases": [
+        "__OENEG__"
+      ],
+      "needs_meta": true
+    },
+    "__OPERATIONS__": {
+      "aliases": [
+        "__OPERATIONS__"
+      ],
+      "needs_meta": false
+    },
+    "__OPERATION__": {
+      "aliases": [
+        "__OPERATION__"
+      ],
+      "needs_meta": false
+    },
+    "__OPTION_PRICE__": {
+      "aliases": [
+        "__OPTION_PRICE__"
+      ],
+      "needs_meta": false
+    },
+    "__OPTION_TYPE__": {
+      "aliases": [
+        "__OPTION_TYPE__"
+      ],
+      "needs_meta": true
+    },
+    "__OTHER_VARS__": {
+      "aliases": [
+        "__OTHER_VARS__"
+      ],
+      "needs_meta": true
+    },
+    "__OUTCOME_VAR__": {
+      "aliases": [
+        "__OUTCOME_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__OUTCOME__": {
+      "aliases": [
+        "__OUTCOME__"
+      ],
+      "needs_meta": false
+    },
+    "__P1__": {
+      "aliases": [
+        "__P1__"
+      ],
+      "needs_meta": false
+    },
+    "__P2__": {
+      "aliases": [
+        "__P2__"
+      ],
+      "needs_meta": true
+    },
+    "__PANELVAR__": {
+      "aliases": [
+        "__PANELVAR__"
+      ],
+      "needs_meta": false
+    },
+    "__PATTERN__": {
+      "aliases": [
+        "__PATTERN__"
+      ],
+      "needs_meta": false
+    },
+    "__PERIOD__": {
+      "aliases": [
+        "__PERIOD__"
+      ],
+      "needs_meta": false
+    },
+    "__PERSON_TIME__": {
+      "aliases": [
+        "__PERSON_TIME__"
+      ],
+      "needs_meta": false
+    },
+    "__PLACEBO_TYPE__": {
+      "aliases": [
+        "__PLACEBO_TYPE__"
+      ],
+      "needs_meta": false
+    },
+    "__POLY_ORDER__": {
+      "aliases": [
+        "__POLY_ORDER__"
+      ],
+      "needs_meta": false
+    },
+    "__PORTFOLIO_RET__": {
+      "aliases": [
+        "__PORTFOLIO_RET__"
+      ],
+      "needs_meta": false
+    },
+    "__PORTFOLIO_VALUE__": {
+      "aliases": [
+        "__PORTFOLIO_VALUE__"
+      ],
+      "needs_meta": true
+    },
+    "__PORT_RETURN__": {
+      "aliases": [
+        "__PORT_RETURN__"
+      ],
+      "needs_meta": true
+    },
+    "__PORT_WEIGHT__": {
+      "aliases": [
+        "__PORT_WEIGHT__"
+      ],
+      "needs_meta": true
+    },
+    "__POST_VAR__": {
+      "aliases": [
+        "__POST_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__POS_WORDS__": {
+      "aliases": [
+        "__POS_WORDS__"
+      ],
+      "needs_meta": false
+    },
+    "__POWER__": {
+      "aliases": [
+        "__POWER__"
+      ],
+      "needs_meta": false
+    },
+    "__PPE_VAR__": {
+      "aliases": [
+        "__PPE_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__PPE__": {
+      "aliases": [
+        "__PPE__"
+      ],
+      "needs_meta": true
+    },
+    "__PREDICTORS__": {
+      "aliases": [
+        "__PREDICTORS__"
+      ],
+      "needs_meta": false
+    },
+    "__PREDICTOR_VARS__": {
+      "aliases": [
+        "__PREDICTOR_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__PREDICTOR__": {
+      "aliases": [
+        "__PREDICTOR__"
+      ],
+      "needs_meta": true
+    },
+    "__PREFIX__": {
+      "aliases": [
+        "__PREFIX__"
+      ],
+      "needs_meta": false
+    },
+    "__PRICE_VAR__": {
+      "aliases": [
+        "__PRICE_VAR__"
+      ],
+      "needs_meta": true
+    },
+    "__PROD_VAR__": {
+      "aliases": [
+        "__PROD_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__PROD__": {
+      "aliases": [
+        "__PROD__"
+      ],
+      "needs_meta": true
+    },
+    "__PSCORE_VAR__": {
+      "aliases": [
+        "__PSCORE_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__PSU__": {
+      "aliases": [
+        "__PSU__"
+      ],
+      "needs_meta": true
+    },
+    "__PWEIGHT__": {
+      "aliases": [
+        "__PWEIGHT__"
+      ],
+      "needs_meta": true
+    },
+    "__PYEARS__": {
+      "aliases": [
+        "__PYEARS__"
+      ],
+      "needs_meta": true
+    },
+    "__P__": {
+      "aliases": [
+        "__P__"
+      ],
+      "needs_meta": false
+    },
+    "__QUALITY_THRESHOLD__": {
+      "aliases": [
+        "__QUALITY_THRESHOLD__"
+      ],
+      "needs_meta": false
+    },
+    "__QUANTILE__": {
+      "aliases": [
+        "__QUANTILE__"
+      ],
+      "needs_meta": false
+    },
+    "__Q__": {
+      "aliases": [
+        "__Q__"
+      ],
+      "needs_meta": false
+    },
+    "__RANDOM_SEED__": {
+      "aliases": [
+        "__RANDOM_SEED__"
+      ],
+      "needs_meta": false
+    },
+    "__RAND_VARS__": {
+      "aliases": [
+        "__RAND_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__RANK__": {
+      "aliases": [
+        "__RANK__"
+      ],
+      "needs_meta": false
+    },
+    "__RATER1__": {
+      "aliases": [
+        "__RATER1__"
+      ],
+      "needs_meta": false
+    },
+    "__RATER2__": {
+      "aliases": [
+        "__RATER2__"
+      ],
+      "needs_meta": false
+    },
+    "__RATIO__": {
+      "aliases": [
+        "__RATIO__"
+      ],
+      "needs_meta": true
+    },
+    "__REC_VAR__": {
+      "aliases": [
+        "__REC_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__REC__": {
+      "aliases": [
+        "__REC__"
+      ],
+      "needs_meta": true
+    },
+    "__REFERENCE_DATE__": {
+      "aliases": [
+        "__REFERENCE_DATE__"
+      ],
+      "needs_meta": false
+    },
+    "__REMOVE_NUM__": {
+      "aliases": [
+        "__REMOVE_NUM__"
+      ],
+      "needs_meta": false
+    },
+    "__REMOVE_PUNCT__": {
+      "aliases": [
+        "__REMOVE_PUNCT__"
+      ],
+      "needs_meta": false
+    },
+    "__REPLACEMENT__": {
+      "aliases": [
+        "__REPLACEMENT__"
+      ],
+      "needs_meta": false
+    },
+    "__REPS__": {
+      "aliases": [
+        "__REPS__"
+      ],
+      "needs_meta": false
+    },
+    "__RESHAPE_DIRECTION__": {
+      "aliases": [
+        "__RESHAPE_DIRECTION__"
+      ],
+      "needs_meta": false
+    },
+    "__RESTRUCTURE__": {
+      "aliases": [
+        "__RESTRUCTURE__"
+      ],
+      "needs_meta": true
+    },
+    "__RETURN_VARS__": {
+      "aliases": [
+        "__RETURN_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__RETURN_VAR__": {
+      "aliases": [
+        "__RETURN_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__REV_VAR__": {
+      "aliases": [
+        "__REV_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__REV__": {
+      "aliases": [
+        "__REV__"
+      ],
+      "needs_meta": true
+    },
+    "__RE_TA__": {
+      "aliases": [
+        "__RE_TA__"
+      ],
+      "needs_meta": false
+    },
+    "__RE__": {
+      "aliases": [
+        "__RE__"
+      ],
+      "needs_meta": true
+    },
+    "__RF_RATE__": {
+      "aliases": [
+        "__RF_RATE__"
+      ],
+      "needs_meta": false
+    },
+    "__RF_VAR__": {
+      "aliases": [
+        "__RF_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__RISK_FREE__": {
+      "aliases": [
+        "__RISK_FREE__"
+      ],
+      "needs_meta": true
+    },
+    "__RMW_VAR__": {
+      "aliases": [
+        "__RMW_VAR__"
+      ],
+      "needs_meta": true
+    },
+    "__ROA_VAR__": {
+      "aliases": [
+        "__ROA_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__ROA__": {
+      "aliases": [
+        "__ROA__"
+      ],
+      "needs_meta": false
+    },
+    "__ROBUST__": {
+      "aliases": [
+        "__ROBUST__"
+      ],
+      "needs_meta": false
+    },
+    "__ROW_VAR__": {
+      "aliases": [
+        "__ROWVAR__",
+        "__ROW_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__RSQUARED__": {
+      "aliases": [
+        "__RSQUARED__"
+      ],
+      "needs_meta": false
+    },
+    "__RSST__": {
+      "aliases": [
+        "__RSST__"
+      ],
+      "needs_meta": true
+    },
+    "__RUNNING_VAR__": {
+      "aliases": [
+        "__RUNNING_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__SALES_VAR__": {
+      "aliases": [
+        "__SALES_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__SALES__": {
+      "aliases": [
+        "__SALES__"
+      ],
+      "needs_meta": true
+    },
+    "__SAMPLE_FRACTION__": {
+      "aliases": [
+        "__SAMPLE_FRACTION__"
+      ],
+      "needs_meta": false
+    },
+    "__SAMPLE_SIZE__": {
+      "aliases": [
+        "__SAMPLE_SIZE__"
+      ],
+      "needs_meta": false
+    },
+    "__SD__": {
+      "aliases": [
+        "__SD__"
+      ],
+      "needs_meta": false
+    },
+    "__SEASON__": {
+      "aliases": [
+        "__SEASON__"
+      ],
+      "needs_meta": false
+    },
+    "__SECTOR_VAR__": {
+      "aliases": [
+        "__SECTOR_VAR__"
+      ],
+      "needs_meta": true
+    },
+    "__SEED__": {
+      "aliases": [
+        "__SEED__"
+      ],
+      "needs_meta": false
+    },
+    "__SEGMENTS__": {
+      "aliases": [
+        "__SEGMENTS__"
+      ],
+      "needs_meta": true
+    },
+    "__SELECTION__": {
+      "aliases": [
+        "__SELECTION__"
+      ],
+      "needs_meta": false
+    },
+    "__SELECT_VARS__": {
+      "aliases": [
+        "__SELECT_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__SELECT_VAR__": {
+      "aliases": [
+        "__SELECT_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__SERIES_VAR__": {
+      "aliases": [
+        "__SERIES_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__SE__": {
+      "aliases": [
+        "__SE__"
+      ],
+      "needs_meta": false
+    },
+    "__SGAI__": {
+      "aliases": [
+        "__SGAI__"
+      ],
+      "needs_meta": true
+    },
+    "__SGI__": {
+      "aliases": [
+        "__SGI__"
+      ],
+      "needs_meta": true
+    },
+    "__SHEET__": {
+      "aliases": [
+        "__SHEET__"
+      ],
+      "needs_meta": false
+    },
+    "__SHORT_ALLOWED__": {
+      "aliases": [
+        "__SHORT_ALLOWED__"
+      ],
+      "needs_meta": true
+    },
+    "__SIZE_VAR__": {
+      "aliases": [
+        "__SIZE_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__SIZE__": {
+      "aliases": [
+        "__SIZE__"
+      ],
+      "needs_meta": false
+    },
+    "__SKIP__": {
+      "aliases": [
+        "__SKIP__"
+      ],
+      "needs_meta": true
+    },
+    "__SLOPE_VAR__": {
+      "aliases": [
+        "__SLOPEVAR__",
+        "__SLOPE_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__SMB_VAR__": {
+      "aliases": [
+        "__SMB_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__SOFT__": {
+      "aliases": [
+        "__SOFT__"
+      ],
+      "needs_meta": true
+    },
+    "__SORT_ORDER__": {
+      "aliases": [
+        "__SORT_ORDER__"
+      ],
+      "needs_meta": false
+    },
+    "__SORT_VAR__": {
+      "aliases": [
+        "__SORT_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__SOURCE_VARS__": {
+      "aliases": [
+        "__SOURCE_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__SOURCE_VAR__": {
+      "aliases": [
+        "__SOURCE_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__SPLINE_TYPE__": {
+      "aliases": [
+        "__SPLINE_TYPE__"
+      ],
+      "needs_meta": false
+    },
+    "__SPOT_PRICE__": {
+      "aliases": [
+        "__SPOT_PRICE__"
+      ],
+      "needs_meta": true
+    },
+    "__SPOT_VAR__": {
+      "aliases": [
+        "__SPOT_VAR__"
+      ],
+      "needs_meta": true
+    },
+    "__SPOT__": {
+      "aliases": [
+        "__SPOT__"
+      ],
+      "needs_meta": false
+    },
+    "__SP__": {
+      "aliases": [
+        "__SP__"
+      ],
+      "needs_meta": false
+    },
+    "__SQ__": {
+      "aliases": [
+        "__SQ__"
+      ],
+      "needs_meta": false
+    },
+    "__STABILIZE__": {
+      "aliases": [
+        "__STABILIZE__"
+      ],
+      "needs_meta": false
+    },
+    "__START_VAR__": {
+      "aliases": [
+        "__START_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__STAT__": {
+      "aliases": [
+        "__STAT__"
+      ],
+      "needs_meta": false
+    },
+    "__STEPS__": {
+      "aliases": [
+        "__STEPS__"
+      ],
+      "needs_meta": false
+    },
+    "__STOCK_ID__": {
+      "aliases": [
+        "__STOCK_ID__"
+      ],
+      "needs_meta": false
+    },
+    "__STOP_VAR__": {
+      "aliases": [
+        "__STOP_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__STRATA_VAR__": {
+      "aliases": [
+        "__STRATA_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__STRATA__": {
+      "aliases": [
+        "__STRATA__"
+      ],
+      "needs_meta": false
+    },
+    "__STRIKE_PRICE__": {
+      "aliases": [
+        "__STRIKE_PRICE__"
+      ],
+      "needs_meta": true
+    },
+    "__STRIKE_VAR__": {
+      "aliases": [
+        "__STRIKE_VAR__"
+      ],
+      "needs_meta": true
+    },
+    "__STRIKE__": {
+      "aliases": [
+        "__STRIKE__"
+      ],
+      "needs_meta": false
+    },
+    "__STRING_VARS__": {
+      "aliases": [
+        "__STRING_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__STUB_VARS__": {
+      "aliases": [
+        "__STUB_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__STUDY__": {
+      "aliases": [
+        "__STUDY__"
+      ],
+      "needs_meta": true
+    },
+    "__SUFFIX__": {
+      "aliases": [
+        "__SUFFIX__"
+      ],
+      "needs_meta": false
+    },
+    "__TARGET_RETURN__": {
+      "aliases": [
+        "__TARGET_RETURN__"
+      ],
+      "needs_meta": false
+    },
+    "__TARGET_VARS__": {
+      "aliases": [
+        "__TARGET_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__TATA__": {
+      "aliases": [
+        "__TATA__"
+      ],
+      "needs_meta": true
+    },
+    "__TA_VAR__": {
+      "aliases": [
+        "__TA_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__TA__": {
+      "aliases": [
+        "__TA__"
+      ],
+      "needs_meta": true
+    },
+    "__TEST_TYPE__": {
+      "aliases": [
+        "__TEST_TYPE__"
+      ],
+      "needs_meta": false
+    },
+    "__TEST_VAR__": {
+      "aliases": [
+        "__TEST_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__TEST__": {
+      "aliases": [
+        "__TEST__"
+      ],
+      "needs_meta": true
+    },
+    "__TEXT_VAR__": {
+      "aliases": [
+        "__TEXT_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__THRESHOLD_VAR__": {
+      "aliases": [
+        "__THRESHOLD_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__THRESHOLD__": {
+      "aliases": [
+        "__THRESHOLD__"
+      ],
+      "needs_meta": false
+    },
+    "__TIME_TO_MAT__": {
+      "aliases": [
+        "__TIME_TO_MAT__"
+      ],
+      "needs_meta": true
+    },
+    "__TIME_VAR__": {
+      "aliases": [
+        "__TIMEVAR__",
+        "__TIME_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__TIME__": {
+      "aliases": [
+        "__TIME__"
+      ],
+      "needs_meta": false
+    },
+    "__TITLE__": {
+      "aliases": [
+        "__TITLE__"
+      ],
+      "needs_meta": false
+    },
+    "__TLTA__": {
+      "aliases": [
+        "__TLTA__"
+      ],
+      "needs_meta": true
+    },
+    "__TL__": {
+      "aliases": [
+        "__TL__"
+      ],
+      "needs_meta": true
+    },
+    "__TOP_N__": {
+      "aliases": [
+        "__TOP_N__"
+      ],
+      "needs_meta": false
+    },
+    "__TRANSFORM_VARS__": {
+      "aliases": [
+        "__TRANSFORM_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__TREATED_UNIT__": {
+      "aliases": [
+        "__TREATED_UNIT__"
+      ],
+      "needs_meta": false
+    },
+    "__TREATMENT_TIME__": {
+      "aliases": [
+        "__TREATMENT_TIME__"
+      ],
+      "needs_meta": false
+    },
+    "__TREATMENT_VAR__": {
+      "aliases": [
+        "__TREATMENT_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__TREATMENT__": {
+      "aliases": [
+        "__TREATMENT__"
+      ],
+      "needs_meta": false
+    },
+    "__TREAT_TIME_VAR__": {
+      "aliases": [
+        "__TREAT_TIME_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__TREAT_VAR__": {
+      "aliases": [
+        "__TREAT_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__TREND__": {
+      "aliases": [
+        "__TREND__"
+      ],
+      "needs_meta": true
+    },
+    "__TRIM_OR_WINSOR__": {
+      "aliases": [
+        "__TRIM_OR_WINSOR__"
+      ],
+      "needs_meta": false
+    },
+    "__TRIM_PCTL__": {
+      "aliases": [
+        "__TRIM_PCTL__"
+      ],
+      "needs_meta": false
+    },
+    "__TTM_VAR__": {
+      "aliases": [
+        "__TTM_VAR__"
+      ],
+      "needs_meta": true
+    },
+    "__TURNOVER_VAR__": {
+      "aliases": [
+        "__TURNOVER_VAR__"
+      ],
+      "needs_meta": true
+    },
+    "__TYPE__": {
+      "aliases": [
+        "__TYPE__"
+      ],
+      "needs_meta": false
+    },
+    "__UL__": {
+      "aliases": [
+        "__UL__"
+      ],
+      "needs_meta": false
+    },
+    "__UPPER_PCTL__": {
+      "aliases": [
+        "__UPPER_PCTL__"
+      ],
+      "needs_meta": false
+    },
+    "__VALUE_VAR__": {
+      "aliases": [
+        "__VALUE_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__VAR1__": {
+      "aliases": [
+        "__VAR1__"
+      ],
+      "needs_meta": false
+    },
+    "__VAR2__": {
+      "aliases": [
+        "__VAR2__"
+      ],
+      "needs_meta": false
+    },
+    "__VARS1__": {
+      "aliases": [
+        "__VARS1__"
+      ],
+      "needs_meta": false
+    },
+    "__VARS2__": {
+      "aliases": [
+        "__VARS2__"
+      ],
+      "needs_meta": false
+    },
+    "__VARS__": {
+      "aliases": [
+        "__VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__VAR_AFTER__": {
+      "aliases": [
+        "__VAR_AFTER__"
+      ],
+      "needs_meta": false
+    },
+    "__VAR_BEFORE__": {
+      "aliases": [
+        "__VAR_BEFORE__"
+      ],
+      "needs_meta": false
+    },
+    "__VAR__": {
+      "aliases": [
+        "__VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__VOLATILITY__": {
+      "aliases": [
+        "__VOLATILITY__"
+      ],
+      "needs_meta": false
+    },
+    "__VOLUME_VAR__": {
+      "aliases": [
+        "__VOLUME_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__WCA__": {
+      "aliases": [
+        "__WCA__"
+      ],
+      "needs_meta": true
+    },
+    "__WC_TA__": {
+      "aliases": [
+        "__WCTA__",
+        "__WC_TA__"
+      ],
+      "needs_meta": false
+    },
+    "__WC_VAR__": {
+      "aliases": [
+        "__WC_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__WC__": {
+      "aliases": [
+        "__WC__"
+      ],
+      "needs_meta": true
+    },
+    "__WEIGHT_TYPE__": {
+      "aliases": [
+        "__WEIGHT_TYPE__"
+      ],
+      "needs_meta": true
+    },
+    "__WEIGHT_VAR__": {
+      "aliases": [
+        "__WEIGHT_VAR__"
+      ],
+      "needs_meta": false
+    },
+    "__WEIGHT__": {
+      "aliases": [
+        "__WEIGHT__"
+      ],
+      "needs_meta": false
+    },
+    "__WINDOW_POST__": {
+      "aliases": [
+        "__WINDOW_POST__"
+      ],
+      "needs_meta": false
+    },
+    "__WINDOW_PRE__": {
+      "aliases": [
+        "__WINDOW_PRE__"
+      ],
+      "needs_meta": false
+    },
+    "__WINDOW__": {
+      "aliases": [
+        "__WINDOW__"
+      ],
+      "needs_meta": false
+    },
+    "__WINSOR_VARS__": {
+      "aliases": [
+        "__WINSOR_VARS__"
+      ],
+      "needs_meta": false
+    },
+    "__WITH_REPLACE__": {
+      "aliases": [
+        "__WITH_REPLACE__"
+      ],
+      "needs_meta": false
+    },
+    "__XVAR__": {
+      "aliases": [
+        "__XVAR__"
+      ],
+      "needs_meta": false
+    },
+    "__X_COORD__": {
+      "aliases": [
+        "__X_COORD__"
+      ],
+      "needs_meta": true
+    },
+    "__X__": {
+      "aliases": [
+        "__X__"
+      ],
+      "needs_meta": true
+    },
+    "__YTM__": {
+      "aliases": [
+        "__YTM__"
+      ],
+      "needs_meta": false
+    },
+    "__YVAR__": {
+      "aliases": [
+        "__YVAR__"
+      ],
+      "needs_meta": false
+    },
+    "__Y_COORD__": {
+      "aliases": [
+        "__Y_COORD__"
+      ],
+      "needs_meta": true
+    },
+    "__Y__": {
+      "aliases": [
+        "__Y__"
+      ],
+      "needs_meta": true
+    },
+    "__ZSCORE__": {
+      "aliases": [
+        "__ZSCORE__"
+      ],
+      "needs_meta": true
+    }
+  },
+  "version": "1"
+}

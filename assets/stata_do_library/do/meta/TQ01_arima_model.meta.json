@@ -1,0 +1,96 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "arima command",
+      "source": "built-in"
+    }
+  ],
+  "description": "ARIMA time series model",
+  "family": "time_series",
+  "id": "TQ01",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "Q",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TQ01_arima.dta",
+      "type": "data"
+    },
+    {
+      "description": "Forecast plot",
+      "file": "fig_TQ01_forecast.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TQ01_arima_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TQ01_forecast.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "AR order (p) for ARIMA(p,d,q)",
+      "name": "__AR_ORDER__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Difference order (d) for ARIMA(p,d,q)",
+      "name": "__DIFF_ORDER__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Forecast horizon (number of periods)",
+      "name": "__FORECAST_H__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "MA order (q) for ARIMA(p,d,q)",
+      "name": "__MA_ORDER__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time series variable",
+      "name": "__SERIES_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable for tsset",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "arima_model",
+  "tags": [
+    "arima",
+    "time_series",
+    "forecast"
+  ],
+  "title": "ARIMA Model",
+  "title_zh": "ARIMA模型",
+  "version": "2.0.1"
+}

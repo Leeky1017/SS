@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "OLS regression with heteroscedasticity-robust standard errors (Huber-White), comparing OLS vs robust SE with diagnostic tests",
+  "family": "regression",
+  "id": "T19",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "D",
+  "outputs": [
+    {
+      "description": "Residual diagnostics plot",
+      "file": "fig_T19_residuals.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_T19_paper.rtf",
+      "type": "report"
+    },
+    {
+      "description": "Robust regression results",
+      "file": "table_T19_reg_robust.csv",
+      "type": "table"
+    },
+    {
+      "description": "SE comparison table",
+      "file": "table_T19_se_comparison.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables (space-separated)",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "ols_robust_se",
+  "tags": [
+    "ols",
+    "regression",
+    "robust",
+    "heteroscedasticity",
+    "huber_white"
+  ],
+  "title": "OLS with Robust SE",
+  "title_zh": "稳健标准误OLS回归",
+  "version": "2.0.1"
+}

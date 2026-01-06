@@ -1,0 +1,67 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "graph box command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Plot box plots showing distribution and outliers with optional grouping",
+  "family": "visualization",
+  "id": "TU03",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "U",
+  "outputs": [
+    {
+      "description": "Box plot",
+      "file": "fig_TU03_boxplot.png",
+      "type": "graph"
+    },
+    {
+      "description": "Box statistics",
+      "file": "table_TU03_box_stats.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TU03_box.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable to plot",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Grouping variable",
+      "name": "__BY_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "boxplot",
+  "tags": [
+    "visualization",
+    "boxplot",
+    "outliers"
+  ],
+  "title": "Box Plot",
+  "title_zh": "箱线图",
+  "version": "2.0.1"
+}

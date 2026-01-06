@@ -14,6 +14,11 @@ All Stata execution MUST be encapsulated behind a single `StataRunner` port with
 - **WHEN** code needs to execute Stata work
 - **THEN** it calls `StataRunner` instead of invoking subprocess directly from domain/API
 
+#### Scenario: Windows Stata exits after do-file
+- **GIVEN** Stata is invoked via the Windows executable (e.g. `StataMP-64.exe`) from WSL
+- **WHEN** running a do-file
+- **THEN** the runner uses the Windows batch flag form (`/e do <file>`) so the process exits after completion
+
 ### Requirement: Execution is isolated to the run attempt directory
 
 Execution MUST be isolated inside the job run attempt directory and MUST NOT write outside it (no absolute paths, no traversal).
@@ -37,4 +42,3 @@ Failures MUST be captured as structured errors with `error_code` and MUST archiv
 #### Scenario: Failure produces evidence artifacts
 - **WHEN** a runner execution fails
 - **THEN** artifacts include logs and error metadata for debugging
-

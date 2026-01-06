@@ -1,0 +1,84 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "crossfold command",
+      "source": "built-in"
+    }
+  ],
+  "description": "K-fold cross-validation for model evaluation",
+  "family": "machine_learning",
+  "id": "TS06",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "S",
+  "outputs": [
+    {
+      "description": "Fold results",
+      "file": "table_TS06_cv_folds.csv",
+      "type": "table"
+    },
+    {
+      "description": "CV summary",
+      "file": "table_TS06_cv_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TS06_cv.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Number of folds",
+      "name": "__K_FOLDS__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Model type for cross-validation: ols, logit (default: ols)",
+      "kind": "enum",
+      "name": "__MODEL__",
+      "options": [
+        "ols",
+        "logit"
+      ],
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "cross_valid",
+  "tags": [
+    "cross_validation",
+    "model_evaluation",
+    "machine_learning"
+  ],
+  "title": "Cross Validation",
+  "title_zh": "交叉验证",
+  "version": "2.0.1"
+}

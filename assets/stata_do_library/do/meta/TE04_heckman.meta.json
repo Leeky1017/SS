@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "heckman command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Heckman two-stage selection model",
+  "family": "limited_dependent",
+  "id": "TE04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "E",
+  "outputs": [
+    {
+      "description": "Heckman results",
+      "file": "table_TE04_heck.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TE04_heck.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Selection variable",
+      "name": "__SELECT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Selection equation variables",
+      "name": "__SELECT_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "heckman",
+  "tags": [
+    "heckman",
+    "selection",
+    "sample-selection"
+  ],
+  "title": "Heckman",
+  "title_zh": "Heckman选择模型",
+  "version": "2.0.1"
+}

@@ -1,0 +1,84 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "mdesc",
+      "purpose": "Missing data description",
+      "source": "ssc"
+    }
+  ],
+  "description": "Comprehensive data quality assessment with missing values, outliers, and consistency checks",
+  "family": "data_management",
+  "id": "TA14",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Quality summary",
+      "file": "table_TA14_quality_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Variable diagnostics",
+      "file": "table_TA14_var_diagnostics.csv",
+      "type": "table"
+    },
+    {
+      "description": "Issues list",
+      "file": "table_TA14_issues.csv",
+      "type": "table"
+    },
+    {
+      "description": "Quality heatmap",
+      "file": "fig_TA14_quality_heatmap.png",
+      "type": "figure"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variables to check",
+      "name": "__CHECK_VARS__",
+      "required": false,
+      "type": "list[string]"
+    },
+    {
+      "description": "ID variable",
+      "name": "__ID_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Quality threshold",
+      "name": "__QUALITY_THRESHOLD__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "data_quality",
+  "tags": [
+    "quality",
+    "diagnostic",
+    "missing",
+    "validation"
+  ],
+  "title": "Data Quality",
+  "title_zh": "数据质量诊断报告",
+  "version": "2.0.1"
+}

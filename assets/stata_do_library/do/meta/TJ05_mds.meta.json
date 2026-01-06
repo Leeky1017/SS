@@ -1,0 +1,56 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "mds command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Multidimensional Scaling",
+  "family": "multivariate",
+  "id": "TJ05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "J",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TJ05_mds.dta",
+      "type": "data"
+    },
+    {
+      "description": "MDS plot",
+      "file": "fig_TJ05_mds.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variables",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "mds",
+  "tags": [
+    "mds",
+    "scaling",
+    "multivariate"
+  ],
+  "title": "MDS Analysis",
+  "title_zh": "多维尺度分析",
+  "version": "2.0.1"
+}

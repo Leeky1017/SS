@@ -1,0 +1,73 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "elasticnet command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Ridge regression with cross-validation for regularization",
+  "family": "machine_learning",
+  "id": "TS02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "S",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TS02_ridge.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TS02_cv_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Ridge coefficients",
+      "file": "table_TS02_ridge_coef.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "CV folds (default 10)",
+      "name": "__CV_FOLDS__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "ridge_reg",
+  "tags": [
+    "ridge",
+    "regularization",
+    "machine_learning"
+  ],
+  "title": "Ridge Regression",
+  "title_zh": "岭回归",
+  "version": "2.0.1"
+}

@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "xtreg fe command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Panel data fixed effects estimation",
+  "family": "panel",
+  "id": "TP01",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "P",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TP01_fe.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TP01_fe_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TP01_fe_test.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Cluster variable for standard errors (optional)",
+      "name": "__CLUSTER_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Fixed effects type: individual, time, twoway (default: individual)",
+      "kind": "enum",
+      "name": "__FE_TYPE__",
+      "options": [
+        "individual",
+        "time",
+        "twoway"
+      ],
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Panel identifier variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Time variable for panel setting",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "panel_fe",
+  "tags": [
+    "panel",
+    "fixed_effects",
+    "fe"
+  ],
+  "title": "Panel FE",
+  "title_zh": "面板固定效应",
+  "version": "2.0.1"
+}

@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [],
+  "description": "Elliott-Rothenberg-Stock DF-GLS unit root test",
+  "family": "time_series",
+  "id": "TH01",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "H",
+  "outputs": [
+    {
+      "description": "DF-GLS results",
+      "file": "table_TH01_dfgls.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TH01_dfgls.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable to test",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Maximum lag",
+      "name": "__MAXLAG__",
+      "required": true,
+      "type": "number"
+    }
+  ],
+  "slug": "dfgls",
+  "tags": [
+    "unit_root",
+    "dfgls",
+    "stationarity",
+    "time_series"
+  ],
+  "title": "DF-GLS Test",
+  "title_zh": "DF-GLS单位根检验",
+  "version": "2.0.1"
+}

@@ -1,0 +1,76 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Compare multiple regression models with key metrics, perform nested tests, and help select optimal model specification",
+  "family": "regression",
+  "id": "T24",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "D",
+  "outputs": [
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Model comparison metrics",
+      "file": "table_T24_model_comparison.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_T24_paper.rtf",
+      "type": "report"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Base model variables",
+      "name": "__BASE_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Full model variables",
+      "name": "__FULL_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "ols_model_comparison",
+  "tags": [
+    "ols",
+    "regression",
+    "model_comparison",
+    "aic",
+    "bic",
+    "lr_test"
+  ],
+  "title": "Model Comparison",
+  "title_zh": "多模型对比",
+  "version": "2.0.1"
+}

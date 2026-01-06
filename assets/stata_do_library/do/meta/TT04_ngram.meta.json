@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "String functions",
+      "source": "built-in"
+    }
+  ],
+  "description": "Generate and analyze N-grams (word combinations)",
+  "family": "text_analysis",
+  "id": "TT04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "T",
+  "outputs": [
+    {
+      "description": "N-gram frequency table",
+      "file": "table_TT04_ngram.csv",
+      "type": "table"
+    },
+    {
+      "description": "N-gram data",
+      "file": "data_TT04_ngram.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Text variable",
+      "name": "__TEXT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "N value (default 2)",
+      "name": "__N__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Top N (default 30)",
+      "name": "__TOP_N__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "ngram",
+  "tags": [
+    "text",
+    "ngram",
+    "analysis"
+  ],
+  "title": "N-gram Analysis",
+  "title_zh": "N-gram分析",
+  "version": "2.0.1"
+}

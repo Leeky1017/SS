@@ -1,0 +1,81 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "rbounds",
+      "purpose": "Rosenbaum bounds",
+      "source": "ssc"
+    }
+  ],
+  "description": "Rosenbaum sensitivity analysis for PSM",
+  "family": "causal_inference",
+  "id": "TG08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Sensitivity results",
+      "file": "table_TG08_sensitivity.csv",
+      "type": "table"
+    },
+    {
+      "description": "Gamma bounds",
+      "file": "fig_TG08_gamma_bounds.png",
+      "type": "figure"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Treatment variable",
+      "name": "__TREATMENT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Max gamma value",
+      "name": "__GAMMA_MAX__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Gamma step",
+      "name": "__GAMMA_STEP__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Random seed (optional)",
+      "name": "__SEED__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "psm_sensitivity",
+  "tags": [
+    "psm",
+    "sensitivity",
+    "rosenbaum",
+    "causal"
+  ],
+  "title": "PSM Sensitivity",
+  "title_zh": "敏感性分析",
+  "version": "2.0.1"
+}

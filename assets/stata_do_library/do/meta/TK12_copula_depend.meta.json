@@ -1,0 +1,72 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "copula calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Copula-based dependence modeling",
+  "family": "finance",
+  "id": "TK12",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TK12_copula.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK12_scatter.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK12_correlation.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK12_tail_depend.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Copula family",
+      "name": "__COPULA_TYPE__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Return variables",
+      "name": "__RETURN_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "copula_depend",
+  "tags": [
+    "copula",
+    "dependence",
+    "finance"
+  ],
+  "title": "Copula Dependence",
+  "title_zh": "Copula相依性",
+  "version": "2.0.1"
+}

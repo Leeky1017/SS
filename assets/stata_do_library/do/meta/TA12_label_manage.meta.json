@@ -1,0 +1,84 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Label commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Batch manage variable labels and value labels with import/export/clean/auto",
+  "family": "data_management",
+  "id": "TA12",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    },
+    {
+      "name": "label_dict.csv",
+      "required": false,
+      "role": "config"
+    }
+  ],
+  "level": "L0",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Labeled data",
+      "file": "data_TA12_labeled.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "label_dict_template.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Label export",
+      "file": "table_TA12_label_export.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Operation type",
+      "name": "__OPERATION__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Label dictionary file",
+      "name": "__DICT_FILE__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Target variables",
+      "name": "__TARGET_VARS__",
+      "required": false,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "label_manage",
+  "tags": [
+    "label",
+    "variable",
+    "metadata",
+    "codebook"
+  ],
+  "title": "Label Manage",
+  "title_zh": "变量标签批量管理",
+  "version": "2.0.1"
+}

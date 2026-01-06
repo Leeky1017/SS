@@ -1,0 +1,90 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "psmatch2",
+      "purpose": "PSM matching",
+      "source": "ssc"
+    }
+  ],
+  "description": "Propensity score estimation using Logit/Probit",
+  "family": "causal_inference",
+  "id": "TG01",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Pscore model results",
+      "file": "table_TG01_pscore_model.csv",
+      "type": "table"
+    },
+    {
+      "description": "Balance before matching",
+      "file": "table_TG01_balance_before.csv",
+      "type": "table"
+    },
+    {
+      "description": "Pscore distribution",
+      "file": "fig_TG01_pscore_dist.png",
+      "type": "figure"
+    },
+    {
+      "description": "Data with pscore",
+      "file": "data_TG01_with_pscore.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Treatment variable",
+      "name": "__TREATMENT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Covariates",
+      "name": "__COVARIATES__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Model type",
+      "name": "__MODEL__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Common support",
+      "name": "__COMMON_SUPPORT__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Random seed (optional)",
+      "name": "__SEED__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "pscore_estimate",
+  "tags": [
+    "psm",
+    "propensity-score",
+    "causal"
+  ],
+  "title": "Pscore Estimate",
+  "title_zh": "倾向得分估计",
+  "version": "2.0.1"
+}

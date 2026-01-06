@@ -1,0 +1,56 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "sem command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Confirmatory Factor Analysis using SEM",
+  "family": "latent_variable",
+  "id": "TJ01",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "J",
+  "outputs": [
+    {
+      "description": "CFA results",
+      "file": "table_TJ01_cfa.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TJ01_cfa.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Indicator variables",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "cfa",
+  "tags": [
+    "cfa",
+    "sem",
+    "factor_analysis"
+  ],
+  "title": "CFA Analysis",
+  "title_zh": "验证性因子分析",
+  "version": "2.0.1"
+}

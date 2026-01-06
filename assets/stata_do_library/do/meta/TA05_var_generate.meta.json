@@ -1,0 +1,103 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Panel commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Generate lag, difference, and growth rate variables for panel data",
+  "family": "data_management",
+  "id": "TA05",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "New variable summary",
+      "file": "table_TA05_newvar_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data with new variables",
+      "file": "data_TA05_generated.dta",
+      "type": "data"
+    },
+    {
+      "description": "Data CSV with new variables",
+      "file": "data_TA05_generated.csv",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Source variables",
+      "name": "__SOURCE_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "ID variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Lag periods",
+      "name": "__LAG_PERIODS__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Difference order",
+      "name": "__DIFF_ORDER__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Growth type: pct/log",
+      "name": "__GROWTH_TYPE__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "pct",
+        "log"
+      ]
+    }
+  ],
+  "slug": "var_generate",
+  "tags": [
+    "lag",
+    "difference",
+    "growth_rate",
+    "panel",
+    "time_series"
+  ],
+  "title": "Var Generate",
+  "title_zh": "变量生成器",
+  "version": "2.0.1"
+}

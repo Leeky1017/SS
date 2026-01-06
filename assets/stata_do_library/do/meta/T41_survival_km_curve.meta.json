@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Survival analysis commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Plot Kaplan-Meier survival curves, estimate survival functions, and calculate median survival time",
+  "family": "survival_analysis",
+  "id": "T41",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "H",
+  "outputs": [
+    {
+      "description": "Grouped KM survival curve",
+      "file": "fig_T41_km.png",
+      "type": "graph"
+    },
+    {
+      "description": "Overall KM survival curve",
+      "file": "fig_T41_km_overall.png",
+      "type": "graph"
+    },
+    {
+      "description": "Survival statistics",
+      "file": "table_T41_survival.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Survival time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Event variable (0=censored, 1=event)",
+      "name": "__EVENT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Grouping variable",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "survival_km_curve",
+  "tags": [
+    "survival",
+    "kaplan_meier",
+    "km_curve",
+    "censoring"
+  ],
+  "title": "Kaplan-Meier Survival Curve",
+  "title_zh": "Kaplan-Meier生存曲线",
+  "version": "2.0.1"
+}
