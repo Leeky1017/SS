@@ -2,7 +2,7 @@
 
 - Issue: #1
 - Branch: task/1-ss-infra-bootstrap
-- PR: (fill after created)
+- PR: https://github.com/Leeky1017/SS/pull/2
 
 ## Plan
 - Add OpenSpec/Rulebook skeleton + docs
