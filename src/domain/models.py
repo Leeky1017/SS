@@ -46,6 +46,10 @@ def _is_safe_job_rel_path(value: str) -> bool:
     return ".." not in path.parts
 
 
+def is_safe_job_rel_path(value: str) -> bool:
+    return _is_safe_job_rel_path(value)
+
+
 class ArtifactRef(BaseModel):
     model_config = ConfigDict(extra="allow")
 
@@ -55,7 +59,7 @@ class ArtifactRef(BaseModel):
     @field_validator("rel_path")
     @classmethod
     def rel_path_must_be_safe(cls, value: str) -> str:
-        if not _is_safe_job_rel_path(value):
+        if not is_safe_job_rel_path(value):
             raise ValueError("rel_path must be job-relative and must not traverse")
         return value
 
@@ -71,7 +75,7 @@ class JobInputs(BaseModel):
     def manifest_rel_path_must_be_safe(cls, value: str | None) -> str | None:
         if value is None:
             return value
-        if not _is_safe_job_rel_path(value):
+        if not is_safe_job_rel_path(value):
             raise ValueError("manifest_rel_path must be job-relative and must not traverse")
         return value
 
@@ -91,7 +95,7 @@ class LLMPlan(BaseModel):
     @field_validator("rel_path")
     @classmethod
     def rel_path_must_be_safe(cls, value: str) -> str:
-        if not _is_safe_job_rel_path(value):
+        if not is_safe_job_rel_path(value):
             raise ValueError("rel_path must be job-relative and must not traverse")
         return value
 

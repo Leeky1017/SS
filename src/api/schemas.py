@@ -58,3 +58,21 @@ class GetJobResponse(BaseModel):
     draft: DraftSummary | None = None
     artifacts: ArtifactsSummary
     latest_run: RunAttemptSummary | None = None
+
+
+class ArtifactIndexItem(BaseModel):
+    kind: str
+    rel_path: str
+    created_at: str | None = None
+    meta: dict[str, str | int | float | bool | None] = Field(default_factory=dict)
+
+
+class ArtifactsIndexResponse(BaseModel):
+    job_id: str
+    artifacts: list[ArtifactIndexItem] = Field(default_factory=list)
+
+
+class RunJobResponse(BaseModel):
+    job_id: str
+    status: str
+    scheduled_at: str | None = None

@@ -80,13 +80,19 @@ class JobService:
         return job
 
     def confirm_job(self, *, job_id: str, confirmed: bool) -> Job:
-        job = self._store.load(job_id)
         if not confirmed:
+            job = self._store.load(job_id)
             logger.info(
                 "SS_JOB_CONFIRM_SKIPPED",
                 extra={"job_id": job_id, "status": job.status.value},
             )
             return job
+        updated = self.trigger_run(job_id=job_id)
+        logger.info("SS_JOB_CONFIRMED", extra={"job_id": job_id, "status": updated.status.value})
+        return updated
+
+    def trigger_run(self, *, job_id: str) -> Job:
+        job = self._store.load(job_id)
         if job.status in {
             JobStatus.QUEUED,
             JobStatus.RUNNING,
@@ -94,7 +100,7 @@ class JobService:
             JobStatus.FAILED,
         }:
             logger.info(
-                "SS_JOB_CONFIRM_IDEMPOTENT",
+                "SS_JOB_RUN_IDEMPOTENT",
                 extra={"job_id": job_id, "status": job.status.value},
             )
             return job
@@ -111,13 +117,11 @@ class JobService:
             to_status=JobStatus.QUEUED,
         ):
             job.status = JobStatus.QUEUED
-            job.scheduled_at = utc_now().isoformat()
+            if job.scheduled_at is None:
+                job.scheduled_at = utc_now().isoformat()
             self._scheduler.schedule(job=job)
         self._store.save(job)
-        logger.info(
-            "SS_JOB_CONFIRMED",
-            extra={"job_id": job_id, "status": job.status.value},
-        )
+        logger.info("SS_JOB_RUN_QUEUED", extra={"job_id": job_id, "status": job.status.value})
         return job
 
     def get_job_summary(self, *, job_id: str) -> dict:

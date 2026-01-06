@@ -3,6 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 
 from src.config import Config, load_config
+from src.domain.artifacts_service import ArtifactsService
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobScheduler, JobService, NoopJobScheduler
@@ -54,6 +55,11 @@ def get_job_service() -> JobService:
         state_machine=get_job_state_machine(),
         idempotency=get_job_idempotency(),
     )
+
+
+@lru_cache
+def get_artifacts_service() -> ArtifactsService:
+    return ArtifactsService(store=get_job_store(), jobs_dir=get_config().jobs_dir)
 
 
 def get_draft_service() -> DraftService:
