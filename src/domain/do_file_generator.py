@@ -65,7 +65,7 @@ def _extract_primary_dataset_rel_path(inputs_manifest: Mapping[str, object]) -> 
 
 
 def _render_stub_descriptive_v1(*, plan_id: str, dataset_job_rel_path: str) -> str:
-    dataset_from_work_dir = f"../../{dataset_job_rel_path}"
+    dataset_from_work_dir = dataset_job_rel_path
     lines = [
         "version 17",
         "clear all",

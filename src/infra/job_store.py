@@ -8,10 +8,12 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from src.domain.models import JOB_SCHEMA_VERSION_V1, Draft, Job
+from src.domain.models import JOB_SCHEMA_VERSION_V1, Draft, Job, is_safe_job_rel_path
 from src.infra.exceptions import (
+    ArtifactPathUnsafeError,
     JobAlreadyExistsError,
     JobDataCorruptedError,
+    JobIdUnsafeError,
     JobNotFoundError,
     JobStoreIOError,
 )
@@ -25,8 +27,30 @@ class JobStore:
     def __init__(self, *, jobs_dir: Path):
         self._jobs_dir = Path(jobs_dir)
 
+    def _is_safe_job_id(self, value: str) -> bool:
+        if value == "":
+            return False
+        if value.startswith("~"):
+            return False
+        if "/" in value or "\\" in value:
+            return False
+        return value not in {".", ".."}
+
+    def _resolve_job_dir(self, job_id: str) -> Path:
+        if not self._is_safe_job_id(job_id):
+            logger.warning("SS_JOB_ID_UNSAFE", extra={"job_id": job_id, "reason": "segment"})
+            raise JobIdUnsafeError(job_id=job_id)
+
+        base = self._jobs_dir.resolve(strict=False)
+        job_dir = (self._jobs_dir / job_id).resolve(strict=False)
+        if not job_dir.is_relative_to(base):
+            logger.warning("SS_JOB_ID_UNSAFE", extra={"job_id": job_id, "reason": "symlink_escape"})
+            raise JobIdUnsafeError(job_id=job_id)
+
+        return job_dir
+
     def _job_dir(self, job_id: str) -> Path:
-        return self._jobs_dir / job_id
+        return self._resolve_job_dir(job_id)
 
     def _job_path(self, job_id: str) -> Path:
         return self._job_dir(job_id) / "job.json"
@@ -121,10 +145,24 @@ class JobStore:
         self.save(job)
 
     def write_artifact_json(self, *, job_id: str, rel_path: str, payload: dict) -> None:
+        if not is_safe_job_rel_path(rel_path):
+            logger.warning(
+                "SS_JOB_ARTIFACT_PATH_UNSAFE",
+                extra={"job_id": job_id, "rel_path": rel_path, "reason": "unsafe_rel_path"},
+            )
+            raise ArtifactPathUnsafeError(job_id=job_id, rel_path=rel_path)
+
         job_dir = self._job_dir(job_id)
         if not job_dir.exists():
             raise JobNotFoundError(job_id=job_id)
-        path = job_dir / rel_path
+
+        path = (job_dir / rel_path).resolve(strict=False)
+        if not path.is_relative_to(job_dir):
+            logger.warning(
+                "SS_JOB_ARTIFACT_PATH_UNSAFE",
+                extra={"job_id": job_id, "rel_path": rel_path, "reason": "symlink_escape"},
+            )
+            raise ArtifactPathUnsafeError(job_id=job_id, rel_path=rel_path)
         try:
             self._atomic_write(path, payload)
         except OSError as e:

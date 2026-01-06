@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import json
+import os
 
 import pytest
 
-from src.infra.exceptions import JobDataCorruptedError
+from src.infra.exceptions import ArtifactPathUnsafeError, JobDataCorruptedError
 
 
 def test_load_with_valid_job_json_returns_job(job_service, store, jobs_dir):
@@ -91,3 +92,42 @@ def test_load_with_corrupt_json_raises_job_data_corrupted_error(store, jobs_dir)
     with pytest.raises(JobDataCorruptedError):
         store.load(job_id)
 
+
+def test_write_artifact_json_with_unsafe_rel_path_raises_artifact_path_unsafe_error(
+    job_service,
+    store,
+):
+    job = job_service.create_job(requirement="hello")
+
+    with pytest.raises(ArtifactPathUnsafeError) as exc:
+        store.write_artifact_json(
+            job_id=job.job_id,
+            rel_path="../escape.json",
+            payload={"ok": True},
+        )
+    assert exc.value.error_code == "ARTIFACT_PATH_UNSAFE"
+
+
+def test_write_artifact_json_with_symlink_escape_raises_artifact_path_unsafe_error(
+    job_service,
+    store,
+    jobs_dir,
+    tmp_path,
+):
+    job = job_service.create_job(requirement="hello")
+    job_dir = jobs_dir / job.job_id
+
+    outside_dir = tmp_path / "outside"
+    outside_dir.mkdir(parents=True, exist_ok=True)
+
+    artifacts_link = job_dir / "artifacts"
+    os.symlink(outside_dir, artifacts_link)
+
+    with pytest.raises(ArtifactPathUnsafeError) as exc:
+        store.write_artifact_json(
+            job_id=job.job_id,
+            rel_path="artifacts/plan.json",
+            payload={"ok": True},
+        )
+    assert exc.value.error_code == "ARTIFACT_PATH_UNSAFE"
+    assert not (outside_dir / "plan.json").exists()

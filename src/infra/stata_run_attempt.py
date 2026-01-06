@@ -8,7 +8,7 @@ from typing import Callable, Sequence
 
 from src.domain.do_file_generator import DEFAULT_SUMMARY_TABLE_FILENAME
 from src.domain.models import ArtifactKind, ArtifactRef
-from src.domain.stata_runner import RunResult
+from src.domain.stata_runner import RunError, RunResult
 from src.infra.stata_cmd import build_stata_batch_cmd
 from src.infra.stata_run_support import (
     DO_FILENAME,
@@ -23,6 +23,7 @@ from src.infra.stata_run_support import (
     write_run_artifacts,
     write_text,
 )
+from src.infra.stata_safety import copy_job_inputs_dir, find_unsafe_dofile_reason
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,19 @@ def _prepare_workspace(
 
     dirs.work_dir.mkdir(parents=True, exist_ok=True)
     dirs.artifacts_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        copy_job_inputs_dir(job_dir=dirs.job_dir, work_dir=dirs.work_dir)
+    except OSError as e:
+        logger.warning(
+            "SS_STATA_RUN_COPY_INPUTS_FAILED",
+            extra={"job_id": job_id, "run_id": run_id, "reason": str(e)},
+        )
+        return result_without_artifacts(
+            job_id=job_id,
+            run_id=run_id,
+            error_code="STATA_INPUTS_COPY_FAILED",
+            message=str(e),
+        )
 
     do_work_path = dirs.work_dir / DO_FILENAME
     do_artifact_path = dirs.artifacts_dir / DO_FILENAME
@@ -250,6 +264,29 @@ def run_local_stata_attempt(
     if isinstance(prepared, RunResult):
         return prepared
     dirs, do_artifact_path = prepared
+    unsafe_reason = find_unsafe_dofile_reason(do_file)
+    if unsafe_reason is not None:
+        cmd = build_stata_batch_cmd(stata_cmd=stata_cmd, do_filename=DO_FILENAME)
+        logger.warning(
+            "SS_STATA_DOFILE_UNSAFE",
+            extra={"job_id": job_id, "run_id": run_id, "reason": unsafe_reason},
+        )
+        return _persist_run(
+            dirs=dirs,
+            job_id=job_id,
+            run_id=run_id,
+            do_artifact_path=do_artifact_path,
+            cmd=cmd,
+            timeout_seconds=timeout_seconds,
+            execution=Execution(
+                stdout_text="",
+                stderr_text="",
+                exit_code=None,
+                timed_out=False,
+                duration_ms=0,
+                error=RunError(error_code="STATA_DOFILE_UNSAFE", message=unsafe_reason),
+            ),
+        )
     return _run_in_workspace(
         dirs=dirs,
         job_id=job_id,

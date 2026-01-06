@@ -22,6 +22,15 @@ class JobNotFoundError(SSError):
         )
 
 
+class JobIdUnsafeError(SSError):
+    def __init__(self, *, job_id: str):
+        super().__init__(
+            error_code="JOB_ID_UNSAFE",
+            message=f"job id unsafe: {job_id}",
+            status_code=400,
+        )
+
+
 class JobAlreadyExistsError(SSError):
     def __init__(self, *, job_id: str):
         super().__init__(

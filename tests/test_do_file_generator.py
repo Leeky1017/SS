@@ -32,7 +32,7 @@ def test_generate_when_called_twice_with_same_inputs_is_deterministic(
     # Assert
     assert second.do_file == first.do_file
     assert second.expected_outputs == first.expected_outputs
-    assert 'use "../../inputs/data.dta", clear' in first.do_file
+    assert 'use "inputs/data.dta", clear' in first.do_file
     assert "describe" in first.do_file
     assert "summarize" in first.do_file
     assert f'export delimited using "{DEFAULT_SUMMARY_TABLE_FILENAME}", replace' in first.do_file

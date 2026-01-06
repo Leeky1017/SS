@@ -149,3 +149,41 @@ def test_run_when_windows_stata_cmd_uses_e_flag(job_service, jobs_dir: Path):
 
     # Assert
     assert result.ok is True
+
+
+def test_run_when_dofile_is_unsafe_returns_failed_without_running_subprocess(
+    job_service,
+    jobs_dir: Path,
+):
+    # Arrange
+    job = job_service.create_job(requirement="unsafe")
+    run_id = "run_unsafe"
+    called = {"value": False}
+
+    def fake_run(cmd, *, cwd, timeout, text, capture_output, check):
+        called["value"] = True
+        return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
+
+    runner = LocalStataRunner(
+        jobs_dir=jobs_dir,
+        stata_cmd=["stata"],
+        subprocess_runner=fake_run,
+    )
+
+    # Act
+    result = runner.run(
+        job_id=job.job_id,
+        run_id=run_id,
+        do_file="shell echo hacked\n",
+        timeout_seconds=1,
+    )
+
+    # Assert
+    assert called["value"] is False
+    assert result.ok is False
+    assert result.error is not None
+    assert result.error.error_code == "STATA_DOFILE_UNSAFE"
+
+    artifacts_dir = jobs_dir / job.job_id / "runs" / run_id / "artifacts"
+    assert (artifacts_dir / "stata.do").exists()
+    assert (artifacts_dir / "run.error.json").exists()

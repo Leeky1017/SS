@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
 from src.domain.llm_client import LLMClient, LLMProviderError
-from src.domain.models import ArtifactKind, ArtifactRef, Draft, Job
+from src.domain.models import ArtifactKind, ArtifactRef, Draft, Job, is_safe_job_rel_path
 from src.infra.exceptions import LLMArtifactsWriteError, LLMCallFailedError
 from src.utils.time import utc_now
 
@@ -191,10 +191,10 @@ class TracedLLMClient(LLMClient):
             self._write_text(job_id=job_id, rel_path=prompt_rel, text=redact_text(prompt))
             self._write_text(job_id=job_id, rel_path=response_rel, text=redact_text(response))
             self._write_json(job_id=job_id, rel_path=meta_rel, payload=meta)
-        except OSError as e:
+        except (OSError, ValueError) as e:
             logger.warning(
                 "SS_LLM_ARTIFACTS_WRITE_FAILED",
-                extra={"job_id": job_id, "llm_call_id": call_id},
+                extra={"job_id": job_id, "llm_call_id": call_id, "reason": str(e)},
             )
             raise LLMArtifactsWriteError(job_id=job_id, llm_call_id=call_id) from e
         return LLMCallArtifacts(
@@ -204,12 +204,21 @@ class TracedLLMClient(LLMClient):
         )
 
     def _write_text(self, *, job_id: str, rel_path: str, text: str) -> None:
-        path = self._jobs_dir / job_id / rel_path
+        path = self._safe_artifact_path(job_id=job_id, rel_path=rel_path)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
 
     def _write_json(self, *, job_id: str, rel_path: str, payload: dict) -> None:
-        path = self._jobs_dir / job_id / rel_path
+        path = self._safe_artifact_path(job_id=job_id, rel_path=rel_path)
         path.parent.mkdir(parents=True, exist_ok=True)
         data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
         path.write_text(data, encoding="utf-8")
+
+    def _safe_artifact_path(self, *, job_id: str, rel_path: str) -> Path:
+        if not is_safe_job_rel_path(rel_path):
+            raise ValueError("unsafe_rel_path")
+        base = (self._jobs_dir / job_id).resolve(strict=False)
+        resolved = (self._jobs_dir / job_id / rel_path).resolve(strict=False)
+        if not resolved.is_relative_to(base):
+            raise ValueError("symlink_escape")
+        return resolved

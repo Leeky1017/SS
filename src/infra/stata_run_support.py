@@ -63,8 +63,13 @@ def resolve_run_dirs(*, jobs_dir: Path, job_id: str, run_id: str) -> RunDirs | N
     if not run_dir.is_relative_to(job_dir):
         return None
 
-    work_dir = run_dir / "work"
-    artifacts_dir = run_dir / "artifacts"
+    work_dir = (run_dir / "work").resolve(strict=False)
+    if not work_dir.is_relative_to(run_dir):
+        return None
+
+    artifacts_dir = (run_dir / "artifacts").resolve(strict=False)
+    if not artifacts_dir.is_relative_to(run_dir):
+        return None
     return RunDirs(job_dir=job_dir, run_dir=run_dir, work_dir=work_dir, artifacts_dir=artifacts_dir)
 
 
