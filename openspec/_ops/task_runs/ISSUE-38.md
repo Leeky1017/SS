@@ -2,7 +2,7 @@
 
 - Issue: #38
 - Branch: task/38-split-contract-specs-task-cards
-- PR: (fill)
+- PR: https://github.com/Leeky1017/SS/pull/39
 
 ## Plan
 - Split SS contract docs into smaller OpenSpec specs.
