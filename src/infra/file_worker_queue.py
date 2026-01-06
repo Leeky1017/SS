@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
-import tempfile
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -12,6 +10,13 @@ from typing import Callable
 
 from src.domain.worker_queue import QueueClaim, WorkerQueue
 from src.infra.exceptions import QueueDataCorruptedError, QueueIOError
+from src.infra.file_queue_records import (
+    assert_safe_segment,
+    atomic_write_json,
+    build_claim_fields,
+    load_claim,
+    read_queue_record,
+)
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
@@ -97,12 +102,12 @@ class FileWorkerQueue(WorkerQueue):
         return self.queue_dir / "claimed"
 
     def _queued_path(self, *, job_id: str) -> Path:
-        _assert_safe_segment(job_id)
+        assert_safe_segment(job_id)
         return self._queued_dir() / f"{job_id}.json"
 
     def _claimed_path(self, *, job_id: str, claim_id: str) -> Path:
-        _assert_safe_segment(job_id)
-        _assert_safe_segment(claim_id)
+        assert_safe_segment(job_id)
+        assert_safe_segment(claim_id)
         return self._claimed_dir() / f"{job_id}__{claim_id}.json"
 
     def _claim_from_queued(self, *, worker_id: str, now: datetime) -> QueueClaim | None:
@@ -124,7 +129,7 @@ class FileWorkerQueue(WorkerQueue):
     def _claim_from_expired(self, *, worker_id: str, now: datetime) -> QueueClaim | None:
         for claim_path in sorted(self._claimed_dir().glob("*.json")):
             try:
-                record = _read_queue_record(path=claim_path)
+                record = read_queue_record(path=claim_path)
             except FileNotFoundError:
                 continue
             lease_expires_at = record.get("lease_expires_at", "")
@@ -173,10 +178,10 @@ class FileWorkerQueue(WorkerQueue):
             )
             raise QueueIOError(operation="claim_rename", path=str(source)) from e
 
-        record = _read_queue_record(path=tmp_target)
+        record = read_queue_record(path=tmp_target)
         record["job_id"] = job_id
         record.update(
-            _build_claim_fields(
+            build_claim_fields(
                 worker_id=worker_id,
                 claim_id=claim_id,
                 now=now,
@@ -184,7 +189,7 @@ class FileWorkerQueue(WorkerQueue):
             )
         )
         try:
-            _atomic_write_json(path=tmp_target, payload=record)
+            atomic_write_json(path=tmp_target, payload=record)
         except OSError as e:
             logger.warning(
                 "SS_QUEUE_CLAIM_WRITE_FAILED",
@@ -203,7 +208,7 @@ class FileWorkerQueue(WorkerQueue):
             self._try_requeue(job_id=job_id, source=tmp_target)
             raise QueueIOError(operation="claim_finalize", path=str(tmp_target)) from e
 
-        claim = _load_claim(record=record)
+        claim = load_claim(record=record)
         logger.info(
             "SS_QUEUE_CLAIMED",
             extra={
@@ -234,87 +239,3 @@ class FileWorkerQueue(WorkerQueue):
                 "SS_QUEUE_REQUEUE_FAILED",
                 extra={"job_id": job_id, "src": str(source), "dst": str(target)},
             )
-
-
-def _assert_safe_segment(value: str) -> None:
-    if value == "":
-        raise ValueError("path segment must not be empty")
-    if "/" in value or "\\" in value:
-        raise ValueError("path segment must not contain path separators")
-    if value in {".", ".."}:
-        raise ValueError("path segment must not traverse")
-
-
-def _atomic_write_json(*, path: Path, payload: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
-    with tempfile.NamedTemporaryFile(
-        "w",
-        encoding="utf-8",
-        dir=str(path.parent),
-        delete=False,
-    ) as f:
-        f.write(data)
-        tmp = Path(f.name)
-    os.replace(tmp, path)
-
-
-def _read_queue_record(*, path: Path) -> dict:
-    try:
-        raw = json.loads(path.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-        raise
-    except json.JSONDecodeError as e:
-        logger.warning("SS_QUEUE_RECORD_CORRUPTED", extra={"path": str(path), "error": str(e)})
-        raise QueueDataCorruptedError(path=str(path)) from e
-    except OSError as e:
-        logger.warning("SS_QUEUE_RECORD_READ_FAILED", extra={"path": str(path), "error": str(e)})
-        raise QueueIOError(operation="read", path=str(path)) from e
-    if not isinstance(raw, dict):
-        raise QueueDataCorruptedError(path=str(path))
-    return raw
-
-
-def _build_claim_fields(
-    *,
-    worker_id: str,
-    claim_id: str,
-    now: datetime,
-    ttl: timedelta,
-) -> dict:
-    claimed_at = now.isoformat()
-    lease_expires_at = (now + ttl).isoformat()
-    return {
-        "claim_id": claim_id,
-        "worker_id": worker_id,
-        "claimed_at": claimed_at,
-        "lease_expires_at": lease_expires_at,
-    }
-
-
-def _load_claim(*, record: dict) -> QueueClaim:
-    job_id = str(record.get("job_id", ""))
-    claim_id = str(record.get("claim_id", ""))
-    worker_id = str(record.get("worker_id", ""))
-    claimed_at = str(record.get("claimed_at", ""))
-    lease_expires_at = str(record.get("lease_expires_at", ""))
-    if (
-        job_id == ""
-        or claim_id == ""
-        or worker_id == ""
-        or claimed_at == ""
-        or lease_expires_at == ""
-    ):
-        raise QueueDataCorruptedError(path="<record>")
-    try:
-        claimed_at_parsed = datetime.fromisoformat(claimed_at)
-        lease_expires_at_parsed = datetime.fromisoformat(lease_expires_at)
-    except ValueError as e:
-        raise QueueDataCorruptedError(path="<record>") from e
-    return QueueClaim(
-        job_id=job_id,
-        claim_id=claim_id,
-        worker_id=worker_id,
-        claimed_at=claimed_at_parsed,
-        lease_expires_at=lease_expires_at_parsed,
-    )
