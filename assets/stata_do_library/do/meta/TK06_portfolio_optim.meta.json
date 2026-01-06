@@ -1,0 +1,85 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "matrix operations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Mean-variance portfolio optimization",
+  "family": "finance",
+  "id": "TK06",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TK06_portfolio.dta",
+      "type": "data"
+    },
+    {
+      "description": "Efficient frontier",
+      "file": "fig_TK06_frontier.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK06_frontier.csv",
+      "type": "table"
+    },
+    {
+      "description": "Optimal weights",
+      "file": "table_TK06_weights.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Asset return variables",
+      "name": "__ASSET_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Risk-free rate",
+      "name": "__RF_RATE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Allow short selling",
+      "name": "__SHORT_ALLOWED__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Target return",
+      "name": "__TARGET_RETURN__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "portfolio_optim",
+  "tags": [
+    "portfolio",
+    "optimization",
+    "markowitz",
+    "finance"
+  ],
+  "title": "Portfolio Optimization",
+  "title_zh": "组合优化",
+  "version": "2.0.1"
+}

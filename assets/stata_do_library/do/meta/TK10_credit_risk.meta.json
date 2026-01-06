@@ -1,0 +1,78 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "logit command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Credit risk modeling and default probability",
+  "family": "finance",
+  "id": "TK10",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TK10_credit.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK10_roc.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK10_model_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK10_performance.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Default indicator",
+      "name": "__DEFAULT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Model type",
+      "name": "__MODEL__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Predictor variables",
+      "name": "__PREDICTORS__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "credit_risk",
+  "tags": [
+    "credit_risk",
+    "default",
+    "finance"
+  ],
+  "title": "Credit Risk",
+  "title_zh": "信用风险",
+  "version": "2.0.1"
+}

@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "rdrobust",
+      "purpose": "RDD estimation",
+      "source": "ssc"
+    }
+  ],
+  "description": "Sharp regression discontinuity design",
+  "family": "causal_inference",
+  "id": "TG09",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "RDD results",
+      "file": "table_TG09_rdd_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Bandwidth selection",
+      "file": "table_TG09_bandwidth.csv",
+      "type": "table"
+    },
+    {
+      "description": "RDD plot",
+      "file": "fig_TG09_rdd_plot.png",
+      "type": "figure"
+    },
+    {
+      "description": "RDD data",
+      "file": "data_TG09_rdd.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Running variable",
+      "name": "__RUNNING_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Cutoff value",
+      "name": "__CUTOFF__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Bandwidth",
+      "name": "__BANDWIDTH__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Kernel function",
+      "name": "__KERNEL__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Polynomial order",
+      "name": "__POLY_ORDER__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "rdd_sharp",
+  "tags": [
+    "rdd",
+    "sharp",
+    "late",
+    "causal"
+  ],
+  "title": "RDD Sharp",
+  "title_zh": "断点回归(Sharp)",
+  "version": "2.0.1"
+}

@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core statistical commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Test whether a variable's mean equals a specified theoretical or benchmark value, including effect size calculation, confidence intervals, and normality tests",
+  "family": "hypothesis_testing",
+  "id": "T12",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "C",
+  "outputs": [
+    {
+      "description": "T-test results summary",
+      "file": "table_T12_ttest_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable to test",
+      "name": "__TEST_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Theoretical/benchmark value",
+      "name": "__NULL_VALUE__",
+      "required": true,
+      "type": "number"
+    }
+  ],
+  "slug": "ttest_one_sample",
+  "tags": [
+    "ttest",
+    "hypothesis",
+    "one_sample",
+    "mean_comparison"
+  ],
+  "title": "One Sample T-Test",
+  "title_zh": "单样本t检验",
+  "version": "2.0.1"
+}

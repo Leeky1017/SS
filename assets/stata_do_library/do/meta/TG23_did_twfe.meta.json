@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "reghdfe",
+      "purpose": "HDFE regression",
+      "source": "ssc"
+    },
+    {
+      "pkg": "did_multiplegt",
+      "purpose": "Robust DID",
+      "source": "ssc"
+    }
+  ],
+  "description": "TWFE diagnostics and robust alternatives",
+  "family": "causal_inference",
+  "id": "TG23",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "TWFE comparison",
+      "file": "table_TG23_twfe_comparison.csv",
+      "type": "table"
+    },
+    {
+      "description": "Comparison plot",
+      "file": "fig_TG23_comparison.png",
+      "type": "figure"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Unit ID",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Treatment variable",
+      "name": "__TREAT_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "did_twfe",
+  "tags": [
+    "did",
+    "twfe",
+    "robust",
+    "causal"
+  ],
+  "title": "DID TWFE",
+  "title_zh": "TWFE问题与替代",
+  "version": "2.0.1"
+}

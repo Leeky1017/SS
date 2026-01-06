@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "bayesgraph",
+      "source": "built-in"
+    }
+  ],
+  "description": "Bayesian MCMC diagnostic plots",
+  "family": "bayesian",
+  "id": "TR09",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "R",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TR09_diag.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TR09_acf.png",
+      "type": "graph"
+    },
+    {
+      "description": "Trace plot",
+      "file": "fig_TR09_trace.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "MCMC sample size (mcmcsize)",
+      "name": "__MCMC__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "bayesgraph",
+  "tags": [
+    "bayesian",
+    "diagnostics",
+    "mcmc",
+    "trace"
+  ],
+  "title": "Bayesian Diagnostics",
+  "title_zh": "贝叶斯诊断图",
+  "version": "2.0.1"
+}

@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "robvar oneway",
+      "source": "built-in"
+    }
+  ],
+  "description": "Variance homogeneity tests (Levene, Bartlett)",
+  "family": "hypothesis_testing",
+  "id": "TC10",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "C",
+  "outputs": [
+    {
+      "description": "Variance test results",
+      "file": "table_TC10_var.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TC10_var.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Test variable",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Group variable",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "variance_homogeneity",
+  "tags": [
+    "variance",
+    "homogeneity",
+    "levene",
+    "bartlett"
+  ],
+  "title": "Variance Homogeneity",
+  "title_zh": "方差齐性检验",
+  "version": "2.0.1"
+}

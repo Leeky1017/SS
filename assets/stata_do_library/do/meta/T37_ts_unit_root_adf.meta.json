@@ -1,0 +1,70 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Time series commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Perform ADF and Phillips-Perron unit root tests to determine stationarity and integration order",
+  "family": "time_series",
+  "id": "T37",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Unit root test results",
+      "file": "table_T37_unit_root.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time series variable",
+      "name": "__SERIES_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Number of lags",
+      "name": "__LAGS__",
+      "required": true,
+      "type": "integer"
+    }
+  ],
+  "slug": "ts_unit_root_adf",
+  "tags": [
+    "time_series",
+    "unit_root",
+    "adf",
+    "phillips_perron",
+    "stationarity"
+  ],
+  "title": "Unit Root Tests",
+  "title_zh": "单位根检验",
+  "version": "2.0.1"
+}

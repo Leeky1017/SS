@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "bayes regress",
+      "source": "built-in"
+    }
+  ],
+  "description": "Bayesian linear regression",
+  "family": "bayesian",
+  "id": "TR06",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "R",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TR06_bayes.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Bayesian results",
+      "file": "table_TR06_bayes.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "MCMC sample size (mcmcsize)",
+      "name": "__MCMC__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "bayes_regress",
+  "tags": [
+    "bayesian",
+    "regression",
+    "mcmc"
+  ],
+  "title": "Bayesian Regression",
+  "title_zh": "贝叶斯回归",
+  "version": "2.0.1"
+}

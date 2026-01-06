@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "synth",
+      "purpose": "Synthetic control",
+      "source": "ssc"
+    }
+  ],
+  "description": "Placebo tests for SCM",
+  "family": "causal_inference",
+  "id": "TG18",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Placebo results",
+      "file": "table_TG18_placebo_results.csv",
+      "type": "table"
+    },
+    {
+      "description": "Placebo plot",
+      "file": "fig_TG18_placebo_plot.png",
+      "type": "figure"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Treated unit ID",
+      "name": "__TREATED_UNIT__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Treatment time",
+      "name": "__TREATMENT_TIME__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Unit ID",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Placebo type: unit/time",
+      "name": "__PLACEBO_TYPE__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "unit",
+        "time"
+      ]
+    }
+  ],
+  "slug": "scm_placebo",
+  "tags": [
+    "scm",
+    "placebo",
+    "inference",
+    "causal"
+  ],
+  "title": "SCM Placebo",
+  "title_zh": "SCM安慰剂检验",
+  "version": "2.0.1"
+}

@@ -1,0 +1,309 @@
+{
+  "total": 50,
+  "success": 50,
+  "failed": 0,
+  "skipped": 0,
+  "total_injections": 414,
+  "files": [
+    {
+      "file": "T01_desc_overview.do",
+      "success": true,
+      "message": "注入 7 处锚点",
+      "injections": 7
+    },
+    {
+      "file": "T02_desc_by_group.do",
+      "success": true,
+      "message": "注入 10 处锚点",
+      "injections": 10
+    },
+    {
+      "file": "T03_filter_and_sample.do",
+      "success": true,
+      "message": "注入 9 处锚点",
+      "injections": 9
+    },
+    {
+      "file": "T04_merge_datasets.do",
+      "success": true,
+      "message": "注入 9 处锚点",
+      "injections": 9
+    },
+    {
+      "file": "T05_append_datasets.do",
+      "success": true,
+      "message": "注入 7 处锚点",
+      "injections": 7
+    },
+    {
+      "file": "T06_reshape_wide_long.do",
+      "success": true,
+      "message": "注入 9 处锚点",
+      "injections": 9
+    },
+    {
+      "file": "T07_summary_numeric.do",
+      "success": true,
+      "message": "注入 7 处锚点",
+      "injections": 7
+    },
+    {
+      "file": "T08_freq_categorical.do",
+      "success": true,
+      "message": "注入 8 处锚点",
+      "injections": 8
+    },
+    {
+      "file": "T09_corr_matrix.do",
+      "success": true,
+      "message": "注入 8 处锚点",
+      "injections": 8
+    },
+    {
+      "file": "T10_distribution_plots.do",
+      "success": true,
+      "message": "注入 13 处锚点",
+      "injections": 13
+    },
+    {
+      "file": "T11_scatter_matrix.do",
+      "success": true,
+      "message": "注入 10 处锚点",
+      "injections": 10
+    },
+    {
+      "file": "T12_ttest_one_sample.do",
+      "success": true,
+      "message": "注入 7 处锚点",
+      "injections": 7
+    },
+    {
+      "file": "T13_ttest_two_sample_indep.do",
+      "success": true,
+      "message": "注入 9 处锚点",
+      "injections": 9
+    },
+    {
+      "file": "T14_ttest_paired.do",
+      "success": true,
+      "message": "注入 9 处锚点",
+      "injections": 9
+    },
+    {
+      "file": "T15_anova_oneway.do",
+      "success": true,
+      "message": "注入 10 处锚点",
+      "injections": 10
+    },
+    {
+      "file": "T16_chi_square_independence.do",
+      "success": true,
+      "message": "注入 9 处锚点",
+      "injections": 9
+    },
+    {
+      "file": "T17_ols_simple.do",
+      "success": true,
+      "message": "注入 9 处锚点",
+      "injections": 9
+    },
+    {
+      "file": "T18_ols_multiple.do",
+      "success": true,
+      "message": "注入 9 处锚点",
+      "injections": 9
+    },
+    {
+      "file": "T19_ols_robust_se.do",
+      "success": true,
+      "message": "注入 8 处锚点",
+      "injections": 8
+    },
+    {
+      "file": "T20_ols_cluster_se.do",
+      "success": true,
+      "message": "注入 8 处锚点",
+      "injections": 8
+    },
+    {
+      "file": "T21_ols_with_interaction.do",
+      "success": true,
+      "message": "注入 9 处锚点",
+      "injections": 9
+    },
+    {
+      "file": "T22_ols_fe_entity_dummies.do",
+      "success": true,
+      "message": "注入 7 处锚点",
+      "injections": 7
+    },
+    {
+      "file": "T23_ols_time_dummies.do",
+      "success": true,
+      "message": "注入 8 处锚点",
+      "injections": 8
+    },
+    {
+      "file": "T24_ols_model_comparison.do",
+      "success": true,
+      "message": "注入 6 处锚点",
+      "injections": 6
+    },
+    {
+      "file": "T25_logit_binary.do",
+      "success": true,
+      "message": "注入 8 处锚点",
+      "injections": 8
+    },
+    {
+      "file": "T26_probit_binary.do",
+      "success": true,
+      "message": "注入 7 处锚点",
+      "injections": 7
+    },
+    {
+      "file": "T27_ologit_ordered.do",
+      "success": true,
+      "message": "注入 7 处锚点",
+      "injections": 7
+    },
+    {
+      "file": "T28_mlogit_multinomial.do",
+      "success": true,
+      "message": "注入 6 处锚点",
+      "injections": 6
+    },
+    {
+      "file": "T29_poisson_count.do",
+      "success": true,
+      "message": "注入 6 处锚点",
+      "injections": 6
+    },
+    {
+      "file": "T30_panel_setup_check.do",
+      "success": true,
+      "message": "注入 8 处锚点",
+      "injections": 8
+    },
+    {
+      "file": "T31_panel_fe_basic.do",
+      "success": true,
+      "message": "注入 11 处锚点",
+      "injections": 11
+    },
+    {
+      "file": "T32_panel_re_basic.do",
+      "success": true,
+      "message": "注入 10 处锚点",
+      "injections": 10
+    },
+    {
+      "file": "T33_panel_fe_re_hausman.do",
+      "success": true,
+      "message": "注入 10 处锚点",
+      "injections": 10
+    },
+    {
+      "file": "T34_diff_in_diff_2x2.do",
+      "success": true,
+      "message": "注入 6 处锚点",
+      "injections": 6
+    },
+    {
+      "file": "T35_diff_in_diff_event_study.do",
+      "success": true,
+      "message": "注入 6 处锚点",
+      "injections": 6
+    },
+    {
+      "file": "T36_ts_diagnostics_plots.do",
+      "success": true,
+      "message": "注入 7 处锚点",
+      "injections": 7
+    },
+    {
+      "file": "T37_ts_unit_root_adf.do",
+      "success": true,
+      "message": "注入 5 处锚点",
+      "injections": 5
+    },
+    {
+      "file": "T38_ts_arima_estimation.do",
+      "success": true,
+      "message": "注入 7 处锚点",
+      "injections": 7
+    },
+    {
+      "file": "T39_ts_forecast_horizon.do",
+      "success": true,
+      "message": "注入 6 处锚点",
+      "injections": 6
+    },
+    {
+      "file": "T40_var_two_series_basic.do",
+      "success": true,
+      "message": "注入 7 处锚点",
+      "injections": 7
+    },
+    {
+      "file": "T41_survival_km_curve.do",
+      "success": true,
+      "message": "注入 13 处锚点",
+      "injections": 13
+    },
+    {
+      "file": "T42_survival_logrank_test.do",
+      "success": true,
+      "message": "注入 11 处锚点",
+      "injections": 11
+    },
+    {
+      "file": "T43_survival_cox_basic.do",
+      "success": true,
+      "message": "注入 12 处锚点",
+      "injections": 12
+    },
+    {
+      "file": "T44_survival_cox_time_varying.do",
+      "success": true,
+      "message": "注入 12 处锚点",
+      "injections": 12
+    },
+    {
+      "file": "T45_pca_principal_components.do",
+      "success": true,
+      "message": "注入 9 处锚点",
+      "injections": 9
+    },
+    {
+      "file": "T46_factor_analysis.do",
+      "success": true,
+      "message": "注入 6 处锚点",
+      "injections": 6
+    },
+    {
+      "file": "T47_kmeans_clustering.do",
+      "success": true,
+      "message": "注入 10 处锚点",
+      "injections": 10
+    },
+    {
+      "file": "T48_hierarchical_clustering.do",
+      "success": true,
+      "message": "注入 9 处锚点",
+      "injections": 9
+    },
+    {
+      "file": "T49_auto_analysis_report.do",
+      "success": true,
+      "message": "注入 8 处锚点",
+      "injections": 8
+    },
+    {
+      "file": "T50_export_outputs_bundle.do",
+      "success": true,
+      "message": "注入 2 处锚点",
+      "injections": 2
+    }
+  ]
+}

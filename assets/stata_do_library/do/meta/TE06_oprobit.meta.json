@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "oprobit command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Ordered Probit model for ordinal outcomes",
+  "family": "limited_dependent",
+  "id": "TE06",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "E",
+  "outputs": [
+    {
+      "description": "Ordered Probit results",
+      "file": "table_TE06_oprobit.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TE06_oprobit.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "oprobit",
+  "tags": [
+    "oprobit",
+    "ordered",
+    "ordinal"
+  ],
+  "title": "Ordered Probit",
+  "title_zh": "有序Probit",
+  "version": "2.0.1"
+}

@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [],
+  "description": "Johansen cointegration rank test",
+  "family": "time_series",
+  "id": "TH09",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "H",
+  "outputs": [
+    {
+      "description": "Vecrank results",
+      "file": "table_TH09_vecrank.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TH09_vecrank.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variables",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Lag order",
+      "name": "__LAGS__",
+      "required": true,
+      "type": "number"
+    }
+  ],
+  "slug": "vecrank",
+  "tags": [
+    "cointegration",
+    "johansen",
+    "vecm",
+    "time_series"
+  ],
+  "title": "Johansen Test",
+  "title_zh": "Johansen协整检验",
+  "version": "2.0.1"
+}

@@ -1,0 +1,86 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "VAR commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate bivariate VAR model with Granger causality tests, impulse response analysis and variance decomposition",
+  "family": "time_series",
+  "id": "T40",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Granger causality test",
+      "file": "table_T40_granger.csv",
+      "type": "table"
+    },
+    {
+      "description": "VAR stability",
+      "file": "fig_T40_stability.png",
+      "type": "graph"
+    },
+    {
+      "description": "Impulse response functions",
+      "file": "fig_T40_irf.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "First time series variable",
+      "name": "__VAR1__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Second time series variable",
+      "name": "__VAR2__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Number of lags",
+      "name": "__LAGS__",
+      "required": true,
+      "type": "integer"
+    }
+  ],
+  "slug": "var_two_series_basic",
+  "tags": [
+    "time_series",
+    "var",
+    "granger",
+    "irf",
+    "fevd"
+  ],
+  "title": "Vector Autoregression",
+  "title_zh": "双变量VAR模型",
+  "version": "2.0.1"
+}

@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "stpower command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Sample size and power calculation for survival studies",
+  "family": "survival",
+  "id": "TI11",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "I",
+  "outputs": [
+    {
+      "description": "Power analysis",
+      "file": "table_TI11_power.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TI11_power.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Significance level",
+      "name": "__ALPHA__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Hazard ratio",
+      "name": "__HR__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Proportion in group 1",
+      "name": "__P1__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Target power",
+      "name": "__POWER__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "stpower",
+  "tags": [
+    "survival",
+    "power",
+    "sample_size"
+  ],
+  "title": "Survival Power",
+  "title_zh": "生存分析样本量",
+  "version": "2.0.1"
+}

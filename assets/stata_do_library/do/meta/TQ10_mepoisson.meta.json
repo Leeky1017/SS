@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "mepoisson command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Multilevel Poisson regression",
+  "family": "multilevel",
+  "id": "TQ10",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "Q",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TQ10_mepois.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TQ10_mepois.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Count dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Grouping variable for random effects in mepoisson",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "mepoisson",
+  "tags": [
+    "mepoisson",
+    "multilevel",
+    "count"
+  ],
+  "title": "Multilevel Poisson",
+  "title_zh": "多层Poisson",
+  "version": "2.0.1"
+}

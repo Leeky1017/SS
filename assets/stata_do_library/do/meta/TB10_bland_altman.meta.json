@@ -1,0 +1,67 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "scatter and summarize",
+      "source": "built-in"
+    }
+  ],
+  "description": "Draw Bland-Altman plot to assess measurement agreement",
+  "family": "descriptive_statistics",
+  "id": "TB10",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Bland-Altman plot",
+      "file": "fig_TB10_ba.png",
+      "type": "figure"
+    },
+    {
+      "description": "BA statistics",
+      "file": "table_TB10_ba.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TB10_ba.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Method 1 variable",
+      "name": "__VAR1__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Method 2 variable",
+      "name": "__VAR2__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "bland_altman",
+  "tags": [
+    "bland-altman",
+    "agreement",
+    "reliability"
+  ],
+  "title": "Bland Altman",
+  "title_zh": "Bland-Altman一致性图",
+  "version": "2.0.1"
+}

@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "psmatch2",
+      "purpose": "PSM balance",
+      "source": "ssc"
+    }
+  ],
+  "description": "Comprehensive PSM balance diagnostics",
+  "family": "causal_inference",
+  "id": "TG07",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Balance stats",
+      "file": "table_TG07_balance_stats.csv",
+      "type": "table"
+    },
+    {
+      "description": "Balance detail",
+      "file": "table_TG07_balance_detail.csv",
+      "type": "table"
+    },
+    {
+      "description": "Love plot",
+      "file": "fig_TG07_love_plot.png",
+      "type": "figure"
+    },
+    {
+      "description": "PS overlap",
+      "file": "fig_TG07_ps_overlap.png",
+      "type": "figure"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Treatment variable",
+      "name": "__TREATMENT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Covariates",
+      "name": "__COVARIATES__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Pscore variable",
+      "name": "__PSCORE_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Weight variable",
+      "name": "__WEIGHT_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Balance threshold",
+      "name": "__THRESHOLD__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Random seed (optional)",
+      "name": "__SEED__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "psm_balance",
+  "tags": [
+    "psm",
+    "balance",
+    "diagnostics",
+    "causal"
+  ],
+  "title": "PSM Balance",
+  "title_zh": "PSM平衡性检验",
+  "version": "2.0.1"
+}

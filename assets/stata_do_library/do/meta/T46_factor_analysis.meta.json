@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Factor command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Perform exploratory factor analysis, extract latent factors and rotate",
+  "family": "multivariate",
+  "id": "T46",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "I",
+  "outputs": [
+    {
+      "description": "Factor loadings",
+      "file": "table_T46_loadings.csv",
+      "type": "table"
+    },
+    {
+      "description": "Factor scores",
+      "file": "table_T46_scores.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Analysis variables (space-separated)",
+      "name": "__NUMERIC_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Number of factors to extract",
+      "name": "__N_FACTORS__",
+      "required": true,
+      "type": "integer"
+    }
+  ],
+  "slug": "factor_analysis",
+  "tags": [
+    "factor_analysis",
+    "efa",
+    "multivariate",
+    "unsupervised"
+  ],
+  "title": "Exploratory Factor Analysis",
+  "title_zh": "因子分析",
+  "version": "2.0.1"
+}

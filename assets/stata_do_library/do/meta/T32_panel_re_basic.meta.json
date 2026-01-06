@@ -1,0 +1,86 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Panel regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate panel random effects regression with GLS, BP-LM test for individual effects, and robust standard errors",
+  "family": "panel",
+  "id": "T32",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "F",
+  "outputs": [
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_T32_paper.rtf",
+      "type": "report"
+    },
+    {
+      "description": "RE regression coefficients",
+      "file": "table_T32_re_coef.csv",
+      "type": "table"
+    },
+    {
+      "description": "Goodness of fit",
+      "file": "table_T32_re_gof.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Individual identifier",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "panel_re_basic",
+  "tags": [
+    "panel",
+    "random_effects",
+    "xtreg",
+    "re",
+    "bp_lm_test"
+  ],
+  "title": "Panel Random Effects",
+  "title_zh": "面板随机效应回归",
+  "version": "2.0.1"
+}

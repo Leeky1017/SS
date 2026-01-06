@@ -1,0 +1,104 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "xtivreg2",
+      "purpose": "Panel IV",
+      "source": "ssc"
+    }
+  ],
+  "description": "Panel data IV estimation",
+  "family": "causal_inference",
+  "id": "TG16",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Panel IV results",
+      "file": "table_TG16_panel_iv.csv",
+      "type": "table"
+    },
+    {
+      "description": "Diagnostics",
+      "file": "table_TG16_diagnostics.csv",
+      "type": "table"
+    },
+    {
+      "description": "Panel IV data",
+      "file": "data_TG16_panel_iv.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Endogenous variable",
+      "name": "__ENDOG_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Instruments",
+      "name": "__INSTRUMENTS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Exogenous controls",
+      "name": "__EXOG_VARS__",
+      "required": false,
+      "type": "list[string]"
+    },
+    {
+      "description": "Panel ID",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Method: fe/re/ht",
+      "name": "__METHOD__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "fe",
+        "re",
+        "ht"
+      ]
+    }
+  ],
+  "slug": "panel_iv",
+  "tags": [
+    "iv",
+    "panel",
+    "fe",
+    "causal"
+  ],
+  "title": "Panel IV",
+  "title_zh": "面板工具变量",
+  "version": "2.0.1"
+}

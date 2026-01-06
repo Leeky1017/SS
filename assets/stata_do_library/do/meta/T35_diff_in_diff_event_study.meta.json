@@ -1,0 +1,91 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Panel regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate event study DID model with dynamic treatment effects and parallel trends test",
+  "family": "causal_inference",
+  "id": "T35",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "F",
+  "outputs": [
+    {
+      "description": "Event study coefficient plot",
+      "file": "fig_T35_event_study.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Dynamic coefficients by period",
+      "file": "table_T35_event_coef.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_T35_paper.rtf",
+      "type": "report"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Treatment indicator",
+      "name": "__TREAT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Event time variable",
+      "name": "__EVENT_TIME__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Individual identifier",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "diff_in_diff_event_study",
+  "tags": [
+    "event_study",
+    "did",
+    "parallel_trends",
+    "dynamic_effects"
+  ],
+  "title": "Event Study DID",
+  "title_zh": "事件研究法DID",
+  "version": "2.0.1"
+}

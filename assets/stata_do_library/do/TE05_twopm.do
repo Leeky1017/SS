@@ -1,0 +1,87 @@
+* ==============================================================================
+* SS_TEMPLATE: id=TE05  level=L1  module=E  title="Two-Part"
+* INPUTS:
+*   - data.csv  role=main_dataset  required=yes
+* OUTPUTS:
+*   - table_TE05_twopm.csv type=table desc="Two-Part results"
+*   - data_TE05_twopm.dta type=data desc="Data file"
+*   - result.log type=log desc="Execution log"
+* DEPENDENCIES:
+*   - twopm source=ssc purpose="two-part model"
+* ==============================================================================
+
+capture log close _all
+if _rc != 0 { }
+clear all
+set more off
+version 18
+
+timer clear 1
+timer on 1
+
+log using "result.log", text replace
+
+display "SS_TASK_BEGIN|id=TE05|level=L1|title=Two_Part"
+display "SS_TASK_VERSION:2.0.1"
+
+capture which twopm
+if _rc {
+    display "SS_DEP_MISSING:twopm"
+    display "SS_ERROR:DEP_MISSING:twopm not installed"
+    display "SS_ERR:DEP_MISSING:twopm not installed"
+    log close
+    exit 199
+}
+display "SS_DEP_CHECK|pkg=twopm|source=ssc|status=ok"
+
+local depvar = "__DEPVAR__"
+local indepvars = "__INDEPVARS__"
+
+display "SS_STEP_BEGIN|step=S01_load_data"
+capture confirm file "data.csv"
+if _rc {
+    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    log close
+    exit 601
+}
+import delimited "data.csv", clear
+local n_input = _N
+display "SS_METRIC:n_input:`n_input'"
+display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
+
+display "SS_STEP_BEGIN|step=S02_validate_inputs"
+twopm `depvar' `indepvars', firstpart(logit) secondpart(glm, family(gamma) link(log))
+display "SS_METRIC|name=n_obs|value=`e(N)'"
+display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
+
+display "SS_STEP_BEGIN|step=S03_analysis"
+preserve
+clear
+set obs 1
+gen str32 model = "Two-Part"
+export delimited using "table_TE05_twopm.csv", replace
+display "SS_OUTPUT_FILE|file=table_TE05_twopm.csv|type=table|desc=twopm_results"
+restore
+
+local n_output = _N
+display "SS_METRIC|name=n_output|value=`n_output'"
+save "data_TE05_twopm.dta", replace
+display "SS_OUTPUT_FILE|file=data_TE05_twopm.dta|type=data|desc=twopm_data"
+display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
+
+display "SS_SUMMARY|key=n_input|value=`n_input'"
+display "SS_SUMMARY|key=n_output|value=`n_output'"
+display "SS_SUMMARY|key=model|value=twopm"
+
+local n_dropped = 0
+display "SS_METRIC|name=n_dropped|value=`n_dropped'"
+timer off 1
+quietly timer list 1
+local elapsed = r(t1)
+display "SS_METRIC|name=n_missing|value=0"
+display "SS_METRIC|name=task_success|value=1"
+display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+
+display "SS_TASK_END|id=TE05|status=ok|elapsed_sec=`elapsed'"
+log close

@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "spregress",
+      "purpose": "Spatial regression",
+      "source": "stata"
+    }
+  ],
+  "description": "Spatial lag model (SAR)",
+  "family": "spatial",
+  "id": "TR02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "R",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TR02_sar.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TR02_sar_result.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Region identifier variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "X coordinate variable",
+      "name": "__X_COORD__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Y coordinate variable",
+      "name": "__Y_COORD__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "spatial_lag",
+  "tags": [
+    "spatial_lag",
+    "sar",
+    "spatial"
+  ],
+  "title": "Spatial Lag",
+  "title_zh": "空间滞后",
+  "version": "2.0.1"
+}

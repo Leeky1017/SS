@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "twoway line",
+      "source": "built-in"
+    }
+  ],
+  "description": "Draw time series trend line plot",
+  "family": "descriptive_statistics",
+  "id": "TB04",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Trend line plot",
+      "file": "fig_TB04_trend.png",
+      "type": "figure"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TB04_trend.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Y variable",
+      "name": "__YVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "trend_line",
+  "tags": [
+    "trend",
+    "line",
+    "time-series",
+    "plot"
+  ],
+  "title": "Trend Line",
+  "title_zh": "时间趋势图",
+  "version": "2.0.1"
+}

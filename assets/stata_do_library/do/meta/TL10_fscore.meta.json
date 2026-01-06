@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Piotroski F-Score for financial strength",
+  "family": "accounting",
+  "id": "TL10",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "F-Score results",
+      "file": "table_TL10_fscore.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL10_fscore.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Change in cash",
+      "name": "__CHG_CASH__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Change in inventory",
+      "name": "__CHG_INV__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Change in receivables",
+      "name": "__CHG_REC__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Change in ROA",
+      "name": "__CHG_ROA__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Stock issuance indicator",
+      "name": "__ISSUE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Richardson et al. accruals",
+      "name": "__RSST__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Soft assets ratio",
+      "name": "__SOFT__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "fscore",
+  "tags": [
+    "piotroski",
+    "fscore",
+    "accounting"
+  ],
+  "title": "Piotroski F-Score",
+  "title_zh": "Piotroski F分数",
+  "version": "2.0.1"
+}

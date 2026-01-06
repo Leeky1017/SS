@@ -1,0 +1,76 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "ivreg2",
+      "purpose": "IV regression",
+      "source": "ssc"
+    }
+  ],
+  "description": "Overidentification tests for IV",
+  "family": "causal_inference",
+  "id": "TG15",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Overid tests",
+      "file": "table_TG15_overid_tests.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Endogenous variable",
+      "name": "__ENDOG_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Instruments",
+      "name": "__INSTRUMENTS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Exogenous controls",
+      "name": "__EXOG_VARS__",
+      "required": false,
+      "type": "list[string]"
+    },
+    {
+      "description": "Cluster variable",
+      "name": "__CLUSTER_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "iv_overid",
+  "tags": [
+    "iv",
+    "sargan",
+    "hansen",
+    "causal"
+  ],
+  "title": "IV Overid",
+  "title_zh": "过度识别检验",
+  "version": "2.0.1"
+}

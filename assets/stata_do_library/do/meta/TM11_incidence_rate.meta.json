@@ -1,0 +1,69 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "ir command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Incidence rate and rate ratio calculation",
+  "family": "medical",
+  "id": "TM11",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "M",
+  "outputs": [
+    {
+      "description": "IR results",
+      "file": "table_TM11_ir.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TM11_ir.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Cases count variable",
+      "name": "__CASES__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Group/exposure variable for incidence rate ratio",
+      "name": "__GROUP__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Person-time variable (person-years)",
+      "name": "__PYEARS__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "incidence_rate",
+  "tags": [
+    "incidence",
+    "rate_ratio",
+    "epidemiology",
+    "medical"
+  ],
+  "title": "Incidence Rate",
+  "title_zh": "发病率",
+  "version": "2.0.1"
+}

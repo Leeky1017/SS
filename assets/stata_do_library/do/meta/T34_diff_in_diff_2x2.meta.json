@@ -1,0 +1,85 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate classic 2x2 difference-in-differences model for policy evaluation with trend visualization",
+  "family": "causal_inference",
+  "id": "T34",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "F",
+  "outputs": [
+    {
+      "description": "Trend comparison",
+      "file": "fig_T34_did_trend.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "DID regression coefficients",
+      "file": "table_T34_did_coef.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_T34_paper.rtf",
+      "type": "report"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Treatment indicator (0/1)",
+      "name": "__TREAT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Post-policy indicator (0/1)",
+      "name": "__POST_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Control variables",
+      "name": "__CONTROL_VARS__",
+      "required": false,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "diff_in_diff_2x2",
+  "tags": [
+    "did",
+    "difference_in_differences",
+    "causal",
+    "policy_evaluation"
+  ],
+  "title": "Difference-in-Differences 2x2",
+  "title_zh": "经典2×2双重差分",
+  "version": "2.0.1"
+}

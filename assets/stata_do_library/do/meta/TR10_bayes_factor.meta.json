@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [],
+  "description": "Compute Bayes factors for model comparison using MCMC sampling to evaluate relative evidence between competing models",
+  "family": "bayesian",
+  "id": "TR10",
+  "inputs": [
+    {
+      "description": "Main dataset for Bayesian analysis",
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "R",
+  "outputs": [
+    {
+      "description": "Bayes factor comparison results",
+      "file": "table_TR10_bf.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output dataset with Bayes factors",
+      "file": "data_TR10_bf.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "varname"
+    },
+    {
+      "description": "Independent variables for model 1",
+      "name": "__INDEPVARS1__",
+      "required": true,
+      "type": "varlist"
+    },
+    {
+      "description": "Independent variables for model 2",
+      "name": "__INDEPVARS2__",
+      "required": true,
+      "type": "varlist"
+    },
+    {
+      "default": 10000,
+      "description": "MCMC iterations",
+      "name": "__MCMC__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "bayes_factor",
+  "tags": [
+    "bayesian",
+    "model-comparison",
+    "bayes-factor",
+    "mcmc"
+  ],
+  "title": "Bayes Factor Model Comparison",
+  "title_zh": "贝叶斯因子模型比较",
+  "version": "2.0.1"
+}

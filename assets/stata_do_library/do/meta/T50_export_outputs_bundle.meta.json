@@ -1,0 +1,55 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "File operations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Bundle output files into outputs subdirectory with manifest",
+  "family": "reporting",
+  "id": "T50",
+  "inputs": [
+    {
+      "name": "*.csv",
+      "required": false,
+      "role": "output_files"
+    },
+    {
+      "name": "*.png",
+      "required": false,
+      "role": "output_files"
+    },
+    {
+      "name": "*.dta",
+      "required": false,
+      "role": "output_files"
+    }
+  ],
+  "level": "L0",
+  "module": "J",
+  "outputs": [
+    {
+      "description": "File manifest",
+      "file": "outputs/manifest.txt",
+      "type": "manifest"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [],
+  "slug": "export_outputs_bundle",
+  "tags": [
+    "export",
+    "bundle",
+    "packaging",
+    "manifest"
+  ],
+  "title": "Export Outputs Bundle",
+  "title_zh": "输出文件打包",
+  "version": "2.0.1"
+}

@@ -1,0 +1,57 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [],
+  "description": "GJR-GARCH leverage effect model",
+  "family": "time_series",
+  "id": "TH07",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "H",
+  "outputs": [
+    {
+      "description": "GJR results",
+      "file": "table_TH07_gjr.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TH07_gjr.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "gjr_garch",
+  "tags": [
+    "gjr",
+    "garch",
+    "leverage",
+    "volatility"
+  ],
+  "title": "GJR-GARCH Model",
+  "title_zh": "GJR-GARCH模型",
+  "version": "2.0.1"
+}

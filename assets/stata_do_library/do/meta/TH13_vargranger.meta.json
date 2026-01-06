@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [],
+  "description": "Granger causality test",
+  "family": "time_series",
+  "id": "TH13",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "H",
+  "outputs": [
+    {
+      "description": "Granger results",
+      "file": "table_TH13_granger.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TH13_granger.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variables",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Lag order",
+      "name": "__LAGS__",
+      "required": true,
+      "type": "number"
+    }
+  ],
+  "slug": "vargranger",
+  "tags": [
+    "granger",
+    "causality",
+    "var"
+  ],
+  "title": "Granger Test",
+  "title_zh": "Granger因果检验",
+  "version": "2.0.1"
+}

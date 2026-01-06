@@ -1,0 +1,61 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "summarize detail",
+      "source": "built-in"
+    }
+  ],
+  "description": "Calculate percentiles and quantiles table for numeric variables",
+  "family": "descriptive_statistics",
+  "id": "TB03",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Percentile table",
+      "file": "table_TB03_percentiles.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TB03_pct.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Numeric variables",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "percentile_table",
+  "tags": [
+    "percentile",
+    "quantile",
+    "distribution"
+  ],
+  "title": "Percentile Table",
+  "title_zh": "百分位数表",
+  "version": "2.0.1"
+}

@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "xtcointtest",
+      "purpose": "Panel cointegration",
+      "source": "ssc"
+    }
+  ],
+  "description": "Panel cointegration tests (Pedroni, Kao)",
+  "family": "panel",
+  "id": "TP10",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "P",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TP10_coint.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TP10_cointegration.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Panel identifier variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Time variable for panel setting",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "panel_cointegration",
+  "tags": [
+    "panel",
+    "cointegration",
+    "pedroni"
+  ],
+  "title": "Panel Cointegration",
+  "title_zh": "面板协整检验",
+  "version": "2.0.1"
+}

@@ -1,0 +1,85 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [],
+  "description": "Parallel trends test for DID",
+  "family": "causal_inference",
+  "id": "TG21",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Parallel test",
+      "file": "table_TG21_parallel_test.csv",
+      "type": "table"
+    },
+    {
+      "description": "Pretrend coefs",
+      "file": "table_TG21_pretrend_coefs.csv",
+      "type": "table"
+    },
+    {
+      "description": "Trends",
+      "file": "fig_TG21_trends.png",
+      "type": "figure"
+    },
+    {
+      "description": "Pretrend test",
+      "file": "fig_TG21_pretrend_test.png",
+      "type": "figure"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Treatment indicator",
+      "name": "__TREAT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Treatment time",
+      "name": "__TREATMENT_TIME__",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "description": "Unit ID",
+      "name": "__ID_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "did_parallel",
+  "tags": [
+    "did",
+    "parallel",
+    "pretrend",
+    "causal"
+  ],
+  "title": "DID Parallel",
+  "title_zh": "平行趋势检验",
+  "version": "2.0.1"
+}

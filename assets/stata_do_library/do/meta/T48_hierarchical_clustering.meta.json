@@ -1,0 +1,75 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Cluster command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Perform hierarchical clustering, generate dendrogram and cluster labels",
+  "family": "multivariate",
+  "id": "T48",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "I",
+  "outputs": [
+    {
+      "description": "Cluster assignments",
+      "file": "table_T48_clusters.csv",
+      "type": "table"
+    },
+    {
+      "description": "Dendrogram",
+      "file": "fig_T48_dendrogram.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Clustering variables (space-separated)",
+      "name": "__NUMERIC_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Linkage method: single/complete/average/ward",
+      "name": "__LINKAGE_METHOD__",
+      "required": true,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "single",
+        "complete",
+        "average",
+        "ward"
+      ]
+    }
+  ],
+  "slug": "hierarchical_clustering",
+  "tags": [
+    "clustering",
+    "hierarchical",
+    "dendrogram",
+    "unsupervised"
+  ],
+  "title": "Hierarchical Clustering",
+  "title_zh": "层次聚类",
+  "version": "2.0.1"
+}

@@ -1,0 +1,78 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "cluster kmeans command",
+      "source": "built-in"
+    }
+  ],
+  "description": "K-means clustering with elbow method for optimal K",
+  "family": "machine_learning",
+  "id": "TS08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "S",
+  "outputs": [
+    {
+      "description": "Cluster centers",
+      "file": "table_TS08_centers.csv",
+      "type": "table"
+    },
+    {
+      "description": "Elbow data",
+      "file": "table_TS08_elbow.csv",
+      "type": "table"
+    },
+    {
+      "description": "Elbow plot",
+      "file": "fig_TS08_elbow.png",
+      "type": "graph"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TS08_kmeans.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Clustering variables",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Number of clusters",
+      "name": "__K__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Max K for elbow method",
+      "name": "__MAX_K__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "cluster_kmeans",
+  "tags": [
+    "kmeans",
+    "clustering",
+    "machine_learning"
+  ],
+  "title": "K-Means Clustering",
+  "title_zh": "K均值聚类",
+  "version": "2.0.1"
+}

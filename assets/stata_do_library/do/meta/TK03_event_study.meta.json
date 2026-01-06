@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Event study methodology for abnormal returns",
+  "family": "finance",
+  "id": "TK03",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TK03_event.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK03_car_plot.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK03_car_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK03_daily_ar.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Date variable",
+      "name": "__DATE_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Estimation window",
+      "name": "__EST_WINDOW__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Event window",
+      "name": "__EVENT_WINDOW__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Market return variable",
+      "name": "__MARKET_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Return variable",
+      "name": "__RETURN_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Stock identifier",
+      "name": "__STOCK_ID__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "event_study",
+  "tags": [
+    "event_study",
+    "car",
+    "abnormal_returns",
+    "finance"
+  ],
+  "title": "Event Study",
+  "title_zh": "事件研究",
+  "version": "2.0.1"
+}

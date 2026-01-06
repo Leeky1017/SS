@@ -1,0 +1,96 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "numerical methods",
+      "source": "built-in"
+    }
+  ],
+  "description": "Calculate implied volatility from option prices",
+  "family": "finance",
+  "id": "TK09",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TK09_iv.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK09_vol_smile.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK09_implied_vol.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Market price variable",
+      "name": "__MARKET_PRICE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Option type: call, put (default: call)",
+      "kind": "enum",
+      "name": "__OPTION_TYPE__",
+      "options": [
+        "call",
+        "put"
+      ],
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Risk-free rate",
+      "name": "__RF_RATE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Spot price variable",
+      "name": "__SPOT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Strike price variable",
+      "name": "__STRIKE_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time to maturity variable",
+      "name": "__TTM_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "implied_vol",
+  "tags": [
+    "implied_volatility",
+    "options",
+    "finance"
+  ],
+  "title": "Implied Volatility",
+  "title_zh": "隐含波动率",
+  "version": "2.0.1"
+}

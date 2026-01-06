@@ -1,0 +1,93 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Real earnings management (Roychowdhury 2006)",
+  "family": "accounting",
+  "id": "TL05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "REM results",
+      "file": "table_TL05_rem.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL05_rem.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Total assets",
+      "name": "__ASSETS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Cash flow from operations",
+      "name": "__CFO__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Discretionary expenses",
+      "name": "__DISEXP__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Panel variable (firm ID)",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Production costs",
+      "name": "__PROD__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Revenue",
+      "name": "__REV__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "roychowdhury",
+  "tags": [
+    "roychowdhury",
+    "rem",
+    "real_earnings",
+    "accounting"
+  ],
+  "title": "Roychowdhury REM",
+  "title_zh": "Roychowdhury真实盈余管理",
+  "version": "2.0.1"
+}

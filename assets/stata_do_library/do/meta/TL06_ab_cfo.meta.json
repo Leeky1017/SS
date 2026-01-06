@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Abnormal cash flow from operations",
+  "family": "accounting",
+  "id": "TL06",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "Ab CFO results",
+      "file": "table_TL06_abcfo.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL06_abcfo.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Total assets",
+      "name": "__ASSETS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Cash flow from operations",
+      "name": "__CFO__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Panel variable (firm ID)",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Revenue",
+      "name": "__REV__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "ab_cfo",
+  "tags": [
+    "abnormal_cfo",
+    "rem",
+    "accounting"
+  ],
+  "title": "Abnormal CFO",
+  "title_zh": "异常经营现金流",
+  "version": "2.0.1"
+}

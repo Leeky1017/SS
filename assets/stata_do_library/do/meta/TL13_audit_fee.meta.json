@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Audit fee determinants model",
+  "family": "audit",
+  "id": "TL13",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "Audit fee results",
+      "file": "table_TL13_auditfee.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL13_auditfee.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Big 4 auditor indicator",
+      "name": "__BIG4__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Inventory and receivables ratio",
+      "name": "__INVREC__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Leverage ratio",
+      "name": "__LEVERAGE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Log of audit fee",
+      "name": "__LNFEE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Log of total assets",
+      "name": "__LNTA__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Loss indicator",
+      "name": "__LOSS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Return on assets",
+      "name": "__ROA__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "audit_fee",
+  "tags": [
+    "audit",
+    "fee",
+    "accounting"
+  ],
+  "title": "Audit Fee Model",
+  "title_zh": "审计费用模型",
+  "version": "2.0.1"
+}

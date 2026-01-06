@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Time series commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Generate multi-period forecasts based on ARIMA model with point estimates and confidence intervals",
+  "family": "time_series",
+  "id": "T39",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Forecast results",
+      "file": "table_T39_forecast.csv",
+      "type": "table"
+    },
+    {
+      "description": "Forecast visualization",
+      "file": "fig_T39_forecast.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time series variable",
+      "name": "__SERIES_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "AR order",
+      "name": "__P__",
+      "required": true,
+      "type": "integer"
+    },
+    {
+      "description": "Differencing order",
+      "name": "__D__",
+      "required": true,
+      "type": "integer"
+    },
+    {
+      "description": "MA order",
+      "name": "__Q__",
+      "required": true,
+      "type": "integer"
+    },
+    {
+      "description": "Forecast horizon",
+      "name": "__HORIZON__",
+      "required": true,
+      "type": "integer"
+    }
+  ],
+  "slug": "ts_forecast_horizon",
+  "tags": [
+    "time_series",
+    "arima",
+    "forecasting",
+    "prediction"
+  ],
+  "title": "Time Series Forecasting",
+  "title_zh": "时间序列预测",
+  "version": "2.0.1"
+}

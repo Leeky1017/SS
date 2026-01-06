@@ -1,0 +1,62 @@
+# TG13_iv_2sls — 工具变量2SLS
+
+## 任务元信息
+
+| 属性 | 值 |
+|------|-----|
+| **模板ID** | TG13 |
+| **Slug** | iv_2sls |
+| **名称(中文)** | 工具变量2SLS |
+| **Name(EN)** | IV 2SLS |
+| **家族** | causal_inference |
+| **等级** | L1 |
+| **版本** | 2.0.0 |
+
+## 功能描述
+
+Two-stage least squares IV regression
+
+## 使用场景
+
+- 关键词：iv, 2sls, endogeneity, causal
+
+## 输入
+
+| 文件 | 角色 | 必需 |
+|------|------|------|
+| data.csv | main_dataset | 是 |
+
+## 参数与占位符
+
+| 占位符 | 类型 | 必需 | 说明 |
+|--------|------|------|------|
+| `__DEP_VAR__` | string | 是 | Dependent variable |
+| `__ENDOG_VAR__` | string | 是 | Endogenous variable |
+| `__INSTRUMENTS__` | string | 是 | Instruments |
+| `__EXOG_VARS__` | string | 否 | Exogenous controls |
+| `__ROBUST__` | string | 否 | Robust SE |
+
+## 输出
+
+| 文件 | 类型 | 说明 |
+|------|------|------|
+| table_TG13_2sls_result.csv | table | 2SLS results |
+| table_TG13_first_stage.csv | table | First stage |
+| table_TG13_diagnostics.csv | table | Diagnostics |
+| data_TG13_iv.dta | data | IV data |
+| result.log | log | Execution log |
+
+## 依赖
+
+| 包/命令 | 来源 | 用途 |
+|---------|------|------|
+| ivreg2 | ssc | IV regression |
+
+## 示例
+
+```stata
+* Template: TG13_iv_2sls
+* Script: tasks/do/TG13_iv_2sls.do
+* 将占位符替换为你的变量名/参数，然后交由执行器运行。
+```
+

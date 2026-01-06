@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Survival analysis commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate Cox proportional hazards regression model with proportional hazards assumption test",
+  "family": "survival_analysis",
+  "id": "T43",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "H",
+  "outputs": [
+    {
+      "description": "Cox regression coefficients",
+      "file": "table_T43_cox_coef.csv",
+      "type": "table"
+    },
+    {
+      "description": "Proportional hazards test",
+      "file": "table_T43_phtest.csv",
+      "type": "table"
+    },
+    {
+      "description": "Cox model survival curve",
+      "file": "fig_T43_cox_survival.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Survival time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Event variable (0=censored, 1=event)",
+      "name": "__EVENT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Covariate list (space-separated)",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "survival_cox_basic",
+  "tags": [
+    "survival",
+    "cox",
+    "hazard_ratio",
+    "proportional_hazards"
+  ],
+  "title": "Cox Proportional Hazards",
+  "title_zh": "Cox比例风险回归",
+  "version": "2.0.1"
+}

@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "mkspline command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Piecewise linear spline regression",
+  "family": "linear_regression",
+  "id": "TD11",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "D",
+  "outputs": [
+    {
+      "description": "Spline results",
+      "file": "table_TD11_spline.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TD11_spline.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variable",
+      "name": "__INDEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Knot point",
+      "name": "__KNOT__",
+      "required": true,
+      "type": "number"
+    }
+  ],
+  "slug": "spline",
+  "tags": [
+    "spline",
+    "piecewise",
+    "regression"
+  ],
+  "title": "Spline",
+  "title_zh": "分段回归",
+  "version": "2.0.1"
+}

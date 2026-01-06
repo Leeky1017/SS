@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "swilk command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Calculate skewness/kurtosis and perform Shapiro-Wilk normality tests",
+  "family": "descriptive_statistics",
+  "id": "TB02",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Normality test results",
+      "file": "table_TB02_normality.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TB02_norm.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Numeric variables",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "normality_test",
+  "tags": [
+    "normality",
+    "skewness",
+    "kurtosis",
+    "shapiro-wilk"
+  ],
+  "title": "Normality Test",
+  "title_zh": "正态性检验",
+  "version": "2.0.1"
+}

@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "graph bar command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Plot bar charts for categorical data distribution or comparison",
+  "family": "visualization",
+  "id": "TU05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "U",
+  "outputs": [
+    {
+      "description": "Bar chart",
+      "file": "fig_TU05_bar.png",
+      "type": "graph"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TU05_bar.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Numeric variable",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Category variable",
+      "name": "__CAT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Statistic: mean/sum/count",
+      "name": "__STAT__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "mean",
+        "sum",
+        "count"
+      ]
+    }
+  ],
+  "slug": "bar_chart",
+  "tags": [
+    "visualization",
+    "bar",
+    "categorical"
+  ],
+  "title": "Bar Chart",
+  "title_zh": "柱状图",
+  "version": "2.0.1"
+}

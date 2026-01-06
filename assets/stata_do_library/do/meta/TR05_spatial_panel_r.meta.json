@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "xsmle",
+      "purpose": "Spatial panel",
+      "source": "ssc"
+    }
+  ],
+  "description": "Spatial panel data model",
+  "family": "spatial",
+  "id": "TR05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "R",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TR05_sp_panel.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TR05_spatial_panel.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Region identifier variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Spatial panel model type: fe, re (default: fe)",
+      "kind": "enum",
+      "name": "__MODEL_TYPE__",
+      "options": [
+        "fe",
+        "re"
+      ],
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable for panel setting",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "X coordinate variable",
+      "name": "__X_COORD__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Y coordinate variable",
+      "name": "__Y_COORD__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "spatial_panel_r",
+  "tags": [
+    "spatial_panel",
+    "panel",
+    "spatial"
+  ],
+  "title": "Spatial Panel R",
+  "title_zh": "空间面板R",
+  "version": "2.0.1"
+}

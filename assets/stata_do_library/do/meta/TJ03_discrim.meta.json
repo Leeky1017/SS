@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "discrim lda command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Linear Discriminant Analysis",
+  "family": "multivariate",
+  "id": "TJ03",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "J",
+  "outputs": [
+    {
+      "description": "LDA results",
+      "file": "table_TJ03_discrim.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TJ03_discrim.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Group variable",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Predictor variables",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "discrim",
+  "tags": [
+    "discriminant",
+    "lda",
+    "classification"
+  ],
+  "title": "Discriminant Analysis",
+  "title_zh": "判别分析",
+  "version": "2.0.1"
+}

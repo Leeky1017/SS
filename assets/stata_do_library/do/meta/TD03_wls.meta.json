@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress with weights",
+      "source": "built-in"
+    }
+  ],
+  "description": "Weighted least squares regression",
+  "family": "linear_regression",
+  "id": "TD03",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "D",
+  "outputs": [
+    {
+      "description": "WLS results",
+      "file": "table_TD03_wls.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TD03_wls.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Weight variable",
+      "name": "__WEIGHT_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "wls",
+  "tags": [
+    "wls",
+    "weighted",
+    "regression"
+  ],
+  "title": "WLS",
+  "title_zh": "加权最小二乘",
+  "version": "2.0.1"
+}

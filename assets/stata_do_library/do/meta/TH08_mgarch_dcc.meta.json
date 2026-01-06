@@ -1,0 +1,57 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [],
+  "description": "DCC multivariate GARCH model",
+  "family": "time_series",
+  "id": "TH08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "H",
+  "outputs": [
+    {
+      "description": "DCC results",
+      "file": "table_TH08_dcc.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TH08_dcc.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variables",
+      "name": "__VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "mgarch_dcc",
+  "tags": [
+    "dcc",
+    "mgarch",
+    "multivariate",
+    "volatility"
+  ],
+  "title": "DCC-GARCH Model",
+  "title_zh": "DCC多元GARCH",
+  "version": "2.0.1"
+}

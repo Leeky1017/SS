@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core reshape commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Convert between wide and long format for panel data, with pre and post conversion diagnostics",
+  "family": "data_management",
+  "id": "T06",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Reshape diagnostics report",
+      "file": "table_T06_reshape_report.csv",
+      "type": "table"
+    },
+    {
+      "description": "Reshaped dataset CSV",
+      "file": "table_T06_reshaped_data.csv",
+      "type": "table"
+    },
+    {
+      "description": "Reshaped dataset Stata",
+      "file": "data_T06_reshaped_data.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Direction: wide or long",
+      "name": "__RESHAPE_DIRECTION__",
+      "required": true,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "wide",
+        "long"
+      ],
+      "default": "long"
+    },
+    {
+      "description": "Variable stubs to reshape",
+      "name": "__STUB_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Entity identifier variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable name (j variable)",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "reshape_wide_long",
+  "tags": [
+    "reshape",
+    "wide",
+    "long",
+    "panel",
+    "format_conversion"
+  ],
+  "title": "Reshape Wide Long",
+  "title_zh": "数据表形态转换（宽表/长表）",
+  "version": "2.0.1"
+}

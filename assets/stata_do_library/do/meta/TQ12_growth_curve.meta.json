@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "mixed command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Multilevel growth curve modeling",
+  "family": "multilevel",
+  "id": "TQ12",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "Q",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TQ12_growth.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TQ12_growth.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Growth curve results",
+      "file": "table_TQ12_growth.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Subject/panel identifier variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Additional predictors (excluding time variable)",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "growth_curve",
+  "tags": [
+    "growth_curve",
+    "longitudinal",
+    "multilevel"
+  ],
+  "title": "Growth Curve",
+  "title_zh": "增长曲线模型",
+  "version": "2.0.1"
+}

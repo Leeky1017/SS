@@ -1,0 +1,78 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core graphics commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Generate pairwise scatter plot matrix with linear fit and correlation annotations, supporting grouped comparisons",
+  "family": "descriptive",
+  "id": "T11",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Scatter plot matrix (half)",
+      "file": "fig_T11_scatter_matrix.png",
+      "type": "graph"
+    },
+    {
+      "description": "Full matrix with histograms",
+      "file": "fig_T11_scatter_matrix_full.png",
+      "type": "graph"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_T11_scatter_matrix_grouped.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Correlation coefficients table",
+      "file": "table_T11_correlations.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Numeric variables to analyze (space-separated)",
+      "name": "__NUMERIC_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Grouping variable (optional)",
+      "name": "__GROUP_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "scatter_matrix",
+  "tags": [
+    "scatter",
+    "matrix",
+    "correlation",
+    "visualization"
+  ],
+  "title": "Scatter Matrix",
+  "title_zh": "散点图矩阵与变量关系可视化",
+  "version": "2.0.1"
+}

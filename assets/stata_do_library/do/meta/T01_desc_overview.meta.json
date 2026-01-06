@@ -1,0 +1,76 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core statistical commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Comprehensive dataset overview including variable structure, descriptive statistics, missing value patterns, and primary key uniqueness check",
+  "family": "data_management",
+  "id": "T01",
+  "inputs": [
+    {
+      "description": "Main dataset file",
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "description": "Alternative CSV format (auto-converted to dta)",
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Descriptive statistics table with percentiles",
+      "file": "table_T01_desc_stats.csv",
+      "type": "table"
+    },
+    {
+      "description": "Missing value pattern analysis table",
+      "file": "table_T01_missing_pattern.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "List of numeric variables to analyze (space-separated)",
+      "name": "__NUMERIC_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Entity/primary key variable (for panel detection)",
+      "name": "__ID_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Time variable (for panel detection)",
+      "name": "__TIME_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "desc_overview",
+  "tags": [
+    "descriptive",
+    "overview",
+    "missing",
+    "data_quality"
+  ],
+  "title": "Dataset Overview and Descriptive Statistics",
+  "title_zh": "数据集整体概况与描述统计",
+  "version": "2.0.1"
+}

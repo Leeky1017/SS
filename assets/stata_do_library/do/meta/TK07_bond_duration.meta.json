@@ -1,0 +1,86 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Bond duration and convexity calculation",
+  "family": "finance",
+  "id": "TK07",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TK07_bond.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK07_price_yield.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Duration results",
+      "file": "table_TK07_duration.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Coupon rate",
+      "name": "__COUPON_RATE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Face value",
+      "name": "__FACE_VALUE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Payment frequency",
+      "name": "__FREQUENCY__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Years to maturity",
+      "name": "__MATURITY__",
+      "required": true,
+      "type": "integer"
+    },
+    {
+      "description": "Yield to maturity",
+      "name": "__YTM__",
+      "required": true,
+      "type": "number"
+    }
+  ],
+  "slug": "bond_duration",
+  "tags": [
+    "bond",
+    "duration",
+    "convexity",
+    "finance"
+  ],
+  "title": "Bond Duration",
+  "title_zh": "债券久期",
+  "version": "2.0.1"
+}

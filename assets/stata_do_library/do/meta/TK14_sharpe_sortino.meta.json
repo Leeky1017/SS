@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Calculate Sharpe ratio and Sortino ratio",
+  "family": "finance",
+  "id": "TK14",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TK14_risk.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK14_drawdown.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK14_metrics.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Benchmark return variable",
+      "name": "__BENCHMARK_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Return frequency",
+      "name": "__FREQUENCY__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Return variable",
+      "name": "__RETURN_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Risk-free rate",
+      "name": "__RF_RATE__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "sharpe_sortino",
+  "tags": [
+    "sharpe",
+    "sortino",
+    "risk_adjusted",
+    "finance"
+  ],
+  "title": "Sharpe Sortino",
+  "title_zh": "夏普和索提诺比率",
+  "version": "2.0.1"
+}

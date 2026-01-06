@@ -1,0 +1,91 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [],
+  "description": "Basic difference-in-differences",
+  "family": "causal_inference",
+  "id": "TG19",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "DID results",
+      "file": "table_TG19_did_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Parallel test",
+      "file": "table_TG19_parallel_test.csv",
+      "type": "table"
+    },
+    {
+      "description": "Parallel trend",
+      "file": "fig_TG19_parallel_trend.png",
+      "type": "figure"
+    },
+    {
+      "description": "DID data",
+      "file": "data_TG19_did.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Treatment indicator",
+      "name": "__TREAT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Post-treatment indicator",
+      "name": "__POST_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Control variables",
+      "name": "__CONTROLS__",
+      "required": false,
+      "type": "list[string]"
+    },
+    {
+      "description": "Cluster variable",
+      "name": "__CLUSTER_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "did_basic",
+  "tags": [
+    "did",
+    "causal",
+    "policy",
+    "treatment"
+  ],
+  "title": "DID Basic",
+  "title_zh": "双重差分法",
+  "version": "2.0.1"
+}

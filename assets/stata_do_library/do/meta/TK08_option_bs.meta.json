@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "normal calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Black-Scholes option pricing model",
+  "family": "finance",
+  "id": "TK08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK08_payoff.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK08_greeks.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK08_option_price.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Option type: call, put (default: call)",
+      "kind": "enum",
+      "name": "__OPTION_TYPE__",
+      "options": [
+        "call",
+        "put"
+      ],
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Risk-free rate",
+      "name": "__RISK_FREE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Spot price",
+      "name": "__SPOT_PRICE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Strike price",
+      "name": "__STRIKE_PRICE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time to maturity",
+      "name": "__TIME_TO_MAT__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Volatility",
+      "name": "__VOLATILITY__",
+      "required": true,
+      "type": "number"
+    }
+  ],
+  "slug": "option_bs",
+  "tags": [
+    "option",
+    "black_scholes",
+    "derivatives",
+    "finance"
+  ],
+  "title": "Black-Scholes",
+  "title_zh": "Black-Scholes期权定价",
+  "version": "2.0.1"
+}

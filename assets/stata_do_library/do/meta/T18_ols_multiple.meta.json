@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate linear relationships between multiple independent variables and a dependent variable with VIF multicollinearity test, heteroscedasticity test, and RESET specification test",
+  "family": "regression",
+  "id": "T18",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "D",
+  "outputs": [
+    {
+      "description": "Residual diagnostics plot",
+      "file": "fig_T18_residuals.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_T18_paper.rtf",
+      "type": "report"
+    },
+    {
+      "description": "Regression results summary",
+      "file": "table_T18_reg_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "VIF multicollinearity test",
+      "file": "table_T18_vif.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables (space-separated)",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "ols_multiple",
+  "tags": [
+    "ols",
+    "regression",
+    "multiple",
+    "vif",
+    "heteroscedasticity"
+  ],
+  "title": "Multiple OLS Regression",
+  "title_zh": "多元线性回归",
+  "version": "2.0.1"
+}

@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "String functions",
+      "source": "built-in"
+    }
+  ],
+  "description": "Calculate word frequencies and generate word frequency tables",
+  "family": "text_analysis",
+  "id": "TT02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "T",
+  "outputs": [
+    {
+      "description": "Word frequency table",
+      "file": "table_TT02_word_freq.csv",
+      "type": "table"
+    },
+    {
+      "description": "Frequency data",
+      "file": "data_TT02_freq.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Text variable",
+      "name": "__TEXT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Top N words (default 50)",
+      "name": "__TOP_N__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Minimum frequency (default 2)",
+      "name": "__MIN_FREQ__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "word_freq",
+  "tags": [
+    "text",
+    "word_frequency",
+    "analysis"
+  ],
+  "title": "Word Frequency",
+  "title_zh": "词频统计",
+  "version": "2.0.1"
+}

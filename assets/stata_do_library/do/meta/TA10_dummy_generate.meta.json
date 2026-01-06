@@ -1,0 +1,91 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "tabulate command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Generate dummy variables for categorical variables with base group selection",
+  "family": "data_management",
+  "id": "TA10",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Dummy codebook",
+      "file": "table_TA10_dummy_codebook.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data with dummies",
+      "file": "data_TA10_with_dummies.dta",
+      "type": "data"
+    },
+    {
+      "description": "Data CSV with dummies",
+      "file": "data_TA10_with_dummies.csv",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Categorical variables",
+      "name": "__CAT_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Base category",
+      "name": "__BASE_CATEGORY__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Dummy prefix",
+      "name": "__PREFIX__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Drop first dummy",
+      "name": "__DROP_FIRST__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Interaction terms",
+      "name": "__INTERACTION__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "dummy_generate",
+  "tags": [
+    "dummy",
+    "indicator",
+    "categorical",
+    "one-hot"
+  ],
+  "title": "Dummy Generate",
+  "title_zh": "虚拟变量批量生成",
+  "version": "2.0.1"
+}

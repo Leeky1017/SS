@@ -1,0 +1,76 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Count regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate Poisson and negative binomial regression for count data with overdispersion tests and model comparison",
+  "family": "limited_dependent",
+  "id": "T29",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "E",
+  "outputs": [
+    {
+      "description": "Goodness of fit comparison",
+      "file": "table_T29_count_gof.csv",
+      "type": "table"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Count dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Model type: poisson, nbreg, both (default: both)",
+      "kind": "enum",
+      "name": "__MODEL_TYPE__",
+      "options": [
+        "poisson",
+        "nbreg",
+        "both"
+      ],
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "poisson_count",
+  "tags": [
+    "poisson",
+    "nbreg",
+    "count",
+    "irr",
+    "overdispersion"
+  ],
+  "title": "Count Models",
+  "title_zh": "计数模型",
+  "version": "2.0.1"
+}

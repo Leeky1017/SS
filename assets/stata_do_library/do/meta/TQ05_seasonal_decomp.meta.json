@@ -1,0 +1,85 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "tssmooth",
+      "purpose": "Smoothing",
+      "source": "stata"
+    }
+  ],
+  "description": "Seasonal decomposition of time series",
+  "family": "time_series",
+  "id": "TQ05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "Q",
+  "outputs": [
+    {
+      "description": "Decomposition results",
+      "file": "table_TQ05_decomp.csv",
+      "type": "table"
+    },
+    {
+      "description": "Decomposition plot",
+      "file": "fig_TQ05_decomp.png",
+      "type": "graph"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TQ05_decomp.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Decomposition method: additive, multiplicative (default: additive)",
+      "kind": "enum",
+      "name": "__METHOD__",
+      "options": [
+        "additive",
+        "multiplicative"
+      ],
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Seasonal period",
+      "name": "__PERIOD__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Time series variable",
+      "name": "__SERIES_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable for tsset",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "seasonal_decomp",
+  "tags": [
+    "seasonal",
+    "decomposition",
+    "trend",
+    "time_series"
+  ],
+  "title": "Seasonal Decomposition",
+  "title_zh": "季节分解",
+  "version": "2.0.1"
+}

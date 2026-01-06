@@ -1,0 +1,69 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "collapse and twoway",
+      "source": "built-in"
+    }
+  ],
+  "description": "Draw group mean trend over time",
+  "family": "descriptive_statistics",
+  "id": "TB05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Group mean trend plot",
+      "file": "fig_TB05_group_trend.png",
+      "type": "figure"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TB05_trend.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Y variable",
+      "name": "__YVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Group variable",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "group_mean_trend",
+  "tags": [
+    "trend",
+    "group",
+    "mean",
+    "time-series"
+  ],
+  "title": "Group Mean Trend",
+  "title_zh": "分组均值趋势图",
+  "version": "2.0.1"
+}

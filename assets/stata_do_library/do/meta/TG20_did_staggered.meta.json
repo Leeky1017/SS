@@ -1,0 +1,96 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "csdid",
+      "purpose": "Staggered DID",
+      "source": "ssc"
+    },
+    {
+      "pkg": "drdid",
+      "purpose": "DR DID",
+      "source": "ssc"
+    }
+  ],
+  "description": "Staggered DID with Callaway-Sant'Anna",
+  "family": "causal_inference",
+  "id": "TG20",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Staggered DID",
+      "file": "table_TG20_staggered_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Group effects",
+      "file": "table_TG20_group_effects.csv",
+      "type": "table"
+    },
+    {
+      "description": "Event study",
+      "file": "fig_TG20_event_study.png",
+      "type": "figure"
+    },
+    {
+      "description": "Staggered data",
+      "file": "data_TG20_staggered.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Unit ID",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "First treatment time",
+      "name": "__TREAT_TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Control variables",
+      "name": "__CONTROLS__",
+      "required": false,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "did_staggered",
+  "tags": [
+    "did",
+    "staggered",
+    "csdid",
+    "causal"
+  ],
+  "title": "DID Staggered",
+  "title_zh": "交错DID",
+  "version": "2.0.1"
+}

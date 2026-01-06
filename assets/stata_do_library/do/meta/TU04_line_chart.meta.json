@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "twoway line command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Plot time series or trend line charts with optional multi-series",
+  "family": "visualization",
+  "id": "TU04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "U",
+  "outputs": [
+    {
+      "description": "Line chart",
+      "file": "fig_TU04_line.png",
+      "type": "graph"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TU04_line.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Y variable",
+      "name": "__YVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "X variable (time)",
+      "name": "__XVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Grouping variable",
+      "name": "__BY_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "line_chart",
+  "tags": [
+    "visualization",
+    "line",
+    "time_series"
+  ],
+  "title": "Line Chart",
+  "title_zh": "折线图",
+  "version": "2.0.1"
+}

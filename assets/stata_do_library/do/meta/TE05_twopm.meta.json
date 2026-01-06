@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "twopm",
+      "purpose": "two-part model",
+      "source": "ssc"
+    }
+  ],
+  "description": "Two-part model for semi-continuous data",
+  "family": "limited_dependent",
+  "id": "TE05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "E",
+  "outputs": [
+    {
+      "description": "Two-Part results",
+      "file": "table_TE05_twopm.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TE05_twopm.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "twopm",
+  "tags": [
+    "two-part",
+    "semi-continuous",
+    "hurdle"
+  ],
+  "title": "Two-Part",
+  "title_zh": "双栏模型",
+  "version": "2.0.1"
+}

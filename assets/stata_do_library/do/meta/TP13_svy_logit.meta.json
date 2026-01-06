@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "svy logit command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Survey-weighted logistic regression",
+  "family": "survey",
+  "id": "TP13",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "P",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TP13_svy.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Survey logit results",
+      "file": "table_TP13_svylogit.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Primary sampling unit (PSU) variable",
+      "name": "__PSU__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Sampling weight variable (pweight)",
+      "name": "__PWEIGHT__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Strata variable",
+      "name": "__STRATA__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "svy_logit",
+  "tags": [
+    "survey",
+    "logit",
+    "weighted"
+  ],
+  "title": "Survey Logit",
+  "title_zh": "调查Logit",
+  "version": "2.0.1"
+}

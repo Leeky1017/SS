@@ -1,0 +1,69 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Probit regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate binary probit regression with marginal effects, goodness of fit, ROC analysis, and Logit comparison",
+  "family": "limited_dependent",
+  "id": "T26",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "E",
+  "outputs": [
+    {
+      "description": "Probit coefficients",
+      "file": "table_T26_probit_coef.csv",
+      "type": "table"
+    },
+    {
+      "description": "ROC curve",
+      "file": "fig_T26_roc.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Binary dependent variable (0/1)",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "probit_binary",
+  "tags": [
+    "probit",
+    "binary",
+    "marginal_effects",
+    "roc",
+    "classification"
+  ],
+  "title": "Binary Probit Model",
+  "title_zh": "二元Probit模型",
+  "version": "2.0.1"
+}

@@ -1,0 +1,73 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Cluster command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Perform K-means clustering, output cluster labels and characteristics",
+  "family": "multivariate",
+  "id": "T47",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "I",
+  "outputs": [
+    {
+      "description": "Cluster assignments",
+      "file": "table_T47_clusters.csv",
+      "type": "table"
+    },
+    {
+      "description": "Cluster centers",
+      "file": "table_T47_centers.csv",
+      "type": "table"
+    },
+    {
+      "description": "Cluster scatter plot",
+      "file": "fig_T47_kmeans.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Clustering variables (space-separated)",
+      "name": "__NUMERIC_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Number of clusters K",
+      "name": "__N_CLUSTERS__",
+      "required": true,
+      "type": "integer"
+    }
+  ],
+  "slug": "kmeans_clustering",
+  "tags": [
+    "clustering",
+    "kmeans",
+    "unsupervised",
+    "multivariate"
+  ],
+  "title": "K-means Clustering",
+  "title_zh": "K-means聚类",
+  "version": "2.0.1"
+}

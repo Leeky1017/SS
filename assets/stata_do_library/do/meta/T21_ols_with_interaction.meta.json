@@ -1,0 +1,86 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate regression models with interaction terms for moderation analysis, including marginal effects analysis and visualization",
+  "family": "regression",
+  "id": "T21",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "D",
+  "outputs": [
+    {
+      "description": "Marginal effects plot",
+      "file": "fig_T21_margins.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_T21_paper.rtf",
+      "type": "report"
+    },
+    {
+      "description": "Interaction regression results",
+      "file": "table_T21_reg_interaction.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Control variables",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Interaction variable 1",
+      "name": "__INTERACT_VAR1__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Interaction variable 2 (moderator)",
+      "name": "__INTERACT_VAR2__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "ols_with_interaction",
+  "tags": [
+    "ols",
+    "regression",
+    "interaction",
+    "moderation",
+    "marginal_effects"
+  ],
+  "title": "OLS with Interaction Terms",
+  "title_zh": "含交互项的回归",
+  "version": "2.0.1"
+}

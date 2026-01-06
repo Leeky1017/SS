@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "xtserial",
+      "purpose": "Wooldridge test",
+      "source": "ssc"
+    }
+  ],
+  "description": "Wooldridge test for serial correlation",
+  "family": "panel_data",
+  "id": "TF03",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "F",
+  "outputs": [
+    {
+      "description": "Serial correlation results",
+      "file": "table_TF03_serial.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TF03_serial.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Panel variable",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "xtserial",
+  "tags": [
+    "panel",
+    "serial-correlation",
+    "wooldridge"
+  ],
+  "title": "XTSERIAL",
+  "title_zh": "面板序列相关检验",
+  "version": "2.0.1"
+}

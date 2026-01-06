@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Dechow-Dichev accruals quality model",
+  "family": "accounting",
+  "id": "TL04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "DD model results",
+      "file": "table_TL04_dd.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL04_dd.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Total assets",
+      "name": "__ASSETS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Cash flow from operations",
+      "name": "__CFO__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Panel variable (firm ID)",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Working capital accruals",
+      "name": "__WCA__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "dd_model",
+  "tags": [
+    "dechow_dichev",
+    "accruals_quality",
+    "accounting"
+  ],
+  "title": "DD Model",
+  "title_zh": "DD模型",
+  "version": "2.0.1"
+}

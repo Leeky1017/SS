@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "mcc command",
+      "source": "built-in"
+    }
+  ],
+  "description": "McNemar test for paired binary data",
+  "family": "hypothesis_testing",
+  "id": "TC07",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "C",
+  "outputs": [
+    {
+      "description": "McNemar test results",
+      "file": "table_TC07_mcnemar.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TC07_mcn.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable 1",
+      "name": "__VAR1__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Variable 2",
+      "name": "__VAR2__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "mcnemar",
+  "tags": [
+    "mcnemar",
+    "paired",
+    "binary",
+    "chi-square"
+  ],
+  "title": "McNemar",
+  "title_zh": "McNemar配对卡方检验",
+  "version": "2.0.1"
+}

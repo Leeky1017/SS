@@ -1,0 +1,96 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Momentum factor construction and analysis",
+  "family": "finance",
+  "id": "TK15",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TK15_mom.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK15_momentum.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK15_factor.csv",
+      "type": "table"
+    },
+    {
+      "description": "Momentum results",
+      "file": "table_TK15_momentum.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Lookback period",
+      "name": "__LOOKBACK__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Number of groups",
+      "name": "__N_GROUPS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Return variable",
+      "name": "__RETURN_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Skip period",
+      "name": "__SKIP__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Stock identifier",
+      "name": "__STOCK_ID__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "momentum_factor",
+  "tags": [
+    "momentum",
+    "factor",
+    "finance"
+  ],
+  "title": "Momentum Factor",
+  "title_zh": "动量因子",
+  "version": "2.0.1"
+}

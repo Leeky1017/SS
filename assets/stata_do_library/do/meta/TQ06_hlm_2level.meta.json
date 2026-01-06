@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "mixed command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Two-level hierarchical linear model",
+  "family": "multilevel",
+  "id": "TQ06",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "Q",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TQ06_hlm.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "HLM results",
+      "file": "table_TQ06_hlm2.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Grouping variable for level-2 random effects",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Level-1 predictors",
+      "name": "__LEVEL1_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Level-2 predictors",
+      "name": "__LEVEL2_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "hlm_2level",
+  "tags": [
+    "hlm",
+    "multilevel",
+    "mixed"
+  ],
+  "title": "HLM 2-Level",
+  "title_zh": "两层HLM",
+  "version": "2.0.1"
+}

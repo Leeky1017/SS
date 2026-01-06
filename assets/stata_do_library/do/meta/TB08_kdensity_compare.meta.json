@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "kdensity command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Draw grouped kernel density comparison plot",
+  "family": "descriptive_statistics",
+  "id": "TB08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Kdensity comparison plot",
+      "file": "fig_TB08_kdensity.png",
+      "type": "figure"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TB08_kd.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Group variable",
+      "name": "__BY_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "kdensity_compare",
+  "tags": [
+    "kdensity",
+    "distribution",
+    "comparison"
+  ],
+  "title": "Kdensity Compare",
+  "title_zh": "密度对比图",
+  "version": "2.0.1"
+}

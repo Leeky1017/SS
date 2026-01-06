@@ -1,0 +1,105 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Ohlson O-Score for bankruptcy prediction",
+  "family": "accounting",
+  "id": "TL12",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "O-Score results",
+      "file": "table_TL12_oscore.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL12_oscore.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Change in net income",
+      "name": "__CHIN__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Current liabilities to current assets",
+      "name": "__CLCA__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Funds from operations to total liabilities",
+      "name": "__FUTL__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Net income negative for two years indicator",
+      "name": "__INTWO__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Net income to total assets",
+      "name": "__NITA__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Total liabilities exceed total assets indicator",
+      "name": "__OENEG__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Size",
+      "name": "__SIZE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Total liabilities to total assets",
+      "name": "__TLTA__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Working capital to total assets",
+      "name": "__WCTA__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "ohlson_oscore",
+  "tags": [
+    "ohlson",
+    "oscore",
+    "bankruptcy",
+    "accounting"
+  ],
+  "title": "Ohlson O-Score",
+  "title_zh": "Ohlson O分数",
+  "version": "2.0.1"
+}

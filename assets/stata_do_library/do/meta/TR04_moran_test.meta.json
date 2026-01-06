@@ -1,0 +1,84 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "spatwmat",
+      "purpose": "Spatial tests",
+      "source": "ssc"
+    }
+  ],
+  "description": "Moran's I spatial autocorrelation test",
+  "family": "spatial",
+  "id": "TR04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "R",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TR04_moran.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TR04_moran_scatter.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TR04_moran_global.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TR04_moran_local.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Region identifier variable",
+      "name": "__ID_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Variable to test",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "X coordinate variable",
+      "name": "__X_COORD__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Y coordinate variable",
+      "name": "__Y_COORD__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "moran_test",
+  "tags": [
+    "moran",
+    "spatial_autocorrelation",
+    "test"
+  ],
+  "title": "Moran Test",
+  "title_zh": "Moran检验",
+  "version": "2.0.1"
+}

@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "logit command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Logistic regression for binary classification with confusion matrix and ROC curve",
+  "family": "machine_learning",
+  "id": "TS09",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "S",
+  "outputs": [
+    {
+      "description": "Logit results",
+      "file": "table_TS09_logit_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Confusion matrix",
+      "file": "table_TS09_confusion.csv",
+      "type": "table"
+    },
+    {
+      "description": "ROC curve",
+      "file": "fig_TS09_roc.png",
+      "type": "graph"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TS09_logit.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable (0/1)",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Classification threshold",
+      "name": "__THRESHOLD__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "logit_classify",
+  "tags": [
+    "logit",
+    "classification",
+    "roc",
+    "machine_learning"
+  ],
+  "title": "Logistic Classification",
+  "title_zh": "Logistic分类",
+  "version": "2.0.1"
+}

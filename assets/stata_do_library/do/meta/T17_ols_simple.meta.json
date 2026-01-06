@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core regression and diagnostic commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate linear relationship between single independent variable and dependent variable, including regression diagnostics, heteroscedasticity tests, normality tests and visualization",
+  "family": "regression",
+  "id": "T17",
+  "inputs": [
+    {
+      "description": "Main dataset file",
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "description": "Alternative CSV format (auto-converted to dta)",
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "D",
+  "outputs": [
+    {
+      "description": "Residual diagnostics plot",
+      "file": "fig_T17_residuals.png",
+      "type": "graph"
+    },
+    {
+      "description": "Scatter plot with fitted line",
+      "file": "fig_T17_scatter_fit.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_T17_paper.rtf",
+      "type": "report"
+    },
+    {
+      "description": "Regression results summary table",
+      "file": "table_T17_reg_result.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable (Y)",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variable (X)",
+      "name": "__INDEP_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "ols_simple",
+  "tags": [
+    "regression",
+    "ols",
+    "linear",
+    "diagnostics"
+  ],
+  "title": "Simple Linear Regression OLS",
+  "title_zh": "简单线性回归（一元OLS）",
+  "version": "2.0.1"
+}

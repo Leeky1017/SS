@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "cc command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Case-control study odds ratio analysis",
+  "family": "medical",
+  "id": "TM08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "M",
+  "outputs": [
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "data_TM08_or.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "OR results",
+      "file": "table_TM08_or.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Case indicator",
+      "name": "__CASE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Exposure",
+      "name": "__EXPOSURE__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "case_control",
+  "tags": [
+    "case_control",
+    "odds_ratio",
+    "epidemiology",
+    "medical"
+  ],
+  "title": "Case Control",
+  "title_zh": "病例对照研究",
+  "version": "2.0.1"
+}

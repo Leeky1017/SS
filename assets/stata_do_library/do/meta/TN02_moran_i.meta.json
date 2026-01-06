@@ -1,0 +1,56 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "spatwmat",
+      "purpose": "Spatial tests",
+      "source": "ssc"
+    }
+  ],
+  "description": "Moran's I spatial autocorrelation test",
+  "family": "spatial",
+  "id": "TN02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "N",
+  "outputs": [
+    {
+      "description": "Moran I results",
+      "file": "table_TN02_moran.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TN02_moran.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable to test",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "moran_i",
+  "tags": [
+    "moran",
+    "spatial_autocorrelation",
+    "spatial"
+  ],
+  "title": "Moran I",
+  "title_zh": "Moran I检验",
+  "version": "2.0.1"
+}

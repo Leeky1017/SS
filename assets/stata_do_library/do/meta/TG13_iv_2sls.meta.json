@@ -1,0 +1,91 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "ivreg2",
+      "purpose": "IV regression",
+      "source": "ssc"
+    }
+  ],
+  "description": "Two-stage least squares IV regression",
+  "family": "causal_inference",
+  "id": "TG13",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "2SLS results",
+      "file": "table_TG13_2sls_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "First stage",
+      "file": "table_TG13_first_stage.csv",
+      "type": "table"
+    },
+    {
+      "description": "Diagnostics",
+      "file": "table_TG13_diagnostics.csv",
+      "type": "table"
+    },
+    {
+      "description": "IV data",
+      "file": "data_TG13_iv.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Endogenous variable",
+      "name": "__ENDOG_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Instruments",
+      "name": "__INSTRUMENTS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Exogenous controls",
+      "name": "__EXOG_VARS__",
+      "required": false,
+      "type": "list[string]"
+    },
+    {
+      "description": "Robust SE",
+      "name": "__ROBUST__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "iv_2sls",
+  "tags": [
+    "iv",
+    "2sls",
+    "endogeneity",
+    "causal"
+  ],
+  "title": "IV 2SLS",
+  "title_zh": "工具变量2SLS",
+  "version": "2.0.1"
+}

@@ -1,0 +1,90 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "arch command",
+      "source": "built-in"
+    }
+  ],
+  "description": "GARCH volatility modeling",
+  "family": "finance",
+  "id": "TK04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TK04_garch.dta",
+      "type": "data"
+    },
+    {
+      "description": "Volatility plot",
+      "file": "fig_TK04_volatility.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK04_garch_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK04_volatility.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Error distribution type",
+      "name": "__DIST__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "GARCH model type",
+      "name": "__MODEL__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "ARCH order (p)",
+      "name": "__P__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "GARCH order (q)",
+      "name": "__Q__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Return variable",
+      "name": "__RETURN_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "garch_model",
+  "tags": [
+    "garch",
+    "volatility",
+    "finance"
+  ],
+  "title": "GARCH Model",
+  "title_zh": "GARCH模型",
+  "version": "2.0.1"
+}

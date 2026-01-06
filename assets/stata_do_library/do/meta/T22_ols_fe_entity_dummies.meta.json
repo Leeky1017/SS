@@ -1,0 +1,75 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core regression commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Entity fixed effects regression using areg to control for time-invariant individual characteristics with clustered standard errors",
+  "family": "regression",
+  "id": "T22",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "D",
+  "outputs": [
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_T22_paper.rtf",
+      "type": "report"
+    },
+    {
+      "description": "Fixed effects regression results",
+      "file": "table_T22_reg_fe.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEP_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Entity variable for fixed effects",
+      "name": "__ENTITY_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "ols_fe_entity_dummies",
+  "tags": [
+    "ols",
+    "regression",
+    "fixed_effects",
+    "entity",
+    "panel"
+  ],
+  "title": "Entity Fixed Effects",
+  "title_zh": "实体固定效应",
+  "version": "2.0.1"
+}

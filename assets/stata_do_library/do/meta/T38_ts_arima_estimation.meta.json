@@ -1,0 +1,91 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Time series commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Estimate ARIMA(p,d,q) model with residual diagnostics and model fit statistics",
+  "family": "time_series",
+  "id": "T38",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "ARIMA coefficients",
+      "file": "table_T38_arima_coef.csv",
+      "type": "table"
+    },
+    {
+      "description": "Model fit statistics",
+      "file": "table_T38_arima_gof.csv",
+      "type": "table"
+    },
+    {
+      "description": "Fit visualization",
+      "file": "fig_T38_arima_fit.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time series variable",
+      "name": "__SERIES_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "AR order",
+      "name": "__P__",
+      "required": true,
+      "type": "integer"
+    },
+    {
+      "description": "Differencing order",
+      "name": "__D__",
+      "required": true,
+      "type": "integer"
+    },
+    {
+      "description": "MA order",
+      "name": "__Q__",
+      "required": true,
+      "type": "integer"
+    }
+  ],
+  "slug": "ts_arima_estimation",
+  "tags": [
+    "time_series",
+    "arima",
+    "forecasting",
+    "model_estimation"
+  ],
+  "title": "ARIMA Model Estimation",
+  "title_zh": "ARIMA模型估计",
+  "version": "2.0.1"
+}

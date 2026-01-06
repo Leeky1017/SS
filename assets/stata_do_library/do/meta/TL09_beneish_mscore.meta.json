@@ -1,0 +1,99 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Beneish M-Score for fraud detection",
+  "family": "accounting",
+  "id": "TL09",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "M-Score results",
+      "file": "table_TL09_mscore.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL09_mscore.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Asset Quality Index",
+      "name": "__AQI__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Depreciation Index",
+      "name": "__DEPI__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Days Sales Receivables Index",
+      "name": "__DSRI__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Gross Margin Index",
+      "name": "__GMI__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Leverage Index",
+      "name": "__LVGI__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "SG&A Index",
+      "name": "__SGAI__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Sales Growth Index",
+      "name": "__SGI__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Total Accruals to Total Assets",
+      "name": "__TATA__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "beneish_mscore",
+  "tags": [
+    "beneish",
+    "mscore",
+    "fraud",
+    "accounting"
+  ],
+  "title": "Beneish M-Score",
+  "title_zh": "Beneish M分数",
+  "version": "2.0.1"
+}

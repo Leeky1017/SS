@@ -1,0 +1,67 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "sqreg command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Quantile regression at multiple quantiles",
+  "family": "linear_regression",
+  "id": "TD04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "D",
+  "outputs": [
+    {
+      "description": "Quantile regression results",
+      "file": "table_TD04_qreg.csv",
+      "type": "table"
+    },
+    {
+      "description": "Quantile regression plot",
+      "file": "fig_TD04_qreg.png",
+      "type": "figure"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TD04_qreg.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "quantile_reg",
+  "tags": [
+    "quantile",
+    "regression",
+    "percentile"
+  ],
+  "title": "Quantile Reg",
+  "title_zh": "分位数回归",
+  "version": "2.0.1"
+}

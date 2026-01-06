@@ -1,0 +1,109 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Analysis commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Detect outliers using IQR, Z-score or MAD methods, with flag/drop/replace options",
+  "family": "data_management",
+  "id": "TA04",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Outlier summary",
+      "file": "table_TA04_outlier_summary.csv",
+      "type": "table"
+    },
+    {
+      "description": "Outlier details",
+      "file": "table_TA04_outlier_details.csv",
+      "type": "table"
+    },
+    {
+      "description": "Cleaned data",
+      "file": "data_TA04_cleaned.dta",
+      "type": "data"
+    },
+    {
+      "description": "Cleaned CSV",
+      "file": "data_TA04_cleaned.csv",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variables to check",
+      "name": "__CHECK_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Detection method: iqr/zscore/mad",
+      "name": "__METHOD__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "iqr",
+        "zscore",
+        "mad"
+      ]
+    },
+    {
+      "description": "Threshold value",
+      "name": "__THRESHOLD__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Action: flag/drop/replace",
+      "name": "__ACTION__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "flag",
+        "drop",
+        "replace"
+      ]
+    },
+    {
+      "description": "ID variable",
+      "name": "__ID_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "outlier_detect",
+  "tags": [
+    "outlier",
+    "detection",
+    "data_cleaning",
+    "iqr",
+    "zscore"
+  ],
+  "title": "Outlier Detect",
+  "title_zh": "异常值检测与处理",
+  "version": "2.0.1"
+}

@@ -1,0 +1,78 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "var command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Vector Autoregression model",
+  "family": "time_series",
+  "id": "TQ02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "Q",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TQ02_var.dta",
+      "type": "data"
+    },
+    {
+      "description": "IRF plot",
+      "file": "fig_TQ02_irf.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TQ02_granger.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TQ02_var_result.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Endogenous variable list",
+      "name": "__ENDOG_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Number of lags",
+      "name": "__LAGS__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Time variable for tsset",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "var_model",
+  "tags": [
+    "var",
+    "time_series",
+    "irf"
+  ],
+  "title": "VAR Model",
+  "title_zh": "VAR模型",
+  "version": "2.0.1"
+}

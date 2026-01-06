@@ -1,0 +1,69 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "zinb command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Zero-inflated negative binomial regression",
+  "family": "limited_dependent",
+  "id": "TE02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "E",
+  "outputs": [
+    {
+      "description": "ZINB results",
+      "file": "table_TE02_zinb.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TE02_zinb.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Inflate variables",
+      "name": "__INFLATE_VARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "zinb",
+  "tags": [
+    "zinb",
+    "zero-inflated",
+    "negative-binomial",
+    "count"
+  ],
+  "title": "ZINB",
+  "title_zh": "零膨胀负二项",
+  "version": "2.0.1"
+}

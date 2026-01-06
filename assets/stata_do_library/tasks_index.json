@@ -1,0 +1,6615 @@
+[
+  {
+    "id": "T01",
+    "slug": "desc_overview",
+    "name": "数据集整体概况与描述统计",
+    "family": "data_management",
+    "description": "Comprehensive dataset overview including variable structure, descriptive statistics, missing value patterns, and primary key uniqueness check",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__NUMERIC_VARS__",
+      "__ID_VAR__",
+      "__TIME_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T01_desc_stats.csv",
+      "table_T01_missing_pattern.csv"
+    ]
+  },
+  {
+    "id": "T02",
+    "slug": "desc_by_group",
+    "name": "分组描述统计",
+    "family": "data_management",
+    "description": "Grouped descriptive statistics by specified grouping variable, including sample size, mean, standard deviation, percentiles for each group, with preliminary group comparison",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__NUMERIC_VARS__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T02_group_boxplot.png",
+      "table_T02_group_means.csv",
+      "table_T02_group_stats.csv"
+    ]
+  },
+  {
+    "id": "T03",
+    "slug": "filter_and_sample",
+    "name": "数据筛选与抽样",
+    "family": "data_management",
+    "description": "Filter samples based on conditions and optionally perform random sampling, outputting cleaned dataset",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__FILTER_CONDITION__",
+      "__SAMPLE_FRACTION__",
+      "__KEY_VARS__",
+      "__RANDOM_SEED__",
+      "__ID_VAR__",
+      "__TIME_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "filtered_data.csv",
+      "filtered_data.dta",
+      "table_T03_filter_summary.csv"
+    ]
+  },
+  {
+    "id": "T04",
+    "slug": "merge_datasets",
+    "name": "数据集合并（横向）",
+    "family": "data_merge",
+    "description": "Merge two datasets horizontally using key variables, supporting 1:1, m:1, 1:m merge types with detailed diagnostics",
+    "requires": [
+      "data.dta",
+      "data_using.dta"
+    ],
+    "placeholders": [
+      "__MERGE_KEYS__",
+      "__MERGE_TYPE__",
+      "__KEEP_OPTION__"
+    ],
+    "outputs": [
+      "result.log",
+      "merged_data.csv",
+      "merged_data.dta",
+      "table_T04_merge_report.csv"
+    ]
+  },
+  {
+    "id": "T05",
+    "slug": "append_datasets",
+    "name": "数据集追加（纵向合并）",
+    "family": "data_merge",
+    "description": "Vertically append multiple datasets, check variable consistency, generate source markers, handle variable structure differences",
+    "requires": [
+      "data.dta",
+      "data_append.dta"
+    ],
+    "placeholders": [
+      "__ID_VAR__",
+      "__TIME_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "appended_data.csv",
+      "appended_data.dta",
+      "table_T05_append_report.csv"
+    ]
+  },
+  {
+    "id": "T06",
+    "slug": "reshape_wide_long",
+    "name": "数据表形态转换（宽表/长表）",
+    "family": "data_management",
+    "description": "Convert between wide and long format for panel data, with pre and post conversion diagnostics",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RESHAPE_DIRECTION__",
+      "__STUB_VARS__",
+      "__ID_VAR__",
+      "__TIME_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "reshaped_data.csv",
+      "reshaped_data.dta",
+      "table_T06_reshape_report.csv"
+    ]
+  },
+  {
+    "id": "T07",
+    "slug": "summary_numeric",
+    "name": "数值变量描述统计（论文表1）",
+    "family": "descriptive",
+    "description": "Complete descriptive statistics for numeric variables in academic paper Table 1 format, including N, Mean, SD, Min, percentiles, Max, skewness, kurtosis",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__NUMERIC_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T07_desc_extended.csv",
+      "table_T07_desc_stats.csv"
+    ]
+  },
+  {
+    "id": "T08",
+    "slug": "freq_categorical",
+    "name": "分类变量频数分布表",
+    "family": "descriptive",
+    "description": "Output frequency distributions for categorical variables including counts, percentages, and cumulative percentages with bar charts",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__CATEGORICAL_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T08_freq_detail.csv",
+      "table_T08_freq_summary.csv"
+    ]
+  },
+  {
+    "id": "T09",
+    "slug": "corr_matrix",
+    "name": "相关系数矩阵（Pearson与Spearman）",
+    "family": "descriptive",
+    "description": "Calculate Pearson and Spearman correlation matrices with significance tests, identify highly correlated variable pairs for multicollinearity detection",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__NUMERIC_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T09_corr_pairwise.csv",
+      "table_T09_corr_pearson.csv",
+      "table_T09_corr_spearman.csv"
+    ]
+  },
+  {
+    "id": "T10",
+    "slug": "distribution_plots",
+    "name": "变量分布可视化（直方图/箱线图/核密度/QQ图）",
+    "family": "descriptive",
+    "description": "Generate multiple distribution plots for numeric variables including histogram, kernel density, box plot, and QQ plot with normality tests",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__NUMERIC_VAR__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T10_boxplot.png",
+      "fig_T10_boxplot_grouped.png",
+      "fig_T10_histogram.png",
+      "fig_T10_kdensity.png",
+      "fig_T10_kdensity_grouped.png",
+      "fig_T10_qqplot.png",
+      "table_T10_normality_test.csv"
+    ]
+  },
+  {
+    "id": "T11",
+    "slug": "scatter_matrix",
+    "name": "散点图矩阵与变量关系可视化",
+    "family": "descriptive",
+    "description": "Generate pairwise scatter plot matrix with linear fit and correlation annotations, supporting grouped comparisons",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__NUMERIC_VARS__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T11_scatter_matrix.png",
+      "fig_T11_scatter_matrix_full.png",
+      "fig_T11_scatter_matrix_grouped.png",
+      "table_T11_correlations.csv"
+    ]
+  },
+  {
+    "id": "T12",
+    "slug": "ttest_one_sample",
+    "name": "单样本t检验",
+    "family": "hypothesis_testing",
+    "description": "Test whether a variable's mean equals a specified theoretical or benchmark value, including effect size calculation, confidence intervals, and normality tests",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TEST_VAR__",
+      "__NULL_VALUE__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T12_ttest_result.csv"
+    ]
+  },
+  {
+    "id": "T13",
+    "slug": "ttest_two_sample_indep",
+    "name": "独立样本t检验（两组均值比较）",
+    "family": "hypothesis_testing",
+    "description": "Compare means of two independent groups with variance homogeneity test, Welch t-test, effect size calculation, and visualization",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TEST_VAR__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T13_boxplot.png",
+      "table_T13_ttest_result.csv"
+    ]
+  },
+  {
+    "id": "T14",
+    "slug": "ttest_paired",
+    "name": "配对样本t检验",
+    "family": "hypothesis_testing",
+    "description": "Test paired sample mean differences (before-after measurements, matched samples) with difference distribution tests, effect size calculation, and visualization",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR_BEFORE__",
+      "__VAR_AFTER__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T14_boxplot.png",
+      "fig_T14_diff_histogram.png",
+      "table_T14_paired_ttest.csv"
+    ]
+  },
+  {
+    "id": "T15",
+    "slug": "anova_oneway",
+    "name": "单因素方差分析",
+    "family": "hypothesis_testing",
+    "description": "Compare means of three or more groups with variance homogeneity test, post-hoc multiple comparisons, effect size calculation, and visualization",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T15_boxplot.png",
+      "table_T15_anova_result.csv",
+      "table_T15_group_stats.csv"
+    ]
+  },
+  {
+    "id": "T16",
+    "slug": "chi_square_independence",
+    "name": "卡方独立性检验",
+    "family": "hypothesis_testing",
+    "description": "Test independence between two categorical variables with expected frequency checks, association strength metrics, and visualization",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__ROW_VAR__",
+      "__COL_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T16_stacked_bar.png",
+      "table_T16_chi2_result.csv",
+      "table_T16_crosstab.csv"
+    ]
+  },
+  {
+    "id": "T17",
+    "slug": "ols_simple",
+    "name": "简单线性回归（一元OLS）",
+    "family": "regression",
+    "description": "Estimate linear relationship between single independent variable and dependent variable, including regression diagnostics, heteroscedasticity tests, normality tests and visualization",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T17_residuals.png",
+      "fig_T17_scatter_fit.png",
+      "table_T17_paper.rtf",
+      "table_T17_reg_result.csv"
+    ]
+  },
+  {
+    "id": "T18",
+    "slug": "ols_multiple",
+    "name": "多元线性回归",
+    "family": "regression",
+    "description": "Estimate linear relationships between multiple independent variables and a dependent variable with VIF multicollinearity test, heteroscedasticity test, and RESET specification test",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T18_residuals.png",
+      "table_T18_paper.rtf",
+      "table_T18_reg_result.csv",
+      "table_T18_vif.csv"
+    ]
+  },
+  {
+    "id": "T19",
+    "slug": "ols_robust_se",
+    "name": "稳健标准误OLS回归",
+    "family": "regression",
+    "description": "OLS regression with heteroscedasticity-robust standard errors (Huber-White), comparing OLS vs robust SE with diagnostic tests",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T19_residuals.png",
+      "table_T19_paper.rtf",
+      "table_T19_reg_robust.csv",
+      "table_T19_se_comparison.csv"
+    ]
+  },
+  {
+    "id": "T20",
+    "slug": "ols_cluster_se",
+    "name": "聚类稳健标准误OLS回归",
+    "family": "regression",
+    "description": "OLS regression with cluster-robust standard errors for handling within-group correlation, comparing OLS, robust, and cluster SE",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__",
+      "__CLUSTER_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T20_paper.rtf",
+      "table_T20_reg_cluster.csv",
+      "table_T20_se_comparison.csv"
+    ]
+  },
+  {
+    "id": "T21",
+    "slug": "ols_with_interaction",
+    "name": "含交互项的回归",
+    "family": "regression",
+    "description": "Estimate regression models with interaction terms for moderation analysis, including marginal effects analysis and visualization",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__",
+      "__INTERACT_VAR1__",
+      "__INTERACT_VAR2__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T21_margins.png",
+      "table_T21_paper.rtf",
+      "table_T21_reg_interaction.csv"
+    ]
+  },
+  {
+    "id": "T22",
+    "slug": "ols_fe_entity_dummies",
+    "name": "实体固定效应",
+    "family": "regression",
+    "description": "Entity fixed effects regression using areg to control for time-invariant individual characteristics with clustered standard errors",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__",
+      "__ENTITY_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T22_paper.rtf",
+      "table_T22_reg_fe.csv"
+    ]
+  },
+  {
+    "id": "T23",
+    "slug": "ols_time_dummies",
+    "name": "时间固定效应",
+    "family": "regression",
+    "description": "Add time dummy variables to control for time effects and eliminate common time trends",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__",
+      "__TIME_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T23_time_effects.png",
+      "table_T23_paper.rtf",
+      "table_T23_reg_timefe.csv"
+    ]
+  },
+  {
+    "id": "T24",
+    "slug": "ols_model_comparison",
+    "name": "多模型对比",
+    "family": "regression",
+    "description": "Compare multiple regression models with key metrics, perform nested tests, and help select optimal model specification",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__BASE_VARS__",
+      "__FULL_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T24_model_comparison.csv",
+      "table_T24_paper.rtf"
+    ]
+  },
+  {
+    "id": "T25",
+    "slug": "logit_binary",
+    "name": "二元Logit模型",
+    "family": "limited_dependent",
+    "description": "Estimate binary logistic regression with coefficients, odds ratios, marginal effects, goodness of fit, and ROC analysis",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T25_roc.png",
+      "table_T25_logit_coef.csv",
+      "table_T25_logit_gof.csv"
+    ]
+  },
+  {
+    "id": "T26",
+    "slug": "probit_binary",
+    "name": "二元Probit模型",
+    "family": "limited_dependent",
+    "description": "Estimate binary probit regression with marginal effects, goodness of fit, ROC analysis, and Logit comparison",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T26_roc.png",
+      "table_T26_probit_coef.csv"
+    ]
+  },
+  {
+    "id": "T27",
+    "slug": "ologit_ordered",
+    "name": "有序Logit模型",
+    "family": "limited_dependent",
+    "description": "Estimate ordered logistic regression with odds ratios, marginal effects, and proportional odds assumption test",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T27_ologit_coef.csv",
+      "table_T27_ologit_gof.csv"
+    ]
+  },
+  {
+    "id": "T28",
+    "slug": "mlogit_multinomial",
+    "name": "多项Logit模型",
+    "family": "limited_dependent",
+    "description": "Estimate multinomial logistic regression for unordered categorical outcomes with relative risk ratios and marginal effects",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__",
+      "__BASE_CATEGORY__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T28_mlogit_gof.csv"
+    ]
+  },
+  {
+    "id": "T29",
+    "slug": "poisson_count",
+    "name": "计数模型",
+    "family": "limited_dependent",
+    "description": "Estimate Poisson and negative binomial regression for count data with overdispersion tests and model comparison",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T29_count_gof.csv"
+    ]
+  },
+  {
+    "id": "T30",
+    "slug": "panel_setup_check",
+    "name": "面板数据设置与检查",
+    "family": "panel",
+    "description": "Set up panel data structure with xtset, check balance, missing values, and provide within-between variance decomposition",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__ID_VAR__",
+      "__TIME_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T30_panel_structure.csv",
+      "table_T30_xtsum.csv"
+    ]
+  },
+  {
+    "id": "T31",
+    "slug": "panel_fe_basic",
+    "name": "面板固定效应回归",
+    "family": "panel",
+    "description": "Estimate panel fixed effects regression to control for unobserved individual heterogeneity with clustered standard errors",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__",
+      "__ID_VAR__",
+      "__TIME_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T31_fe_coef.csv",
+      "table_T31_fe_gof.csv",
+      "table_T31_paper.rtf"
+    ]
+  },
+  {
+    "id": "T32",
+    "slug": "panel_re_basic",
+    "name": "面板随机效应回归",
+    "family": "panel",
+    "description": "Estimate panel random effects regression with GLS, BP-LM test for individual effects, and robust standard errors",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__",
+      "__ID_VAR__",
+      "__TIME_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T32_paper.rtf",
+      "table_T32_re_coef.csv",
+      "table_T32_re_gof.csv"
+    ]
+  },
+  {
+    "id": "T33",
+    "slug": "panel_fe_re_hausman",
+    "name": "FE/RE比较与Hausman检验",
+    "family": "panel",
+    "description": "Compare fixed effects and random effects models with Hausman specification test to select appropriate model",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__INDEP_VARS__",
+      "__ID_VAR__",
+      "__TIME_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T33_comparison.csv",
+      "table_T33_hausman.csv",
+      "table_T33_paper.rtf"
+    ]
+  },
+  {
+    "id": "T34",
+    "slug": "diff_in_diff_2x2",
+    "name": "经典2×2双重差分",
+    "family": "causal_inference",
+    "description": "Estimate classic 2x2 difference-in-differences model for policy evaluation with trend visualization",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__TREAT_VAR__",
+      "__POST_VAR__",
+      "__CONTROL_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T34_did_trend.png",
+      "table_T34_did_coef.csv",
+      "table_T34_paper.rtf"
+    ]
+  },
+  {
+    "id": "T35",
+    "slug": "diff_in_diff_event_study",
+    "name": "事件研究法DID",
+    "family": "causal_inference",
+    "description": "Estimate event study DID model with dynamic treatment effects and parallel trends test",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__TREAT_VAR__",
+      "__TIME_VAR__",
+      "__EVENT_TIME__",
+      "__ID_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T35_event_study.png",
+      "table_T35_event_coef.csv",
+      "table_T35_paper.rtf"
+    ]
+  },
+  {
+    "id": "T36",
+    "slug": "ts_diagnostics_plots",
+    "name": "时间序列诊断图",
+    "family": "time_series",
+    "description": "Generate time series plot, ACF and PACF for pattern identification and ARIMA order selection",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIME_VAR__",
+      "__SERIES_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T36_acf_pacf.png",
+      "fig_T36_ts_line.png",
+      "table_T36_corrgram.csv"
+    ]
+  },
+  {
+    "id": "T37",
+    "slug": "ts_unit_root_adf",
+    "name": "单位根检验",
+    "family": "time_series",
+    "description": "Perform ADF and Phillips-Perron unit root tests to determine stationarity and integration order",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIME_VAR__",
+      "__SERIES_VAR__",
+      "__LAGS__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T37_unit_root.csv"
+    ]
+  },
+  {
+    "id": "T38",
+    "slug": "ts_arima_estimation",
+    "name": "ARIMA模型估计",
+    "family": "time_series",
+    "description": "Estimate ARIMA(p,d,q) model with residual diagnostics and model fit statistics",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIME_VAR__",
+      "__SERIES_VAR__",
+      "__P__",
+      "__D__",
+      "__Q__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T38_arima_fit.png",
+      "table_T38_arima_coef.csv",
+      "table_T38_arima_gof.csv"
+    ]
+  },
+  {
+    "id": "T39",
+    "slug": "ts_forecast_horizon",
+    "name": "时间序列预测",
+    "family": "time_series",
+    "description": "Generate multi-period forecasts based on ARIMA model with point estimates and confidence intervals",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIME_VAR__",
+      "__SERIES_VAR__",
+      "__P__",
+      "__D__",
+      "__Q__",
+      "__HORIZON__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T39_forecast.png",
+      "table_T39_forecast.csv"
+    ]
+  },
+  {
+    "id": "T40",
+    "slug": "var_two_series_basic",
+    "name": "双变量VAR模型",
+    "family": "time_series",
+    "description": "Estimate bivariate VAR model with Granger causality tests, impulse response analysis and variance decomposition",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIME_VAR__",
+      "__VAR1__",
+      "__VAR2__",
+      "__LAGS__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T40_irf.png",
+      "fig_T40_stability.png",
+      "table_T40_granger.csv"
+    ]
+  },
+  {
+    "id": "T41",
+    "slug": "survival_km_curve",
+    "name": "Kaplan-Meier生存曲线",
+    "family": "survival_analysis",
+    "description": "Plot Kaplan-Meier survival curves, estimate survival functions, and calculate median survival time",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIME_VAR__",
+      "__EVENT_VAR__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T41_km.png",
+      "fig_T41_km_overall.png",
+      "table_T41_survival.csv"
+    ]
+  },
+  {
+    "id": "T42",
+    "slug": "survival_logrank_test",
+    "name": "Log-rank检验",
+    "family": "survival_analysis",
+    "description": "Perform Log-rank test and other non-parametric tests for survival curve comparison",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIME_VAR__",
+      "__EVENT_VAR__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T42_logrank.csv"
+    ]
+  },
+  {
+    "id": "T43",
+    "slug": "survival_cox_basic",
+    "name": "Cox比例风险回归",
+    "family": "survival_analysis",
+    "description": "Estimate Cox proportional hazards regression model with proportional hazards assumption test",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIME_VAR__",
+      "__EVENT_VAR__",
+      "__INDEP_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T43_cox_survival.png",
+      "table_T43_cox_coef.csv",
+      "table_T43_phtest.csv"
+    ]
+  },
+  {
+    "id": "T44",
+    "slug": "survival_cox_time_varying",
+    "name": "时变协变量Cox模型",
+    "family": "survival_analysis",
+    "description": "Estimate Cox model with time-varying covariates using counting process data format",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__ID_VAR__",
+      "__START_VAR__",
+      "__STOP_VAR__",
+      "__EVENT_VAR__",
+      "__INDEP_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T44_cox_tv_coef.csv"
+    ]
+  },
+  {
+    "id": "T45",
+    "slug": "pca_principal_components",
+    "name": "主成分分析",
+    "family": "multivariate",
+    "description": "Perform PCA, output eigenvalues, loadings and component scores",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__NUMERIC_VARS__",
+      "__N_COMPONENTS__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T45_pca_scatter.png",
+      "fig_T45_scree.png",
+      "table_T45_eigenvalues.csv",
+      "table_T45_loadings.csv",
+      "table_T45_scores.csv"
+    ]
+  },
+  {
+    "id": "T46",
+    "slug": "factor_analysis",
+    "name": "因子分析",
+    "family": "multivariate",
+    "description": "Perform exploratory factor analysis, extract latent factors and rotate",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__NUMERIC_VARS__",
+      "__N_FACTORS__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_T46_loadings.csv",
+      "table_T46_scores.csv"
+    ]
+  },
+  {
+    "id": "T47",
+    "slug": "kmeans_clustering",
+    "name": "K-means聚类",
+    "family": "multivariate",
+    "description": "Perform K-means clustering, output cluster labels and characteristics",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__NUMERIC_VARS__",
+      "__N_CLUSTERS__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T47_kmeans.png",
+      "table_T47_centers.csv",
+      "table_T47_clusters.csv"
+    ]
+  },
+  {
+    "id": "T48",
+    "slug": "hierarchical_clustering",
+    "name": "层次聚类",
+    "family": "multivariate",
+    "description": "Perform hierarchical clustering, generate dendrogram and cluster labels",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__NUMERIC_VARS__",
+      "__LINKAGE_METHOD__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T48_dendrogram.png",
+      "table_T48_clusters.csv"
+    ]
+  },
+  {
+    "id": "T49",
+    "slug": "auto_analysis_report",
+    "name": "自动化分析报告",
+    "family": "reporting",
+    "description": "Automatically perform descriptive statistics, regression analysis and generate comprehensive report",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__NUMERIC_VARS__",
+      "__DEP_VAR__",
+      "__INDEP_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_T49_distribution.png",
+      "table_T49_correlation.csv",
+      "table_T49_regression.csv",
+      "table_T49_summary.csv"
+    ]
+  },
+  {
+    "id": "T50",
+    "slug": "export_outputs_bundle",
+    "name": "输出文件打包",
+    "family": "reporting",
+    "description": "Bundle output files into outputs subdirectory with manifest",
+    "requires": [
+      "*.csv",
+      "*.dta",
+      "*.png"
+    ],
+    "placeholders": [],
+    "outputs": [
+      "result.log",
+      "outputs/manifest.txt"
+    ]
+  },
+  {
+    "id": "TA01",
+    "slug": "winsorize",
+    "name": "缩尾处理",
+    "family": "data_management",
+    "description": "Winsorize numeric variables to replace extreme values with specified percentile values",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__WINSOR_VARS__",
+      "__LOWER_PCTL__",
+      "__UPPER_PCTL__",
+      "__TRIM_OR_WINSOR__",
+      "__BY_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA01_winsorized.csv",
+      "data_TA01_winsorized.dta",
+      "table_TA01_winsor_summary.csv"
+    ]
+  },
+  {
+    "id": "TA02",
+    "slug": "standardize",
+    "name": "标准化与归一化",
+    "family": "data_management",
+    "description": "Standardize (Z-score) or normalize (Min-Max) numeric variables",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TRANSFORM_VARS__",
+      "__METHOD__",
+      "__BY_VAR__",
+      "__SUFFIX__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA02_standardized.csv",
+      "data_TA02_standardized.dta",
+      "table_TA02_transform_summary.csv"
+    ]
+  },
+  {
+    "id": "TA03",
+    "slug": "mi_impute",
+    "name": "缺失值多重插补",
+    "family": "data_management",
+    "description": "Multiple imputation for missing data using chained equations (MICE)",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__IMPUTE_VARS__",
+      "__PREDICTOR_VARS__",
+      "__N_IMPUTATIONS__",
+      "__METHOD__",
+      "__ID_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA03_imputed.dta",
+      "table_TA03_impute_diag.csv",
+      "table_TA03_missing_pattern.csv"
+    ]
+  },
+  {
+    "id": "TA04",
+    "slug": "outlier_detect",
+    "name": "异常值检测与处理",
+    "family": "data_management",
+    "description": "Detect outliers using IQR, Z-score or MAD methods, with flag/drop/replace options",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__CHECK_VARS__",
+      "__METHOD__",
+      "__THRESHOLD__",
+      "__ACTION__",
+      "__ID_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA04_cleaned.csv",
+      "data_TA04_cleaned.dta",
+      "table_TA04_outlier_details.csv",
+      "table_TA04_outlier_summary.csv"
+    ]
+  },
+  {
+    "id": "TA05",
+    "slug": "var_generate",
+    "name": "变量生成器",
+    "family": "data_management",
+    "description": "Generate lag, difference, and growth rate variables for panel data",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__SOURCE_VARS__",
+      "__ID_VAR__",
+      "__TIME_VAR__",
+      "__LAG_PERIODS__",
+      "__DIFF_ORDER__",
+      "__GROWTH_TYPE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA05_generated.csv",
+      "data_TA05_generated.dta",
+      "table_TA05_newvar_summary.csv"
+    ]
+  },
+  {
+    "id": "TA06",
+    "slug": "panel_balance",
+    "name": "面板数据平衡化",
+    "family": "data_management",
+    "description": "Convert unbalanced panel to balanced panel by filling or dropping",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__ID_VAR__",
+      "__TIME_VAR__",
+      "__METHOD__",
+      "__FILL_VALUE__",
+      "__MIN_PERIODS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA06_balanced.csv",
+      "data_TA06_balanced.dta",
+      "table_TA06_balance_summary.csv"
+    ]
+  },
+  {
+    "id": "TA07",
+    "slug": "string_process",
+    "name": "字符串变量处理",
+    "family": "data_management",
+    "description": "Clean and transform string variables with trim, case conversion, regex operations",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__STRING_VARS__",
+      "__OPERATION__",
+      "__PATTERN__",
+      "__REPLACEMENT__",
+      "__NEW_SUFFIX__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA07_processed.csv",
+      "data_TA07_processed.dta",
+      "table_TA07_string_summary.csv"
+    ]
+  },
+  {
+    "id": "TA08",
+    "slug": "datetime_process",
+    "name": "日期时间变量处理",
+    "family": "data_management",
+    "description": "Parse and transform date/time variables, extract components, calculate differences",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DATE_VARS__",
+      "__INPUT_FORMAT__",
+      "__OPERATIONS__",
+      "__REFERENCE_DATE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA08_processed.csv",
+      "data_TA08_processed.dta",
+      "table_TA08_datetime_summary.csv"
+    ]
+  },
+  {
+    "id": "TA09",
+    "slug": "quantile_groups",
+    "name": "分组变量生成",
+    "family": "data_management",
+    "description": "Generate group variables based on quantiles, equal intervals, or custom cutpoints",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__SOURCE_VAR__",
+      "__N_GROUPS__",
+      "__METHOD__",
+      "__CUTPOINTS__",
+      "__BY_VAR__",
+      "__NEW_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA09_grouped.csv",
+      "data_TA09_grouped.dta",
+      "table_TA09_group_summary.csv"
+    ]
+  },
+  {
+    "id": "TA10",
+    "slug": "dummy_generate",
+    "name": "虚拟变量批量生成",
+    "family": "data_management",
+    "description": "Generate dummy variables for categorical variables with base group selection",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__CAT_VARS__",
+      "__BASE_CATEGORY__",
+      "__PREFIX__",
+      "__DROP_FIRST__",
+      "__INTERACTION__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA10_with_dummies.csv",
+      "data_TA10_with_dummies.dta",
+      "table_TA10_dummy_codebook.csv"
+    ]
+  },
+  {
+    "id": "TA11",
+    "slug": "dedup_check",
+    "name": "数据去重与唯一性检查",
+    "family": "data_management",
+    "description": "Check for duplicates and perform deduplication based on key variables",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__KEY_VARS__",
+      "__ACTION__",
+      "__SORT_VAR__",
+      "__SORT_ORDER__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA11_deduped.csv",
+      "data_TA11_deduped.dta",
+      "table_TA11_dup_details.csv",
+      "table_TA11_dup_summary.csv"
+    ]
+  },
+  {
+    "id": "TA12",
+    "slug": "label_manage",
+    "name": "变量标签批量管理",
+    "family": "data_management",
+    "description": "Batch manage variable labels and value labels with import/export/clean/auto",
+    "requires": [
+      "data.dta",
+      "data.csv",
+      "label_dict.csv"
+    ],
+    "placeholders": [
+      "__OPERATION__",
+      "__DICT_FILE__",
+      "__TARGET_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA12_labeled.dta",
+      "label_dict_template.csv",
+      "table_TA12_label_export.csv"
+    ]
+  },
+  {
+    "id": "TA13",
+    "slug": "stratified_sample",
+    "name": "数据集抽样",
+    "family": "data_management",
+    "description": "Perform stratified random sampling with proportional/equal/fixed methods",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__STRATA_VAR__",
+      "__SAMPLE_SIZE__",
+      "__METHOD__",
+      "__RANDOM_SEED__",
+      "__WITH_REPLACE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TA13_sampled.csv",
+      "data_TA13_sampled.dta",
+      "table_TA13_sample_summary.csv"
+    ]
+  },
+  {
+    "id": "TA14",
+    "slug": "data_quality",
+    "name": "数据质量诊断报告",
+    "family": "data_management",
+    "description": "Comprehensive data quality assessment with missing values, outliers, and consistency checks",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__CHECK_VARS__",
+      "__ID_VAR__",
+      "__QUALITY_THRESHOLD__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_TA14_quality_heatmap.png",
+      "table_TA14_issues.csv",
+      "table_TA14_quality_summary.csv",
+      "table_TA14_var_diagnostics.csv"
+    ]
+  },
+  {
+    "id": "TB01",
+    "slug": "group_desc_table",
+    "name": "分组描述统计",
+    "family": "descriptive_statistics",
+    "description": "Generate grouped descriptive statistics table in paper Table 1 format",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__BY_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TB01_group.dta",
+      "table_TB01_group_desc.csv"
+    ]
+  },
+  {
+    "id": "TB02",
+    "slug": "normality_test",
+    "name": "正态性检验",
+    "family": "descriptive_statistics",
+    "description": "Calculate skewness/kurtosis and perform Shapiro-Wilk normality tests",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TB02_norm.dta",
+      "table_TB02_normality.csv"
+    ]
+  },
+  {
+    "id": "TB03",
+    "slug": "percentile_table",
+    "name": "百分位数表",
+    "family": "descriptive_statistics",
+    "description": "Calculate percentiles and quantiles table for numeric variables",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TB03_pct.dta",
+      "table_TB03_percentiles.csv"
+    ]
+  },
+  {
+    "id": "TB04",
+    "slug": "trend_line",
+    "name": "时间趋势图",
+    "family": "descriptive_statistics",
+    "description": "Draw time series trend line plot",
+    "requires": [
+      "data.dta",
+      "data.csv"
+    ],
+    "placeholders": [
+      "__YVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TB04_trend.dta",
+      "fig_TB04_trend.png"
+    ]
+  },
+  {
+    "id": "TB05",
+    "slug": "group_mean_trend",
+    "name": "分组均值趋势图",
+    "family": "descriptive_statistics",
+    "description": "Draw group mean trend over time",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__YVAR__",
+      "__TIMEVAR__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TB05_trend.dta",
+      "fig_TB05_group_trend.png"
+    ]
+  },
+  {
+    "id": "TB06",
+    "slug": "heatplot",
+    "name": "热力图",
+    "family": "descriptive_statistics",
+    "description": "Draw correlation matrix heatmap",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TB06_heat.dta",
+      "fig_TB06_heatplot.png",
+      "table_TB06_corr.csv"
+    ]
+  },
+  {
+    "id": "TB07",
+    "slug": "vioplot",
+    "name": "小提琴图",
+    "family": "descriptive_statistics",
+    "description": "Draw violin plot to show data distribution",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__BY_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TB07_vio.dta",
+      "fig_TB07_violin.png"
+    ]
+  },
+  {
+    "id": "TB08",
+    "slug": "kdensity_compare",
+    "name": "密度对比图",
+    "family": "descriptive_statistics",
+    "description": "Draw grouped kernel density comparison plot",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__BY_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TB08_kd.dta",
+      "fig_TB08_kdensity.png"
+    ]
+  },
+  {
+    "id": "TB09",
+    "slug": "spineplot",
+    "name": "脊柱图",
+    "family": "descriptive_statistics",
+    "description": "Draw spine plot for categorical variable relationships",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR1__",
+      "__VAR2__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TB09_spine.dta",
+      "fig_TB09_spine.png"
+    ]
+  },
+  {
+    "id": "TB10",
+    "slug": "bland_altman",
+    "name": "Bland-Altman一致性图",
+    "family": "descriptive_statistics",
+    "description": "Draw Bland-Altman plot to assess measurement agreement",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR1__",
+      "__VAR2__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TB10_ba.dta",
+      "fig_TB10_ba.png",
+      "table_TB10_ba.csv"
+    ]
+  },
+  {
+    "id": "TC01",
+    "slug": "twoway_anova",
+    "name": "双因素方差分析",
+    "family": "hypothesis_testing",
+    "description": "Two-way ANOVA testing main effects and interaction",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__FACTOR1__",
+      "__FACTOR2__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TC01_anova.dta",
+      "table_TC01_anova.csv"
+    ]
+  },
+  {
+    "id": "TC02",
+    "slug": "repeated_anova",
+    "name": "重复测量方差分析",
+    "family": "hypothesis_testing",
+    "description": "Repeated measures ANOVA",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__TIME_VAR__",
+      "__ID_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TC02_rep.dta",
+      "table_TC02_repeated.csv"
+    ]
+  },
+  {
+    "id": "TC03",
+    "slug": "kruskal_wallis",
+    "name": "Kruskal-Wallis非参数检验",
+    "family": "hypothesis_testing",
+    "description": "Kruskal-Wallis H test for multiple groups",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TC03_kw.dta",
+      "table_TC03_kw.csv"
+    ]
+  },
+  {
+    "id": "TC04",
+    "slug": "mann_whitney",
+    "name": "Mann-Whitney U检验",
+    "family": "hypothesis_testing",
+    "description": "Mann-Whitney U test for two groups",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TC04_mw.dta",
+      "table_TC04_mw.csv"
+    ]
+  },
+  {
+    "id": "TC05",
+    "slug": "wilcoxon_signed",
+    "name": "Wilcoxon符号秩检验",
+    "family": "hypothesis_testing",
+    "description": "Wilcoxon signed-rank test for paired data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR1__",
+      "__VAR2__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TC05_wilcox.dta",
+      "table_TC05_wilcox.csv"
+    ]
+  },
+  {
+    "id": "TC06",
+    "slug": "fisher_exact",
+    "name": "Fisher精确检验",
+    "family": "hypothesis_testing",
+    "description": "Fisher exact test for small sample contingency tables",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR1__",
+      "__VAR2__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TC06_fisher.dta",
+      "table_TC06_fisher.csv"
+    ]
+  },
+  {
+    "id": "TC07",
+    "slug": "mcnemar",
+    "name": "McNemar配对卡方检验",
+    "family": "hypothesis_testing",
+    "description": "McNemar test for paired binary data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR1__",
+      "__VAR2__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TC07_mcn.dta",
+      "table_TC07_mcnemar.csv"
+    ]
+  },
+  {
+    "id": "TC08",
+    "slug": "trend_test",
+    "name": "趋势检验",
+    "family": "hypothesis_testing",
+    "description": "Cochran-Armitage trend test for ordinal data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TC08_trend.dta",
+      "table_TC08_trend.csv"
+    ]
+  },
+  {
+    "id": "TC09",
+    "slug": "normality_comprehensive",
+    "name": "正态性综合检验",
+    "family": "hypothesis_testing",
+    "description": "Comprehensive normality tests (Shapiro-Wilk, Shapiro-Francia)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TC09_norm.dta",
+      "table_TC09_norm.csv"
+    ]
+  },
+  {
+    "id": "TC10",
+    "slug": "variance_homogeneity",
+    "name": "方差齐性检验",
+    "family": "hypothesis_testing",
+    "description": "Variance homogeneity tests (Levene, Bartlett)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TC10_var.dta",
+      "table_TC10_var.csv"
+    ]
+  },
+  {
+    "id": "TD01",
+    "slug": "twoway_fe",
+    "name": "双向固定效应",
+    "family": "linear_regression",
+    "description": "Two-way fixed effects regression (individual and time)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TD01_twfe.dta",
+      "table_TD01_twfe.csv"
+    ]
+  },
+  {
+    "id": "TD02",
+    "slug": "high_dim_fe",
+    "name": "高维固定效应",
+    "family": "linear_regression",
+    "description": "High-dimensional fixed effects regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__ABSORB_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TD02_hdfe.dta",
+      "table_TD02_hdfe.csv"
+    ]
+  },
+  {
+    "id": "TD03",
+    "slug": "wls",
+    "name": "加权最小二乘",
+    "family": "linear_regression",
+    "description": "Weighted least squares regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__WEIGHT_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TD03_wls.dta",
+      "table_TD03_wls.csv"
+    ]
+  },
+  {
+    "id": "TD04",
+    "slug": "quantile_reg",
+    "name": "分位数回归",
+    "family": "linear_regression",
+    "description": "Quantile regression at multiple quantiles",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TD04_qreg.dta",
+      "fig_TD04_qreg.png",
+      "table_TD04_qreg.csv"
+    ]
+  },
+  {
+    "id": "TD05",
+    "slug": "robust_reg",
+    "name": "稳健回归",
+    "family": "linear_regression",
+    "description": "Robust regression resistant to outliers",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TD05_rreg.dta",
+      "table_TD05_rreg.csv"
+    ]
+  },
+  {
+    "id": "TD06",
+    "slug": "stepwise",
+    "name": "逐步回归",
+    "family": "linear_regression",
+    "description": "Stepwise regression for variable selection",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TD06_step.dta",
+      "table_TD06_step.csv"
+    ]
+  },
+  {
+    "id": "TD07",
+    "slug": "lasso",
+    "name": "LASSO回归",
+    "family": "linear_regression",
+    "description": "LASSO regression with L1 regularization",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TD07_lasso.dta",
+      "table_TD07_lasso.csv"
+    ]
+  },
+  {
+    "id": "TD08",
+    "slug": "ridge",
+    "name": "岭回归",
+    "family": "linear_regression",
+    "description": "Ridge regression with L2 regularization",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TD08_ridge.dta",
+      "table_TD08_ridge.csv"
+    ]
+  },
+  {
+    "id": "TD09",
+    "slug": "elastic_net",
+    "name": "弹性网络",
+    "family": "linear_regression",
+    "description": "Elastic Net regression with L1+L2 regularization",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__ALPHA__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TD09_enet.dta",
+      "table_TD09_enet.csv"
+    ]
+  },
+  {
+    "id": "TD10",
+    "slug": "polynomial",
+    "name": "多项式回归",
+    "family": "linear_regression",
+    "description": "Polynomial regression for nonlinear relationships",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVAR__",
+      "__DEGREE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TD10_poly.dta",
+      "fig_TD10_poly.png",
+      "table_TD10_poly.csv"
+    ]
+  },
+  {
+    "id": "TD11",
+    "slug": "spline",
+    "name": "分段回归",
+    "family": "linear_regression",
+    "description": "Piecewise linear spline regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVAR__",
+      "__KNOT__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TD11_spline.dta",
+      "table_TD11_spline.csv"
+    ]
+  },
+  {
+    "id": "TD12",
+    "slug": "bootstrap_se",
+    "name": "Bootstrap标准误",
+    "family": "linear_regression",
+    "description": "Regression with bootstrap standard errors",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__REPS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TD12_boot.dta",
+      "table_TD12_boot.csv"
+    ]
+  },
+  {
+    "id": "TE01",
+    "slug": "zip",
+    "name": "零膨胀Poisson",
+    "family": "limited_dependent",
+    "description": "Zero-inflated Poisson regression for excess zeros",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__INFLATE_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TE01_zip.dta",
+      "table_TE01_zip.csv"
+    ]
+  },
+  {
+    "id": "TE02",
+    "slug": "zinb",
+    "name": "零膨胀负二项",
+    "family": "limited_dependent",
+    "description": "Zero-inflated negative binomial regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__INFLATE_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TE02_zinb.dta",
+      "table_TE02_zinb.csv"
+    ]
+  },
+  {
+    "id": "TE03",
+    "slug": "tobit",
+    "name": "Tobit模型",
+    "family": "limited_dependent",
+    "description": "Tobit model for censored/truncated data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__LL__",
+      "__UL__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TE03_tobit.dta",
+      "table_TE03_tobit.csv"
+    ]
+  },
+  {
+    "id": "TE04",
+    "slug": "heckman",
+    "name": "Heckman选择模型",
+    "family": "limited_dependent",
+    "description": "Heckman two-stage selection model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__SELECT_VAR__",
+      "__SELECT_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TE04_heck.dta",
+      "table_TE04_heck.csv"
+    ]
+  },
+  {
+    "id": "TE05",
+    "slug": "twopm",
+    "name": "双栏模型",
+    "family": "limited_dependent",
+    "description": "Two-part model for semi-continuous data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TE05_twopm.dta",
+      "table_TE05_twopm.csv"
+    ]
+  },
+  {
+    "id": "TE06",
+    "slug": "oprobit",
+    "name": "有序Probit",
+    "family": "limited_dependent",
+    "description": "Ordered Probit model for ordinal outcomes",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TE06_oprobit.dta",
+      "table_TE06_oprobit.csv"
+    ]
+  },
+  {
+    "id": "TE07",
+    "slug": "clogit",
+    "name": "条件Logit",
+    "family": "limited_dependent",
+    "description": "Conditional logit for matched/grouped data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TE07_clogit.dta",
+      "table_TE07_clogit.csv"
+    ]
+  },
+  {
+    "id": "TE08",
+    "slug": "mixlogit",
+    "name": "混合Logit",
+    "family": "limited_dependent",
+    "description": "Mixed logit for discrete choice data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__GROUP_VAR__",
+      "__RAND_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TE08_mixlogit.dta",
+      "table_TE08_mixlogit.csv"
+    ]
+  },
+  {
+    "id": "TE09",
+    "slug": "nlogit",
+    "name": "嵌套Logit",
+    "family": "limited_dependent",
+    "description": "Nested logit for hierarchical choice data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__NEST_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TE09_nlogit.dta",
+      "table_TE09_nlogit.csv"
+    ]
+  },
+  {
+    "id": "TE10",
+    "slug": "cloglog",
+    "name": "补对数-对数",
+    "family": "limited_dependent",
+    "description": "Complementary log-log model for asymmetric binary data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TE10_cloglog.dta",
+      "table_TE10_cloglog.csv"
+    ]
+  },
+  {
+    "id": "TF01",
+    "slug": "xtcsd",
+    "name": "面板截面相关检验",
+    "family": "panel_data",
+    "description": "Pesaran CD test for cross-sectional dependence",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF01_xtcsd.dta",
+      "table_TF01_xtcsd.csv"
+    ]
+  },
+  {
+    "id": "TF02",
+    "slug": "xttest3",
+    "name": "面板异方差检验",
+    "family": "panel_data",
+    "description": "Modified Wald test for groupwise heteroskedasticity",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF02_hetero.dta",
+      "table_TF02_hetero.csv"
+    ]
+  },
+  {
+    "id": "TF03",
+    "slug": "xtserial",
+    "name": "面板序列相关检验",
+    "family": "panel_data",
+    "description": "Wooldridge test for serial correlation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF03_serial.dta",
+      "table_TF03_serial.csv"
+    ]
+  },
+  {
+    "id": "TF04",
+    "slug": "xtscc",
+    "name": "Driscoll-Kraay标准误",
+    "family": "panel_data",
+    "description": "Driscoll-Kraay standard errors for panel data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF04_xtscc.dta",
+      "table_TF04_xtscc.csv"
+    ]
+  },
+  {
+    "id": "TF05",
+    "slug": "xtabond2_sys",
+    "name": "系统GMM",
+    "family": "panel_data",
+    "description": "System GMM estimation for dynamic panels",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF05_sysgmm.dta",
+      "table_TF05_sysgmm.csv"
+    ]
+  },
+  {
+    "id": "TF06",
+    "slug": "xtabond",
+    "name": "差分GMM",
+    "family": "panel_data",
+    "description": "Difference GMM estimation for dynamic panels",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF06_diffgmm.dta",
+      "table_TF06_diffgmm.csv"
+    ]
+  },
+  {
+    "id": "TF07",
+    "slug": "xthreg",
+    "name": "面板门槛回归",
+    "family": "panel_data",
+    "description": "Hansen panel threshold model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__THRESHOLD_VAR__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF07_threshold.dta",
+      "table_TF07_threshold.csv"
+    ]
+  },
+  {
+    "id": "TF08",
+    "slug": "xttobit",
+    "name": "面板Tobit",
+    "family": "panel_data",
+    "description": "Panel Tobit model for censored data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__",
+      "__LL__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF08_xttobit.dta",
+      "table_TF08_xttobit.csv"
+    ]
+  },
+  {
+    "id": "TF09",
+    "slug": "xtlogit",
+    "name": "面板Logit",
+    "family": "panel_data",
+    "description": "Panel Logit model with fixed effects",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF09_xtlogit.dta",
+      "table_TF09_xtlogit.csv"
+    ]
+  },
+  {
+    "id": "TF10",
+    "slug": "xtpoisson",
+    "name": "面板Poisson",
+    "family": "panel_data",
+    "description": "Panel Poisson model for count data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF10_xtpois.dta",
+      "table_TF10_xtpois.csv"
+    ]
+  },
+  {
+    "id": "TF11",
+    "slug": "xtnbreg",
+    "name": "面板负二项",
+    "family": "panel_data",
+    "description": "Panel negative binomial for overdispersed count data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF11_xtnb.dta",
+      "table_TF11_xtnb.csv"
+    ]
+  },
+  {
+    "id": "TF12",
+    "slug": "xtmixed",
+    "name": "混合效应模型",
+    "family": "panel_data",
+    "description": "Mixed effects model with random coefficients",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF12_mixed.dta",
+      "table_TF12_mixed.csv"
+    ]
+  },
+  {
+    "id": "TF13",
+    "slug": "xtfmb",
+    "name": "Fama-MacBeth回归",
+    "family": "panel_data",
+    "description": "Fama-MacBeth two-step regression for finance panels",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF13_fmb.dta",
+      "table_TF13_fmb.csv"
+    ]
+  },
+  {
+    "id": "TF14",
+    "slug": "pvar",
+    "name": "面板VAR",
+    "family": "panel_data",
+    "description": "Panel VAR model for dynamic panel relationships",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TF14_pvar.dta",
+      "fig_TF14_irf.png",
+      "table_TF14_pvar.csv"
+    ]
+  },
+  {
+    "id": "TG01",
+    "slug": "pscore_estimate",
+    "name": "倾向得分估计",
+    "family": "causal_inference",
+    "description": "Propensity score estimation using Logit/Probit",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TREATMENT_VAR__",
+      "__COVARIATES__",
+      "__MODEL__",
+      "__COMMON_SUPPORT__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG01_with_pscore.dta",
+      "fig_TG01_pscore_dist.png",
+      "table_TG01_balance_before.csv",
+      "table_TG01_pscore_model.csv"
+    ]
+  },
+  {
+    "id": "TG02",
+    "slug": "psm_match",
+    "name": "倾向得分匹配",
+    "family": "causal_inference",
+    "description": "Propensity score matching (1:1/1:N)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TREATMENT_VAR__",
+      "__OUTCOME_VAR__",
+      "__COVARIATES__",
+      "__N_NEIGHBORS__",
+      "__CALIPER__",
+      "__WITH_REPLACE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG02_matched.dta",
+      "fig_TG02_balance_compare.png",
+      "table_TG02_att_result.csv",
+      "table_TG02_balance_after.csv"
+    ]
+  },
+  {
+    "id": "TG03",
+    "slug": "ipw_weight",
+    "name": "逆概率加权",
+    "family": "causal_inference",
+    "description": "Inverse probability weighting for ATE/ATT estimation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TREATMENT_VAR__",
+      "__OUTCOME_VAR__",
+      "__COVARIATES__",
+      "__ESTIMAND__",
+      "__TRIM_PCTL__",
+      "__STABILIZE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG03_with_weights.dta",
+      "table_TG03_balance_weighted.csv",
+      "table_TG03_ipw_result.csv",
+      "table_TG03_weight_summary.csv"
+    ]
+  },
+  {
+    "id": "TG04",
+    "slug": "psm_strata",
+    "name": "倾向得分分层",
+    "family": "causal_inference",
+    "description": "Propensity score stratification estimation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TREATMENT_VAR__",
+      "__OUTCOME_VAR__",
+      "__COVARIATES__",
+      "__N_STRATA__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG04_with_strata.dta",
+      "fig_TG04_strata_effects.png",
+      "table_TG04_strata_balance.csv",
+      "table_TG04_strata_effects.csv"
+    ]
+  },
+  {
+    "id": "TG05",
+    "slug": "cem_match",
+    "name": "粗化精确匹配",
+    "family": "causal_inference",
+    "description": "Coarsened exact matching for causal inference",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TREATMENT_VAR__",
+      "__OUTCOME_VAR__",
+      "__MATCH_VARS__",
+      "__CUTPOINTS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG05_cem_matched.dta",
+      "table_TG05_cem_balance.csv",
+      "table_TG05_cem_result.csv"
+    ]
+  },
+  {
+    "id": "TG06",
+    "slug": "mahal_match",
+    "name": "马氏距离匹配",
+    "family": "causal_inference",
+    "description": "Mahalanobis distance matching",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TREATMENT_VAR__",
+      "__OUTCOME_VAR__",
+      "__MATCH_VARS__",
+      "__EXACT_VARS__",
+      "__N_NEIGHBORS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG06_mahal_matched.dta",
+      "table_TG06_balance.csv",
+      "table_TG06_mahal_result.csv"
+    ]
+  },
+  {
+    "id": "TG07",
+    "slug": "psm_balance",
+    "name": "PSM平衡性检验",
+    "family": "causal_inference",
+    "description": "Comprehensive PSM balance diagnostics",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TREATMENT_VAR__",
+      "__COVARIATES__",
+      "__PSCORE_VAR__",
+      "__WEIGHT_VAR__",
+      "__THRESHOLD__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_TG07_love_plot.png",
+      "fig_TG07_ps_overlap.png",
+      "table_TG07_balance_detail.csv",
+      "table_TG07_balance_stats.csv"
+    ]
+  },
+  {
+    "id": "TG08",
+    "slug": "psm_sensitivity",
+    "name": "敏感性分析",
+    "family": "causal_inference",
+    "description": "Rosenbaum sensitivity analysis for PSM",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TREATMENT_VAR__",
+      "__OUTCOME_VAR__",
+      "__GAMMA_MAX__",
+      "__GAMMA_STEP__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_TG08_gamma_bounds.png",
+      "table_TG08_sensitivity.csv"
+    ]
+  },
+  {
+    "id": "TG09",
+    "slug": "rdd_sharp",
+    "name": "断点回归(Sharp)",
+    "family": "causal_inference",
+    "description": "Sharp regression discontinuity design",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME_VAR__",
+      "__RUNNING_VAR__",
+      "__CUTOFF__",
+      "__BANDWIDTH__",
+      "__KERNEL__",
+      "__POLY_ORDER__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG09_rdd.dta",
+      "fig_TG09_rdd_plot.png",
+      "table_TG09_bandwidth.csv",
+      "table_TG09_rdd_result.csv"
+    ]
+  },
+  {
+    "id": "TG10",
+    "slug": "rdd_fuzzy",
+    "name": "模糊断点回归",
+    "family": "causal_inference",
+    "description": "Fuzzy regression discontinuity design",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME_VAR__",
+      "__TREATMENT_VAR__",
+      "__RUNNING_VAR__",
+      "__CUTOFF__",
+      "__BANDWIDTH__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG10_fuzzy.dta",
+      "fig_TG10_fuzzy_plot.png",
+      "table_TG10_first_stage.csv",
+      "table_TG10_fuzzy_result.csv"
+    ]
+  },
+  {
+    "id": "TG11",
+    "slug": "rdd_bandwidth",
+    "name": "RDD带宽选择",
+    "family": "causal_inference",
+    "description": "RDD optimal bandwidth selection",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME_VAR__",
+      "__RUNNING_VAR__",
+      "__CUTOFF__",
+      "__BW_RANGE__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_TG11_bandwidth_plot.png",
+      "table_TG11_bandwidth_results.csv",
+      "table_TG11_sensitivity.csv"
+    ]
+  },
+  {
+    "id": "TG12",
+    "slug": "rdd_density",
+    "name": "RDD密度检验",
+    "family": "causal_inference",
+    "description": "RDD manipulation test via density",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RUNNING_VAR__",
+      "__CUTOFF__",
+      "__METHOD__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_TG12_density_plot.png",
+      "table_TG12_density_test.csv"
+    ]
+  },
+  {
+    "id": "TG13",
+    "slug": "iv_2sls",
+    "name": "工具变量2SLS",
+    "family": "causal_inference",
+    "description": "Two-stage least squares IV regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__ENDOG_VAR__",
+      "__INSTRUMENTS__",
+      "__EXOG_VARS__",
+      "__ROBUST__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG13_iv.dta",
+      "table_TG13_2sls_result.csv",
+      "table_TG13_diagnostics.csv",
+      "table_TG13_first_stage.csv"
+    ]
+  },
+  {
+    "id": "TG14",
+    "slug": "iv_weak_test",
+    "name": "弱工具变量检验",
+    "family": "causal_inference",
+    "description": "Weak instrument tests for IV",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__ENDOG_VAR__",
+      "__INSTRUMENTS__",
+      "__EXOG_VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_TG14_critical_values.csv",
+      "table_TG14_weak_iv_tests.csv"
+    ]
+  },
+  {
+    "id": "TG15",
+    "slug": "iv_overid",
+    "name": "过度识别检验",
+    "family": "causal_inference",
+    "description": "Overidentification tests for IV",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__ENDOG_VAR__",
+      "__INSTRUMENTS__",
+      "__EXOG_VARS__",
+      "__CLUSTER_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "table_TG15_overid_tests.csv"
+    ]
+  },
+  {
+    "id": "TG16",
+    "slug": "panel_iv",
+    "name": "面板工具变量",
+    "family": "causal_inference",
+    "description": "Panel data IV estimation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEP_VAR__",
+      "__ENDOG_VAR__",
+      "__INSTRUMENTS__",
+      "__EXOG_VARS__",
+      "__ID_VAR__",
+      "__TIME_VAR__",
+      "__METHOD__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG16_panel_iv.dta",
+      "table_TG16_diagnostics.csv",
+      "table_TG16_panel_iv.csv"
+    ]
+  },
+  {
+    "id": "TG17",
+    "slug": "scm_synth",
+    "name": "合成控制法",
+    "family": "causal_inference",
+    "description": "Synthetic control method",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME_VAR__",
+      "__TREATED_UNIT__",
+      "__TREATMENT_TIME__",
+      "__ID_VAR__",
+      "__TIME_VAR__",
+      "__PREDICTORS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG17_synth.dta",
+      "fig_TG17_synth_path.png",
+      "table_TG17_synth_path.csv"
+    ]
+  },
+  {
+    "id": "TG18",
+    "slug": "scm_placebo",
+    "name": "SCM安慰剂检验",
+    "family": "causal_inference",
+    "description": "Placebo tests for SCM",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME_VAR__",
+      "__TREATED_UNIT__",
+      "__TREATMENT_TIME__",
+      "__ID_VAR__",
+      "__TIME_VAR__",
+      "__PLACEBO_TYPE__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_TG18_placebo_plot.png",
+      "table_TG18_placebo_results.csv"
+    ]
+  },
+  {
+    "id": "TG19",
+    "slug": "did_basic",
+    "name": "双重差分法",
+    "family": "causal_inference",
+    "description": "Basic difference-in-differences",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME_VAR__",
+      "__TREAT_VAR__",
+      "__POST_VAR__",
+      "__TIME_VAR__",
+      "__CONTROLS__",
+      "__CLUSTER_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG19_did.dta",
+      "fig_TG19_parallel_trend.png",
+      "table_TG19_did_result.csv",
+      "table_TG19_parallel_test.csv"
+    ]
+  },
+  {
+    "id": "TG20",
+    "slug": "did_staggered",
+    "name": "交错DID",
+    "family": "causal_inference",
+    "description": "Staggered DID with Callaway-Sant'Anna",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME_VAR__",
+      "__ID_VAR__",
+      "__TIME_VAR__",
+      "__TREAT_TIME_VAR__",
+      "__CONTROLS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG20_staggered.dta",
+      "fig_TG20_event_study.png",
+      "table_TG20_group_effects.csv",
+      "table_TG20_staggered_result.csv"
+    ]
+  },
+  {
+    "id": "TG21",
+    "slug": "did_parallel",
+    "name": "平行趋势检验",
+    "family": "causal_inference",
+    "description": "Parallel trends test for DID",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME_VAR__",
+      "__TREAT_VAR__",
+      "__TIME_VAR__",
+      "__TREATMENT_TIME__",
+      "__ID_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_TG21_pretrend_test.png",
+      "fig_TG21_trends.png",
+      "table_TG21_parallel_test.csv",
+      "table_TG21_pretrend_coefs.csv"
+    ]
+  },
+  {
+    "id": "TG22",
+    "slug": "did_placebo",
+    "name": "DID安慰剂检验",
+    "family": "causal_inference",
+    "description": "Placebo tests for DID",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME_VAR__",
+      "__TREAT_VAR__",
+      "__POST_VAR__",
+      "__TIME_VAR__",
+      "__PLACEBO_TYPE__",
+      "__N_PERMUTATIONS__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_TG22_placebo_dist.png",
+      "table_TG22_placebo_results.csv"
+    ]
+  },
+  {
+    "id": "TG23",
+    "slug": "did_twfe",
+    "name": "TWFE问题与替代",
+    "family": "causal_inference",
+    "description": "TWFE diagnostics and robust alternatives",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME_VAR__",
+      "__ID_VAR__",
+      "__TIME_VAR__",
+      "__TREAT_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_TG23_comparison.png",
+      "table_TG23_twfe_comparison.csv"
+    ]
+  },
+  {
+    "id": "TG24",
+    "slug": "late_estimate",
+    "name": "LATE估计",
+    "family": "causal_inference",
+    "description": "Local average treatment effect estimation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME_VAR__",
+      "__TREATMENT_VAR__",
+      "__INSTRUMENT__",
+      "__COVARIATES__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG24_late.dta",
+      "table_TG24_complier_chars.csv",
+      "table_TG24_late_result.csv"
+    ]
+  },
+  {
+    "id": "TG25",
+    "slug": "mte_estimate",
+    "name": "MTE估计",
+    "family": "causal_inference",
+    "description": "Marginal treatment effect estimation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME_VAR__",
+      "__TREATMENT_VAR__",
+      "__INSTRUMENT__",
+      "__COVARIATES__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TG25_mte.dta",
+      "fig_TG25_mte_curve.png",
+      "table_TG25_mte_result.csv",
+      "table_TG25_policy_params.csv"
+    ]
+  },
+  {
+    "id": "TH01",
+    "slug": "dfgls",
+    "name": "DF-GLS单位根检验",
+    "family": "time_series",
+    "description": "Elliott-Rothenberg-Stock DF-GLS unit root test",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__TIMEVAR__",
+      "__MAXLAG__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH01_dfgls.dta",
+      "table_TH01_dfgls.csv"
+    ]
+  },
+  {
+    "id": "TH02",
+    "slug": "kpss",
+    "name": "KPSS平稳性检验",
+    "family": "time_series",
+    "description": "KPSS stationarity test",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH02_kpss.dta",
+      "table_TH02_kpss.csv"
+    ]
+  },
+  {
+    "id": "TH03",
+    "slug": "zandrews",
+    "name": "结构断点检验",
+    "family": "time_series",
+    "description": "Zivot-Andrews structural break unit root test",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH03_za.dta",
+      "table_TH03_za.csv"
+    ]
+  },
+  {
+    "id": "TH04",
+    "slug": "sarima",
+    "name": "季节性ARIMA",
+    "family": "time_series",
+    "description": "Seasonal ARIMA model estimation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__TIMEVAR__",
+      "__P__",
+      "__D__",
+      "__Q__",
+      "__SP__",
+      "__SD__",
+      "__SQ__",
+      "__SEASON__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH04_sarima.dta",
+      "fig_TH04_forecast.png",
+      "table_TH04_sarima.csv"
+    ]
+  },
+  {
+    "id": "TH05",
+    "slug": "garch",
+    "name": "GARCH波动率模型",
+    "family": "time_series",
+    "description": "GARCH(1,1) volatility model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH05_garch.dta",
+      "fig_TH05_vol.png",
+      "table_TH05_garch.csv"
+    ]
+  },
+  {
+    "id": "TH06",
+    "slug": "egarch",
+    "name": "EGARCH非对称波动",
+    "family": "time_series",
+    "description": "EGARCH asymmetric volatility model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH06_egarch.dta",
+      "table_TH06_egarch.csv"
+    ]
+  },
+  {
+    "id": "TH07",
+    "slug": "gjr_garch",
+    "name": "GJR-GARCH模型",
+    "family": "time_series",
+    "description": "GJR-GARCH leverage effect model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH07_gjr.dta",
+      "table_TH07_gjr.csv"
+    ]
+  },
+  {
+    "id": "TH08",
+    "slug": "mgarch_dcc",
+    "name": "DCC多元GARCH",
+    "family": "time_series",
+    "description": "DCC multivariate GARCH model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH08_dcc.dta",
+      "table_TH08_dcc.csv"
+    ]
+  },
+  {
+    "id": "TH09",
+    "slug": "vecrank",
+    "name": "Johansen协整检验",
+    "family": "time_series",
+    "description": "Johansen cointegration rank test",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__TIMEVAR__",
+      "__LAGS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH09_vecrank.dta",
+      "table_TH09_vecrank.csv"
+    ]
+  },
+  {
+    "id": "TH10",
+    "slug": "vec",
+    "name": "向量误差修正模型",
+    "family": "time_series",
+    "description": "Vector error correction model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__TIMEVAR__",
+      "__LAGS__",
+      "__RANK__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH10_vec.dta",
+      "table_TH10_vec.csv"
+    ]
+  },
+  {
+    "id": "TH11",
+    "slug": "irf",
+    "name": "脉冲响应分析",
+    "family": "time_series",
+    "description": "Impulse response function analysis",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__TIMEVAR__",
+      "__LAGS__",
+      "__STEPS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH11_irf.dta",
+      "fig_TH11_irf.png"
+    ]
+  },
+  {
+    "id": "TH12",
+    "slug": "fevd",
+    "name": "方差分解",
+    "family": "time_series",
+    "description": "Forecast error variance decomposition",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__TIMEVAR__",
+      "__LAGS__",
+      "__STEPS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH12_fevd.dta",
+      "fig_TH12_fevd.png",
+      "table_TH12_fevd.csv"
+    ]
+  },
+  {
+    "id": "TH13",
+    "slug": "vargranger",
+    "name": "Granger因果检验",
+    "family": "time_series",
+    "description": "Granger causality test",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__TIMEVAR__",
+      "__LAGS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH13_granger.dta",
+      "table_TH13_granger.csv"
+    ]
+  },
+  {
+    "id": "TH14",
+    "slug": "rolling",
+    "name": "滚动窗口回归",
+    "family": "time_series",
+    "description": "Rolling window regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__TIMEVAR__",
+      "__WINDOW__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH14_rolling.dta",
+      "fig_TH14_rolling.png"
+    ]
+  },
+  {
+    "id": "TH15",
+    "slug": "sspace",
+    "name": "状态空间模型",
+    "family": "time_series",
+    "description": "State space model estimation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TH15_sspace.dta",
+      "table_TH15_sspace.csv"
+    ]
+  },
+  {
+    "id": "TI01",
+    "slug": "streg_weibull",
+    "name": "Weibull生存分析",
+    "family": "survival",
+    "description": "Weibull parametric survival regression model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIMEVAR__",
+      "__FAILVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TI01_weibull.dta",
+      "table_TI01_weibull.csv"
+    ]
+  },
+  {
+    "id": "TI02",
+    "slug": "streg_exp",
+    "name": "指数生存分析",
+    "family": "survival",
+    "description": "Exponential parametric survival regression model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIMEVAR__",
+      "__FAILVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TI02_exp.dta",
+      "table_TI02_exp.csv"
+    ]
+  },
+  {
+    "id": "TI03",
+    "slug": "aft",
+    "name": "加速失效时间模型",
+    "family": "survival",
+    "description": "Accelerated Failure Time survival model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIMEVAR__",
+      "__FAILVAR__",
+      "__INDEPVARS__",
+      "__DIST__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TI03_aft.dta",
+      "table_TI03_aft.csv"
+    ]
+  },
+  {
+    "id": "TI04",
+    "slug": "stcrreg",
+    "name": "竞争风险模型",
+    "family": "survival",
+    "description": "Competing risks regression (Fine-Gray model)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIMEVAR__",
+      "__FAILVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TI04_cr.dta",
+      "table_TI04_cr.csv"
+    ]
+  },
+  {
+    "id": "TI05",
+    "slug": "stcox_strata",
+    "name": "分层Cox模型",
+    "family": "survival",
+    "description": "Stratified Cox proportional hazards model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIMEVAR__",
+      "__FAILVAR__",
+      "__INDEPVARS__",
+      "__STRATA__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TI05_stratacox.dta",
+      "table_TI05_stratacox.csv"
+    ]
+  },
+  {
+    "id": "TI06",
+    "slug": "phtest",
+    "name": "比例风险检验",
+    "family": "survival",
+    "description": "Test proportional hazards assumption",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIMEVAR__",
+      "__FAILVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TI06_phtest.dta",
+      "fig_TI06_ph.png",
+      "table_TI06_phtest.csv"
+    ]
+  },
+  {
+    "id": "TI07",
+    "slug": "shared_frailty",
+    "name": "共享脆弱性模型",
+    "family": "survival",
+    "description": "Cox model with shared frailty for clustered survival data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIMEVAR__",
+      "__FAILVAR__",
+      "__INDEPVARS__",
+      "__GROUPVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TI07_frailty.dta",
+      "table_TI07_frailty.csv"
+    ]
+  },
+  {
+    "id": "TI08",
+    "slug": "stsplit",
+    "name": "分段指数模型",
+    "family": "survival",
+    "description": "Piecewise exponential survival model using stsplit",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIMEVAR__",
+      "__FAILVAR__",
+      "__INDEPVARS__",
+      "__CUTPOINTS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TI08_piecewise.dta",
+      "table_TI08_piecewise.csv"
+    ]
+  },
+  {
+    "id": "TI09",
+    "slug": "stcure",
+    "name": "治愈模型",
+    "family": "survival",
+    "description": "Mixture cure survival model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIMEVAR__",
+      "__FAILVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TI09_cure.dta",
+      "table_TI09_cure.csv"
+    ]
+  },
+  {
+    "id": "TI10",
+    "slug": "predict_surv",
+    "name": "生存预测",
+    "family": "survival",
+    "description": "Predict survival probabilities from fitted model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TIMEVAR__",
+      "__FAILVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TI10_predict.dta",
+      "table_TI10_predict.csv"
+    ]
+  },
+  {
+    "id": "TI11",
+    "slug": "stpower",
+    "name": "生存分析样本量",
+    "family": "survival",
+    "description": "Sample size and power calculation for survival studies",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__ALPHA__",
+      "__POWER__",
+      "__HR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TI11_power.dta",
+      "table_TI11_power.csv"
+    ]
+  },
+  {
+    "id": "TJ01",
+    "slug": "cfa",
+    "name": "验证性因子分析",
+    "family": "latent_variable",
+    "description": "Confirmatory Factor Analysis using SEM",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TJ01_cfa.dta",
+      "table_TJ01_cfa.csv"
+    ]
+  },
+  {
+    "id": "TJ02",
+    "slug": "sem",
+    "name": "结构方程模型",
+    "family": "latent_variable",
+    "description": "Structural Equation Modeling",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__MODEL__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TJ02_sem.dta",
+      "table_TJ02_sem.csv"
+    ]
+  },
+  {
+    "id": "TJ03",
+    "slug": "discrim",
+    "name": "判别分析",
+    "family": "multivariate",
+    "description": "Linear Discriminant Analysis",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__GROUPVAR__",
+      "__VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TJ03_discrim.dta",
+      "table_TJ03_discrim.csv"
+    ]
+  },
+  {
+    "id": "TJ04",
+    "slug": "canon",
+    "name": "典型相关分析",
+    "family": "multivariate",
+    "description": "Canonical Correlation Analysis",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS1__",
+      "__VARS2__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TJ04_canon.dta",
+      "table_TJ04_canon.csv"
+    ]
+  },
+  {
+    "id": "TJ05",
+    "slug": "mds",
+    "name": "多维尺度分析",
+    "family": "multivariate",
+    "description": "Multidimensional Scaling",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TJ05_mds.dta",
+      "fig_TJ05_mds.png"
+    ]
+  },
+  {
+    "id": "TJ06",
+    "slug": "ca",
+    "name": "对应分析",
+    "family": "multivariate",
+    "description": "Correspondence Analysis for categorical data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__ROWVAR__",
+      "__COLVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TJ06_ca.dta",
+      "fig_TJ06_ca.png",
+      "table_TJ06_ca.csv"
+    ]
+  },
+  {
+    "id": "TK01",
+    "slug": "capm_estimate",
+    "name": "CAPM估计",
+    "family": "finance",
+    "description": "Capital Asset Pricing Model estimation with rolling beta",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RETURN_VAR__",
+      "__MARKET_VAR__",
+      "__RF_VAR__",
+      "__STOCK_ID__",
+      "__TIME_VAR__",
+      "__WINDOW__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK01_capm.dta",
+      "fig_TK01_sml.png",
+      "table_TK01_capm_result.csv",
+      "table_TK01_rolling_beta.csv"
+    ]
+  },
+  {
+    "id": "TK02",
+    "slug": "fama_french",
+    "name": "Fama-French模型",
+    "family": "finance",
+    "description": "Fama-French three/five factor model estimation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RETURN_VAR__",
+      "__MKT_VAR__",
+      "__SMB_VAR__",
+      "__HML_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK02_ff.dta",
+      "fig_TK02_alpha_dist.png",
+      "table_TK02_factor_loadings.csv",
+      "table_TK02_ff_result.csv"
+    ]
+  },
+  {
+    "id": "TK03",
+    "slug": "event_study",
+    "name": "事件研究",
+    "family": "finance",
+    "description": "Event study methodology for abnormal returns",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RETURN_VAR__",
+      "__EVENT_DATE__",
+      "__WINDOW_PRE__",
+      "__WINDOW_POST__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK03_event.dta",
+      "fig_TK03_car_plot.png",
+      "table_TK03_car_result.csv",
+      "table_TK03_daily_ar.csv"
+    ]
+  },
+  {
+    "id": "TK04",
+    "slug": "garch_model",
+    "name": "GARCH模型",
+    "family": "finance",
+    "description": "GARCH volatility modeling",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RETURN_VAR__",
+      "__ARCH__",
+      "__GARCH__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK04_garch.dta",
+      "fig_TK04_volatility.png",
+      "table_TK04_garch_result.csv",
+      "table_TK04_volatility.csv"
+    ]
+  },
+  {
+    "id": "TK05",
+    "slug": "var_calculate",
+    "name": "VaR计算",
+    "family": "finance",
+    "description": "Value at Risk calculation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RETURN_VAR__",
+      "__CONF_LEVEL__",
+      "__METHOD__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK05_var.dta",
+      "fig_TK05_var_plot.png",
+      "table_TK05_backtest.csv",
+      "table_TK05_var_result.csv"
+    ]
+  },
+  {
+    "id": "TK06",
+    "slug": "portfolio_optim",
+    "name": "组合优化",
+    "family": "finance",
+    "description": "Mean-variance portfolio optimization",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RETURN_VARS__",
+      "__TARGET_RETURN__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK06_portfolio.dta",
+      "fig_TK06_frontier.png",
+      "table_TK06_frontier.csv",
+      "table_TK06_weights.csv"
+    ]
+  },
+  {
+    "id": "TK07",
+    "slug": "bond_duration",
+    "name": "债券久期",
+    "family": "finance",
+    "description": "Bond duration and convexity calculation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__COUPON__",
+      "__MATURITY__",
+      "__YTM__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK07_bond.dta",
+      "fig_TK07_price_yield.png",
+      "table_TK07_duration.csv"
+    ]
+  },
+  {
+    "id": "TK08",
+    "slug": "option_bs",
+    "name": "Black-Scholes期权定价",
+    "family": "finance",
+    "description": "Black-Scholes option pricing model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__SPOT__",
+      "__STRIKE__",
+      "__VOLATILITY__",
+      "__RF_RATE__",
+      "__TIME__"
+    ],
+    "outputs": [
+      "result.log",
+      "fig_TK08_payoff.png",
+      "table_TK08_greeks.csv",
+      "table_TK08_option_price.csv"
+    ]
+  },
+  {
+    "id": "TK09",
+    "slug": "implied_vol",
+    "name": "隐含波动率",
+    "family": "finance",
+    "description": "Calculate implied volatility from option prices",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OPTION_PRICE__",
+      "__SPOT__",
+      "__STRIKE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK09_iv.dta",
+      "fig_TK09_vol_smile.png",
+      "table_TK09_implied_vol.csv"
+    ]
+  },
+  {
+    "id": "TK10",
+    "slug": "credit_risk",
+    "name": "信用风险",
+    "family": "finance",
+    "description": "Credit risk modeling and default probability",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEFAULT_VAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK10_credit.dta",
+      "fig_TK10_roc.png",
+      "table_TK10_model_result.csv",
+      "table_TK10_performance.csv"
+    ]
+  },
+  {
+    "id": "TK11",
+    "slug": "market_micro",
+    "name": "市场微观结构",
+    "family": "finance",
+    "description": "Market microstructure analysis including bid-ask spread",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__BID_VAR__",
+      "__ASK_VAR__",
+      "__VOLUME_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK11_micro.dta",
+      "fig_TK11_spread_intraday.png",
+      "table_TK11_liquidity.csv",
+      "table_TK11_spread_stats.csv"
+    ]
+  },
+  {
+    "id": "TK12",
+    "slug": "copula_depend",
+    "name": "Copula相依性",
+    "family": "finance",
+    "description": "Copula-based dependence modeling",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR1__",
+      "__VAR2__",
+      "__COPULA_TYPE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK12_copula.dta",
+      "fig_TK12_scatter.png",
+      "table_TK12_correlation.csv",
+      "table_TK12_tail_depend.csv"
+    ]
+  },
+  {
+    "id": "TK13",
+    "slug": "performance_attr",
+    "name": "业绩归因",
+    "family": "finance",
+    "description": "Portfolio performance attribution analysis",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__PORTFOLIO_RET__",
+      "__BENCHMARK_RET__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK13_perf.dta",
+      "fig_TK13_attribution.png",
+      "table_TK13_attribution.csv"
+    ]
+  },
+  {
+    "id": "TK14",
+    "slug": "sharpe_sortino",
+    "name": "夏普和索提诺比率",
+    "family": "finance",
+    "description": "Calculate Sharpe ratio and Sortino ratio",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RETURN_VAR__",
+      "__RF_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK14_risk.dta",
+      "fig_TK14_drawdown.png",
+      "table_TK14_metrics.csv"
+    ]
+  },
+  {
+    "id": "TK15",
+    "slug": "momentum_factor",
+    "name": "动量因子",
+    "family": "finance",
+    "description": "Momentum factor construction and analysis",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RETURN_VAR__",
+      "__LOOKBACK__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK15_mom.dta",
+      "fig_TK15_momentum.png",
+      "table_TK15_factor.csv",
+      "table_TK15_momentum.csv"
+    ]
+  },
+  {
+    "id": "TK16",
+    "slug": "value_factor",
+    "name": "价值因子",
+    "family": "finance",
+    "description": "Value factor construction (B/M, E/P)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__BM_VAR__",
+      "__EP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK16_value.dta",
+      "fig_TK16_value.png",
+      "table_TK16_factor.csv",
+      "table_TK16_value.csv"
+    ]
+  },
+  {
+    "id": "TK17",
+    "slug": "size_factor",
+    "name": "规模因子",
+    "family": "finance",
+    "description": "Size factor construction (market cap)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__MKTCAP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK17_size.dta",
+      "fig_TK17_size.png",
+      "table_TK17_factor.csv",
+      "table_TK17_size.csv"
+    ]
+  },
+  {
+    "id": "TK18",
+    "slug": "liquidity_factor",
+    "name": "流动性因子",
+    "family": "finance",
+    "description": "Liquidity factor construction (Amihud, turnover)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RETURN_VAR__",
+      "__VOLUME_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK18_liq.dta",
+      "fig_TK18_liquidity.png",
+      "table_TK18_factor.csv",
+      "table_TK18_liquidity.csv"
+    ]
+  },
+  {
+    "id": "TK19",
+    "slug": "beta_anomaly",
+    "name": "Beta异象",
+    "family": "finance",
+    "description": "Low beta anomaly analysis",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RETURN_VAR__",
+      "__MARKET_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK19_beta.dta",
+      "fig_TK19_beta_anomaly.png",
+      "table_TK19_bab_factor.csv",
+      "table_TK19_beta_sort.csv"
+    ]
+  },
+  {
+    "id": "TK20",
+    "slug": "fama_macbeth",
+    "name": "Fama-MacBeth回归",
+    "family": "finance",
+    "description": "Fama-MacBeth two-stage regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RETURN_VAR__",
+      "__INDEPVARS__",
+      "__TIME_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TK20_fm.dta",
+      "fig_TK20_gamma_ts.png",
+      "table_TK20_fm_result.csv",
+      "table_TK20_time_series.csv"
+    ]
+  },
+  {
+    "id": "TL01",
+    "slug": "jones_model",
+    "name": "Jones模型",
+    "family": "accounting",
+    "description": "Jones accruals model for earnings management detection",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TA_VAR__",
+      "__REV_VAR__",
+      "__PPE_VAR__",
+      "__ASSETS_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL01_jones.dta",
+      "table_TL01_jones.csv"
+    ]
+  },
+  {
+    "id": "TL02",
+    "slug": "mod_jones",
+    "name": "修正Jones模型",
+    "family": "accounting",
+    "description": "Modified Jones model for discretionary accruals",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TA_VAR__",
+      "__REV_VAR__",
+      "__REC_VAR__",
+      "__PPE_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL02_modjones.dta",
+      "table_TL02_modjones.csv"
+    ]
+  },
+  {
+    "id": "TL03",
+    "slug": "kothari",
+    "name": "Kothari模型",
+    "family": "accounting",
+    "description": "Performance-matched discretionary accruals (Kothari)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TA_VAR__",
+      "__ROA_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL03_kothari.dta",
+      "table_TL03_kothari.csv"
+    ]
+  },
+  {
+    "id": "TL04",
+    "slug": "dd_model",
+    "name": "DD模型",
+    "family": "accounting",
+    "description": "Dechow-Dichev accruals quality model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__WC_VAR__",
+      "__CFO_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL04_dd.dta",
+      "table_TL04_dd.csv"
+    ]
+  },
+  {
+    "id": "TL05",
+    "slug": "roychowdhury",
+    "name": "Roychowdhury真实盈余管理",
+    "family": "accounting",
+    "description": "Real earnings management (Roychowdhury 2006)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__CFO_VAR__",
+      "__PROD_VAR__",
+      "__DISEXP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL05_rem.dta",
+      "table_TL05_rem.csv"
+    ]
+  },
+  {
+    "id": "TL06",
+    "slug": "ab_cfo",
+    "name": "异常经营现金流",
+    "family": "accounting",
+    "description": "Abnormal cash flow from operations",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__CFO_VAR__",
+      "__SALES_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL06_abcfo.dta",
+      "table_TL06_abcfo.csv"
+    ]
+  },
+  {
+    "id": "TL07",
+    "slug": "ab_prod",
+    "name": "异常生产成本",
+    "family": "accounting",
+    "description": "Abnormal production costs",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__PROD_VAR__",
+      "__SALES_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL07_abprod.dta",
+      "table_TL07_abprod.csv"
+    ]
+  },
+  {
+    "id": "TL08",
+    "slug": "ab_disexp",
+    "name": "异常酌情费用",
+    "family": "accounting",
+    "description": "Abnormal discretionary expenses",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DISEXP_VAR__",
+      "__SALES_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL08_abdis.dta",
+      "table_TL08_abdis.csv"
+    ]
+  },
+  {
+    "id": "TL09",
+    "slug": "beneish_mscore",
+    "name": "Beneish M分数",
+    "family": "accounting",
+    "description": "Beneish M-Score for fraud detection",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DSRI__",
+      "__GMI__",
+      "__AQI__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL09_mscore.dta",
+      "table_TL09_mscore.csv"
+    ]
+  },
+  {
+    "id": "TL10",
+    "slug": "fscore",
+    "name": "Piotroski F分数",
+    "family": "accounting",
+    "description": "Piotroski F-Score for financial strength",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__ROA__",
+      "__CFO__",
+      "__LEVERAGE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL10_fscore.dta",
+      "table_TL10_fscore.csv"
+    ]
+  },
+  {
+    "id": "TL11",
+    "slug": "altman_zscore",
+    "name": "Altman Z分数",
+    "family": "accounting",
+    "description": "Altman Z-Score for bankruptcy prediction",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__WC_TA__",
+      "__RE_TA__",
+      "__EBIT_TA__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL11_zscore.dta",
+      "table_TL11_zscore.csv"
+    ]
+  },
+  {
+    "id": "TL12",
+    "slug": "ohlson_oscore",
+    "name": "Ohlson O分数",
+    "family": "accounting",
+    "description": "Ohlson O-Score for bankruptcy prediction",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__SIZE__",
+      "__LEVERAGE__",
+      "__NI__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL12_oscore.dta",
+      "table_TL12_oscore.csv"
+    ]
+  },
+  {
+    "id": "TL13",
+    "slug": "audit_fee",
+    "name": "审计费用模型",
+    "family": "audit",
+    "description": "Audit fee determinants model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__FEE_VAR__",
+      "__SIZE_VAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL13_auditfee.dta",
+      "table_TL13_auditfee.csv"
+    ]
+  },
+  {
+    "id": "TL14",
+    "slug": "gc_opinion",
+    "name": "持续经营意见",
+    "family": "audit",
+    "description": "Going concern opinion prediction model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__GC_VAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL14_gc.dta",
+      "table_TL14_gc.csv"
+    ]
+  },
+  {
+    "id": "TL15",
+    "slug": "icw",
+    "name": "内部控制缺陷",
+    "family": "audit",
+    "description": "Internal control weakness determinants",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__ICW_VAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TL15_icw.dta",
+      "table_TL15_icw.csv"
+    ]
+  },
+  {
+    "id": "TM01",
+    "slug": "roc_analysis",
+    "name": "ROC分析",
+    "family": "medical",
+    "description": "ROC curve analysis for diagnostic test evaluation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME__",
+      "__TEST_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM01_roc.dta",
+      "fig_TM01_roc.png",
+      "table_TM01_roc.csv"
+    ]
+  },
+  {
+    "id": "TM02",
+    "slug": "diagnostic_test",
+    "name": "诊断试验",
+    "family": "medical",
+    "description": "Sensitivity, specificity, PPV, NPV calculation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME__",
+      "__TEST_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM02_diag.dta",
+      "table_TM02_diag.csv"
+    ]
+  },
+  {
+    "id": "TM03",
+    "slug": "kappa",
+    "name": "Kappa一致性",
+    "family": "medical",
+    "description": "Cohen's Kappa for inter-rater agreement",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__RATER1__",
+      "__RATER2__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM03_kappa.dta",
+      "table_TM03_kappa.csv"
+    ]
+  },
+  {
+    "id": "TM04",
+    "slug": "icc",
+    "name": "组内相关系数",
+    "family": "medical",
+    "description": "Intraclass Correlation Coefficient",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__GROUP__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM04_icc.dta",
+      "table_TM04_icc.csv"
+    ]
+  },
+  {
+    "id": "TM05",
+    "slug": "nnt",
+    "name": "需治数",
+    "family": "medical",
+    "description": "Number Needed to Treat calculation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME__",
+      "__TREATMENT__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM05_nnt.dta",
+      "table_TM05_nnt.csv"
+    ]
+  },
+  {
+    "id": "TM06",
+    "slug": "meta_analysis",
+    "name": "Meta分析",
+    "family": "medical",
+    "description": "Fixed and random effects meta-analysis",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__EFFECT__",
+      "__SE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM06_meta.dta",
+      "fig_TM06_forest.png",
+      "table_TM06_meta.csv"
+    ]
+  },
+  {
+    "id": "TM07",
+    "slug": "funnel_plot",
+    "name": "漏斗图",
+    "family": "medical",
+    "description": "Funnel plot for publication bias assessment",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__EFFECT__",
+      "__SE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM07_bias.dta",
+      "fig_TM07_funnel.png",
+      "table_TM07_bias.csv"
+    ]
+  },
+  {
+    "id": "TM08",
+    "slug": "case_control",
+    "name": "病例对照研究",
+    "family": "medical",
+    "description": "Case-control study odds ratio analysis",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__CASE__",
+      "__EXPOSURE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM08_or.dta",
+      "table_TM08_or.csv"
+    ]
+  },
+  {
+    "id": "TM09",
+    "slug": "cohort_rr",
+    "name": "队列研究相对危险度",
+    "family": "medical",
+    "description": "Cohort study relative risk analysis",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME__",
+      "__EXPOSURE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM09_rr.dta",
+      "table_TM09_rr.csv"
+    ]
+  },
+  {
+    "id": "TM10",
+    "slug": "matched_cc",
+    "name": "配对病例对照",
+    "family": "medical",
+    "description": "Matched case-control study analysis",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__CASE__",
+      "__EXPOSURE__",
+      "__MATCH_ID__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM10_mcc.dta",
+      "table_TM10_mcc.csv"
+    ]
+  },
+  {
+    "id": "TM11",
+    "slug": "incidence_rate",
+    "name": "发病率",
+    "family": "medical",
+    "description": "Incidence rate and rate ratio calculation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__EVENTS__",
+      "__PERSON_TIME__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM11_ir.dta",
+      "table_TM11_ir.csv"
+    ]
+  },
+  {
+    "id": "TM12",
+    "slug": "stratified_analysis",
+    "name": "分层分析",
+    "family": "medical",
+    "description": "Mantel-Haenszel stratified analysis",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME__",
+      "__EXPOSURE__",
+      "__STRATA__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM12_mh.dta",
+      "table_TM12_mh.csv"
+    ]
+  },
+  {
+    "id": "TM13",
+    "slug": "log_binomial",
+    "name": "对数二项回归",
+    "family": "medical",
+    "description": "Log-binomial regression for risk ratios",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__OUTCOME__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM13_pr.dta",
+      "table_TM13_pr.csv"
+    ]
+  },
+  {
+    "id": "TM14",
+    "slug": "poisson_rate",
+    "name": "泊松率回归",
+    "family": "medical",
+    "description": "Poisson regression for rate data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__EVENTS__",
+      "__EXPOSURE__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM14_irr.dta",
+      "table_TM14_irr.csv"
+    ]
+  },
+  {
+    "id": "TM15",
+    "slug": "sample_size_clinical",
+    "name": "临床样本量",
+    "family": "medical",
+    "description": "Sample size calculation for clinical trials",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__ALPHA__",
+      "__POWER__",
+      "__EFFECT_SIZE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TM15_ss.dta",
+      "table_TM15_ss.csv"
+    ]
+  },
+  {
+    "id": "TN01",
+    "slug": "spmatrix",
+    "name": "空间权重矩阵",
+    "family": "spatial",
+    "description": "Create spatial weight matrix",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__LAT__",
+      "__LON__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TN01_spmat.dta",
+      "spmat_TN01.dta"
+    ]
+  },
+  {
+    "id": "TN02",
+    "slug": "moran_i",
+    "name": "Moran I检验",
+    "family": "spatial",
+    "description": "Moran's I spatial autocorrelation test",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__WEIGHT__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TN02_moran.dta",
+      "table_TN02_moran.csv"
+    ]
+  },
+  {
+    "id": "TN03",
+    "slug": "sar",
+    "name": "空间自回归模型",
+    "family": "spatial",
+    "description": "Spatial Autoregressive model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TN03_sar.dta",
+      "table_TN03_sar.csv"
+    ]
+  },
+  {
+    "id": "TN04",
+    "slug": "sem_spatial",
+    "name": "空间误差模型",
+    "family": "spatial",
+    "description": "Spatial Error Model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TN04_sem.dta",
+      "table_TN04_sem.csv"
+    ]
+  },
+  {
+    "id": "TN05",
+    "slug": "sdm",
+    "name": "空间杜宾模型",
+    "family": "spatial",
+    "description": "Spatial Durbin Model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TN05_sdm.dta",
+      "table_TN05_sdm.csv"
+    ]
+  },
+  {
+    "id": "TN06",
+    "slug": "sac",
+    "name": "空间自相关模型",
+    "family": "spatial",
+    "description": "Spatial Autoregressive Combined model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TN06_sac.dta",
+      "table_TN06_sac.csv"
+    ]
+  },
+  {
+    "id": "TN07",
+    "slug": "slx",
+    "name": "空间滞后X模型",
+    "family": "spatial",
+    "description": "Spatial Lag of X model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TN07_slx.dta",
+      "table_TN07_slx.csv"
+    ]
+  },
+  {
+    "id": "TN08",
+    "slug": "spatial_panel",
+    "name": "空间面板模型",
+    "family": "spatial",
+    "description": "Spatial panel data models",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TN08_sppanel.dta",
+      "table_TN08_sppanel.csv"
+    ]
+  },
+  {
+    "id": "TN09",
+    "slug": "direct_indirect",
+    "name": "直接间接效应",
+    "family": "spatial",
+    "description": "Direct and indirect effects decomposition",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TN09_effects.dta",
+      "table_TN09_effects.csv"
+    ]
+  },
+  {
+    "id": "TN10",
+    "slug": "lm_tests",
+    "name": "空间LM检验",
+    "family": "spatial",
+    "description": "Lagrange Multiplier tests for spatial dependence",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TN10_lm.dta",
+      "table_TN10_lm.csv"
+    ]
+  },
+  {
+    "id": "TO01",
+    "slug": "esttab_html",
+    "name": "HTML表格导出",
+    "family": "output",
+    "description": "Export regression tables to HTML format",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__MODELS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TO01_export.dta",
+      "table_TO01_reg.html"
+    ]
+  },
+  {
+    "id": "TO02",
+    "slug": "esttab_latex",
+    "name": "LaTeX表格导出",
+    "family": "output",
+    "description": "Export regression tables to LaTeX format",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__MODELS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TO02_export.dta",
+      "table_TO02_reg.tex"
+    ]
+  },
+  {
+    "id": "TO03",
+    "slug": "esttab_word",
+    "name": "Word表格导出",
+    "family": "output",
+    "description": "Export regression tables to Word format",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__MODELS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TO03_export.dta",
+      "table_TO03_reg.rtf"
+    ]
+  },
+  {
+    "id": "TO04",
+    "slug": "putexcel",
+    "name": "Excel导出",
+    "family": "output",
+    "description": "Export results to Excel using putexcel",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__SHEET__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TO04_export.dta",
+      "table_TO04_results.xlsx"
+    ]
+  },
+  {
+    "id": "TO05",
+    "slug": "asdoc",
+    "name": "Asdoc文档",
+    "family": "output",
+    "description": "Export results using asdoc package",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TITLE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TO05_export.dta",
+      "table_TO05_asdoc.doc"
+    ]
+  },
+  {
+    "id": "TO06",
+    "slug": "outreg2",
+    "name": "Outreg2导出",
+    "family": "output",
+    "description": "Export regression tables using outreg2",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__MODELS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TO06_export.dta",
+      "table_TO06_compare.doc"
+    ]
+  },
+  {
+    "id": "TO07",
+    "slug": "graph_export",
+    "name": "图形导出",
+    "family": "output",
+    "description": "Export graphs to various formats",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__FORMAT__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TO07_export.dta",
+      "fig_TO07_scatter.pdf",
+      "fig_TO07_scatter.png"
+    ]
+  },
+  {
+    "id": "TO08",
+    "slug": "table1",
+    "name": "描述性统计表",
+    "family": "output",
+    "description": "Create publication-ready Table 1 with descriptive statistics",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__BY_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TO08_export.dta",
+      "table_TO08_table1.csv",
+      "table_TO08_table1.doc"
+    ]
+  },
+  {
+    "id": "TP01",
+    "slug": "panel_fe",
+    "name": "面板固定效应",
+    "family": "panel",
+    "description": "Panel data fixed effects estimation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP01_fe.dta",
+      "table_TP01_fe_result.csv",
+      "table_TP01_fe_test.csv"
+    ]
+  },
+  {
+    "id": "TP02",
+    "slug": "panel_re",
+    "name": "面板随机效应",
+    "family": "panel",
+    "description": "Panel data random effects estimation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP02_re.dta",
+      "table_TP02_hausman.csv",
+      "table_TP02_re_result.csv"
+    ]
+  },
+  {
+    "id": "TP03",
+    "slug": "panel_gmm",
+    "name": "面板GMM",
+    "family": "panel",
+    "description": "Dynamic panel GMM estimation (Arellano-Bond)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP03_gmm.dta",
+      "table_TP03_diagnostics.csv",
+      "table_TP03_gmm_result.csv"
+    ]
+  },
+  {
+    "id": "TP04",
+    "slug": "panel_cluster",
+    "name": "面板聚类标准误",
+    "family": "panel",
+    "description": "Panel regression with clustered standard errors",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__CLUSTER__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP04_cluster.dta",
+      "table_TP04_cluster_result.csv",
+      "table_TP04_comparison.csv"
+    ]
+  },
+  {
+    "id": "TP05",
+    "slug": "panel_serial",
+    "name": "面板序列相关检验",
+    "family": "panel",
+    "description": "Test for serial correlation in panel data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP05_serial.dta",
+      "table_TP05_serial_tests.csv"
+    ]
+  },
+  {
+    "id": "TP06",
+    "slug": "panel_hetero",
+    "name": "面板异方差检验",
+    "family": "panel",
+    "description": "Test for heteroskedasticity in panel data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP06_hetero.dta",
+      "table_TP06_hetero_tests.csv"
+    ]
+  },
+  {
+    "id": "TP07",
+    "slug": "panel_fgls",
+    "name": "面板FGLS",
+    "family": "panel",
+    "description": "Feasible GLS for panel data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP07_fgls.dta",
+      "table_TP07_fgls_result.csv"
+    ]
+  },
+  {
+    "id": "TP08",
+    "slug": "panel_pcse",
+    "name": "面板校正标准误",
+    "family": "panel",
+    "description": "Panel-corrected standard errors",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP08_pcse.dta",
+      "table_TP08_pcse_result.csv"
+    ]
+  },
+  {
+    "id": "TP09",
+    "slug": "panel_unit_root",
+    "name": "面板单位根检验",
+    "family": "panel",
+    "description": "Panel unit root tests (LLC, IPS, Fisher)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__LAGS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP09_unit_root.dta",
+      "table_TP09_unit_root.csv"
+    ]
+  },
+  {
+    "id": "TP10",
+    "slug": "panel_cointegration",
+    "name": "面板协整检验",
+    "family": "panel",
+    "description": "Panel cointegration tests (Pedroni, Kao)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP10_coint.dta",
+      "table_TP10_cointegration.csv"
+    ]
+  },
+  {
+    "id": "TP11",
+    "slug": "svy_mean",
+    "name": "调查均值",
+    "family": "survey",
+    "description": "Survey-weighted mean estimation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__WEIGHT__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP11_svy.dta",
+      "table_TP11_svymean.csv"
+    ]
+  },
+  {
+    "id": "TP12",
+    "slug": "svy_regress",
+    "name": "调查回归",
+    "family": "survey",
+    "description": "Survey-weighted regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__WEIGHT__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP12_svy.dta",
+      "table_TP12_svyreg.csv"
+    ]
+  },
+  {
+    "id": "TP13",
+    "slug": "svy_logit",
+    "name": "调查Logit",
+    "family": "survey",
+    "description": "Survey-weighted logistic regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__WEIGHT__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP13_svy.dta",
+      "table_TP13_svylogit.csv"
+    ]
+  },
+  {
+    "id": "TP14",
+    "slug": "svy_poisson",
+    "name": "调查Poisson",
+    "family": "survey",
+    "description": "Survey-weighted Poisson regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__WEIGHT__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP14_svy.dta",
+      "table_TP14_svypois.csv"
+    ]
+  },
+  {
+    "id": "TP15",
+    "slug": "svy_tabulate",
+    "name": "调查列联表",
+    "family": "survey",
+    "description": "Survey-weighted tabulation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__ROWVAR__",
+      "__COLVAR__",
+      "__WEIGHT__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TP15_svy.dta",
+      "table_TP15_svytab.csv"
+    ]
+  },
+  {
+    "id": "TQ01",
+    "slug": "arima_model",
+    "name": "ARIMA模型",
+    "family": "time_series",
+    "description": "ARIMA time series model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__P__",
+      "__D__",
+      "__Q__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TQ01_arima.dta",
+      "fig_TQ01_forecast.png",
+      "table_TQ01_arima_result.csv",
+      "table_TQ01_forecast.csv"
+    ]
+  },
+  {
+    "id": "TQ02",
+    "slug": "var_model",
+    "name": "VAR模型",
+    "family": "time_series",
+    "description": "Vector Autoregression model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__LAGS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TQ02_var.dta",
+      "fig_TQ02_irf.png",
+      "table_TQ02_granger.csv",
+      "table_TQ02_var_result.csv"
+    ]
+  },
+  {
+    "id": "TQ03",
+    "slug": "vecm_model",
+    "name": "VECM模型",
+    "family": "time_series",
+    "description": "Vector Error Correction Model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__RANK__",
+      "__LAGS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TQ03_vecm.dta",
+      "table_TQ03_johansen.csv",
+      "table_TQ03_vecm_result.csv"
+    ]
+  },
+  {
+    "id": "TQ04",
+    "slug": "adf_test",
+    "name": "ADF单位根检验",
+    "family": "time_series",
+    "description": "Augmented Dickey-Fuller unit root test",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__LAGS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TQ04_adf.dta",
+      "table_TQ04_adf_result.csv"
+    ]
+  },
+  {
+    "id": "TQ05",
+    "slug": "seasonal_decomp",
+    "name": "季节分解",
+    "family": "time_series",
+    "description": "Seasonal decomposition of time series",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__PERIOD__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TQ05_decomp.dta",
+      "fig_TQ05_decomp.png",
+      "table_TQ05_decomp.csv"
+    ]
+  },
+  {
+    "id": "TQ06",
+    "slug": "hlm_2level",
+    "name": "两层HLM",
+    "family": "multilevel",
+    "description": "Two-level hierarchical linear model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__GROUPVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TQ06_hlm.dta",
+      "table_TQ06_hlm2.csv"
+    ]
+  },
+  {
+    "id": "TQ07",
+    "slug": "hlm_3level",
+    "name": "三层HLM",
+    "family": "multilevel",
+    "description": "Three-level hierarchical linear model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__GROUP2__",
+      "__GROUP3__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TQ07_hlm.dta",
+      "table_TQ07_hlm3.csv"
+    ]
+  },
+  {
+    "id": "TQ08",
+    "slug": "random_slope",
+    "name": "随机斜率模型",
+    "family": "multilevel",
+    "description": "Random slope multilevel model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__GROUPVAR__",
+      "__SLOPEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TQ08_rslope.dta",
+      "table_TQ08_rslope.csv"
+    ]
+  },
+  {
+    "id": "TQ09",
+    "slug": "melogit",
+    "name": "多层Logit",
+    "family": "multilevel",
+    "description": "Multilevel logistic regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__GROUPVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TQ09_melogit.dta",
+      "table_TQ09_melogit.csv"
+    ]
+  },
+  {
+    "id": "TQ10",
+    "slug": "mepoisson",
+    "name": "多层Poisson",
+    "family": "multilevel",
+    "description": "Multilevel Poisson regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__GROUPVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TQ10_mepois.dta",
+      "table_TQ10_mepois.csv"
+    ]
+  },
+  {
+    "id": "TQ11",
+    "slug": "cross_classified",
+    "name": "交叉分类模型",
+    "family": "multilevel",
+    "description": "Cross-classified multilevel model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__GROUP1__",
+      "__GROUP2__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TQ11_cross.dta",
+      "table_TQ11_cross.csv"
+    ]
+  },
+  {
+    "id": "TQ12",
+    "slug": "growth_curve",
+    "name": "增长曲线模型",
+    "family": "multilevel",
+    "description": "Multilevel growth curve modeling",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__TIMEVAR__",
+      "__GROUPVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TQ12_growth.dta",
+      "fig_TQ12_growth.png",
+      "table_TQ12_growth.csv"
+    ]
+  },
+  {
+    "id": "TR01",
+    "slug": "spatial_weight",
+    "name": "空间权重",
+    "family": "spatial",
+    "description": "Create spatial weight matrix",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__LAT__",
+      "__LON__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TR01_spatial.dta",
+      "table_TR01_weight_summary.csv"
+    ]
+  },
+  {
+    "id": "TR02",
+    "slug": "spatial_lag",
+    "name": "空间滞后",
+    "family": "spatial",
+    "description": "Spatial lag model (SAR)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TR02_sar.dta",
+      "table_TR02_sar_result.csv"
+    ]
+  },
+  {
+    "id": "TR03",
+    "slug": "spatial_error",
+    "name": "空间误差",
+    "family": "spatial",
+    "description": "Spatial error model (SEM)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TR03_sem.dta",
+      "table_TR03_sem_result.csv"
+    ]
+  },
+  {
+    "id": "TR04",
+    "slug": "moran_test",
+    "name": "Moran检验",
+    "family": "spatial",
+    "description": "Moran's I spatial autocorrelation test",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TR04_moran.dta",
+      "fig_TR04_moran_scatter.png",
+      "table_TR04_moran_global.csv",
+      "table_TR04_moran_local.csv"
+    ]
+  },
+  {
+    "id": "TR05",
+    "slug": "spatial_panel_r",
+    "name": "空间面板R",
+    "family": "spatial",
+    "description": "Spatial panel data model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TR05_sp_panel.dta",
+      "table_TR05_spatial_panel.csv"
+    ]
+  },
+  {
+    "id": "TR06",
+    "slug": "bayes_regress",
+    "name": "贝叶斯回归",
+    "family": "bayesian",
+    "description": "Bayesian linear regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TR06_bayes.dta",
+      "table_TR06_bayes.csv"
+    ]
+  },
+  {
+    "id": "TR07",
+    "slug": "bayes_logit",
+    "name": "贝叶斯Logit",
+    "family": "bayesian",
+    "description": "Bayesian logistic regression",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TR07_blogit.dta",
+      "table_TR07_blogit.csv"
+    ]
+  },
+  {
+    "id": "TR08",
+    "slug": "bayes_mixed",
+    "name": "贝叶斯混合模型",
+    "family": "bayesian",
+    "description": "Bayesian multilevel/mixed model",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__GROUPVAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TR08_bmixed.dta",
+      "table_TR08_bmixed.csv"
+    ]
+  },
+  {
+    "id": "TR09",
+    "slug": "bayesgraph",
+    "name": "贝叶斯诊断图",
+    "family": "bayesian",
+    "description": "Bayesian MCMC diagnostic plots",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__MODEL__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TR09_diag.dta",
+      "fig_TR09_acf.png",
+      "fig_TR09_trace.png"
+    ]
+  },
+  {
+    "id": "TR10",
+    "slug": "bayes_factor",
+    "name": "贝叶斯因子模型比较",
+    "family": "bayesian",
+    "description": "Compute Bayes factors for model comparison using MCMC sampling to evaluate relative evidence between competing models",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS1__",
+      "__INDEPVARS2__",
+      "__MCMC__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TR10_bf.dta",
+      "table_TR10_bf.csv"
+    ]
+  },
+  {
+    "id": "TS01",
+    "slug": "lasso_reg",
+    "name": "LASSO回归",
+    "family": "machine_learning",
+    "description": "LASSO regression with cross-validation for variable selection and regularization",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__CV_FOLDS__",
+      "__SELECTION__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TS01_lasso.dta",
+      "fig_TS01_cv_path.png",
+      "table_TS01_cv_result.csv",
+      "table_TS01_lasso_coef.csv"
+    ]
+  },
+  {
+    "id": "TS02",
+    "slug": "ridge_reg",
+    "name": "岭回归",
+    "family": "machine_learning",
+    "description": "Ridge regression with cross-validation for regularization",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__CV_FOLDS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TS02_ridge.dta",
+      "table_TS02_cv_result.csv",
+      "table_TS02_ridge_coef.csv"
+    ]
+  },
+  {
+    "id": "TS03",
+    "slug": "elastic_net",
+    "name": "弹性网络回归",
+    "family": "machine_learning",
+    "description": "Elastic Net regression combining LASSO and Ridge penalties",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__ALPHA__",
+      "__CV_FOLDS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TS03_enet.dta",
+      "table_TS03_cv_result.csv",
+      "table_TS03_enet_coef.csv"
+    ]
+  },
+  {
+    "id": "TS04",
+    "slug": "random_forest",
+    "name": "随机森林",
+    "family": "machine_learning",
+    "description": "Random Forest for classification or regression with variable importance",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__N_TREES__",
+      "__TYPE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TS04_rf.dta",
+      "table_TS04_rf_importance.csv",
+      "table_TS04_rf_result.csv"
+    ]
+  },
+  {
+    "id": "TS05",
+    "slug": "xgboost",
+    "name": "梯度提升",
+    "family": "machine_learning",
+    "description": "Gradient Boosting (XGBoost) for prediction with variable importance",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__N_ROUNDS__",
+      "__MAX_DEPTH__",
+      "__LEARNING_RATE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TS05_xgb.dta",
+      "table_TS05_xgb_importance.csv",
+      "table_TS05_xgb_result.csv"
+    ]
+  },
+  {
+    "id": "TS06",
+    "slug": "cross_valid",
+    "name": "交叉验证",
+    "family": "machine_learning",
+    "description": "K-fold cross-validation for model evaluation",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__K_FOLDS__",
+      "__MODEL_TYPE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TS06_cv.dta",
+      "table_TS06_cv_folds.csv",
+      "table_TS06_cv_summary.csv"
+    ]
+  },
+  {
+    "id": "TS07",
+    "slug": "pca_analysis",
+    "name": "主成分分析",
+    "family": "machine_learning",
+    "description": "Principal Component Analysis for dimensionality reduction",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__N_COMPONENTS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TS07_pca.dta",
+      "fig_TS07_scree.png",
+      "table_TS07_eigenvalues.csv",
+      "table_TS07_loadings.csv"
+    ]
+  },
+  {
+    "id": "TS08",
+    "slug": "cluster_kmeans",
+    "name": "K均值聚类",
+    "family": "machine_learning",
+    "description": "K-means clustering with elbow method for optimal K",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__",
+      "__K__",
+      "__MAX_K__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TS08_kmeans.dta",
+      "fig_TS08_elbow.png",
+      "table_TS08_centers.csv",
+      "table_TS08_elbow.csv"
+    ]
+  },
+  {
+    "id": "TS09",
+    "slug": "logit_classify",
+    "name": "Logistic分类",
+    "family": "machine_learning",
+    "description": "Logistic regression for binary classification with confusion matrix and ROC curve",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__THRESHOLD__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TS09_logit.dta",
+      "fig_TS09_roc.png",
+      "table_TS09_confusion.csv",
+      "table_TS09_logit_result.csv"
+    ]
+  },
+  {
+    "id": "TS10",
+    "slug": "model_compare",
+    "name": "模型比较",
+    "family": "machine_learning",
+    "description": "Compare multiple models using AIC, BIC, and RMSE criteria",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TS10_compare.dta",
+      "fig_TS10_comparison.png",
+      "table_TS10_comparison.csv"
+    ]
+  },
+  {
+    "id": "TS11",
+    "slug": "gee_basic",
+    "name": "GEE广义估计方程",
+    "family": "gee",
+    "description": "Generalized Estimating Equations for longitudinal data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__",
+      "__FAMILY__",
+      "__CORR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TS11_gee.dta",
+      "table_TS11_gee.csv"
+    ]
+  },
+  {
+    "id": "TS12",
+    "slug": "gee_logit",
+    "name": "GEE Logistic模型",
+    "family": "gee",
+    "description": "GEE for binary outcomes with logit link",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__PANELVAR__",
+      "__TIMEVAR__",
+      "__CORR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TS12_geelogit.dta",
+      "table_TS12_geelogit.csv"
+    ]
+  },
+  {
+    "id": "TT01",
+    "slug": "text_clean",
+    "name": "文本清洗",
+    "family": "text_analysis",
+    "description": "Clean text data including removing special characters, standardizing case, and removing stopwords",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TEXT_VAR__",
+      "__LOWERCASE__",
+      "__REMOVE_PUNCT__",
+      "__REMOVE_NUM__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TT01_clean.dta",
+      "table_TT01_clean_stats.csv"
+    ]
+  },
+  {
+    "id": "TT02",
+    "slug": "word_freq",
+    "name": "词频统计",
+    "family": "text_analysis",
+    "description": "Calculate word frequencies and generate word frequency tables",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TEXT_VAR__",
+      "__TOP_N__",
+      "__MIN_FREQ__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TT02_freq.dta",
+      "table_TT02_word_freq.csv"
+    ]
+  },
+  {
+    "id": "TT03",
+    "slug": "sentiment",
+    "name": "情感分析",
+    "family": "text_analysis",
+    "description": "Dictionary-based sentiment analysis calculating text sentiment scores",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TEXT_VAR__",
+      "__POS_WORDS__",
+      "__NEG_WORDS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TT03_sentiment.dta",
+      "table_TT03_sentiment.csv"
+    ]
+  },
+  {
+    "id": "TT04",
+    "slug": "ngram",
+    "name": "N-gram分析",
+    "family": "text_analysis",
+    "description": "Generate and analyze N-grams (word combinations)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TEXT_VAR__",
+      "__N__",
+      "__TOP_N__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TT04_ngram.dta",
+      "table_TT04_ngram.csv"
+    ]
+  },
+  {
+    "id": "TT05",
+    "slug": "readability",
+    "name": "可读性分析",
+    "family": "text_analysis",
+    "description": "Calculate text readability metrics including word count, sentence count, and average lengths",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__TEXT_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TT05_read.dta",
+      "table_TT05_readability.csv"
+    ]
+  },
+  {
+    "id": "TT06",
+    "slug": "power_rsquared",
+    "name": "回归R²检验样本量",
+    "family": "sample_size_power",
+    "description": "Sample size calculation for regression R-squared test",
+    "requires": [],
+    "placeholders": [
+      "__RSQUARED__",
+      "__N_PREDICTORS__",
+      "__ALPHA__",
+      "__POWER__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TT06_power.dta",
+      "table_TT06_power.csv"
+    ]
+  },
+  {
+    "id": "TT07",
+    "slug": "power_oneway",
+    "name": "单因素方差分析样本量",
+    "family": "sample_size_power",
+    "description": "Sample size calculation for one-way ANOVA",
+    "requires": [],
+    "placeholders": [
+      "__N_GROUPS__",
+      "__EFFECT_SIZE__",
+      "__ALPHA__",
+      "__POWER__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TT07_power.dta",
+      "table_TT07_power.csv"
+    ]
+  },
+  {
+    "id": "TT08",
+    "slug": "power_logrank",
+    "name": "生存分析样本量",
+    "family": "sample_size_power",
+    "description": "Sample size calculation for survival analysis log-rank test",
+    "requires": [],
+    "placeholders": [
+      "__HR__",
+      "__P1__",
+      "__ALPHA__",
+      "__POWER__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TT08_power.dta",
+      "table_TT08_power.csv"
+    ]
+  },
+  {
+    "id": "TT09",
+    "slug": "power_equivalence",
+    "name": "等价性检验样本量",
+    "family": "sample_size_power",
+    "description": "Sample size calculation for equivalence and non-inferiority tests",
+    "requires": [],
+    "placeholders": [
+      "__DELTA__",
+      "__SD__",
+      "__MARGIN__",
+      "__ALPHA__",
+      "__POWER__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TT09_power.dta",
+      "table_TT09_power.csv"
+    ]
+  },
+  {
+    "id": "TT10",
+    "slug": "power_graph",
+    "name": "功效曲线可视化",
+    "family": "sample_size_power",
+    "description": "Power curve visualization across effect sizes",
+    "requires": [],
+    "placeholders": [
+      "__TEST_TYPE__",
+      "__EFFECT_MIN__",
+      "__EFFECT_MAX__",
+      "__ALPHA__",
+      "__N_SAMPLE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TT10_power.dta",
+      "fig_TT10_power_curve.png",
+      "table_TT10_power.csv"
+    ]
+  },
+  {
+    "id": "TU01",
+    "slug": "histogram",
+    "name": "直方图",
+    "family": "visualization",
+    "description": "Plot histogram with optional normal distribution overlay",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__BINS__",
+      "__NORMAL__",
+      "__TITLE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU01_hist.dta",
+      "fig_TU01_histogram.png",
+      "table_TU01_hist_stats.csv"
+    ]
+  },
+  {
+    "id": "TU02",
+    "slug": "scatter",
+    "name": "散点图",
+    "family": "visualization",
+    "description": "Plot scatter diagram with optional fit lines and grouping",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__XVAR__",
+      "__YVAR__",
+      "__FITLINE__",
+      "__GROUP_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU02_scatter.dta",
+      "fig_TU02_scatter.png"
+    ]
+  },
+  {
+    "id": "TU03",
+    "slug": "boxplot",
+    "name": "箱线图",
+    "family": "visualization",
+    "description": "Plot box plots showing distribution and outliers with optional grouping",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__BY_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU03_box.dta",
+      "fig_TU03_boxplot.png",
+      "table_TU03_box_stats.csv"
+    ]
+  },
+  {
+    "id": "TU04",
+    "slug": "line_chart",
+    "name": "折线图",
+    "family": "visualization",
+    "description": "Plot time series or trend line charts with optional multi-series",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__YVAR__",
+      "__XVAR__",
+      "__BY_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU04_line.dta",
+      "fig_TU04_line.png"
+    ]
+  },
+  {
+    "id": "TU05",
+    "slug": "bar_chart",
+    "name": "柱状图",
+    "family": "visualization",
+    "description": "Plot bar charts for categorical data distribution or comparison",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__CAT_VAR__",
+      "__STAT__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU05_bar.dta",
+      "fig_TU05_bar.png"
+    ]
+  },
+  {
+    "id": "TU06",
+    "slug": "heatmap",
+    "name": "热力图",
+    "family": "visualization",
+    "description": "Plot correlation matrix heatmap",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VARS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU06_heat.dta",
+      "fig_TU06_heatmap.png",
+      "table_TU06_corr.csv"
+    ]
+  },
+  {
+    "id": "TU07",
+    "slug": "pie_chart",
+    "name": "饼图",
+    "family": "visualization",
+    "description": "Plot pie chart showing proportional distribution of categorical data",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__CAT_VAR__",
+      "__VALUE_VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU07_pie.dta",
+      "fig_TU07_pie.png",
+      "table_TU07_pie_data.csv"
+    ]
+  },
+  {
+    "id": "TU08",
+    "slug": "density",
+    "name": "核密度图",
+    "family": "visualization",
+    "description": "Plot kernel density estimate with optional group comparison",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__",
+      "__BY_VAR__",
+      "__BANDWIDTH__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU08_density.dta",
+      "fig_TU08_density.png"
+    ]
+  },
+  {
+    "id": "TU09",
+    "slug": "qq_plot",
+    "name": "Q-Q图",
+    "family": "visualization",
+    "description": "Plot Q-Q diagram for normality testing",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__VAR__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU09_qq.dta",
+      "fig_TU09_qq.png",
+      "table_TU09_normality.csv"
+    ]
+  },
+  {
+    "id": "TU10",
+    "slug": "coef_plot",
+    "name": "系数图",
+    "family": "visualization",
+    "description": "Plot regression coefficient estimates with confidence intervals",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__CI_LEVEL__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU10_coef.dta",
+      "fig_TU10_coef.png",
+      "table_TU10_coef.csv"
+    ]
+  },
+  {
+    "id": "TU11",
+    "slug": "rifhdreg",
+    "name": "无条件分位数回归",
+    "family": "advanced_methods",
+    "description": "Unconditional quantile regression using RIF (Recentered Influence Function)",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__QUANTILE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU11_rifhdreg.dta",
+      "table_TU11_rifhdreg.csv"
+    ]
+  },
+  {
+    "id": "TU12",
+    "slug": "spline",
+    "name": "样条回归",
+    "family": "advanced_methods",
+    "description": "Spline regression using mkspline for flexible nonlinear relationships",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__XVAR__",
+      "__N_KNOTS__",
+      "__SPLINE_TYPE__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU12_spline.dta",
+      "fig_TU12_spline.png",
+      "table_TU12_spline.csv"
+    ]
+  },
+  {
+    "id": "TU13",
+    "slug": "lpoly",
+    "name": "局部多项式回归",
+    "family": "advanced_methods",
+    "description": "Local polynomial regression for nonparametric smoothing",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__YVAR__",
+      "__XVAR__",
+      "__DEGREE__",
+      "__BANDWIDTH__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU13_lpoly.dta",
+      "fig_TU13_lpoly.png",
+      "table_TU13_lpoly.csv"
+    ]
+  },
+  {
+    "id": "TU14",
+    "slug": "npregress",
+    "name": "核回归",
+    "family": "advanced_methods",
+    "description": "Nonparametric kernel regression using npregress",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__DEPVAR__",
+      "__INDEPVARS__",
+      "__KERNEL__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU14_npregress.dta",
+      "fig_TU14_npregress.png",
+      "table_TU14_npregress.csv"
+    ]
+  },
+  {
+    "id": "TU15",
+    "slug": "mi_impute",
+    "name": "缺失数据多重插补",
+    "family": "advanced_methods",
+    "description": "Multiple imputation for missing data using mi impute",
+    "requires": [
+      "data.csv"
+    ],
+    "placeholders": [
+      "__IMPUTE_VARS__",
+      "__METHOD__",
+      "__N_IMPUTATIONS__"
+    ],
+    "outputs": [
+      "result.log",
+      "data_TU15_mi.dta",
+      "table_TU15_mi_summary.csv"
+    ]
+  }
+]

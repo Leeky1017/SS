@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "zandrews",
+      "purpose": "ZA test",
+      "source": "ssc"
+    }
+  ],
+  "description": "Zivot-Andrews structural break unit root test",
+  "family": "time_series",
+  "id": "TH03",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "H",
+  "outputs": [
+    {
+      "description": "ZA results",
+      "file": "table_TH03_za.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TH03_za.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable to test",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "zandrews",
+  "tags": [
+    "structural_break",
+    "unit_root",
+    "time_series"
+  ],
+  "title": "Zivot-Andrews Test",
+  "title_zh": "结构断点检验",
+  "version": "2.0.1"
+}

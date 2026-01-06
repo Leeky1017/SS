@@ -1,0 +1,91 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "logit command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Propensity score stratification estimation",
+  "family": "causal_inference",
+  "id": "TG04",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "G",
+  "outputs": [
+    {
+      "description": "Strata effects",
+      "file": "table_TG04_strata_effects.csv",
+      "type": "table"
+    },
+    {
+      "description": "Strata balance",
+      "file": "table_TG04_strata_balance.csv",
+      "type": "table"
+    },
+    {
+      "description": "Strata effects plot",
+      "file": "fig_TG04_strata_effects.png",
+      "type": "figure"
+    },
+    {
+      "description": "Data with strata",
+      "file": "data_TG04_with_strata.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Treatment variable",
+      "name": "__TREATMENT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Covariates",
+      "name": "__COVARIATES__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Number of strata",
+      "name": "__N_STRATA__",
+      "required": false,
+      "type": "number"
+    },
+    {
+      "description": "Random seed (optional)",
+      "name": "__SEED__",
+      "required": false,
+      "type": "integer"
+    }
+  ],
+  "slug": "psm_strata",
+  "tags": [
+    "psm",
+    "stratification",
+    "ate",
+    "causal"
+  ],
+  "title": "PSM Strata",
+  "title_zh": "倾向得分分层",
+  "version": "2.0.1"
+}

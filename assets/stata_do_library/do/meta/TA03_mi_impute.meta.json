@@ -1,0 +1,91 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "mi module",
+      "source": "built-in"
+    }
+  ],
+  "description": "Multiple imputation for missing data using chained equations (MICE)",
+  "family": "data_management",
+  "id": "TA03",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "A",
+  "outputs": [
+    {
+      "description": "Missing pattern",
+      "file": "table_TA03_missing_pattern.csv",
+      "type": "table"
+    },
+    {
+      "description": "Imputation diagnostics",
+      "file": "table_TA03_impute_diag.csv",
+      "type": "table"
+    },
+    {
+      "description": "Imputed data (MI format)",
+      "file": "data_TA03_imputed.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variables to impute",
+      "name": "__IMPUTE_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Predictor variables",
+      "name": "__PREDICTOR_VARS__",
+      "required": false,
+      "type": "list[string]"
+    },
+    {
+      "description": "Number of imputations",
+      "name": "__N_IMPUTATIONS__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Imputation method",
+      "name": "__METHOD__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "ID variable",
+      "name": "__ID_VAR__",
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "mi_impute",
+  "tags": [
+    "imputation",
+    "missing_data",
+    "mice",
+    "multiple_imputation"
+  ],
+  "title": "MI Impute",
+  "title_zh": "缺失值多重插补",
+  "version": "2.0.1"
+}

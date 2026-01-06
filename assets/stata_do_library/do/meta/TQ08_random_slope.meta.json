@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "mixed command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Random slope multilevel model",
+  "family": "multilevel",
+  "id": "TQ08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "Q",
+  "outputs": [
+    {
+      "description": "Random slope results",
+      "file": "table_TQ08_rslope.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TQ08_rslope.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Grouping variable for random slope model",
+      "name": "__GROUP_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Slope variable with random coefficient",
+      "name": "__SLOPE_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "random_slope",
+  "tags": [
+    "random_slope",
+    "multilevel",
+    "mixed"
+  ],
+  "title": "Random Slope",
+  "title_zh": "随机斜率模型",
+  "version": "2.0.1"
+}

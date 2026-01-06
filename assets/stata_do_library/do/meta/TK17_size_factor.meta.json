@@ -1,0 +1,91 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "calculations",
+      "source": "built-in"
+    }
+  ],
+  "description": "Size factor construction (market cap)",
+  "family": "finance",
+  "id": "TK17",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "K",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TK17_size.dta",
+      "type": "data"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "fig_TK17_size.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TK17_factor.csv",
+      "type": "table"
+    },
+    {
+      "description": "Size factor results",
+      "file": "table_TK17_size.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Number of groups",
+      "name": "__N_GROUPS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Return variable",
+      "name": "__RETURN_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Size variable (market cap)",
+      "name": "__SIZE_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Stock identifier",
+      "name": "__STOCK_ID__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIME_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "size_factor",
+  "tags": [
+    "size",
+    "factor",
+    "smb",
+    "finance"
+  ],
+  "title": "Size Factor",
+  "title_zh": "规模因子",
+  "version": "2.0.1"
+}

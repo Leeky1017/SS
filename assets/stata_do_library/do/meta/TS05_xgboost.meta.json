@@ -1,0 +1,85 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "boost command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Gradient Boosting (XGBoost) for prediction with variable importance",
+  "family": "machine_learning",
+  "id": "TS05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "S",
+  "outputs": [
+    {
+      "description": "Output data",
+      "file": "data_TS05_xgb.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TS05_xgb_importance.csv",
+      "type": "table"
+    },
+    {
+      "description": "Auto-synced from SS_OUTPUT_FILE anchors",
+      "file": "table_TS05_xgb_result.csv",
+      "type": "table"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Number of rounds",
+      "name": "__N_ROUNDS__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Max tree depth",
+      "name": "__MAX_DEPTH__",
+      "required": false,
+      "type": "integer"
+    },
+    {
+      "description": "Learning rate",
+      "name": "__LEARNING_RATE__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "xgboost",
+  "tags": [
+    "xgboost",
+    "gradient_boosting",
+    "machine_learning"
+  ],
+  "title": "XGBoost",
+  "title_zh": "梯度提升",
+  "version": "2.0.1"
+}

@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "cs command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Number Needed to Treat calculation",
+  "family": "medical",
+  "id": "TM05",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "M",
+  "outputs": [
+    {
+      "description": "NNT results",
+      "file": "table_TM05_nnt.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TM05_nnt.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Outcome variable",
+      "name": "__OUTCOME__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Treatment variable",
+      "name": "__TREATMENT__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "nnt",
+  "tags": [
+    "nnt",
+    "treatment_effect",
+    "medical"
+  ],
+  "title": "NNT",
+  "title_zh": "需治数",
+  "version": "2.0.1"
+}

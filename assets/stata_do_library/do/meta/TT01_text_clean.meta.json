@@ -1,0 +1,89 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "String functions",
+      "source": "built-in"
+    }
+  ],
+  "description": "Clean text data including removing special characters, standardizing case, and removing stopwords",
+  "family": "text_analysis",
+  "id": "TT01",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "T",
+  "outputs": [
+    {
+      "description": "Cleaning statistics",
+      "file": "table_TT01_clean_stats.csv",
+      "type": "table"
+    },
+    {
+      "description": "Cleaned data",
+      "file": "data_TT01_clean.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Text variable",
+      "name": "__TEXT_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Convert to lowercase: yes/no",
+      "name": "__LOWERCASE__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "yes",
+        "no"
+      ]
+    },
+    {
+      "description": "Remove punctuation: yes/no",
+      "name": "__REMOVE_PUNCT__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "yes",
+        "no"
+      ]
+    },
+    {
+      "description": "Remove numbers: yes/no",
+      "name": "__REMOVE_NUM__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "yes",
+        "no"
+      ]
+    }
+  ],
+  "slug": "text_clean",
+  "tags": [
+    "text",
+    "cleaning",
+    "preprocessing"
+  ],
+  "title": "Text Cleaning",
+  "title_zh": "文本清洗",
+  "version": "2.0.1"
+}

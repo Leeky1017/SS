@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "xttest3 command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Modified Wald test for groupwise heteroskedasticity",
+  "family": "panel_data",
+  "id": "TF02",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "F",
+  "outputs": [
+    {
+      "description": "Heteroskedasticity results",
+      "file": "table_TF02_hetero.csv",
+      "type": "table"
+    },
+    {
+      "description": "Data file",
+      "file": "data_TF02_hetero.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Panel variable",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "xttest3",
+  "tags": [
+    "panel",
+    "heteroskedasticity",
+    "wald"
+  ],
+  "title": "XTTEST3",
+  "title_zh": "面板异方差检验",
+  "version": "2.0.1"
+}

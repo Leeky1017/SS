@@ -1,0 +1,91 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core merge commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Merge two datasets horizontally using key variables, supporting 1:1, m:1, 1:m merge types with detailed diagnostics",
+  "family": "data_merge",
+  "id": "T04",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data_using.dta",
+      "required": true,
+      "role": "merge_table"
+    }
+  ],
+  "level": "L1",
+  "module": "B",
+  "outputs": [
+    {
+      "description": "Merge diagnostics report",
+      "file": "table_T04_merge_report.csv",
+      "type": "table"
+    },
+    {
+      "description": "Merged dataset CSV",
+      "file": "table_T04_merged_data.csv",
+      "type": "table"
+    },
+    {
+      "description": "Merged dataset Stata",
+      "file": "data_T04_merged_data.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Merge key variables (space-separated)",
+      "name": "__MERGE_KEYS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Merge type: 1:1, m:1, 1:m",
+      "name": "__MERGE_TYPE__",
+      "required": true,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "1:1",
+        "m:1",
+        "1:m"
+      ]
+    },
+    {
+      "description": "Keep option: master, using, match, all",
+      "name": "__KEEP_OPTION__",
+      "required": false,
+      "type": "string",
+      "kind": "enum",
+      "options": [
+        "master",
+        "using",
+        "match",
+        "all"
+      ]
+    }
+  ],
+  "slug": "merge_datasets",
+  "tags": [
+    "merge",
+    "join",
+    "data_integration"
+  ],
+  "title": "Merge Datasets Horizontal",
+  "title_zh": "数据集合并（横向）",
+  "version": "2.0.1"
+}

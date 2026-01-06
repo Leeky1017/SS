@@ -1,0 +1,62 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "spregress",
+      "purpose": "Spatial regression",
+      "source": "stata"
+    }
+  ],
+  "description": "Spatial Autoregressive Combined model",
+  "family": "spatial",
+  "id": "TN06",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "N",
+  "outputs": [
+    {
+      "description": "SAC results",
+      "file": "table_TN06_sac.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TN06_sac.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    }
+  ],
+  "slug": "sac",
+  "tags": [
+    "sac",
+    "spatial_combined",
+    "spatial"
+  ],
+  "title": "SAC Model",
+  "title_zh": "空间自相关模型",
+  "version": "2.0.1"
+}

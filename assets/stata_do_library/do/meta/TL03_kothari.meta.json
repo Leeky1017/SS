@@ -1,0 +1,98 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "regress command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Performance-matched discretionary accruals (Kothari)",
+  "family": "accounting",
+  "id": "TL03",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L2",
+  "module": "L",
+  "outputs": [
+    {
+      "description": "Kothari results",
+      "file": "table_TL03_kothari.csv",
+      "type": "table"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TL03_kothari.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Total assets",
+      "name": "__ASSETS__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Panel variable (firm ID)",
+      "name": "__PANELVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Property, plant and equipment",
+      "name": "__PPE__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Receivables",
+      "name": "__REC__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Revenue",
+      "name": "__REV__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Return on assets",
+      "name": "__ROA__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Total accruals",
+      "name": "__TA__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "kothari",
+  "tags": [
+    "kothari",
+    "performance_matched",
+    "accounting"
+  ],
+  "title": "Kothari Model",
+  "title_zh": "Kothari模型",
+  "version": "2.0.1"
+}

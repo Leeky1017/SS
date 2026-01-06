@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "Core tabulation commands",
+      "source": "built-in"
+    }
+  ],
+  "description": "Test independence between two categorical variables with expected frequency checks, association strength metrics, and visualization",
+  "family": "hypothesis_testing",
+  "id": "T16",
+  "inputs": [
+    {
+      "name": "data.dta",
+      "required": true,
+      "role": "main_dataset"
+    },
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L0",
+  "module": "C",
+  "outputs": [
+    {
+      "description": "Chi-square test results summary",
+      "file": "table_T16_chi2_result.csv",
+      "type": "table"
+    },
+    {
+      "description": "Cross tabulation",
+      "file": "table_T16_crosstab.csv",
+      "type": "table"
+    },
+    {
+      "description": "Stacked bar chart",
+      "file": "fig_T16_stacked_bar.png",
+      "type": "graph"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Row variable (categorical)",
+      "name": "__ROW_VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Column variable (categorical)",
+      "name": "__COL_VAR__",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "slug": "chi_square_independence",
+  "tags": [
+    "chi_square",
+    "independence",
+    "categorical",
+    "association",
+    "crosstab"
+  ],
+  "title": "Chi-Square Independence Test",
+  "title_zh": "卡方独立性检验",
+  "version": "2.0.1"
+}

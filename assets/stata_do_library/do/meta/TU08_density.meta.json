@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "stata",
+      "purpose": "kdensity command",
+      "source": "built-in"
+    }
+  ],
+  "description": "Plot kernel density estimate with optional group comparison",
+  "family": "visualization",
+  "id": "TU08",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "U",
+  "outputs": [
+    {
+      "description": "Density plot",
+      "file": "fig_TU08_density.png",
+      "type": "graph"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TU08_density.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Variable to plot",
+      "name": "__VAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Grouping variable",
+      "name": "__BY_VAR__",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "description": "Bandwidth (default auto)",
+      "name": "__BANDWIDTH__",
+      "required": false,
+      "type": "number"
+    }
+  ],
+  "slug": "density",
+  "tags": [
+    "visualization",
+    "density",
+    "distribution"
+  ],
+  "title": "Kernel Density",
+  "title_zh": "核密度图",
+  "version": "2.0.1"
+}

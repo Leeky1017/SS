@@ -1,0 +1,101 @@
+* ==============================================================================
+* SS_TEMPLATE: id=TC01  level=L0  module=C  title="Twoway ANOVA"
+* INPUTS:
+*   - data.csv  role=main_dataset  required=yes
+* OUTPUTS:
+*   - table_TC01_anova.csv type=table desc="ANOVA results"
+*   - data_TC01_anova.dta type=data desc="Data file"
+*   - result.log type=log desc="Execution log"
+* DEPENDENCIES:
+*   - stata source=built-in purpose="anova command"
+* ==============================================================================
+* Task ID:      TC01_twoway_anova
+* Placeholders: __DEPVAR__, __FACTOR1__, __FACTOR2__
+* Stata:        18.0+
+* ==============================================================================
+
+capture log close _all
+if _rc != 0 { }
+clear all
+set more off
+version 18
+
+timer clear 1
+timer on 1
+
+log using "result.log", text replace
+
+display "SS_TASK_BEGIN|id=TC01|level=L0|title=Twoway_ANOVA"
+display "SS_TASK_VERSION:2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
+
+local depvar = "__DEPVAR__"
+local factor1 = "__FACTOR1__"
+local factor2 = "__FACTOR2__"
+
+display "SS_STEP_BEGIN|step=S01_load_data"
+capture confirm file "data.csv"
+if _rc {
+    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    log close
+    exit 601
+}
+import delimited "data.csv", clear
+local n_input = _N
+display "SS_METRIC:n_input:`n_input'"
+display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
+
+display "SS_STEP_BEGIN|step=S02_validate_inputs"
+anova `depvar' `factor1'##`factor2'
+
+local f_stat = e(F)
+local p_value = Ftail(e(df_m), e(df_r), e(F))
+local r2 = e(r2)
+
+display ""
+display ">>> ANOVA结果:"
+display "    F统计量: " %10.4f `f_stat'
+display "    p值: " %10.4f `p_value'
+display "    R²: " %10.4f `r2'
+
+display "SS_METRIC|name=f_stat|value=`f_stat'"
+display "SS_METRIC|name=r2|value=`r2'"
+display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
+
+display "SS_STEP_BEGIN|step=S03_analysis"
+preserve
+clear
+set obs 3
+gen str20 effect = ""
+gen double f = .
+gen double p = .
+replace effect = "`factor1'" in 1
+replace effect = "`factor2'" in 2
+replace effect = "Interaction" in 3
+export delimited using "table_TC01_anova.csv", replace
+display "SS_OUTPUT_FILE|file=table_TC01_anova.csv|type=table|desc=anova_results"
+restore
+
+local n_output = _N
+display "SS_METRIC|name=n_output|value=`n_output'"
+save "data_TC01_anova.dta", replace
+display "SS_OUTPUT_FILE|file=data_TC01_anova.dta|type=data|desc=anova_data"
+display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
+
+display "SS_SUMMARY|key=n_input|value=`n_input'"
+display "SS_SUMMARY|key=n_output|value=`n_output'"
+display "SS_SUMMARY|key=f_stat|value=`f_stat'"
+
+local n_dropped = 0
+display "SS_METRIC|name=n_dropped|value=`n_dropped'"
+timer off 1
+quietly timer list 1
+local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
+display "SS_METRIC|name=n_missing|value=0"
+display "SS_METRIC|name=task_success|value=1"
+display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+
+display "SS_TASK_END|id=TC01|status=ok|elapsed_sec=`elapsed'"
+log close

@@ -1,0 +1,74 @@
+{
+  "contract_version": "1.1",
+  "dependencies": [
+    {
+      "pkg": "asreg",
+      "purpose": "Rolling regression",
+      "source": "ssc"
+    }
+  ],
+  "description": "Rolling window regression",
+  "family": "time_series",
+  "id": "TH14",
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": true,
+      "role": "main_dataset"
+    }
+  ],
+  "level": "L1",
+  "module": "H",
+  "outputs": [
+    {
+      "description": "Rolling plot",
+      "file": "fig_TH14_rolling.png",
+      "type": "figure"
+    },
+    {
+      "description": "Output data",
+      "file": "data_TH14_rolling.dta",
+      "type": "data"
+    },
+    {
+      "description": "Execution log",
+      "file": "result.log",
+      "type": "log"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "Dependent variable",
+      "name": "__DEPVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Independent variables",
+      "name": "__INDEPVARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "description": "Time variable",
+      "name": "__TIMEVAR__",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "description": "Window size",
+      "name": "__WINDOW__",
+      "required": true,
+      "type": "number"
+    }
+  ],
+  "slug": "rolling",
+  "tags": [
+    "rolling",
+    "time_varying",
+    "regression"
+  ],
+  "title": "Rolling Regression",
+  "title_zh": "滚动窗口回归",
+  "version": "2.0.1"
+}
