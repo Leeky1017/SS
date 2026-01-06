@@ -44,3 +44,11 @@
   - `gh pr create --base main --head task/21-arch-t032 ...`
 - Key output:
   - `https://github.com/Leeky1017/SS/pull/50`
+
+### 2026-01-06 11:56 rulebook archive
+- Command:
+  - `rulebook_task_archive(taskId=issue-21-arch-t032, skipValidation=true)`
+- Key output:
+  - `Task issue-21-arch-t032 archived successfully`
+- Evidence:
+  - `rulebook/tasks/archive/2026-01-06-issue-21-arch-t032`
