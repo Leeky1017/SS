@@ -45,3 +45,106 @@
 - `ruff check .`
 - `pytest -q`
 
+## 测试编写原则
+
+### 测试的三个目标
+
+1. **保护回归**：改了 A，测试告诉你 B 是否受影响
+2. **文档化行为**：测试是可执行的规格说明书
+3. **设计反馈**：测试难写 = 代码设计有问题
+
+### 命名规范
+
+`test_<被测函数><场景><期望结果>`
+
+示例：
+
+- `test_load_fingerprint_with_valid_dict_returns_fingerprint()`
+- `test_load_fingerprint_with_invalid_input_returns_none()`
+- `test_draft_service_when_llm_fails_raises_draft_generation_error()`
+
+### 测试结构（AAA 模式）
+
+```python
+def test_example():
+    # Arrange（准备）
+    input_data = {"key": "value"}
+    service = DraftService(llm_client=mock_llm)
+
+    # Act（执行）
+    result = service.generate_draft(input_data)
+
+    # Assert（断言）
+    assert result.status == "success"
+    assert result.draft_id is not None
+```
+
+### 什么该测 / 什么不该测
+
+| ✅ 该测 | ❌ 不该测 |
+| --- | --- |
+| 业务逻辑分支 | 第三方库的内部行为 |
+| 边界条件（空、None、极值） | 简单的 getter/setter |
+| 错误处理路径 | FastAPI 框架本身 |
+| 状态转换（状态机） | 纯粹的类型转换 |
+
+### Mock 原则
+
+- 只 mock 边界：外部服务（LLM、数据库、文件系统），不 mock 内部模块
+- mock 最少层级：如果测 Service，mock 它直接依赖的 Client，不要 mock Client 内部的 httpx
+- 优先用 fake 而不是 mock：
+
+```python
+# ❌ 过度 mock
+mock_llm.generate.return_value = {"draft": "..."}
+
+# ✅ 用 fake 实现
+class FakeLLMClient:
+    def generate(self, prompt: str) -> dict:
+        return {"draft": "fake draft for: " + prompt[:20]}
+```
+
+### 测试覆盖率指导
+
+- 目标：核心业务逻辑 > 80%，整体 > 60%
+- 不追求 100%：覆盖率超过 80% 后收益递减
+- 关注分支覆盖：不只是行覆盖，要确保 if/else 都走过
+
+### 测试是设计反馈
+
+如果遇到以下情况，先重构代码再写测试：
+
+| 测试难写的症状 | 代码问题 | 解决方案 |
+| --- | --- | --- |
+| 要 mock 5+ 个依赖 | 函数职责过多 | 拆分函数 |
+| 无法构造输入 | 函数依赖全局状态 | 用依赖注入 |
+| 只能写集成测试 | 模块边界不清 | 抽出接口层 |
+| 改一行业务，改 10 个测试 | 测试和实现耦合 | 测试行为，不测实现 |
+
+### 测试文件组织
+
+```text
+tests/
+├── conftest.py              # 共享 fixtures
+├── unit/                    # 单元测试（不依赖外部）
+│   ├── test_draft_service.py
+│   └── test_job_service.py
+├── integration/             # 集成测试（需要真实依赖或 fake）
+│   ├── test_api_draft.py
+│   └── test_api_jobs.py
+└── fixtures/                # 测试数据
+    └── sample_job.json
+```
+
+### 运行测试
+
+```bash
+# 运行所有测试
+pytest
+# 运行单元测试
+pytest tests/unit/
+# 运行并显示覆盖率
+pytest --cov=src --cov-report=html
+# 只运行失败的测试
+pytest --lf
+```
