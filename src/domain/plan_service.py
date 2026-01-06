@@ -137,6 +137,7 @@ class PlanService:
                     ArtifactKind.RUN_STDOUT,
                     ArtifactKind.RUN_STDERR,
                     ArtifactKind.STATA_LOG,
+                    ArtifactKind.STATA_EXPORT_TABLE,
                     ArtifactKind.RUN_META_JSON,
                     ArtifactKind.RUN_ERROR_JSON,
                 ],

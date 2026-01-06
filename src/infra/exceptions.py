@@ -218,6 +218,33 @@ class DoTemplateArtifactsWriteError(SSError):
         )
 
 
+class DoFilePlanInvalidError(SSError):
+    def __init__(self, *, reason: str):
+        super().__init__(
+            error_code="DOFILE_PLAN_INVALID",
+            message=f"dofile plan invalid: {reason}",
+            status_code=400,
+        )
+
+
+class DoFileTemplateUnsupportedError(SSError):
+    def __init__(self, *, template: str):
+        super().__init__(
+            error_code="DOFILE_TEMPLATE_UNSUPPORTED",
+            message=f"dofile template unsupported: {template}",
+            status_code=400,
+        )
+
+
+class DoFileInputsManifestInvalidError(SSError):
+    def __init__(self, *, reason: str):
+        super().__init__(
+            error_code="DOFILE_INPUTS_MANIFEST_INVALID",
+            message=f"dofile inputs manifest invalid: {reason}",
+            status_code=400,
+        )
+
+
 class StataCmdNotFoundError(SSError):
     def __init__(self):
         super().__init__(

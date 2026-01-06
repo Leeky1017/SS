@@ -35,6 +35,16 @@ Do-file generation MUST be deterministic: the same plan and inputs MUST produce 
 - **WHEN** generating a do-file twice from the same inputs
 - **THEN** the generated do-file texts are identical
 
+### Requirement: DoFileGenerator contract is explicit
+
+Do-file generation MUST be implemented by a single `DoFileGenerator` that takes `LLMPlan` + inputs manifest and returns:
+- do-file text
+- expected outputs list (artifact kinds + filenames)
+
+#### Scenario: Generator provides expected outputs
+- **WHEN** generating a do-file for a minimal descriptive template
+- **THEN** expected outputs include an export table artifact
+
 ### Requirement: Failures are structured and archived
 
 Failures MUST be captured as structured errors with `error_code` and MUST archive stderr/stdout/log/meta as artifacts for audit.
