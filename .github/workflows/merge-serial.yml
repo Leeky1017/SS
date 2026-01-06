@@ -10,6 +10,7 @@ concurrency:
 
 jobs:
   verify:
+    name: merge-serial
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,4 +32,3 @@ jobs:
 
       - name: Tests
         run: pytest -q
-

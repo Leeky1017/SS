@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   guard:
+    name: openspec-log-guard
     runs-on: ubuntu-latest
     steps:
       - name: Validate PR metadata
