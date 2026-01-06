@@ -109,6 +109,16 @@ scripts/agent_pr_automerge_and_sync.sh
 - 控制面同步：`scripts/agent_controlplane_sync.sh`
 - 归档 Rulebook task（保持任务树干净）
 
+### 9) 清理 worktree（强制）
+
+合并完成且控制面 `main` 已同步到 `origin/main` 后，必须清理本次任务的 worktree（避免遗留与误用旧环境）。
+
+在控制面（仓库根目录）执行：
+
+```bash
+scripts/agent_worktree_cleanup.sh "$N" "$SLUG"
+```
+
 ## OpenSpec changes/ 的使用策略（可选）
 
 OpenSpec 官方模型是“两文件夹”：
@@ -118,4 +128,3 @@ OpenSpec 官方模型是“两文件夹”：
 在 SS 中，默认每个 Issue 使用 Rulebook tasks；仅当满足以下任一条件时才启用 `openspec/changes/`：
 - 一个议题需要同时改多个 spec，且希望把 proposal/tasks/spec delta 收拢在一个 change folder
 - 需要跨多个 Issue 的“阶段性设计提案”（先对齐再拆子 Issue）
-
