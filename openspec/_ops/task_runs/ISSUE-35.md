@@ -2,7 +2,7 @@
 
 - Issue: #35
 - Branch: task/35-openspec-workflow-do-library
-- PR: (fill)
+- PR: https://github.com/Leeky1017/SS/pull/37
 
 ## Plan
 - Update SS OpenSpec collaboration workflow docs (canonical).
