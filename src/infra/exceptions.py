@@ -47,3 +47,21 @@ class JobStoreIOError(SSError):
             message=f"job store io error ({operation}): {job_id}",
             status_code=500,
         )
+
+
+class LLMCallFailedError(SSError):
+    def __init__(self, *, job_id: str, llm_call_id: str):
+        super().__init__(
+            error_code="LLM_CALL_FAILED",
+            message=f"llm call failed: {job_id}:{llm_call_id}",
+            status_code=502,
+        )
+
+
+class LLMArtifactsWriteError(SSError):
+    def __init__(self, *, job_id: str, llm_call_id: str):
+        super().__init__(
+            error_code="LLM_ARTIFACTS_WRITE_FAILED",
+            message=f"llm artifacts write failed: {job_id}:{llm_call_id}",
+            status_code=500,
+        )

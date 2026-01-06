@@ -6,6 +6,10 @@ from src.domain.models import Draft, Job
 from src.utils.time import utc_now
 
 
+class LLMProviderError(Exception):
+    """Raised by LLM adapters when the provider fails."""
+
+
 class LLMClient:
     """LLM client single entry. Replace `StubLLMClient` with real implementation later."""
 
