@@ -4,6 +4,7 @@ import json
 import subprocess
 from pathlib import Path
 
+from src.domain.do_file_generator import DEFAULT_SUMMARY_TABLE_FILENAME
 from src.domain.models import ArtifactKind
 from src.infra.local_stata_runner import LocalStataRunner
 
@@ -40,6 +41,33 @@ def test_run_when_subprocess_succeeds_writes_artifacts_and_returns_ok(job_servic
 
     kinds = {a.kind for a in result.artifacts}
     assert ArtifactKind.RUN_ERROR_JSON not in kinds
+
+
+def test_run_when_export_table_exists_copies_to_artifacts_and_returns_ref(
+    job_service,
+    jobs_dir: Path,
+):
+    # Arrange
+    job = job_service.create_job(requirement="ok")
+    run_id = "run_export_table"
+
+    def fake_run(cmd, *, cwd, timeout, text, capture_output, check):
+        table_path = Path(cwd, DEFAULT_SUMMARY_TABLE_FILENAME)
+        table_path.write_text("metric,value\nN,1\n", encoding="utf-8")
+        return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="ok\n", stderr="")
+
+    runner = LocalStataRunner(jobs_dir=jobs_dir, stata_cmd=["stata"], subprocess_runner=fake_run)
+
+    # Act
+    result = runner.run(job_id=job.job_id, run_id=run_id, do_file="display 1\n", timeout_seconds=3)
+
+    # Assert
+    artifacts_dir = jobs_dir / job.job_id / "runs" / run_id / "artifacts"
+    assert (artifacts_dir / DEFAULT_SUMMARY_TABLE_FILENAME).exists()
+
+    table_refs = [a for a in result.artifacts if a.kind == ArtifactKind.STATA_EXPORT_TABLE]
+    assert len(table_refs) == 1
+    assert table_refs[0].rel_path == f"runs/{run_id}/artifacts/{DEFAULT_SUMMARY_TABLE_FILENAME}"
 
 
 def test_run_when_subprocess_returns_nonzero_writes_error_artifact_and_returns_failed(
