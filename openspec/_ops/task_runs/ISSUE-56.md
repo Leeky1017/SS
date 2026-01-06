@@ -2,7 +2,7 @@
 
 - Issue: #56
 - Branch: task/56-pr-preflight-wait
-- PR: (pending)
+- PR: https://github.com/Leeky1017/SS/pull/58
 
 ## Plan
 - Add PR preflight (deps + overlap)
