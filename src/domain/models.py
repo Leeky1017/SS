@@ -6,6 +6,7 @@ from pathlib import PurePosixPath
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 JOB_SCHEMA_VERSION_V1 = 1
+LLM_PLAN_VERSION_V1 = 1
 
 
 class JobStatus(str, Enum):
@@ -87,10 +88,49 @@ class Draft(BaseModel):
     created_at: str
 
 
-class LLMPlan(BaseModel):
-    model_config = ConfigDict(extra="allow")
+class JobConfirmation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
 
+    requirement: str | None = None
+    notes: str | None = None
+
+
+class PlanStepType(str, Enum):
+    GENERATE_STATA_DO = "generate_stata_do"
+    RUN_STATA = "run_stata"
+
+
+class PlanStep(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    step_id: str
+    type: PlanStepType
+    params: dict = Field(default_factory=dict)
+    depends_on: list[str] = Field(default_factory=list)
+    produces: list[ArtifactKind] = Field(default_factory=list)
+
+    @field_validator("step_id")
+    @classmethod
+    def step_id_must_be_non_empty(cls, value: str) -> str:
+        if value.strip() == "":
+            raise ValueError("step_id must be non-empty")
+        return value
+
+
+class LLMPlan(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    plan_version: int = Field(default=LLM_PLAN_VERSION_V1)
+    plan_id: str
     rel_path: str
+    steps: list[PlanStep] = Field(default_factory=list)
+
+    @field_validator("plan_version")
+    @classmethod
+    def plan_version_must_match_current(cls, value: int) -> int:
+        if value != LLM_PLAN_VERSION_V1:
+            raise ValueError(f"unsupported plan_version: {value}")
+        return value
 
     @field_validator("rel_path")
     @classmethod
@@ -98,6 +138,19 @@ class LLMPlan(BaseModel):
         if not is_safe_job_rel_path(value):
             raise ValueError("rel_path must be job-relative and must not traverse")
         return value
+
+    @field_validator("steps")
+    @classmethod
+    def steps_must_have_unique_ids_and_valid_deps(cls, steps: list[PlanStep]) -> list[PlanStep]:
+        ids = [step.step_id for step in steps]
+        if len(ids) != len(set(ids)):
+            raise ValueError("steps contain duplicate step_id")
+        known = set(ids)
+        for step in steps:
+            for dep in step.depends_on:
+                if dep not in known:
+                    raise ValueError(f"unknown dependency: {dep}")
+        return steps
 
 
 class RunAttempt(BaseModel):
@@ -118,6 +171,7 @@ class Job(BaseModel):
     job_id: str
     status: JobStatus = Field(default=JobStatus.CREATED)
     requirement: str | None = None
+    confirmation: JobConfirmation | None = None
     created_at: str
     scheduled_at: str | None = None
     inputs: JobInputs | None = None

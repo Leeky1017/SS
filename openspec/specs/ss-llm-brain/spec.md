@@ -52,6 +52,27 @@ LLM outputs used for downstream behavior MUST be schema-bound (especially plans)
 - **WHEN** an LLM plan output cannot be parsed/validated
 - **THEN** the operation fails with a structured error and evidence artifacts
 
+### Requirement: LLMPlan is frozen and replayable
+
+`LLMPlan` MUST be a structured execution plan and MUST be persisted both:
+- in `job.json` under `llm_plan`
+- as an artifact `artifacts/plan.json` (kind: `plan.json`) and indexed in `artifacts_index`
+
+`LLMPlan` v1 MUST include:
+- `plan_version` (int, `1`)
+- `plan_id` (string; deterministic fingerprint)
+- `rel_path` (string; job-relative artifact path)
+- `steps[]` where each step has:
+  - `step_id` (string)
+  - `type` (enum)
+  - `params` (object)
+  - `depends_on[]` (string list)
+  - `produces[]` (artifact kind enums; aligned with `ss-job-contract`)
+
+#### Scenario: Plan freeze is idempotent
+- **WHEN** `PlanService.freeze_plan()` is called repeatedly with the same inputs
+- **THEN** it returns the same plan and does not duplicate artifact index entries
+
 ### Requirement: Redaction prevents sensitive leakage
 
 Logs and LLM artifacts MUST NOT leak secrets, tokens, or privacy identifiers, and prompts MUST prefer summaries + fingerprints over raw data dumps.

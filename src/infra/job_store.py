@@ -120,6 +120,20 @@ class JobStore:
         job.draft = draft
         self.save(job)
 
+    def write_artifact_json(self, *, job_id: str, rel_path: str, payload: dict) -> None:
+        job_dir = self._job_dir(job_id)
+        if not job_dir.exists():
+            raise JobNotFoundError(job_id=job_id)
+        path = job_dir / rel_path
+        try:
+            self._atomic_write(path, payload)
+        except OSError as e:
+            logger.warning(
+                "SS_JOB_ARTIFACT_JSON_WRITE_FAILED",
+                extra={"job_id": job_id, "path": str(path)},
+            )
+            raise JobStoreIOError(operation="artifact_write", job_id=job_id) from e
+
     def _atomic_write(self, path: Path, payload: dict) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)

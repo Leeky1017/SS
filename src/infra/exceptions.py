@@ -66,7 +66,6 @@ class LLMArtifactsWriteError(SSError):
             status_code=500,
         )
 
-
 class ArtifactNotFoundError(SSError):
     def __init__(self, *, job_id: str, rel_path: str):
         super().__init__(
@@ -82,4 +81,31 @@ class ArtifactPathUnsafeError(SSError):
             error_code="ARTIFACT_PATH_UNSAFE",
             message=f"artifact path unsafe: {job_id}:{rel_path}",
             status_code=400,
+        )
+
+
+class PlanFreezeNotAllowedError(SSError):
+    def __init__(self, *, job_id: str, status: str):
+        super().__init__(
+            error_code="PLAN_FREEZE_NOT_ALLOWED",
+            message=f"plan freeze not allowed: {job_id} (status={status})",
+            status_code=409,
+        )
+
+
+class PlanAlreadyFrozenError(SSError):
+    def __init__(self, *, job_id: str):
+        super().__init__(
+            error_code="PLAN_ALREADY_FROZEN",
+            message=f"plan already frozen: {job_id}",
+            status_code=409,
+        )
+
+
+class PlanArtifactsWriteError(SSError):
+    def __init__(self, *, job_id: str):
+        super().__init__(
+            error_code="PLAN_ARTIFACTS_WRITE_FAILED",
+            message=f"plan artifacts write failed: {job_id}",
+            status_code=500,
         )
