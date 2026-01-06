@@ -27,6 +27,7 @@
 
 - 创建 worktree：`scripts/agent_worktree_setup.sh <N> <slug>`
 - 同步控制面：`scripts/agent_controlplane_sync.sh`
+- 一键（推荐）：`scripts/agent_pr_automerge_and_sync.sh`
 
 ## Repo Settings（一次性配置）
 
