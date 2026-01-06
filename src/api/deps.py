@@ -6,11 +6,13 @@ from src.config import Config, load_config
 from src.domain.artifacts_service import ArtifactsService
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
-from src.domain.job_service import JobScheduler, JobService, NoopJobScheduler
+from src.domain.job_service import JobScheduler, JobService
 from src.domain.llm_client import LLMClient, StubLLMClient
 from src.domain.state_machine import JobStateMachine
+from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
+from src.infra.queue_job_scheduler import QueueJobScheduler
 
 
 @lru_cache
@@ -21,6 +23,15 @@ def get_config() -> Config:
 @lru_cache
 def get_job_store() -> JobStore:
     return JobStore(jobs_dir=get_config().jobs_dir)
+
+
+@lru_cache
+def get_worker_queue() -> FileWorkerQueue:
+    config = get_config()
+    return FileWorkerQueue(
+        queue_dir=config.queue_dir,
+        lease_ttl_seconds=config.queue_lease_ttl_seconds,
+    )
 
 
 @lru_cache
@@ -45,7 +56,7 @@ def get_job_idempotency() -> JobIdempotency:
 
 
 def get_job_scheduler() -> JobScheduler:
-    return NoopJobScheduler()
+    return QueueJobScheduler(queue=get_worker_queue())
 
 
 def get_job_service() -> JobService:
