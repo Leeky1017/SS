@@ -2,7 +2,7 @@
 
 - Issue: #25
 - Branch: task/25-arch-t052-dofile-generator
-- PR: (pending)
+- PR: https://github.com/Leeky1017/SS/pull/61
 
 ## Plan
 - Spec: define DoFileGenerator contract and scenarios
@@ -35,3 +35,14 @@
 - Key output:
   - `All checks passed!`
   - `38 passed`
+
+### 2026-01-06 23:00 rebase + gates
+- Command:
+  - `git fetch origin main`
+  - `git rebase origin/main`
+  - `.venv/bin/ruff check .`
+  - `.venv/bin/python -m pytest -q`
+- Key output:
+  - `Successfully rebased and updated refs/heads/task/25-arch-t052-dofile-generator.`
+  - `All checks passed!`
+  - `50 passed`
