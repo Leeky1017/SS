@@ -8,3 +8,4 @@ jobs/
 dist/
 build/
 *.egg-info/
+.worktrees/
