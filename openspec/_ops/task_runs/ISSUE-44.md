@@ -2,7 +2,7 @@
 
 - Issue: #44
 - Branch: task/44-ops-f004
-- PR: (pending)
+- PR: https://github.com/Leeky1017/SS/pull/45
 
 ## Plan
 - Add worktree cleanup rule to repo root AGENTS.md.
