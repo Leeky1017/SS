@@ -29,7 +29,7 @@ class DraftService:
         except (LLMCallFailedError, LLMArtifactsWriteError) as e:
             logger.warning(
                 "SS_DRAFT_PREVIEW_LLM_FAILED",
-                extra={"job_id": job_id, "error_code": e.error_code, "message": e.message},
+                extra={"job_id": job_id, "error_code": e.error_code, "error_message": e.message},
             )
             self._store.save(job)
             raise

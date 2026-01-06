@@ -34,16 +34,36 @@ def test_preview_when_llm_succeeds_writes_llm_artifacts_and_redacts_secrets(
 
     # Assert
     loaded = store.load(job.job_id)
-    prompt_paths = [a.rel_path for a in loaded.artifacts_index if a.kind == ArtifactKind.LLM_PROMPT]
-    response_paths = [a.rel_path for a in loaded.artifacts_index if a.kind == ArtifactKind.LLM_RESPONSE]
+    prompt_paths = [
+        a.rel_path for a in loaded.artifacts_index if a.kind == ArtifactKind.LLM_PROMPT
+    ]
+    response_paths = [
+        a.rel_path
+        for a in loaded.artifacts_index
+        if a.kind == ArtifactKind.LLM_RESPONSE
+    ]
     meta_paths = [a.rel_path for a in loaded.artifacts_index if a.kind == ArtifactKind.LLM_META]
     assert len(prompt_paths) == 1
     assert len(response_paths) == 1
     assert len(meta_paths) == 1
 
-    prompt_text = _read_job_artifact(jobs_dir=jobs_dir, job_id=job.job_id, rel_path=prompt_paths[0])
-    response_text = _read_job_artifact(jobs_dir=jobs_dir, job_id=job.job_id, rel_path=response_paths[0])
-    meta = json.loads(_read_job_artifact(jobs_dir=jobs_dir, job_id=job.job_id, rel_path=meta_paths[0]))
+    prompt_text = _read_job_artifact(
+        jobs_dir=jobs_dir,
+        job_id=job.job_id,
+        rel_path=prompt_paths[0],
+    )
+    response_text = _read_job_artifact(
+        jobs_dir=jobs_dir,
+        job_id=job.job_id,
+        rel_path=response_paths[0],
+    )
+    meta = json.loads(
+        _read_job_artifact(
+            jobs_dir=jobs_dir,
+            job_id=job.job_id,
+            rel_path=meta_paths[0],
+        )
+    )
 
     assert secret not in prompt_text
     assert secret not in response_text
@@ -66,7 +86,13 @@ def test_preview_when_llm_fails_persists_llm_artifacts_and_raises_llm_call_faile
         async def draft_preview(self, *, job: Job, prompt: str) -> Draft:
             raise LLMProviderError(f"provider failed with secret {secret}")
 
-    llm = TracedLLMClient(inner=FailingLLMClient(), jobs_dir=jobs_dir, model="fake", temperature=None, seed=None)
+    llm = TracedLLMClient(
+        inner=FailingLLMClient(),
+        jobs_dir=jobs_dir,
+        model="fake",
+        temperature=None,
+        seed=None,
+    )
     svc = DraftService(store=store, llm=llm, state_machine=state_machine)
     job = job_service.create_job(requirement="trigger failure")
 
@@ -78,7 +104,13 @@ def test_preview_when_llm_fails_persists_llm_artifacts_and_raises_llm_call_faile
     meta_paths = [a.rel_path for a in loaded.artifacts_index if a.kind == ArtifactKind.LLM_META]
     assert len(meta_paths) == 1
 
-    meta = json.loads(_read_job_artifact(jobs_dir=jobs_dir, job_id=job.job_id, rel_path=meta_paths[0]))
+    meta = json.loads(
+        _read_job_artifact(
+            jobs_dir=jobs_dir,
+            job_id=job.job_id,
+            rel_path=meta_paths[0],
+        )
+    )
     assert meta["ok"] is False
     assert meta["error_type"] == "LLMProviderError"
     assert meta["error_message"] is not None

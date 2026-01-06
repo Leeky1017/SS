@@ -8,8 +8,8 @@ from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobScheduler, JobService, NoopJobScheduler
 from src.domain.llm_client import LLMClient, StubLLMClient
 from src.domain.state_machine import JobStateMachine
-from src.infra.llm_tracing import TracedLLMClient
 from src.infra.job_store import JobStore
+from src.infra.llm_tracing import TracedLLMClient
 
 
 @lru_cache

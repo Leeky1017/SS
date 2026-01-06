@@ -126,7 +126,12 @@ class TracedLLMClient(LLMClient):
 
         logger.info(
             "SS_LLM_CALL_DONE",
-            extra={"job_id": job.job_id, "llm_call_id": call_id, "operation": operation, "ok": meta["ok"]},
+            extra={
+                "job_id": job.job_id,
+                "llm_call_id": call_id,
+                "operation": operation,
+                "ok": meta["ok"],
+            },
         )
         if draft is None:
             raise LLMCallFailedError(job_id=job.job_id, llm_call_id=call_id) from error
@@ -206,4 +211,5 @@ class TracedLLMClient(LLMClient):
     def _write_json(self, *, job_id: str, rel_path: str, payload: dict) -> None:
         path = self._jobs_dir / job_id / rel_path
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+        data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
+        path.write_text(data, encoding="utf-8")
