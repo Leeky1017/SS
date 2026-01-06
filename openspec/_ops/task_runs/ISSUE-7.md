@@ -2,7 +2,7 @@
 
 - Issue: #7
 - Branch: task/7-agents-test-principles
-- PR: (fill after created)
+- PR: https://github.com/Leeky1017/SS/pull/8
 
 ## Plan
 - Add test writing principles section to AGENTS.md
