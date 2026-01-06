@@ -1,27 +1,40 @@
-# Spec — Legacy analysis inputs policy (stata_service)
+# Spec: stata-service-legacy-analysis
 
-## Goal
+## Purpose
 
-保留 `stata_service` 的“需求与边界案例”洞见作为参考输入，同时明确：SS 的权威工程约束来自 OpenSpec（尤其是 `ss-constitution`），不得被旧工程实现细节误导。
+Use `stata_service` only as a source of semantics and edge cases, while preventing legacy implementation patterns from becoming SS architecture.
 
 ## Requirements
 
-- Legacy analysis MUST 只用于：
-  - 需求语义校对（端点语义、状态机概念、产物类型）
-  - 边界条件/错误路径枚举（例如数据损坏、缺失输入、重试策略）
-  - 回归测试样例来源（把“旧系统怎么做”转成“新系统应保证的行为”）
-- Legacy analysis MUST NOT 用于复制旧架构模式：
-  - 动态代理/隐式依赖（`__getattr__`、`_ap()` 等）
-  - 全局单例 re-export
-  - 超大 routes 文件把业务/IO/调度揉在一起
-  - 吞异常继续执行
-- Legacy analysis SHOULD 落在 OpenSpec 下，并且明确标注“非权威实现指南，仅用于语义与边界案例参考”。详情见 `openspec/specs/stata-service-legacy-analysis/analysis.md`。
+### Requirement: Legacy analysis is input-only
 
-## Scenarios (verifiable)
+Legacy analysis MUST only be used for:
+- endpoint and state-machine semantics alignment
+- enumerating edge cases and error paths
+- deriving regression test vectors
 
-### Scenario: legacy analysis exists but is not treated as canonical architecture
+#### Scenario: Legacy guides tests, not architecture
+- **WHEN** implementing a new SS behavior
+- **THEN** legacy is used to derive scenarios/tests, not to copy code structure
 
-Given `openspec/specs/stata-service-legacy-analysis/analysis.md` exists  
-When implementing SS features  
-Then architectural constraints are taken from `openspec/specs/ss-constitution/spec.md`, and legacy is used only as input for semantics and test vectors.
+### Requirement: Legacy architectural anti-patterns are forbidden
+
+SS implementations MUST NOT copy legacy patterns such as:
+- dynamic proxies / implicit dependencies (`__getattr__`, module proxies, delayed imports)
+- global singletons re-exported across layers
+- giant route modules that mix auth, IO, business logic, and scheduling
+- swallowed exceptions (logging + `pass`)
+
+#### Scenario: Anti-patterns are rejected during review
+- **WHEN** a PR introduces a forbidden pattern
+- **THEN** it is blocked and the spec/architecture is corrected first
+
+### Requirement: Legacy docs live in OpenSpec
+
+Legacy analysis MUST live in OpenSpec and clearly state it is non-canonical.
+The analysis content SHOULD be placed in `openspec/specs/stata-service-legacy-analysis/analysis.md`.
+
+#### Scenario: Legacy analysis is discoverable and scoped
+- **WHEN** browsing OpenSpec
+- **THEN** `analysis.md` exists and is explicitly labeled as non-canonical
 
