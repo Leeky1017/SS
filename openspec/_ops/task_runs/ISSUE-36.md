@@ -2,7 +2,7 @@
 
 - Issue: #36 https://github.com/Leeky1017/SS/issues/36
 - Branch: task/36-do-template-library
-- PR: <fill>
+- PR: https://github.com/Leeky1017/SS/pull/60
 
 ## Plan
 - Vendor legacy `stata_service/tasks` as a read-only do-template library asset.
@@ -56,3 +56,11 @@
 - Key output:
   - `All checks passed!`
   - `42 passed`
+
+### 2026-01-06 22:12 PR
+- Command:
+  - `gh pr create ...`
+  - `gh pr merge --auto --squash 60`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/60`
+  - `will be automatically merged via squash when all requirements are met`
