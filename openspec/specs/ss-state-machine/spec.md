@@ -4,6 +4,35 @@
 
 Define the SS job state machine, allowed transitions, and idempotency strategy as domain logic so API/worker cannot diverge.
 
+## Vocabulary (v1)
+
+### Status enum
+
+- `created`
+- `draft_ready`
+- `confirmed`
+- `queued`
+- `running`
+- `succeeded`
+- `failed`
+
+### Allowed transitions
+
+- `created` → `draft_ready`
+- `draft_ready` → `confirmed`
+- `confirmed` → `queued`
+- `queued` → `running`
+- `running` → `succeeded`
+- `running` → `failed`
+
+### Idempotency key inputs
+
+- MUST include `inputs.fingerprint` (empty string if missing).
+- MUST include a normalized `requirement` (empty string if missing).
+- MAY include a `plan_revision` (empty string if not applicable).
+
+Normalization (v1): trim and collapse consecutive whitespace to a single space.
+
 ## Requirements
 
 ### Requirement: State machine rules live in domain
@@ -30,3 +59,6 @@ Idempotency keys MUST include at least `inputs.fingerprint` and a normalized `re
 - **WHEN** the same logical request is repeated
 - **THEN** the state machine produces the same resulting job identity/state without duplicating work
 
+#### Scenario: Repeating the same transition is a no-op
+- **WHEN** a request would transition a job to its current status
+- **THEN** the operation succeeds without changing persisted state

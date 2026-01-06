@@ -5,8 +5,10 @@ from pathlib import Path
 import pytest
 
 from src.domain.draft_service import DraftService
+from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService, NoopJobScheduler
 from src.domain.llm_client import StubLLMClient
+from src.domain.state_machine import JobStateMachine
 from src.infra.job_store import JobStore
 
 
@@ -21,10 +23,29 @@ def store(jobs_dir: Path) -> JobStore:
 
 
 @pytest.fixture
-def job_service(store: JobStore) -> JobService:
-    return JobService(store=store, scheduler=NoopJobScheduler())
+def state_machine() -> JobStateMachine:
+    return JobStateMachine()
 
 
 @pytest.fixture
-def draft_service(store: JobStore) -> DraftService:
-    return DraftService(store=store, llm=StubLLMClient())
+def idempotency() -> JobIdempotency:
+    return JobIdempotency()
+
+
+@pytest.fixture
+def job_service(
+    store: JobStore,
+    state_machine: JobStateMachine,
+    idempotency: JobIdempotency,
+) -> JobService:
+    return JobService(
+        store=store,
+        scheduler=NoopJobScheduler(),
+        state_machine=state_machine,
+        idempotency=idempotency,
+    )
+
+
+@pytest.fixture
+def draft_service(store: JobStore, state_machine: JobStateMachine) -> DraftService:
+    return DraftService(store=store, llm=StubLLMClient(), state_machine=state_machine)

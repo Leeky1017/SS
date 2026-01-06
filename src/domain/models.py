@@ -10,7 +10,12 @@ JOB_SCHEMA_VERSION_V1 = 1
 
 class JobStatus(str, Enum):
     CREATED = "created"
+    DRAFT_READY = "draft_ready"
+    CONFIRMED = "confirmed"
     QUEUED = "queued"
+    RUNNING = "running"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
 
 
 class ArtifactKind(str, Enum):
@@ -105,7 +110,7 @@ class Job(BaseModel):
 
     schema_version: int
     job_id: str
-    status: str = Field(default=JobStatus.CREATED.value)
+    status: JobStatus = Field(default=JobStatus.CREATED)
     requirement: str | None = None
     created_at: str
     scheduled_at: str | None = None
