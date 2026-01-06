@@ -11,3 +11,11 @@
   - 什么该测/不该测、Mock 原则、覆盖率指导
   - “测试是设计反馈”表格、测试目录组织、运行命令
 
+## Scenarios (verifiable)
+
+### Scenario: repository includes testing principles
+
+Given `AGENTS.md` exists  
+When checking the file content  
+Then it contains a `## 测试编写原则` section with the required subsections.
+

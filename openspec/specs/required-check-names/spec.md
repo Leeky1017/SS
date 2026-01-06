@@ -17,3 +17,11 @@
 2) Documentation
 - 文档说明：在 GitHub 分支保护中将上述三项设为 required checks，并启用 auto-merge。
 
+## Scenarios (verifiable)
+
+### Scenario: required check names match branch protection contract
+
+Given a PR is opened  
+When workflows run on the PR  
+Then the check run names are exactly: `ci`, `openspec-log-guard`, `merge-serial`.
+
