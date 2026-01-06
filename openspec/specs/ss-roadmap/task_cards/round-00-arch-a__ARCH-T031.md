@@ -1,0 +1,28 @@
+# [ROUND-00-ARCH-A] ARCH-T031: PlanService + LLMPlan schema（确定性 stub）
+
+## Metadata
+
+- Issue: #20 https://github.com/Leeky1017/SS/issues/20
+- Epic: #12 https://github.com/Leeky1017/SS/issues/12
+- Roadmap: #9 https://github.com/Leeky1017/SS/issues/9
+- Related specs:
+  - `openspec/specs/ss-llm-brain/spec.md`
+  - `openspec/specs/ss-job-contract/spec.md`
+
+## Goal
+
+把“主脑计划”结构化：LLMPlan 是可序列化、可验证、可冻结的执行计划；先用确定性 stub 跑通闭环。
+
+## In scope
+
+- LLMPlan schema（step type + params + dependencies + expected artifacts）
+- PlanService：输入 job + confirmation，输出 LLMPlan 并写回 job.json（冻结）
+- stub 实现不依赖网络；真实 provider 只在 infra
+
+## Acceptance checklist
+
+- [ ] LLMPlan schema 与 PlanService 行为清晰（冻结、可回放）
+- [ ] stub 不触网，可在 CI 稳定运行
+- [ ] 单元测试覆盖：plan 生成、冻结、重复生成幂等
+- [ ] `openspec/_ops/task_runs/ISSUE-20.md` 记录关键命令与输出
+

@@ -35,7 +35,7 @@ Rulebook tasks are the execution checklist:
 - `rulebook/tasks/issue-<N>-<slug>/tasks.md`
 
 Detailed workflow (“how we actually ship”):
-- `openspec/specs/ss-constitution/10-delivery-workflow.md`
+- `openspec/specs/ss-delivery-workflow/README.md`
 
 ## Spec writing (strict)
 

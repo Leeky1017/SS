@@ -44,4 +44,4 @@ If SS reuses the legacy `stata_service/tasks/` folder as a do-template library, 
 
 #### Scenario: Do template reuse does not leak legacy architecture
 - **WHEN** SS integrates legacy do templates
-- **THEN** the integration follows `openspec/specs/ss-constitution/11-do-template-library.md` and avoids copying legacy service structure
+- **THEN** the integration follows `openspec/specs/ss-do-template-library/spec.md` and avoids copying legacy service structure
