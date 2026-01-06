@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Body, Depends
+from fastapi.responses import FileResponse
 
-from src.api.deps import get_job_service
+from src.api.deps import get_artifacts_service, get_job_service
 from src.api.schemas import (
+    ArtifactsIndexResponse,
     ConfirmJobRequest,
     ConfirmJobResponse,
     CreateJobRequest,
     CreateJobResponse,
     GetJobResponse,
+    RunJobResponse,
 )
+from src.domain.artifacts_service import ArtifactsService
 from src.domain.job_service import JobService
 
 router = APIRouter(tags=["jobs"])
@@ -30,6 +34,35 @@ def get_job(
     svc: JobService = Depends(get_job_service),
 ) -> GetJobResponse:
     return GetJobResponse.model_validate(svc.get_job_summary(job_id=job_id))
+
+
+@router.get("/jobs/{job_id}/artifacts", response_model=ArtifactsIndexResponse)
+def get_job_artifacts(
+    job_id: str,
+    svc: ArtifactsService = Depends(get_artifacts_service),
+) -> ArtifactsIndexResponse:
+    artifacts = svc.list_artifacts(job_id=job_id)
+    return ArtifactsIndexResponse(job_id=job_id, artifacts=artifacts)
+
+
+@router.get("/jobs/{job_id}/artifacts/{artifact_id:path}")
+def download_job_artifact(
+    job_id: str,
+    artifact_id: str,
+    svc: ArtifactsService = Depends(get_artifacts_service),
+) -> FileResponse:
+    path = svc.resolve_download_path(job_id=job_id, rel_path=artifact_id)
+    filename = artifact_id.rsplit("/", 1)[-1]
+    return FileResponse(path=path, filename=filename)
+
+
+@router.post("/jobs/{job_id}/run", response_model=RunJobResponse)
+def run_job(
+    job_id: str,
+    svc: JobService = Depends(get_job_service),
+) -> RunJobResponse:
+    job = svc.trigger_run(job_id=job_id)
+    return RunJobResponse(job_id=job.job_id, status=job.status.value, scheduled_at=job.scheduled_at)
 
 
 @router.post("/jobs/{job_id}/confirm", response_model=ConfirmJobResponse)

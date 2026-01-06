@@ -65,3 +65,21 @@ class LLMArtifactsWriteError(SSError):
             message=f"llm artifacts write failed: {job_id}:{llm_call_id}",
             status_code=500,
         )
+
+
+class ArtifactNotFoundError(SSError):
+    def __init__(self, *, job_id: str, rel_path: str):
+        super().__init__(
+            error_code="ARTIFACT_NOT_FOUND",
+            message=f"artifact not found: {job_id}:{rel_path}",
+            status_code=404,
+        )
+
+
+class ArtifactPathUnsafeError(SSError):
+    def __init__(self, *, job_id: str, rel_path: str):
+        super().__init__(
+            error_code="ARTIFACT_PATH_UNSAFE",
+            message=f"artifact path unsafe: {job_id}:{rel_path}",
+            status_code=400,
+        )
