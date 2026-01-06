@@ -38,6 +38,8 @@ The system MUST maintain these architectural contracts (details in the SS contra
 - API contract: status + artifacts + run trigger (`openspec/specs/ss-api-surface/spec.md`)
 - Stata Runner: do-file generation, execution isolation, and archived outputs (`openspec/specs/ss-stata-runner/spec.md`)
 - Do template library integration (`openspec/specs/ss-do-template-library/spec.md`)
+- observability baseline (`openspec/specs/ss-observability/spec.md`)
+- security red lines (`openspec/specs/ss-security/spec.md`)
 - delivery workflow gates (`openspec/specs/ss-delivery-workflow/spec.md`)
 
 #### Scenario: Changes reference the architecture contracts

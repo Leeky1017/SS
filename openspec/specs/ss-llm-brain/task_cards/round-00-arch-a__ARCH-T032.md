@@ -19,10 +19,15 @@
 - 记录：model、temperature、seed、耗时、token 估计、错误信息（失败时）
 - 脱敏策略：对输入数据路径、用户隐私字段的最小暴露；日志不泄露
 
+## Dependencies & parallelism
+
+- Hard dependencies: #16（artifacts index 合同）
+- Parallelizable with: #18 / #24 / #20（实现层面会被 PlanService/DraftService 复用）
+- Security coupling: 与 #27 强相关（脱敏与敏感字段治理）
+
 ## Acceptance checklist
 
 - [ ] 成功/失败两条路径均落盘 artifacts
 - [ ] job.json artifacts 索引更新
 - [ ] 脱敏策略覆盖敏感字段与 secrets（日志与 artifacts）
 - [ ] `openspec/_ops/task_runs/ISSUE-21.md` 记录关键命令与输出
-

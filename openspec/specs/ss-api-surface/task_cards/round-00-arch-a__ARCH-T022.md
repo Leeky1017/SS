@@ -19,6 +19,12 @@
 - `GET /jobs/{job_id}/artifacts/{artifact_id}`：安全下载（只允许 job 目录内）
 - `POST /jobs/{job_id}/run`：推进到 queued 并记录 scheduled_at（或等价字段），不在 API 内执行
 
+## Dependencies & parallelism
+
+- Hard dependencies: #16（artifacts/job.json 合同）+ #17（run trigger 需要状态机）
+- Parallelizable with: #20 / #22 / #24
+- Security coupling: 与 #27 强相关（路径安全必须有测试锁定）
+
 ## Acceptance checklist
 
 - [ ] artifacts index endpoint 与 download endpoint 都存在
@@ -26,4 +32,3 @@
 - [ ] 重复 trigger 幂等（不重复入队/不破坏状态机）
 - [ ] 测试覆盖：不安全路径、不存在 artifact、重复 trigger
 - [ ] `openspec/_ops/task_runs/ISSUE-19.md` 记录关键命令与输出
-

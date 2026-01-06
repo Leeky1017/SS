@@ -18,10 +18,14 @@
 - file-based 实现：使用原子 rename/lock 实现 claim
 - claim 失败/过期策略明确
 
+## Dependencies & parallelism
+
+- Hard dependencies: #16 + #17（job 状态口径与持久化边界）
+- Parallelizable with: #19 / #20 / #24
+
 ## Acceptance checklist
 
 - [ ] claim 原子化：不会双 worker 同时拿到同一 job
 - [ ] 过期/失败策略明确且可测试
 - [ ] 测试覆盖：并发 claim（多进程/线程或模拟）与幂等
 - [ ] `openspec/_ops/task_runs/ISSUE-22.md` 记录关键命令与输出
-

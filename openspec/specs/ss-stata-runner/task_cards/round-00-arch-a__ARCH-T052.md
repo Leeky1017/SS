@@ -19,10 +19,14 @@
 - 最小支持：载入数据、describe/summarize、导出基础表格到 artifacts
 - 生成结果可复现：同 plan 产出同 do-file（排序/格式稳定）
 
+## Dependencies & parallelism
+
+- Hard dependencies: #20（输入是 plan）+ #16（inputs/artifacts 合同）
+- Parallelizable with: #22 / #24 / #36
+
 ## Acceptance checklist
 
 - [ ] do-file 生成确定性（同输入 → 同输出）
 - [ ] 最小能力可跑通并产生基础 artifacts（表格/日志）
 - [ ] 单元测试覆盖：稳定性与边界输入
 - [ ] `openspec/_ops/task_runs/ISSUE-25.md` 记录关键命令与输出
-

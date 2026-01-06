@@ -19,3 +19,5 @@ Contract specs（按模块拆分，供 agent 定向阅读）：
 - `openspec/specs/ss-worker-queue/spec.md`：worker/queue/claim/run attempts/retry
 - `openspec/specs/ss-stata-runner/spec.md`：StataRunner、do-file 生成、执行隔离与产物
 - `openspec/specs/ss-do-template-library/spec.md`：Do 模板库（legacy tasks）复用策略与边界
+- `openspec/specs/ss-observability/spec.md`：可观测性基线（结构化日志）
+- `openspec/specs/ss-security/spec.md`：安全红线（路径/隔离/脱敏）
