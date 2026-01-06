@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import logging
 import shutil
 import sys
 import uuid
@@ -16,6 +15,7 @@ from src.infra.exceptions import SSError
 from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store import JobStore
 from src.infra.local_stata_runner import LocalStataRunner
+from src.infra.logging_config import configure_logging
 from src.infra.stata_cmd import resolve_stata_cmd
 from src.infra.stata_run_support import resolve_run_dirs
 
@@ -186,7 +186,7 @@ def _cmd_run_template(
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     config = load_config()
-    logging.basicConfig(level=getattr(logging, config.log_level, logging.INFO))
+    configure_logging(log_level=config.log_level)
 
     if args.cmd == "list-templates":
         return _cmd_list_templates(
