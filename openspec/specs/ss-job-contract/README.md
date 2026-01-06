@@ -2,6 +2,12 @@
 
 本目录定义 SS 的 job 工作区与 `job.json` v1（可复现工作区 + 权威索引）。
 
+## Schema version 策略（强约束）
+
+- `job.json` 必须包含 `schema_version`（int）。
+- v1 固定为 `schema_version = 1`。
+- 读取策略（当前）：缺失/未知 `schema_version` → 直接拒绝（视为数据损坏），后续需要显式 migration 才能兼容。
+
 ## Job 工作区（建议结构）
 
 ```text
@@ -24,7 +30,21 @@ jobs/<job_id>/
 - Runner 的 `cwd` MUST 固定在 `runs/<run_id>/work/`。
 - Artifacts 的 `rel_path` MUST 是 job 目录内相对路径（禁止绝对路径与 `..` 逃逸）。
 
-## job.json v1（建议字段口径）
+## job.json v1（字段清单与语义）
+
+位置：`jobs/<job_id>/job.json`
+
+最小合法示例：
+
+```json
+{
+  "schema_version": 1,
+  "job_id": "job_0123456789abcdef",
+  "status": "created",
+  "created_at": "2026-01-06T17:50:00+00:00",
+  "requirement": "..."
+}
+```
 
 必须包含：
 - `schema_version`（int）
@@ -33,13 +53,25 @@ jobs/<job_id>/
 - `created_at`（ISO string）
 - `requirement`（nullable string）
 
-建议包含（按 YAGNI 逐步加，但口径先统一）：
-- `inputs.manifest_rel_path`、`inputs.fingerprint`
-- `draft`
-- `confirmation`
-- `llm_plan`
-- `runs[]`
-- `artifacts_index[]`
+字段语义（v1）：
+
+- `schema_version`: 版本号（v1 固定为 `1`）。
+- `job_id`: job 唯一标识（建议前缀 `job_`，其余为安全的短 token）。
+- `status`: job 状态（枚举；当前实现最小集合为 `created` / `queued`，后续在状态机 spec 扩展）。
+- `created_at`: job 创建时间（ISO8601）。
+- `requirement`: 用户需求文本；允许为 `null`（表示尚未提供/为空）。
+
+可选字段（v1 预留，按 YAGNI 逐步落地，但口径先统一）：
+
+- `scheduled_at`（ISO string | null）：当进入排队/调度态时写入。
+- `inputs`：
+  - `manifest_rel_path`（string | null）：相对 job 目录的输入清单路径（例如 `inputs/manifest.json`）。
+  - `fingerprint`（string | null）：输入指纹（用于幂等/重跑判定）。
+- `draft`：LLM 草案预览（写回 job.json 以便审计与复现）。
+- `confirmation`：用户确认信息（冻结需求/约束，驱动状态机推进）。
+- `llm_plan`：LLM 规划输出（schema-bound），并应通过 artifacts 可回放。
+- `runs[]`：运行尝试列表（worker 执行记录与重试）。
+- `artifacts_index[]`：Artifacts 索引（见下）。
 
 ## Artifacts（必须一等公民）
 
@@ -55,3 +87,10 @@ Artifacts 的作用：
 - `run.stdout` / `run.stderr`
 - `stata.export.table` / `stata.export.figure`
 
+Artifacts 索引字段建议（v1）：
+
+- `kind`（enum）：必须来自预定义枚举（禁止自由字符串）。
+- `rel_path`（string）：相对 job 目录路径；必须满足：
+  - 不能是绝对路径（例如 `/tmp/a.log`）
+  - 不能包含 `..`（防止目录穿越）
+  - 建议使用 `/` 分隔（posix 风格）
