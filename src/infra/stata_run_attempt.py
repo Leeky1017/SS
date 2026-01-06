@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Callable, Sequence
 
 from src.domain.stata_runner import RunResult
+from src.infra.stata_cmd import build_stata_batch_cmd
 from src.infra.stata_run_support import (
     DO_FILENAME,
     Execution,
@@ -179,7 +180,7 @@ def _run_in_workspace(
     timeout_seconds: int | None,
     subprocess_runner: Callable[..., subprocess.CompletedProcess[str]] | None,
 ) -> RunResult:
-    cmd = [*stata_cmd, "-b", "do", DO_FILENAME]
+    cmd = build_stata_batch_cmd(stata_cmd=stata_cmd, do_filename=DO_FILENAME)
     logger.info(
         "SS_STATA_RUN_START",
         extra={"job_id": job_id, "run_id": run_id, "cwd": str(dirs.work_dir), "cmd": cmd},

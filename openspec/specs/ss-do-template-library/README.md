@@ -22,6 +22,30 @@ SS 的核心价值是“可复现的实证分析流水线”。仅靠 LLM 即兴
 
 不建议在 SS 根目录继续叫 `tasks/`。
 
+## 当前实现（Issue #36）
+
+- Vendored 模板库路径：`assets/stata_do_library/`（从 legacy `stata_service/tasks/` 全量复制）
+- 默认配置：
+  - `SS_DO_TEMPLATE_LIBRARY_DIR=./assets/stata_do_library`
+- MVP 执行链路（CLI）：
+  - `python3 -m src.cli run-template --template-id <Txx> --param <NAME=VALUE> ...`
+
+### WSL + Windows Stata（重要）
+
+若通过 WSL 调用 Windows 的 `StataMP-64.exe`，建议把 `SS_JOBS_DIR` 放到 `/mnt/c/...` 下，避免 Windows 进程无法访问 WSL 的 Linux 文件系统路径。
+
+示例：
+
+```bash
+SS_JOBS_DIR=/mnt/c/ss_jobs \
+python3 -m src.cli run-template \
+  --template-id T01 \
+  --param __NUMERIC_VARS__="y x1" \
+  --param __ID_VAR__=id \
+  --param __TIME_VAR__=time \
+  --sample-data
+```
+
 ## 接入策略：MVP 子集 → 全量库（分阶段）
 
 - MVP（先跑通最小链路）：
@@ -71,4 +95,3 @@ SS 侧应把模板当成“可版本化的外部输入”，并强制最小合�
 禁止：
 - 直接复用 legacy 的应用架构、路由组织、隐式依赖与动态代理手法
 - 把模板库当作 SS 的“任务调度/任务系统”
-

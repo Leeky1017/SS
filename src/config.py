@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping
@@ -11,6 +12,8 @@ class Config:
     jobs_dir: Path
     queue_dir: Path
     queue_lease_ttl_seconds: int
+    do_template_library_dir: Path
+    stata_cmd: tuple[str, ...]
     log_level: str
     worker_id: str
     worker_idle_sleep_seconds: float
@@ -39,6 +42,11 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     jobs_dir = Path(str(e.get("SS_JOBS_DIR", "./jobs"))).expanduser()
     queue_dir = Path(str(e.get("SS_QUEUE_DIR", "./queue"))).expanduser()
     queue_lease_ttl_seconds = _int_value(str(e.get("SS_QUEUE_LEASE_TTL_SECONDS", "60")), default=60)
+    do_template_library_dir = Path(
+        str(e.get("SS_DO_TEMPLATE_LIBRARY_DIR", "./assets/stata_do_library"))
+    ).expanduser()
+    stata_cmd_raw = str(e.get("SS_STATA_CMD", "")).strip()
+    stata_cmd = tuple(shlex.split(stata_cmd_raw)) if stata_cmd_raw != "" else tuple()
     log_level = str(e.get("SS_LOG_LEVEL", "INFO")).strip().upper()
     worker_id = str(e.get("SS_WORKER_ID", "worker-local")).strip()
     worker_idle_sleep_seconds = _float_value(
@@ -58,6 +66,8 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         jobs_dir=jobs_dir,
         queue_dir=queue_dir,
         queue_lease_ttl_seconds=queue_lease_ttl_seconds,
+        do_template_library_dir=do_template_library_dir,
+        stata_cmd=stata_cmd,
         log_level=log_level,
         worker_id=worker_id,
         worker_idle_sleep_seconds=worker_idle_sleep_seconds,

@@ -129,3 +129,102 @@ class QueueDataCorruptedError(SSError):
             status_code=500,
         )
 
+
+class DoTemplateIndexNotFoundError(SSError):
+    def __init__(self, *, path: str):
+        super().__init__(
+            error_code="DO_TEMPLATE_INDEX_NOT_FOUND",
+            message=f"do template index not found: {path}",
+            status_code=500,
+        )
+
+
+class DoTemplateIndexCorruptedError(SSError):
+    def __init__(self, *, reason: str, template_id: str | None = None):
+        suffix = ""
+        if template_id is not None and template_id != "":
+            suffix = f" (template_id={template_id})"
+        super().__init__(
+            error_code="DO_TEMPLATE_INDEX_CORRUPTED",
+            message=f"do template index corrupted: {reason}{suffix}",
+            status_code=500,
+        )
+
+
+class DoTemplateNotFoundError(SSError):
+    def __init__(self, *, template_id: str):
+        super().__init__(
+            error_code="DO_TEMPLATE_NOT_FOUND",
+            message=f"do template not found: {template_id}",
+            status_code=404,
+        )
+
+
+class DoTemplateSourceNotFoundError(SSError):
+    def __init__(self, *, template_id: str, path: str):
+        super().__init__(
+            error_code="DO_TEMPLATE_SOURCE_NOT_FOUND",
+            message=f"do template source not found: {template_id} ({path})",
+            status_code=404,
+        )
+
+
+class DoTemplateMetaNotFoundError(SSError):
+    def __init__(self, *, template_id: str, path: str):
+        super().__init__(
+            error_code="DO_TEMPLATE_META_NOT_FOUND",
+            message=f"do template meta not found: {template_id} ({path})",
+            status_code=404,
+        )
+
+
+class DoTemplateContractInvalidError(SSError):
+    def __init__(self, *, template_id: str, reason: str):
+        super().__init__(
+            error_code="DO_TEMPLATE_CONTRACT_INVALID",
+            message=f"do template contract invalid: {template_id} ({reason})",
+            status_code=500,
+        )
+
+
+class DoTemplateParameterMissingError(SSError):
+    def __init__(self, *, template_id: str, name: str):
+        super().__init__(
+            error_code="DO_TEMPLATE_PARAM_MISSING",
+            message=f"do template parameter missing: {template_id}:{name}",
+            status_code=400,
+        )
+
+
+class DoTemplateParameterInvalidError(SSError):
+    def __init__(self, *, template_id: str, name: str):
+        super().__init__(
+            error_code="DO_TEMPLATE_PARAM_INVALID",
+            message=f"do template parameter invalid: {template_id}:{name}",
+            status_code=400,
+        )
+
+
+class DoTemplateArtifactsWriteError(SSError):
+    def __init__(self, *, template_id: str, job_id: str, run_id: str, rel_path: str):
+        message = (
+            f"do template artifacts write failed: {template_id} "
+            f"({job_id}:{run_id}:{rel_path})"
+        )
+        super().__init__(
+            error_code="DO_TEMPLATE_ARTIFACTS_WRITE_FAILED",
+            message=message,
+            status_code=500,
+        )
+
+
+class StataCmdNotFoundError(SSError):
+    def __init__(self):
+        super().__init__(
+            error_code="STATA_CMD_NOT_FOUND",
+            message=(
+                "stata executable not found "
+                "(set SS_STATA_CMD or install Stata in default paths)"
+            ),
+            status_code=500,
+        )
