@@ -28,3 +28,13 @@
 - Key output:
   - `All checks passed!`
   - `12 passed in 0.06s`
+
+### 2026-01-06 11:47 rebase + local checks
+- Command:
+  - `git fetch origin main && git rebase origin/main`
+  - `. .venv/bin/activate && pip install -e '.[dev]'`
+  - `. .venv/bin/activate && ruff check .`
+  - `. .venv/bin/activate && pytest -q`
+- Key output:
+  - `All checks passed!`
+  - `17 passed in 0.24s`
