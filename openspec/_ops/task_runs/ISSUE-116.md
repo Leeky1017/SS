@@ -2,7 +2,7 @@
 
 - Issue: #116
 - Branch: task/116-stress-tests-exec
-- PR: (fill-after-created)
+- PR: https://github.com/Leeky1017/SS/pull/117
 
 ## Plan
 - Ensure stress tests actually execute queued jobs (drain worker queue)
@@ -26,3 +26,19 @@
 - Key output:
   - `All checks passed!`
   - `85 passed, 5 skipped in 3.45s`
+
+### 2026-01-07 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 PR create + auto-merge
+- Command:
+  - `git push -u origin HEAD`
+  - `gh pr create ...`
+  - `gh pr merge --auto --squash 117`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/117`
+  - `will be automatically merged via squash when all requirements are met`
