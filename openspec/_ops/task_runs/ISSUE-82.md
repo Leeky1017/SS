@@ -2,7 +2,7 @@
 
 - Issue: #82
 - Branch: task/82-llm-timeout-retry
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/85
 
 ## Plan
 - Add LLM timeout/retry config
@@ -20,3 +20,9 @@
   - `All checks passed!`
   - `63 passed`
   - `Totals: 16 passed, 0 failed (16 items)`
+
+### 2026-01-07 PR + auto-merge
+- Command:
+  - `scripts/agent_pr_automerge_and_sync.sh`
+- Key output:
+  - `OK: merged PR #85 and synced controlplane main`
