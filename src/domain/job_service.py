@@ -195,7 +195,9 @@ class JobService:
             from_status=job.status,
             to_status=JobStatus.QUEUED,
         ):
-            transitions.append({"from_status": job.status.value, "to_status": JobStatus.QUEUED.value})
+            transitions.append(
+                {"from_status": job.status.value, "to_status": JobStatus.QUEUED.value}
+            )
             job.status = JobStatus.QUEUED
             if job.scheduled_at is None:
                 job.scheduled_at = utc_now().isoformat()
