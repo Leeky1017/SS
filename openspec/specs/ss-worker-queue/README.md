@@ -13,8 +13,13 @@ MVP 可以从 file-based queue 开始，但必须可替换：
 - claim：原子化（rename/lock）
 - ack/release：成功确认/失败释放或延迟重试
 
+## Scalability（吞吐量与扩展路径）
+
+- Throughput envelope (file queue + targets): `throughput.md`
+- Production backend recommendation: `decision.md`
+- Migration plan (file → production backend): `migration.md`
+
 ## 重试（建议）
 
 - `max_attempts` 与 backoff MUST 可配置（来自 `Config`）。
 - 达到上限 MUST 置为 `failed`，并保留错误证据 artifacts。
-

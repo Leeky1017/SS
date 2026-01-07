@@ -45,3 +45,27 @@ Retry/backoff and maximum attempts MUST be configurable via `src/config.py`, and
 #### Scenario: Retries stop after max_attempts
 - **WHEN** repeated failures reach the configured attempt limit
 - **THEN** the job ends in `failed` with preserved evidence
+
+### Requirement: Queue throughput constraints are explicit
+
+SS MUST document queue throughput targets and the operating constraints for the current file-backed queue (including worker-count assumptions and claim latency expectations).
+
+#### Scenario: Throughput envelope is documented
+- **WHEN** reading `openspec/specs/ss-worker-queue/throughput.md`
+- **THEN** it defines measurable targets and a clear migration trigger
+
+### Requirement: Production queue backend decision is documented
+
+SS MUST document the recommended production queue backend (and alternatives) aligned with JobStore deployment decisions.
+
+#### Scenario: Decision record exists
+- **WHEN** reading `openspec/specs/ss-worker-queue/decision.md`
+- **THEN** it compares at least PostgreSQL and Redis (and states a concrete decision)
+
+### Requirement: Queue migration path is explicit
+
+SS MUST define an explicit migration plan from the file queue to a production queue backend, including rollout steps and a fallback plan.
+
+#### Scenario: Migration doc exists
+- **WHEN** reading `openspec/specs/ss-worker-queue/migration.md`
+- **THEN** it defines rollout steps, fallback steps, and validation guidance
