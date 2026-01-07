@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import cast
@@ -30,6 +31,7 @@ def _clear_dependency_caches() -> None:
     deps.get_llm_client.cache_clear()
     deps.get_job_state_machine.cache_clear()
     deps.get_job_idempotency.cache_clear()
+    deps.get_metrics.cache_clear()
     deps.get_artifacts_service.cache_clear()
 
 
@@ -52,15 +54,30 @@ def create_app() -> FastAPI:
     app = FastAPI(title="SS", version="0.0.0", lifespan=lifespan)
     app.state.config = config
     app.state.shutting_down = False
+    from src.api.deps import get_metrics
+
+    metrics = get_metrics()
 
     @app.middleware("http")
     async def reject_during_shutdown(
         request: Request, call_next: RequestResponseEndpoint
     ) -> Response:
+        started = time.perf_counter()
         if getattr(request.app.state, "shutting_down", False):
             response = _handle_ss_error(request, ServiceShuttingDownError())
         else:
             response = await call_next(request)
+
+        duration = time.perf_counter() - started
+        route_path = getattr(request.scope.get("route"), "path", None)
+        route = route_path if isinstance(route_path, str) else "unmatched"
+        if request.url.path != "/metrics":
+            metrics.observe_http_request(
+                method=request.method,
+                route=str(route),
+                status_code=response.status_code,
+                duration_seconds=duration,
+            )
 
         if is_legacy_unversioned_path(request.url.path):
             add_legacy_deprecation_headers(response)

@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import Callable
 
 from src.domain.job_store import JobStore
+from src.domain.metrics import NoopMetrics, RuntimeMetrics
 from src.domain.models import Job, JobStatus
 from src.domain.stata_runner import StataRunner
 from src.domain.state_machine import JobStateMachine
@@ -55,6 +56,7 @@ class WorkerService:
         runner: StataRunner,
         state_machine: JobStateMachine,
         retry: WorkerRetryPolicy,
+        metrics: RuntimeMetrics | None = None,
         clock: Callable[[], datetime] = utc_now,
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
@@ -63,6 +65,7 @@ class WorkerService:
         self._runner = runner
         self._state_machine = state_machine
         self._retry = retry
+        self._metrics = NoopMetrics() if metrics is None else metrics
         self._clock = clock
         self._sleep = sleep
 
@@ -109,12 +112,16 @@ class WorkerService:
             return
         if not self._ensure_job_claimable(job=job, claim=claim):
             return
-        self._run_job_with_retries(
-            job=job,
-            claim=claim,
-            stop_requested=stop,
-            shutdown_deadline=deadline,
-        )
+        self._metrics.worker_inflight_inc(worker_id=claim.worker_id)
+        try:
+            self._run_job_with_retries(
+                job=job,
+                claim=claim,
+                stop_requested=stop,
+                shutdown_deadline=deadline,
+            )
+        finally:
+            self._metrics.worker_inflight_dec(worker_id=claim.worker_id)
 
     def _load_job_or_handle(self, *, claim: QueueClaim) -> Job | None:
         try:
@@ -259,6 +266,7 @@ class WorkerService:
             job.status = status
         self._store.save(job)
         logger.info("SS_WORKER_JOB_DONE", extra={"job_id": job.job_id, "status": job.status.value})
+        self._metrics.record_job_finished(status=status.value)
 
     def _release_claim_on_shutdown(self, *, claim: QueueClaim, event: str) -> None:
         logger.info(

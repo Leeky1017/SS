@@ -7,6 +7,7 @@ from typing import cast
 
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_store import JobStore
+from src.domain.metrics import NoopMetrics, RuntimeMetrics
 from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobInputs, JobStatus
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import JobAlreadyExistsError
@@ -39,11 +40,13 @@ class JobService:
         scheduler: JobScheduler,
         state_machine: JobStateMachine,
         idempotency: JobIdempotency,
+        metrics: RuntimeMetrics | None = None,
     ):
         self._store = store
         self._scheduler = scheduler
         self._state_machine = state_machine
         self._idempotency = idempotency
+        self._metrics = NoopMetrics() if metrics is None else metrics
 
     def create_job(
         self,
@@ -79,6 +82,7 @@ class JobService:
             )
             return existing
         logger.info("SS_JOB_CREATED", extra={"job_id": job_id, "idempotency_key": idempotency_key})
+        self._metrics.record_job_created()
         return job
 
     def confirm_job(self, *, job_id: str, confirmed: bool) -> Job:

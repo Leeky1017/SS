@@ -28,6 +28,7 @@ class Config:
     worker_max_attempts: int
     worker_retry_backoff_base_seconds: float
     worker_retry_backoff_max_seconds: float
+    worker_metrics_port: int
 
 
 def _int_value(raw: str, *, default: int) -> int:
@@ -94,6 +95,7 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         str(e.get("SS_WORKER_RETRY_BACKOFF_MAX_SECONDS", "30.0")),
         default=30.0,
     )
+    worker_metrics_port = _int_value(str(e.get("SS_WORKER_METRICS_PORT", "8001")), default=8001)
     return Config(
         jobs_dir=jobs_dir,
         job_store_backend=job_store_backend,
@@ -114,4 +116,5 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         worker_max_attempts=worker_max_attempts,
         worker_retry_backoff_base_seconds=worker_retry_backoff_base_seconds,
         worker_retry_backoff_max_seconds=worker_retry_backoff_max_seconds,
+        worker_metrics_port=worker_metrics_port,
     )

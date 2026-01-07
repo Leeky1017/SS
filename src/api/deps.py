@@ -9,10 +9,12 @@ from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobScheduler, JobService
 from src.domain.job_store import JobStore
 from src.domain.llm_client import LLMClient, StubLLMClient
+from src.domain.metrics import RuntimeMetrics
 from src.domain.state_machine import JobStateMachine
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store_factory import build_job_store
 from src.infra.llm_tracing import TracedLLMClient
+from src.infra.prometheus_metrics import PrometheusMetrics
 from src.infra.queue_job_scheduler import QueueJobScheduler
 
 
@@ -61,6 +63,15 @@ def get_job_idempotency() -> JobIdempotency:
     return JobIdempotency()
 
 
+@lru_cache
+def get_metrics() -> PrometheusMetrics:
+    return PrometheusMetrics()
+
+
+def get_runtime_metrics() -> RuntimeMetrics:
+    return get_metrics()
+
+
 def get_job_scheduler() -> JobScheduler:
     return QueueJobScheduler(queue=get_worker_queue())
 
@@ -71,6 +82,7 @@ def get_job_service() -> JobService:
         scheduler=get_job_scheduler(),
         state_machine=get_job_state_machine(),
         idempotency=get_job_idempotency(),
+        metrics=get_runtime_metrics(),
     )
 
 
