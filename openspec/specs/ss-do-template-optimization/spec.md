@@ -140,13 +140,18 @@ The evidence artifacts MUST be indexed as job artifacts and MUST use enumerated 
 
 ### Requirement: Template composition is explicit and minimal (no hidden workflow engine)
 
-If SS supports multi-template runs, it MUST do so as an explicit ordered pipeline with explicit input/output wiring (no implicit state transfer).
+If SS supports multi-template runs, it MUST do so as an explicit composition plan with explicit input/output wiring and dataset roles (no implicit state transfer).
+The composition mechanism MUST remain minimal and MUST only support a small closed set of modes (see `COMPOSITION_ARCHITECTURE.md`):
+- sequential
+- merge-then-sequential
+- parallel-then-aggregate
+- conditional
 
 #### Scenario: Pipeline execution is auditable
-- **GIVEN** a pipeline with N template steps
+- **GIVEN** a composition plan with N steps and explicit data-flow bindings
 - **WHEN** executing the pipeline
 - **THEN** SS archives per-step template source/meta/params/logs/outputs
-- **AND** records the wiring decisions (which output fed which next-step input)
+- **AND** records the wiring decisions (datasets/outputs feeding downstream inputs, plus merge/aggregate/branch decisions)
 
 ### Requirement: Quality gates produce reproducible evidence
 
