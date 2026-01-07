@@ -49,6 +49,18 @@ class JobAlreadyExistsError(SSError):
         )
 
 
+class JobVersionConflictError(SSError):
+    def __init__(self, *, job_id: str, expected_version: int, actual_version: int):
+        super().__init__(
+            error_code="JOB_VERSION_CONFLICT",
+            message=(
+                f"job version conflict: {job_id} "
+                f"(expected_version={expected_version}, actual_version={actual_version})"
+            ),
+            status_code=409,
+        )
+
+
 class JobDataCorruptedError(SSError):
     def __init__(self, *, job_id: str):
         super().__init__(

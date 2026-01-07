@@ -4,7 +4,7 @@ import json
 import logging
 
 
-def test_load_with_v1_job_json_migrates_to_v2_and_persists(store, jobs_dir, caplog) -> None:
+def test_load_with_v1_job_json_migrates_to_v3_and_persists(store, jobs_dir, caplog) -> None:
     # Arrange
     caplog.set_level(logging.INFO, logger="src.infra.job_store")
     job_id = "job_v1_migration"
@@ -28,17 +28,17 @@ def test_load_with_v1_job_json_migrates_to_v2_and_persists(store, jobs_dir, capl
     loaded = store.load(job_id)
 
     # Assert
-    assert loaded.schema_version == 2
+    assert loaded.schema_version == 3
+    assert loaded.version == 1
 
     persisted = json.loads(path.read_text(encoding="utf-8"))
-    assert persisted["schema_version"] == 2
+    assert persisted["schema_version"] == 3
+    assert persisted["version"] == 1
     assert persisted["runs"] == []
     assert persisted["artifacts_index"] == []
 
     records = [r for r in caplog.records if r.getMessage() == "SS_JOB_JSON_SCHEMA_MIGRATED"]
-    assert len(records) == 1
-    record = records[0]
-    assert getattr(record, "job_id") == job_id
-    assert getattr(record, "from_version") == 1
-    assert getattr(record, "to_version") == 2
-
+    assert len(records) == 2
+    steps = [(getattr(r, "from_version"), getattr(r, "to_version")) for r in records]
+    assert steps == [(1, 2), (2, 3)]
+    assert all(getattr(r, "job_id") == job_id for r in records)
