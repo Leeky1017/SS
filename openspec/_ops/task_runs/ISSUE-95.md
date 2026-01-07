@@ -2,7 +2,7 @@
 
 - Issue: #95
 - Branch: task/95-queue-throughput
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/99
 
 ## Plan
 - Measure file queue throughput ceiling
@@ -47,3 +47,10 @@
   - `All checks passed!`
   - `66 passed`
   - `Totals: 17 passed, 0 failed (17 items)`
+
+### 2026-01-07 14:15 PR
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/99`

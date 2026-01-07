@@ -27,3 +27,13 @@ Define a practical queue scalability plan (including throughput targets, failure
 ## Estimate
 
 - 8-12h
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/99
+- Notes:
+  - Throughput envelope + migration trigger: `openspec/specs/ss-worker-queue/throughput.md`
+  - Production backend decision (Postgres default; Redis/RabbitMQ options): `openspec/specs/ss-worker-queue/decision.md`
+  - Rollout/migration checklist: `openspec/specs/ss-worker-queue/migration.md`
+  - Repeatable benchmark script: `scripts/bench_queue_throughput.py`
+- Run log: `openspec/_ops/task_runs/ISSUE-95.md`
