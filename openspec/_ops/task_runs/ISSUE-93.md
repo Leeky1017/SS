@@ -33,3 +33,9 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 enable PR auto-merge
+- Command:
+  - `gh pr merge 97 --auto --squash`
+- Key output:
+  - `will be automatically merged`
