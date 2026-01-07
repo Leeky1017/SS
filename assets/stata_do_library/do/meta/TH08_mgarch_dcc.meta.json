@@ -39,7 +39,7 @@
     },
     {
       "description": "Time variable",
-      "name": "__TIMEVAR__",
+      "name": "__TIME_VAR__",
       "required": true,
       "type": "string"
     }

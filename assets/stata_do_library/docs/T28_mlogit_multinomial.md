@@ -85,8 +85,8 @@ $$RRR_j = e^{\beta_j}$$
 
 | 占位符 | 含义 | 类型 | 必填 | 合法取值示例 |
 |--------|------|------|------|-------------|
-| `__DEP_VAR__` | 因变量（无序多分类） | 单变量名 | ✓ 是 | `financing` |
-| `__INDEP_VARS__` | 自变量列表 | 空格分隔变量 | ✓ 是 | `size lev roa` |
+| `__DEPVAR__` | 因变量（无序多分类） | 单变量名 | ✓ 是 | `financing` |
+| `__INDEPVARS__` | 自变量列表 | 空格分隔变量 | ✓ 是 | `size lev roa` |
 | `__BASE_CATEGORY__` | 基准类别 | 数值 | ✓ 是 | `1` |
 
 ### 渲染规则
@@ -99,8 +99,8 @@ config = {
 }
 
 placeholders = {
-    "__DEP_VAR__": config["dep_var"],
-    "__INDEP_VARS__": " ".join(config["indep_vars"]),
+    "__DEPVAR__": config["dep_var"],
+    "__INDEPVARS__": " ".join(config["indep_vars"]),
     "__BASE_CATEGORY__": str(config["base_category"])
 }
 ```

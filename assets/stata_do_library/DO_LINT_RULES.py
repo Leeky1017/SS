@@ -93,6 +93,13 @@ class DoLinter:
         (r'^\s*sleep\s+', 'sleep会延迟执行'),
         (r'_request\s*\(', '_request()等待用户输入'),
     ]
+
+    # RULE-016: 禁止使用历史占位符变体（必须使用 canonical 形式）
+    DEPRECATED_PLACEHOLDERS = {
+        "__DEP_VAR__": "__DEPVAR__",
+        "__INDEP_VARS__": "__INDEPVARS__",
+        "__TIMEVAR__": "__TIME_VAR__",
+    }
     
     # RULE-010: 必需锚点 (v1.1 新格式)
     REQUIRED_ANCHORS_V11 = {
@@ -169,8 +176,18 @@ class DoLinter:
                         if pkg:
                             self.WHITELISTED_COMMANDS.add(pkg.lower())
                     break
-                except Exception:
-                    pass
+                except (OSError, UnicodeDecodeError) as e:
+                    print(
+                        json.dumps(
+                            {
+                                "event": "do_lint.whitelist_read_failed",
+                                "path": str(p),
+                                "error": str(e),
+                            },
+                            ensure_ascii=False,
+                        ),
+                        file=sys.stderr,
+                    )
         
         # 如果没找到白名单，使用已知命令作为默认
         if not self.WHITELISTED_COMMANDS:
@@ -186,8 +203,11 @@ class DoLinter:
             content = filepath.read_text(encoding='gbk')
         
         lines = content.split('\n')
-        
+
         # ===== 安全性检查 (CRITICAL) =====
+        # RULE-016: 禁止使用历史占位符变体
+        self._check_deprecated_placeholders(content, result)
+
         # RULE-001: 危险命令检查
         self._check_dangerous_commands(lines, result)
         
@@ -283,6 +303,25 @@ class DoLinter:
                         context=line.strip()[:80],
                         suggestion="使用相对路径,如 'data.dta' 或 'outputs/file.csv'"
                     ))
+
+    def _check_deprecated_placeholders(self, content: str, result: LintResult):
+        """RULE-016: 检查历史占位符变体（必须使用 canonical 形式）"""
+        found = [(legacy, self.DEPRECATED_PLACEHOLDERS[legacy]) for legacy in self.DEPRECATED_PLACEHOLDERS if legacy in content]
+        if not found:
+            return
+
+        for legacy, canonical in found:
+            result.issues.append(
+                LintIssue(
+                    rule_id="RULE-016",
+                    severity=Severity.CRITICAL,
+                    file=result.file,
+                    line=0,
+                    message=f"禁止使用历史占位符变体: {legacy}",
+                    context=legacy,
+                    suggestion=f"替换为 canonical 占位符: {canonical}",
+                )
+            )
     
     def _check_required_anchors(self, content: str, lines: List[str], result: LintResult):
         """RULE-003: 检查必需锚点"""

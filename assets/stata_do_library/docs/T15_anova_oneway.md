@@ -78,7 +78,7 @@ $$\omega^2 = \frac{SS_{between} - df_{between} \cdot MS_{within}}{SS_{total} + M
 
 | 占位符 | 含义 | 类型 | 必填 | 合法取值示例 |
 |--------|------|------|------|-------------|
-| `__DEP_VAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
+| `__DEPVAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
 | `__GROUP_VAR__` | 分组变量 | 单变量名 | ✓ 是 | `industry` |
 
 ### 渲染规则
@@ -91,7 +91,7 @@ config = {
 }
 
 placeholders = {
-    "__DEP_VAR__": config["dep_var"],
+    "__DEPVAR__": config["dep_var"],
     "__GROUP_VAR__": config["group_var"]
 }
 ```

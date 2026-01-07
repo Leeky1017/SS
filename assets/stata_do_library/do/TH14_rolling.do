@@ -35,7 +35,7 @@ display "SS_DEP_CHECK|pkg=asreg|source=ssc|status=ok"
 
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
-local timevar = "__TIMEVAR__"
+local timevar = "__TIME_VAR__"
 local window = __WINDOW__
 
 display "SS_STEP_BEGIN|step=S01_load_data"

@@ -33,7 +33,7 @@ Spatial panel data model
 | `__DEPVAR__` | string | 是 | Dependent variable |
 | `__INDEPVARS__` | list[string] | 是 | Independent variables |
 | `__PANELVAR__` | string | 是 | Panel variable |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 
 ## 输出
 

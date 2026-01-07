@@ -19,7 +19,7 @@
 * Description:  估计单自变量对因变量的线性关系，
 *               包含回归诊断、异方差检验、正态性检验和可视化
 * 
-* Placeholders: __DEP_VAR__    - 因变量
+* Placeholders: __DEPVAR__    - 因变量
 *               __INDEP_VAR__  - 自变量
 *
 * Author:       Stata Task Template System
@@ -115,7 +115,7 @@ display "═══════════════════════�
 display "SECTION 1: 变量检查"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-local dep_var "__DEP_VAR__"
+local dep_var "__DEPVAR__"
 local indep_var "__INDEP_VAR__"
 
 capture confirm variable `dep_var'

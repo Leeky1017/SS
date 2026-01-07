@@ -31,7 +31,7 @@ Draw group mean trend over time
 | 占位符 | 类型 | 必需 | 说明 |
 |--------|------|------|------|
 | `__YVAR__` | string | 是 | Y variable |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 | `__GROUP_VAR__` | string | 是 | Group variable |
 
 ## 输出

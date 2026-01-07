@@ -23,7 +23,7 @@ display "SS_TASK_BEGIN|id=TI05|level=L1|title=Stratified_Cox"
 display "SS_TASK_VERSION:2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
-local timevar = "__TIMEVAR__"
+local timevar = "__TIME_VAR__"
 local failvar = "__FAILVAR__"
 local indepvars = "__INDEPVARS__"
 local strata_var = "__STRATA_VAR__"

@@ -28,7 +28,7 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
 local panelvar = "__PANELVAR__"
-local timevar = "__TIMEVAR__"
+local timevar = "__TIME_VAR__"
 local ll = __LL__
 
 display "SS_STEP_BEGIN|step=S01_load_data"

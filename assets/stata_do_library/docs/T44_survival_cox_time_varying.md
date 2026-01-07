@@ -83,7 +83,7 @@ $$h(t|X(t)) = h_0(t) \cdot \exp(\beta' X(t))$$
 | `__START_VAR__` | 区间起点 | 单变量名 | ✓ 是 | `tstart` |
 | `__STOP_VAR__` | 区间终点 | 单变量名 | ✓ 是 | `tstop` |
 | `__EVENT_VAR__` | 事件指示 | 单变量名 | ✓ 是 | `default` |
-| `__INDEP_VARS__` | 协变量列表 | 多变量名 | ✓ 是 | `rating leverage` |
+| `__INDEPVARS__` | 协变量列表 | 多变量名 | ✓ 是 | `rating leverage` |
 
 ### 数据格式示例
 

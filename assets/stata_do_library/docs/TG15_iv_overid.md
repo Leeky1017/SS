@@ -30,7 +30,7 @@ Overidentification tests for IV
 
 | 占位符 | 类型 | 必需 | 说明 |
 |--------|------|------|------|
-| `__DEP_VAR__` | string | 是 | Dependent variable |
+| `__DEPVAR__` | string | 是 | Dependent variable |
 | `__ENDOG_VAR__` | string | 是 | Endogenous variable |
 | `__INSTRUMENTS__` | string | 是 | Instruments |
 | `__EXOG_VARS__` | string | 否 | Exogenous controls |

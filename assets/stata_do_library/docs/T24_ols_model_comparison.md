@@ -77,7 +77,7 @@ $$LR = 2(\ln L_{full} - \ln L_{restricted}) \sim \chi^2(q)$$
 
 | 占位符 | 含义 | 类型 | 必填 | 合法取值示例 |
 |--------|------|------|------|-------------|
-| `__DEP_VAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
+| `__DEPVAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
 | `__BASE_VARS__` | 基础模型变量 | 空格分隔变量 | ✓ 是 | `size lev` |
 | `__FULL_VARS__` | 完整模型变量 | 空格分隔变量 | ✓ 是 | `size lev growth age soe` |
 
@@ -91,7 +91,7 @@ config = {
 }
 
 placeholders = {
-    "__DEP_VAR__": config["dep_var"],
+    "__DEPVAR__": config["dep_var"],
     "__BASE_VARS__": " ".join(config["base_vars"]),
     "__FULL_VARS__": " ".join(config["full_vars"])
 }

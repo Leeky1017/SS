@@ -34,7 +34,7 @@ Hansen panel threshold model
 | `__INDEPVARS__` | string | 是 | Independent variables |
 | `__THRESHOLD_VAR__` | string | 是 | Threshold variable |
 | `__PANELVAR__` | string | 是 | Panel variable |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 
 ## 输出
 

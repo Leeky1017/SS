@@ -37,7 +37,7 @@ display "SS_DEP_CHECK|pkg=reghdfe|source=ssc|status=ok"
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
 local panelvar = "__PANELVAR__"
-local timevar = "__TIMEVAR__"
+local timevar = "__TIME_VAR__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"

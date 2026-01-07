@@ -308,7 +308,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
+      "__DEPVAR__",
       "__GROUP_VAR__"
     ],
     "outputs": [
@@ -350,7 +350,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
+      "__DEPVAR__",
       "__INDEP_VAR__"
     ],
     "outputs": [
@@ -372,8 +372,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__"
+      "__DEPVAR__",
+      "__INDEPVARS__"
     ],
     "outputs": [
       "result.log",
@@ -394,8 +394,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__"
+      "__DEPVAR__",
+      "__INDEPVARS__"
     ],
     "outputs": [
       "result.log",
@@ -416,8 +416,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__",
+      "__DEPVAR__",
+      "__INDEPVARS__",
       "__CLUSTER_VAR__"
     ],
     "outputs": [
@@ -438,8 +438,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__",
+      "__DEPVAR__",
+      "__INDEPVARS__",
       "__INTERACT_VAR1__",
       "__INTERACT_VAR2__"
     ],
@@ -461,8 +461,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__",
+      "__DEPVAR__",
+      "__INDEPVARS__",
       "__ENTITY_VAR__"
     ],
     "outputs": [
@@ -482,8 +482,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__",
+      "__DEPVAR__",
+      "__INDEPVARS__",
       "__TIME_VAR__"
     ],
     "outputs": [
@@ -504,7 +504,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
+      "__DEPVAR__",
       "__BASE_VARS__",
       "__FULL_VARS__"
     ],
@@ -525,8 +525,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__"
+      "__DEPVAR__",
+      "__INDEPVARS__"
     ],
     "outputs": [
       "result.log",
@@ -546,8 +546,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__"
+      "__DEPVAR__",
+      "__INDEPVARS__"
     ],
     "outputs": [
       "result.log",
@@ -566,8 +566,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__"
+      "__DEPVAR__",
+      "__INDEPVARS__"
     ],
     "outputs": [
       "result.log",
@@ -586,8 +586,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__",
+      "__DEPVAR__",
+      "__INDEPVARS__",
       "__BASE_CATEGORY__"
     ],
     "outputs": [
@@ -606,8 +606,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__"
+      "__DEPVAR__",
+      "__INDEPVARS__"
     ],
     "outputs": [
       "result.log",
@@ -645,8 +645,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__",
+      "__DEPVAR__",
+      "__INDEPVARS__",
       "__ID_VAR__",
       "__TIME_VAR__"
     ],
@@ -668,8 +668,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__",
+      "__DEPVAR__",
+      "__INDEPVARS__",
       "__ID_VAR__",
       "__TIME_VAR__"
     ],
@@ -691,8 +691,8 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
-      "__INDEP_VARS__",
+      "__DEPVAR__",
+      "__INDEPVARS__",
       "__ID_VAR__",
       "__TIME_VAR__"
     ],
@@ -714,7 +714,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
+      "__DEPVAR__",
       "__TREAT_VAR__",
       "__POST_VAR__",
       "__CONTROL_VARS__"
@@ -737,7 +737,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
+      "__DEPVAR__",
       "__TREAT_VAR__",
       "__TIME_VAR__",
       "__EVENT_TIME__",
@@ -917,7 +917,7 @@
     "placeholders": [
       "__TIME_VAR__",
       "__EVENT_VAR__",
-      "__INDEP_VARS__"
+      "__INDEPVARS__"
     ],
     "outputs": [
       "result.log",
@@ -941,7 +941,7 @@
       "__START_VAR__",
       "__STOP_VAR__",
       "__EVENT_VAR__",
-      "__INDEP_VARS__"
+      "__INDEPVARS__"
     ],
     "outputs": [
       "result.log",
@@ -1044,8 +1044,8 @@
     ],
     "placeholders": [
       "__NUMERIC_VARS__",
-      "__DEP_VAR__",
-      "__INDEP_VARS__"
+      "__DEPVAR__",
+      "__INDEPVARS__"
     ],
     "outputs": [
       "result.log",
@@ -1477,7 +1477,7 @@
     ],
     "placeholders": [
       "__YVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -1496,7 +1496,7 @@
     ],
     "placeholders": [
       "__YVAR__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__GROUP_VAR__"
     ],
     "outputs": [
@@ -1805,7 +1805,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2243,7 +2243,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2264,7 +2264,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2285,7 +2285,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2306,7 +2306,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2327,7 +2327,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2348,7 +2348,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2370,7 +2370,7 @@
       "__INDEPVARS__",
       "__THRESHOLD_VAR__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2391,7 +2391,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__LL__"
     ],
     "outputs": [
@@ -2413,7 +2413,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2434,7 +2434,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2455,7 +2455,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2496,7 +2496,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2516,7 +2516,7 @@
     "placeholders": [
       "__VARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -2812,7 +2812,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
+      "__DEPVAR__",
       "__ENDOG_VAR__",
       "__INSTRUMENTS__",
       "__EXOG_VARS__",
@@ -2836,7 +2836,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
+      "__DEPVAR__",
       "__ENDOG_VAR__",
       "__INSTRUMENTS__",
       "__EXOG_VARS__"
@@ -2857,7 +2857,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
+      "__DEPVAR__",
       "__ENDOG_VAR__",
       "__INSTRUMENTS__",
       "__EXOG_VARS__",
@@ -2878,7 +2878,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__DEP_VAR__",
+      "__DEPVAR__",
       "__ENDOG_VAR__",
       "__INSTRUMENTS__",
       "__EXOG_VARS__",
@@ -3113,7 +3113,7 @@
     ],
     "placeholders": [
       "__VAR__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__MAXLAG__"
     ],
     "outputs": [
@@ -3133,7 +3133,7 @@
     ],
     "placeholders": [
       "__VAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -3152,7 +3152,7 @@
     ],
     "placeholders": [
       "__VAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -3171,7 +3171,7 @@
     ],
     "placeholders": [
       "__VAR__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__P__",
       "__D__",
       "__Q__",
@@ -3198,7 +3198,7 @@
     ],
     "placeholders": [
       "__VAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -3218,7 +3218,7 @@
     ],
     "placeholders": [
       "__VAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -3237,7 +3237,7 @@
     ],
     "placeholders": [
       "__VAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -3256,7 +3256,7 @@
     ],
     "placeholders": [
       "__VARS__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -3275,7 +3275,7 @@
     ],
     "placeholders": [
       "__VARS__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__LAGS__"
     ],
     "outputs": [
@@ -3295,7 +3295,7 @@
     ],
     "placeholders": [
       "__VARS__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__LAGS__",
       "__RANK__"
     ],
@@ -3316,7 +3316,7 @@
     ],
     "placeholders": [
       "__VARS__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__LAGS__",
       "__STEPS__"
     ],
@@ -3337,7 +3337,7 @@
     ],
     "placeholders": [
       "__VARS__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__LAGS__",
       "__STEPS__"
     ],
@@ -3359,7 +3359,7 @@
     ],
     "placeholders": [
       "__VARS__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__LAGS__"
     ],
     "outputs": [
@@ -3380,7 +3380,7 @@
     "placeholders": [
       "__DEPVAR__",
       "__INDEPVARS__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__WINDOW__"
     ],
     "outputs": [
@@ -3400,7 +3400,7 @@
     ],
     "placeholders": [
       "__DEPVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -3418,7 +3418,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__FAILVAR__",
       "__INDEPVARS__"
     ],
@@ -3438,7 +3438,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__FAILVAR__",
       "__INDEPVARS__"
     ],
@@ -3458,7 +3458,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__FAILVAR__",
       "__INDEPVARS__",
       "__DIST__"
@@ -3479,7 +3479,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__FAILVAR__",
       "__INDEPVARS__"
     ],
@@ -3499,7 +3499,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__FAILVAR__",
       "__INDEPVARS__",
       "__STRATA__"
@@ -3520,7 +3520,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__FAILVAR__",
       "__INDEPVARS__"
     ],
@@ -3541,7 +3541,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__FAILVAR__",
       "__INDEPVARS__",
       "__GROUPVAR__"
@@ -3562,7 +3562,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__FAILVAR__",
       "__INDEPVARS__",
       "__CUTPOINTS__"
@@ -3583,7 +3583,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__FAILVAR__",
       "__INDEPVARS__"
     ],
@@ -3603,7 +3603,7 @@
       "data.csv"
     ],
     "placeholders": [
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__FAILVAR__",
       "__INDEPVARS__"
     ],
@@ -4910,7 +4910,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -5116,7 +5116,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -5138,7 +5138,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -5639,7 +5639,7 @@
     ],
     "placeholders": [
       "__DEPVAR__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__GROUPVAR__"
     ],
     "outputs": [
@@ -5739,7 +5739,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__"
+      "__TIME_VAR__"
     ],
     "outputs": [
       "result.log",
@@ -6076,7 +6076,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__FAMILY__",
       "__CORR__"
     ],
@@ -6099,7 +6099,7 @@
       "__DEPVAR__",
       "__INDEPVARS__",
       "__PANELVAR__",
-      "__TIMEVAR__",
+      "__TIME_VAR__",
       "__CORR__"
     ],
     "outputs": [

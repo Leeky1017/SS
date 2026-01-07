@@ -61,7 +61,7 @@
     },
     {
       "description": "Covariate list (space-separated)",
-      "name": "__INDEP_VARS__",
+      "name": "__INDEPVARS__",
       "required": true,
       "type": "list[string]"
     }

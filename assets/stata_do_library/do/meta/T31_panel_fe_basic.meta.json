@@ -55,7 +55,7 @@
     },
     {
       "description": "Dependent variable",
-      "name": "__DEP_VAR__",
+      "name": "__DEPVAR__",
       "required": true,
       "type": "string"
     },
@@ -67,7 +67,7 @@
     },
     {
       "description": "Independent variables",
-      "name": "__INDEP_VARS__",
+      "name": "__INDEPVARS__",
       "required": true,
       "type": "list[string]"
     },

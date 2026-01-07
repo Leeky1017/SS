@@ -17,8 +17,8 @@
 * Family:       D - 线性回归
 * Description:  加入时间虚拟变量控制时间效应
 * 
-* Placeholders: __DEP_VAR__     - 因变量
-*               __INDEP_VARS__  - 自变量列表
+* Placeholders: __DEPVAR__     - 因变量
+*               __INDEPVARS__  - 自变量列表
 *               __TIME_VAR__    - 时间变量
 *
 * Author:       Stata Task Template System
@@ -108,8 +108,8 @@ display "═══════════════════════�
 display "SECTION 1: 变量检查与准备"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-local dep_var "__DEP_VAR__"
-local indep_vars "__INDEP_VARS__"
+local dep_var "__DEPVAR__"
+local indep_vars "__INDEPVARS__"
 local time_var "__TIME_VAR__"
 
 capture confirm variable `dep_var'

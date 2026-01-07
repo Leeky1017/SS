@@ -98,8 +98,8 @@ $$IRR = e^\beta$$
 
 | 占位符 | 含义 | 类型 | 必填 | 合法取值示例 |
 |--------|------|------|------|-------------|
-| `__DEP_VAR__` | 因变量（计数） | 单变量名 | ✓ 是 | `patent_count` |
-| `__INDEP_VARS__` | 自变量列表 | 空格分隔变量 | ✓ 是 | `rd size age` |
+| `__DEPVAR__` | 因变量（计数） | 单变量名 | ✓ 是 | `patent_count` |
+| `__INDEPVARS__` | 自变量列表 | 空格分隔变量 | ✓ 是 | `rd size age` |
 
 ### 渲染规则
 
@@ -110,8 +110,8 @@ config = {
 }
 
 placeholders = {
-    "__DEP_VAR__": config["dep_var"],
-    "__INDEP_VARS__": " ".join(config["indep_vars"])
+    "__DEPVAR__": config["dep_var"],
+    "__INDEPVARS__": " ".join(config["indep_vars"])
 }
 ```
 

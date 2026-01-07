@@ -392,10 +392,9 @@
       ],
       "needs_meta": true
     },
-    "__DEP_VAR__": {
+    "__DEPVAR__": {
       "aliases": [
-        "__DEPVAR__",
-        "__DEP_VAR__"
+        "__DEPVAR__"
       ],
       "needs_meta": false
     },
@@ -820,10 +819,9 @@
       ],
       "needs_meta": false
     },
-    "__INDEP_VARS__": {
+    "__INDEPVARS__": {
       "aliases": [
-        "__INDEPVARS__",
-        "__INDEP_VARS__"
+        "__INDEPVARS__"
       ],
       "needs_meta": false
     },
@@ -2140,7 +2138,6 @@
     },
     "__TIME_VAR__": {
       "aliases": [
-        "__TIMEVAR__",
         "__TIME_VAR__"
       ],
       "needs_meta": false

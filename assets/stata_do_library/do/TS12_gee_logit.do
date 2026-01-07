@@ -26,7 +26,7 @@ display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
 local panelvar = "__PANELVAR__"
-local timevar = "__TIMEVAR__"
+local timevar = "__TIME_VAR__"
 local corr = "__CORR__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"

@@ -14,8 +14,8 @@
 * Family:       E - 有限因变量模型
 * Description:  估计计数数据的Poisson或负二项回归模型
 * 
-* Placeholders: __DEP_VAR__     - 因变量（计数变量）
-*               __INDEP_VARS__  - 自变量列表
+* Placeholders: __DEPVAR__     - 因变量（计数变量）
+*               __INDEPVARS__  - 自变量列表
 *
 * Author:       Stata Task Template System
 * Stata:        18.0+ (official commands only)
@@ -93,8 +93,8 @@ display "═══════════════════════�
 display "SECTION 1: 变量检查与数据描述"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-local dep_var "__DEP_VAR__"
-local indep_vars "__INDEP_VARS__"
+local dep_var "__DEPVAR__"
+local indep_vars "__INDEPVARS__"
 
 * 模型类型：poisson（仅泊松）、nbreg（仅负二项）、both（两者都运行，默认）
 local model_type "__MODEL_TYPE__"

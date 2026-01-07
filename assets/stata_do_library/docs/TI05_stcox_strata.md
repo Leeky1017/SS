@@ -30,7 +30,7 @@ Stratified Cox proportional hazards model
 
 | 占位符 | 类型 | 必需 | 说明 |
 |--------|------|------|------|
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 | `__FAILVAR__` | string | 是 | Failure indicator |
 | `__INDEPVARS__` | list[string] | 否 | Covariates |
 | `__STRATA__` | string | 是 | Stratification variable |

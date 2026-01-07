@@ -16,7 +16,7 @@
 * Family:       D - 线性回归
 * Description:  比较多个回归模型的关键指标
 * 
-* Placeholders: __DEP_VAR__     - 因变量
+* Placeholders: __DEPVAR__     - 因变量
 *               __BASE_VARS__   - 基础模型变量
 *               __FULL_VARS__   - 完整模型变量
 *
@@ -107,7 +107,7 @@ display "═══════════════════════�
 display "SECTION 1: 变量检查与准备"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-local dep_var "__DEP_VAR__"
+local dep_var "__DEPVAR__"
 local base_vars "__BASE_VARS__"
 local full_vars "__FULL_VARS__"
 

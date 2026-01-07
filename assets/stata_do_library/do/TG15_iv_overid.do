@@ -39,7 +39,7 @@ foreach dep of local required_deps {
 display "SS_DEP_CHECK|pkg=ivreg2|source=ssc|status=ok"
 
 * ============ 参数设置 ============
-local dep_var = "__DEP_VAR__"
+local dep_var = "__DEPVAR__"
 local endog_var = "__ENDOG_VAR__"
 local instruments = "__INSTRUMENTS__"
 local exog_vars = "__EXOG_VARS__"

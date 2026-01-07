@@ -31,7 +31,7 @@ EGARCH asymmetric volatility model
 | 占位符 | 类型 | 必需 | 说明 |
 |--------|------|------|------|
 | `__VAR__` | string | 是 | Variable |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 
 ## 输出
 

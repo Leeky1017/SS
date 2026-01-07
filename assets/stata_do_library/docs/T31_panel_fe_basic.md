@@ -85,8 +85,8 @@ $$\rho = \frac{\sigma_u^2}{\sigma_u^2 + \sigma_e^2}$$
 
 | 占位符 | 含义 | 类型 | 必填 | 合法取值示例 |
 |--------|------|------|------|-------------|
-| `__DEP_VAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
-| `__INDEP_VARS__` | 自变量列表 | 空格分隔变量 | ✓ 是 | `size lev growth` |
+| `__DEPVAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
+| `__INDEPVARS__` | 自变量列表 | 空格分隔变量 | ✓ 是 | `size lev growth` |
 | `__ID_VAR__` | 个体标识 | 单变量名 | ✓ 是 | `stkcd` |
 | `__TIME_VAR__` | 时间变量 | 单变量名 | ✓ 是 | `year` |
 
@@ -101,8 +101,8 @@ config = {
 }
 
 placeholders = {
-    "__DEP_VAR__": config["dep_var"],
-    "__INDEP_VARS__": " ".join(config["indep_vars"]),
+    "__DEPVAR__": config["dep_var"],
+    "__INDEPVARS__": " ".join(config["indep_vars"]),
     "__ID_VAR__": config["id_var"],
     "__TIME_VAR__": config["time_var"]
 }

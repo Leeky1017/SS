@@ -17,7 +17,7 @@
 * Family:       F - 面板数据与政策评估
 * Description:  估计事件研究法DID模型
 * 
-* Placeholders: __DEP_VAR__     - 因变量
+* Placeholders: __DEPVAR__     - 因变量
 *               __TREAT_VAR__   - 处理组变量
 *               __TIME_VAR__    - 时间变量
 *               __EVENT_TIME__  - 事件时间变量
@@ -110,7 +110,7 @@ display "═══════════════════════�
 display "SECTION 1: 变量检查与面板设置"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-local dep_var "__DEP_VAR__"
+local dep_var "__DEPVAR__"
 local treat_var "__TREAT_VAR__"
 local time_var "__TIME_VAR__"
 local event_time "__EVENT_TIME__"

@@ -33,7 +33,7 @@ Panel Tobit model for censored data
 | `__DEPVAR__` | string | 是 | Dependent variable |
 | `__INDEPVARS__` | string | 是 | Independent variables |
 | `__PANELVAR__` | string | 是 | Panel variable |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 | `__LL__` | number | 是 | Lower limit |
 
 ## 输出

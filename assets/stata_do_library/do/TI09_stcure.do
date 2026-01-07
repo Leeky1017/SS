@@ -33,7 +33,7 @@ if _rc {
 }
 display "SS_DEP_CHECK|pkg=stcure|source=ssc|status=ok"
 
-local timevar = "__TIMEVAR__"
+local timevar = "__TIME_VAR__"
 local failvar = "__FAILVAR__"
 local indepvars = "__INDEPVARS__"
 

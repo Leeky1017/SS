@@ -25,7 +25,7 @@ display "SS_TASK_VERSION:2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 local var = "__VAR__"
-local timevar = "__TIMEVAR__"
+local timevar = "__TIME_VAR__"
 local p = __P__
 local d = __D__
 local q = __Q__

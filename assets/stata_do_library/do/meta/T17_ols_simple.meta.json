@@ -56,7 +56,7 @@
   "parameters": [
     {
       "description": "Dependent variable (Y)",
-      "name": "__DEP_VAR__",
+      "name": "__DEPVAR__",
       "required": true,
       "type": "string"
     },

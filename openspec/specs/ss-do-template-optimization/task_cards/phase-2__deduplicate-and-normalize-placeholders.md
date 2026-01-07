@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #155
 - Parent: #125
 - Related specs:
   - `openspec/specs/ss-do-template-optimization/README.md`
@@ -40,4 +40,3 @@ Reduce redundancy in the selectable template set and standardize high-frequency 
 - [ ] Placeholder normalization is enforced or deterministically normalized in rendering
 - [ ] Index regeneration reflects the new inventory (no stale IDs)
 - [ ] CI gates catch header/meta/anchor inconsistencies introduced by the merge
-
