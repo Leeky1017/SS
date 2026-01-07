@@ -29,3 +29,10 @@ Issue: #94
 - [x] Tests validate state continuity across steps (`job_id` persists; `draft` and artifacts evolve)
 - [x] Duplicate/rapid submissions do not create duplicated jobs (or are explicitly rejected)
 - [x] Recovery cases (reload / retry) are idempotent and do not corrupt job state
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/98
+- Added A–D user journey tests under `tests/user_journeys/`
+- Verified locally: `.venv/bin/ruff check .`, `.venv/bin/pytest -q`
+- Run log: `openspec/_ops/task_runs/ISSUE-94.md`
