@@ -2,7 +2,7 @@
 
 - Issue: #71
 - Branch: task/71-taskcard-hygiene
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/73
 
 ## Plan
 - Audit roadmap issue status vs task cards
@@ -73,3 +73,10 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 Open PR
+- Command:
+  - `git push -u origin HEAD`
+  - `gh pr create --base main --head task/71-taskcard-hygiene --title "docs: taskcard completion hygiene (#71)" --body "Closes #71 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/73`
