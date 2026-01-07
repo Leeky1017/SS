@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
 from src.api.deps import get_config, get_llm_client
-from src.api.schemas import HealthResponse
+from src.api.schemas import HealthCheck, HealthResponse
 from src.config import Config
 from src.domain.health_service import HealthService
 from src.domain.llm_client import LLMClient
@@ -17,7 +17,7 @@ router = APIRouter()
 def health_live() -> HealthResponse:
     return HealthResponse(
         status="ok",
-        checks={"process": {"ok": True}},
+        checks={"process": HealthCheck(ok=True)},
         checked_at=utc_now().isoformat(),
     )
 
@@ -40,7 +40,7 @@ def health_ready(
     payload = HealthResponse(
         status="ok" if report.ok else "unhealthy",
         checks={
-            name: {"ok": check.ok, "detail": check.detail}
+            name: HealthCheck(ok=check.ok, detail=check.detail)
             for name, check in report.checks.items()
         },
         checked_at=utc_now().isoformat(),
