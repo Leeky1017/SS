@@ -36,3 +36,18 @@
   - `All checks passed!`
   - `78 passed in 2.62s`
   - `Totals: 17 passed, 0 failed (17 items)`
+
+### 2026-01-07 07:42 Closeout: tracing config + span map
+- Config (deployment):
+  - `SS_TRACING_ENABLED=1`
+  - `SS_TRACING_EXPORTER=otlp` (or `console` for local)
+  - `SS_TRACING_OTLP_ENDPOINT=http://localhost:4318/v1/traces`
+  - `SS_TRACING_SAMPLE_RATIO=1.0`
+- Span names:
+  - `ss.job.create`
+  - `ss.job.enqueue`
+  - `ss.queue.claim`
+  - `ss.llm.draft_preview`
+  - `ss.stata.run`
+- Result:
+  - PR merged: https://github.com/Leeky1017/SS/pull/118
