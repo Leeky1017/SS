@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 from src.domain.llm_client import LLMClient, LLMProviderError
-from src.domain.models import Draft, Job
+from src.domain.models import Job
 from src.domain.worker_retry import backoff_seconds, normalized_max_attempts
 
 
@@ -32,7 +32,7 @@ def normalized_backoff_seconds(value: float | None, *, default: float) -> float:
 
 @dataclass(frozen=True)
 class CallOutcome:
-    draft: Draft | None
+    text: str | None
     response_text: str
     error: Exception | None
     attempts: int
@@ -171,7 +171,7 @@ def retry_delay_seconds(*, attempt: int, base_seconds: float, max_seconds: float
     return backoff_seconds(attempt=attempt, base_seconds=base_seconds, max_seconds=max_seconds)
 
 
-async def _attempt_draft_preview(
+async def _attempt_complete_text(
     *,
     inner: LLMClient,
     job: Job,
@@ -183,14 +183,14 @@ async def _attempt_draft_preview(
     timeout_seconds: float,
     redactor: Callable[[str], str],
     logger: logging.Logger,
-) -> tuple[Draft | None, Exception | None]:
+) -> tuple[str | None, Exception | None]:
     will_retry = attempt < max_attempts
     try:
-        draft = await asyncio.wait_for(
-            inner.draft_preview(job=job, prompt=prompt),
+        text = await asyncio.wait_for(
+            inner.complete_text(job=job, operation=operation, prompt=prompt),
             timeout=timeout_seconds,
         )
-        return draft, None
+        return text, None
     except asyncio.TimeoutError as e:
         log_timeout(
             logger=logger,
@@ -217,7 +217,7 @@ async def _attempt_draft_preview(
         return None, e
 
 
-async def call_draft_preview_with_retry(
+async def call_complete_text_with_retry(
     *,
     inner: LLMClient,
     job: Job,
@@ -233,7 +233,7 @@ async def call_draft_preview_with_retry(
     timeout_seconds = normalized.timeout_seconds
     last_error: Exception | None = None
     for attempt in range(1, max_attempts + 1):
-        draft, error = await _attempt_draft_preview(
+        text, error = await _attempt_complete_text(
             inner=inner,
             job=job,
             prompt=prompt,
@@ -245,8 +245,8 @@ async def call_draft_preview_with_retry(
             redactor=redactor,
             logger=logger,
         )
-        if draft is not None:
-            return CallOutcome(draft=draft, response_text=draft.text, error=None, attempts=attempt)
+        if text is not None:
+            return CallOutcome(text=text, response_text=text, error=None, attempts=attempt)
         last_error = error
         if attempt < max_attempts:
             await asyncio.sleep(
@@ -257,7 +257,7 @@ async def call_draft_preview_with_retry(
                 )
             )
     return CallOutcome(
-        draft=None,
+        text=None,
         response_text="",
         error=last_error,
         attempts=max_attempts,
