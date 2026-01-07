@@ -133,19 +133,25 @@ First targets (high frequency variants):
 - `__INDEPVARS__` (deprecate `__INDEP_VARS__`)
 - `__TIME_VAR__` (deprecate `__TIMEVAR__`)
 
-### F) Composition mechanism (minimal pipeline)
+### F) Composition mechanism (minimal, adaptive)
 
-Define a pipeline contract:
-- A pipeline is an ordered list of template steps.
+Define a composition contract (explicit plan, no implicit state transfer):
+- A composition plan is a minimal step graph with explicit dependencies.
 - Each step declares:
   - `template_id`
   - `params` (resolved deterministically)
-  - `input_bindings` (which file feeds which required input role)
-  - `output_bindings` (which produced dataset becomes the next step’s primary dataset)
+  - `input_bindings` (which dataset feeds which required input role)
+  - declared intermediate products for downstream wiring
+- The plan explicitly selects a composition mode (closed set):
+  - sequential
+  - merge-then-sequential
+  - parallel-then-aggregate
+  - conditional
 
 Start small:
-- Support only “dataset chaining” first (one primary dataset output per step).
-- Defer general DAG/workflow features until proven necessary.
+- Default to sequential for simple single-file jobs.
+- Support the closed-set modes above; defer a general workflow engine until proven necessary.
+- See `openspec/specs/ss-do-template-optimization/COMPOSITION_ARCHITECTURE.md` for the detailed model and schema conventions.
 
 ## Rollout Phases
 
