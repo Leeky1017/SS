@@ -30,12 +30,21 @@ Introduce explicit API versioning (at least `/v1`) and define a deprecation mech
 
 ## Acceptance checklist
 
-- [ ] API routes are served under an explicit version prefix (at least `/v1`)
-- [ ] A deprecation mechanism is defined (e.g., `Deprecation` and `Sunset` headers) and documented
-- [ ] Version introduction strategy is documented (when to create `/v2`, how long `/v1` stays supported)
-- [ ] Tests cover that both versions can coexist during the deprecation window (where applicable)
-- [ ] Implementation run log records `ruff check .`, `pytest -q`, and `openspec validate --specs --strict --no-interactive`
+- [x] API routes are served under an explicit version prefix (at least `/v1`)
+- [x] A deprecation mechanism is defined (e.g., `Deprecation` and `Sunset` headers) and documented
+- [x] Version introduction strategy is documented (when to create `/v2`, how long `/v1` stays supported)
+- [x] Tests cover that both versions can coexist during the deprecation window (where applicable)
+- [x] Implementation run log records `ruff check .`, `pytest -q`, and `openspec validate --specs --strict --no-interactive`
 
 ## Estimate
 
 - 3-5h
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/87
+- Run log: `openspec/_ops/task_runs/ISSUE-83.md`
+- Summary:
+  - Introduce `/v1` API routes and deprecate legacy unversioned routes with `Deprecation`/`Sunset` headers
+  - Update OpenSpec to document versioning and deprecation lifecycle
