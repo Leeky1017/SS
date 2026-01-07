@@ -7,6 +7,7 @@ from typing import Sequence
 from opentelemetry.trace import get_tracer
 
 from src.domain.stata_runner import RunError, RunResult, StataRunner
+from src.infra.fake_stata_outputs import export_table_ref
 from src.infra.stata_run_support import (
     DO_FILENAME,
     Execution,
@@ -19,6 +20,7 @@ from src.infra.stata_run_support import (
     write_run_artifacts,
     write_text,
 )
+from src.infra.stata_safety import copy_job_inputs_dir
 from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID
 
@@ -135,6 +137,15 @@ class FakeStataRunner(StataRunner):
             error_path=error_path,
             include_error=execution.error is not None,
         )
+        export_ref = export_table_ref(
+            job_dir=dirs.job_dir,
+            artifacts_dir=dirs.artifacts_dir,
+            job_id=job_id,
+            run_id=run_id,
+            ok=execution.error is None,
+        )
+        if export_ref is not None:
+            artifacts = (*artifacts, export_ref)
         return RunResult(
             job_id=job_id,
             run_id=run_id,
@@ -204,6 +215,19 @@ class FakeStataRunner(StataRunner):
     ) -> Path | RunResult:
         dirs.work_dir.mkdir(parents=True, exist_ok=True)
         dirs.artifacts_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            copy_job_inputs_dir(job_dir=dirs.job_dir, work_dir=dirs.work_dir)
+        except OSError as e:
+            logger.warning(
+                "SS_FAKE_STATA_COPY_INPUTS_FAILED",
+                extra={"job_id": job_id, "run_id": run_id, "reason": str(e)},
+            )
+            return result_without_artifacts(
+                job_id=job_id,
+                run_id=run_id,
+                error_code="STATA_INPUTS_COPY_FAILED",
+                message=str(e),
+            )
         do_work_path = dirs.work_dir / DO_FILENAME
         do_artifact_path = dirs.artifacts_dir / DO_FILENAME
         try:

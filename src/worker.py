@@ -9,12 +9,14 @@ from types import FrameType
 from opentelemetry.trace import get_tracer
 
 from src.config import load_config
+from src.domain.stata_runner import StataRunner
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.audit_logger import LoggingAuditLogger
 from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store_factory import build_job_store
+from src.infra.local_stata_runner import LocalStataRunner
 from src.infra.logging_config import configure_logging
 from src.infra.prometheus_metrics import PrometheusMetrics
 from src.infra.tracing import configure_tracing, context_from_traceparent
@@ -67,10 +69,27 @@ def main() -> None:
         queue_dir=config.queue_dir,
         lease_ttl_seconds=config.queue_lease_ttl_seconds,
     )
-    runner = FakeStataRunner(jobs_dir=config.jobs_dir)
+    runner: StataRunner
+    if config.stata_cmd:
+        runner = LocalStataRunner(jobs_dir=config.jobs_dir, stata_cmd=config.stata_cmd)
+        logger.info(
+            "SS_WORKER_RUNNER_SELECTED",
+            extra={
+                "worker_id": config.worker_id,
+                "runner": "local",
+                "stata_cmd": list(config.stata_cmd),
+            },
+        )
+    else:
+        runner = FakeStataRunner(jobs_dir=config.jobs_dir)
+        logger.info(
+            "SS_WORKER_RUNNER_SELECTED",
+            extra={"worker_id": config.worker_id, "runner": "fake"},
+        )
     service = WorkerService(
         store=store,
         queue=queue,
+        jobs_dir=config.jobs_dir,
         runner=runner,
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(

@@ -3,6 +3,7 @@ from __future__ import annotations
 import threading
 import time
 from dataclasses import dataclass
+from pathlib import Path
 
 from src.domain.models import JobStatus
 from src.domain.stata_runner import RunResult, StataRunner
@@ -39,6 +40,7 @@ class BlockingStataRunner(StataRunner):
 
 def test_worker_progress_is_visible_while_user_polls_status(
     create_queued_job,
+    jobs_dir: Path,
     store: JobStore,
     queue,
     queue_dir,
@@ -52,6 +54,7 @@ def test_worker_progress_is_visible_while_user_polls_status(
     service = WorkerService(
         store=store,
         queue=queue,
+        jobs_dir=jobs_dir,
         runner=BlockingStataRunner(allow_finish=allow_finish, started=started),
         state_machine=state_machine,
         retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
