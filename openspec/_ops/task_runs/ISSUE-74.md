@@ -49,3 +49,10 @@
   - `openspec validate --specs --strict --no-interactive`
 - Key output:
   - `Totals: 16 passed, 0 failed (16 items)`
+
+### 2026-01-07 00:15 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
