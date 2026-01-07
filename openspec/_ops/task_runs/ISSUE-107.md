@@ -2,7 +2,7 @@
 
 - Issue: #107
 - Branch: task/107-chaos-tests
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/115
 
 ## Plan
 - Add chaos fault-injection fixtures
@@ -45,3 +45,16 @@
   - `Successfully rebased and updated refs/heads/task/107-chaos-tests.`
   - `All checks passed!`
   - `85 passed, 5 skipped in 3.39s`
+
+### 2026-01-07 15:11 preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `exit=2 (file overlap)`
+  - `Open PR overlap: #111 touches pyproject.toml + src/main.py`
+
+### 2026-01-07 15:12 PR
+- Command:
+  - `gh pr create --base main --head task/107-chaos-tests --title "<...>" --body "<...>"`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/115`
