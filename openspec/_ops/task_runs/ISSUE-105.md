@@ -56,3 +56,9 @@
   - `gh pr create ...`
 - Key output:
   - `https://github.com/Leeky1017/SS/pull/109`
+
+### 2026-01-07 Enable auto-merge
+- Command:
+  - `gh pr merge 109 --auto --squash`
+- Key output:
+  - `will be automatically merged via squash when all requirements are met`
