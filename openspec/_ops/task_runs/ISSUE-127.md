@@ -2,7 +2,7 @@
 
 - Issue: #127
 - Branch: task/127-ux-b002-plan-freeze-preview
-- PR: https://github.com/Leeky1017/SS/pull/143
+- PR: https://github.com/Leeky1017/SS/pull/143 (impl), https://github.com/Leeky1017/SS/pull/145 (closeout)
 
 ## Plan
 - Confirm/run auto-freeze plan before queueing
@@ -60,3 +60,9 @@
   - `scripts/agent_controlplane_sync.sh`
 - Key output:
   - `Fast-forward`
+
+### 2026-01-07 22:12 Closeout PR
+- Command:
+  - `gh pr create --title "docs: close out UX-B002 task card (#127)" --body "..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/145`
