@@ -2,7 +2,7 @@
 
 - Issue: #96
 - Branch: task/96-job-store-sharding
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/101
 
 ## Plan
 - Define sharded job directory scheme and compatibility rules
@@ -66,3 +66,9 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 00:23 PR created
+- Command:
+  - `gh pr create --base main --head task/96-job-store-sharding --title "[SS-AUDIT-SCALABILITY] Job store sharding strategy (#96)" --body "Closes #96 ..."`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/101`
