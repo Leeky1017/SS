@@ -2,7 +2,7 @@
 
 - Issue: #75
 - Branch: task/75-audit-p014-typing-gate
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/78
 
 ## Plan
 - Add mypy strict config + CI gate
@@ -41,3 +41,23 @@
   - `All checks passed!`
   - `Success: no issues found in 49 source files`
   - `56 passed`
+
+### 2026-01-07 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 Open PR
+- Command:
+  - `git push -u origin HEAD`
+  - `gh pr create --base main --head task/75-audit-p014-typing-gate --title "chore: add mypy gate and type annotations (#75)" --body "Closes #75 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/78`
+
+### 2026-01-07 Enable auto-merge
+- Command:
+  - `gh pr merge 78 --auto --squash`
+- Key output:
+  - `will be automatically merged via squash when all requirements are met`
