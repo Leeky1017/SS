@@ -24,6 +24,7 @@ from src.infra.stata_run_support import (
     write_text,
 )
 from src.infra.stata_safety import copy_job_inputs_dir, find_unsafe_dofile_reason
+from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +138,7 @@ def _write_artifacts_or_error(
     dirs: RunDirs,
     job_id: str,
     run_id: str,
-    meta: dict,
+    meta: JsonObject,
     execution: Execution,
 ) -> tuple[Path, Path, Path, Path, Path] | RunResult:
     try:

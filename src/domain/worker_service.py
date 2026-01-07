@@ -272,6 +272,8 @@ class WorkerService:
         raw = step.params.get("timeout_seconds")
         if raw is None:
             return None
+        if isinstance(raw, (dict, list)):
+            return None
         try:
             seconds = int(raw)
         except (TypeError, ValueError):

@@ -5,10 +5,11 @@ import subprocess
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Sequence
+from typing import Callable, Sequence, cast
 
 from src.domain.models import ArtifactKind, ArtifactRef
 from src.domain.stata_runner import RunError, RunResult
+from src.utils.json_types import JsonObject
 
 DO_FILENAME = "stata.do"
 STDOUT_FILENAME = "run.stdout"
@@ -78,7 +79,7 @@ def write_text(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
-def write_json(path: Path, payload: dict) -> None:
+def write_json(path: Path, payload: JsonObject) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
     path.write_text(data, encoding="utf-8")
@@ -167,8 +168,8 @@ def meta_payload(
     cwd_rel: str,
     timeout_seconds: int | None,
     execution: Execution,
-) -> dict:
-    payload: dict = {
+) -> JsonObject:
+    payload: JsonObject = {
         "job_id": job_id,
         "run_id": run_id,
         "ok": execution.error is None,
@@ -180,10 +181,13 @@ def meta_payload(
         "cwd_rel": cwd_rel,
     }
     if execution.error is not None:
-        payload["error"] = {
-            "error_code": execution.error.error_code,
-            "message": execution.error.message,
-        }
+        payload["error"] = cast(
+            JsonObject,
+            {
+                "error_code": execution.error.error_code,
+                "message": execution.error.message,
+            },
+        )
     return payload
 
 
@@ -192,7 +196,7 @@ def write_run_artifacts(
     artifacts_dir: Path,
     stdout_text: str,
     stderr_text: str,
-    meta: dict,
+    meta: JsonObject,
     error: RunError | None,
     exit_code: int | None,
     timed_out: bool,
@@ -213,12 +217,15 @@ def write_run_artifacts(
     if error is not None:
         write_json(
             error_path,
-            {
-                "error_code": error.error_code,
-                "message": error.message,
-                "timed_out": timed_out,
-                "exit_code": exit_code,
-            },
+            cast(
+                JsonObject,
+                {
+                    "error_code": error.error_code,
+                    "message": error.message,
+                    "timed_out": timed_out,
+                    "exit_code": exit_code,
+                },
+            ),
         )
     return stdout_path, stderr_path, log_path, meta_path, error_path
 

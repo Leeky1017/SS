@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 from src.domain.do_template_repository import DoTemplate, DoTemplateRepository
 from src.infra.exceptions import (
@@ -12,6 +13,7 @@ from src.infra.exceptions import (
     DoTemplateNotFoundError,
     DoTemplateSourceNotFoundError,
 )
+from src.utils.json_types import JsonObject
 
 
 def _safe_library_filename(value: str) -> bool:
@@ -26,7 +28,7 @@ def _safe_library_filename(value: str) -> bool:
     return ".." not in Path(value).parts
 
 
-def _load_json_or_raise(*, path: Path, not_found: Exception, corrupted: Exception) -> dict:
+def _load_json_or_raise(*, path: Path, not_found: Exception, corrupted: Exception) -> JsonObject:
     try:
         raw = path.read_text(encoding="utf-8")
     except FileNotFoundError as e:
@@ -39,24 +41,24 @@ def _load_json_or_raise(*, path: Path, not_found: Exception, corrupted: Exceptio
         raise corrupted from e
     if not isinstance(data, dict):
         raise corrupted
-    return data
+    return cast(JsonObject, data)
 
 
-def _tasks_mapping(index_payload: dict) -> dict:
+def _tasks_mapping(index_payload: JsonObject) -> JsonObject:
     tasks = index_payload.get("tasks", {})
     if not isinstance(tasks, dict):
         raise DoTemplateIndexCorruptedError(reason="index.tasks_invalid")
     return tasks
 
 
-def _task_record(*, tasks: dict, template_id: str) -> dict:
+def _task_record(*, tasks: JsonObject, template_id: str) -> JsonObject:
     record = tasks.get(template_id, None)
     if not isinstance(record, dict):
         raise DoTemplateNotFoundError(template_id=template_id)
     return record
 
 
-def _do_filename(*, record: dict, template_id: str) -> str:
+def _do_filename(*, record: JsonObject, template_id: str) -> str:
     value = record.get("do_file", "")
     if not isinstance(value, str) or not _safe_library_filename(value):
         raise DoTemplateIndexCorruptedError(reason="index.do_file_invalid", template_id=template_id)
@@ -71,7 +73,7 @@ def _meta_filename(*, do_filename: str) -> str:
 @dataclass(frozen=True)
 class FileSystemDoTemplateRepository(DoTemplateRepository):
     library_dir: Path
-    _cached_index: dict | None = None
+    _cached_index: JsonObject | None = None
 
     def list_template_ids(self) -> tuple[str, ...]:
         tasks = _tasks_mapping(self._index())
@@ -109,9 +111,9 @@ class FileSystemDoTemplateRepository(DoTemplateRepository):
         )
         return DoTemplate(template_id=template_id, do_text=do_text, meta=meta)
 
-    def _index(self) -> dict:
+    def _index(self) -> JsonObject:
         cached = self._cached_index
-        if isinstance(cached, dict):
+        if cached is not None:
             return cached
         path = self.library_dir / "DO_LIBRARY_INDEX.json"
         index = _load_json_or_raise(

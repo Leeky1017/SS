@@ -6,9 +6,11 @@ import os
 import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import cast
 
 from src.domain.worker_queue import QueueClaim
 from src.infra.exceptions import QueueDataCorruptedError, QueueIOError
+from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +24,7 @@ def assert_safe_segment(value: str) -> None:
         raise ValueError("path segment must not traverse")
 
 
-def atomic_write_json(*, path: Path, payload: dict) -> None:
+def atomic_write_json(*, path: Path, payload: JsonObject) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
     with tempfile.NamedTemporaryFile(
@@ -36,7 +38,7 @@ def atomic_write_json(*, path: Path, payload: dict) -> None:
     os.replace(tmp, path)
 
 
-def read_queue_record(*, path: Path) -> dict:
+def read_queue_record(*, path: Path) -> JsonObject:
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
@@ -49,7 +51,7 @@ def read_queue_record(*, path: Path) -> dict:
         raise QueueIOError(operation="read", path=str(path)) from e
     if not isinstance(raw, dict):
         raise QueueDataCorruptedError(path=str(path))
-    return raw
+    return cast(JsonObject, raw)
 
 
 def build_claim_fields(
@@ -58,7 +60,7 @@ def build_claim_fields(
     claim_id: str,
     now: datetime,
     ttl: timedelta,
-) -> dict:
+) -> JsonObject:
     claimed_at = now.isoformat()
     lease_expires_at = (now + ttl).isoformat()
     return {
@@ -69,7 +71,7 @@ def build_claim_fields(
     }
 
 
-def load_claim(*, record: dict) -> QueueClaim:
+def load_claim(*, record: JsonObject) -> QueueClaim:
     job_id = str(record.get("job_id", ""))
     claim_id = str(record.get("claim_id", ""))
     worker_id = str(record.get("worker_id", ""))
@@ -95,4 +97,3 @@ def load_claim(*, record: dict) -> QueueClaim:
         claimed_at=claimed_at_parsed,
         lease_expires_at=lease_expires_at_parsed,
     )
-

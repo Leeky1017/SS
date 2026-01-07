@@ -6,11 +6,14 @@ import logging
 import re
 import time
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path, PurePosixPath
+from typing import cast
 
 from src.domain.llm_client import LLMClient, LLMProviderError
 from src.domain.models import ArtifactKind, ArtifactRef, Draft, Job, is_safe_job_rel_path
 from src.infra.exceptions import LLMArtifactsWriteError, LLMCallFailedError
+from src.utils.json_types import JsonObject
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
@@ -47,7 +50,7 @@ def _estimate_tokens(text: str) -> int:
     return max(1, len(stripped) // 4)
 
 
-def _llm_call_id(*, operation: str, started_at, prompt_fingerprint: str) -> str:
+def _llm_call_id(*, operation: str, started_at: datetime, prompt_fingerprint: str) -> str:
     ts = started_at.strftime("%Y%m%dT%H%M%S") + f"{started_at.microsecond:06d}Z"
     return f"{operation}-{ts}-{prompt_fingerprint[:12]}"
 
@@ -148,31 +151,34 @@ class TracedLLMClient(LLMClient):
         prompt: str,
         response: str,
         error: Exception | None,
-    ) -> dict:
+    ) -> JsonObject:
         error_message = None
         if error is not None:
             error_message = redact_text(str(error))
         seed = self._seed
         if isinstance(seed, str):
             seed = redact_text(seed)
-        return {
-            "schema_version": LLM_META_SCHEMA_VERSION_V1,
-            "llm_call_id": call_id,
-            "operation": operation,
-            "started_at": started_at,
-            "ended_at": ended_at,
-            "duration_ms": duration_ms,
-            "ok": error is None,
-            "model": self._model,
-            "temperature": self._temperature,
-            "seed": seed,
-            "prompt_fingerprint": _sha256_hex(prompt),
-            "response_fingerprint": _sha256_hex(response),
-            "prompt_token_estimate": _estimate_tokens(prompt),
-            "response_token_estimate": _estimate_tokens(response),
-            "error_type": None if error is None else type(error).__name__,
-            "error_message": error_message,
-        }
+        return cast(
+            JsonObject,
+            {
+                "schema_version": LLM_META_SCHEMA_VERSION_V1,
+                "llm_call_id": call_id,
+                "operation": operation,
+                "started_at": started_at,
+                "ended_at": ended_at,
+                "duration_ms": duration_ms,
+                "ok": error is None,
+                "model": self._model,
+                "temperature": self._temperature,
+                "seed": seed,
+                "prompt_fingerprint": _sha256_hex(prompt),
+                "response_fingerprint": _sha256_hex(response),
+                "prompt_token_estimate": _estimate_tokens(prompt),
+                "response_token_estimate": _estimate_tokens(response),
+                "error_type": None if error is None else type(error).__name__,
+                "error_message": error_message,
+            },
+        )
 
     def _write_artifacts(
         self,
@@ -181,7 +187,7 @@ class TracedLLMClient(LLMClient):
         call_id: str,
         prompt: str,
         response: str,
-        meta: dict,
+        meta: JsonObject,
     ) -> LLMCallArtifacts:
         rel_dir = PurePosixPath("artifacts") / "llm" / call_id
         prompt_rel = (rel_dir / "prompt.txt").as_posix()
@@ -208,7 +214,7 @@ class TracedLLMClient(LLMClient):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
 
-    def _write_json(self, *, job_id: str, rel_path: str, payload: dict) -> None:
+    def _write_json(self, *, job_id: str, rel_path: str, payload: JsonObject) -> None:
         path = self._safe_artifact_path(job_id=job_id, rel_path=rel_path)
         path.parent.mkdir(parents=True, exist_ok=True)
         data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
