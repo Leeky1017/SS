@@ -129,6 +129,32 @@ def _run_polls(
             f.result()
 
 
+def _wait_for_terminal_runs(
+    *,
+    app: FastAPI,
+    recorder: LatencyRecorder,
+    run_job_ids: list[str],
+    timeout_seconds: float,
+) -> None:
+    terminal = {"succeeded", "failed"}
+    remaining = set(run_job_ids)
+    deadline = time.monotonic() + timeout_seconds
+    with TestClient(app) as client:
+        while remaining and time.monotonic() < deadline:
+            done: set[str] = set()
+            for job_id in remaining:
+                response = _recorded_get(client=client, recorder=recorder, url=f"/v1/jobs/{job_id}")
+                if response.status_code >= 400:
+                    continue
+                status = response.json().get("status")
+                if status in terminal:
+                    done.add(job_id)
+            remaining -= done
+            if remaining:
+                time.sleep(0.05)
+    assert not remaining, f"runs did not reach terminal status within timeout: {sorted(remaining)}"
+
+
 def _join_workers(*, stop: threading.Event, threads: list[threading.Thread]) -> None:
     stop.set()
     for t in threads:
@@ -143,6 +169,7 @@ def test_load_100_concurrent_users_50_runs_200_queries_meets_slo(
     users = env_int("SS_STRESS_USERS", 100)
     runs = env_int("SS_STRESS_RUNS", 50)
     queries = env_int("SS_STRESS_QUERIES", 200)
+    run_timeout_seconds = env_float("SS_STRESS_RUN_TIMEOUT_SECONDS", 10.0)
 
     max_p99_seconds = env_float("SS_STRESS_MAX_P99_SECONDS", 2.0)
     max_error_rate = env_float("SS_STRESS_MAX_ERROR_RATE", 0.001)
@@ -153,10 +180,17 @@ def test_load_100_concurrent_users_50_runs_200_queries_meets_slo(
     resources_before = take_resource_snapshot()
 
     job_ids = _run_users(app=stress_app, recorder=recorder, users=users)
-    _run_confirmations(app=stress_app, recorder=recorder, job_ids=job_ids[:runs])
+    run_job_ids = job_ids[:runs]
+    _run_confirmations(app=stress_app, recorder=recorder, job_ids=run_job_ids)
 
     stop, threads = _start_workers(stress_worker_factory=stress_worker_factory)
     _run_polls(app=stress_app, recorder=recorder, job_ids=job_ids, queries=queries)
+    _wait_for_terminal_runs(
+        app=stress_app,
+        recorder=recorder,
+        run_job_ids=run_job_ids,
+        timeout_seconds=run_timeout_seconds,
+    )
     _join_workers(stop=stop, threads=threads)
 
     summary = recorder.summary()
