@@ -2,7 +2,7 @@
 
 - Issue: #94
 - Branch: task/94-user-journeys
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/98
 
 ## Plan
 - Add `tests/user_journeys/` fixtures
