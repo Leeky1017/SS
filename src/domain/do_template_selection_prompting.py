@@ -3,13 +3,14 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from typing import Iterable
+from typing import Iterable, cast
 
 from pydantic import ValidationError
 
 from src.domain.do_template_catalog import FamilySummary, TemplateSummary
 from src.domain.do_template_selection_models import Stage1FamilySelection, Stage2TemplateSelection
 from src.infra.do_template_selection_exceptions import DoTemplateSelectionParseError
+from src.utils.json_types import JsonObject
 
 _WORD_RE = re.compile(r"[A-Za-z0-9_]+")
 _SELECTION_ARTIFACT_BASE = "artifacts/do_template/selection"
@@ -232,19 +233,22 @@ def stage1_evidence_payload(
     stage1: Stage1FamilySelection,
     selected_family_ids: tuple[str, ...],
     max_families: int,
-) -> dict[str, object]:
-    return {
-        "schema_version": 1,
-        "job_id": job_id,
-        "stage": "stage1",
-        "operation": "do_template.select_families",
+) -> JsonObject:
+    return cast(
+        JsonObject,
+        {
+            "schema_version": 1,
+            "job_id": job_id,
+            "stage": "stage1",
+            "operation": "do_template.select_families",
         "requirement_fingerprint": sha256_hex(requirement.strip()),
         "max_families": int(max_families),
         "canonical_family_ids": [f.family_id for f in families],
-        "family_summaries": [family_prompt_item(f) for f in families],
-        "selection": stage1.model_dump(mode="json"),
-        "selected_family_ids": list(selected_family_ids),
-    }
+            "family_summaries": [family_prompt_item(f) for f in families],
+            "selection": stage1.model_dump(mode="json"),
+            "selected_family_ids": list(selected_family_ids),
+        },
+    )
 
 
 def candidates_evidence_payload(
@@ -254,19 +258,22 @@ def candidates_evidence_payload(
     candidates: tuple[TemplateSummary, ...],
     token_budget: int,
     max_candidates: int,
-) -> dict[str, object]:
+) -> JsonObject:
     candidate_items = [template_prompt_item(t) for t in candidates]
-    return {
-        "schema_version": 1,
-        "job_id": job_id,
-        "stage": "stage2_candidates",
-        "selected_family_ids": list(selected_family_ids),
+    return cast(
+        JsonObject,
+        {
+            "schema_version": 1,
+            "job_id": job_id,
+            "stage": "stage2_candidates",
+            "selected_family_ids": list(selected_family_ids),
         "token_budget": int(token_budget),
         "max_candidates": int(max_candidates),
-        "candidate_token_estimate": _candidate_token_estimate(candidate_items),
-        "candidate_template_ids": [t.template_id for t in candidates],
-        "candidates": candidate_items,
-    }
+            "candidate_token_estimate": _candidate_token_estimate(candidate_items),
+            "candidate_template_ids": [t.template_id for t in candidates],
+            "candidates": candidate_items,
+        },
+    )
 
 
 def stage2_evidence_payload(
@@ -276,14 +283,17 @@ def stage2_evidence_payload(
     candidates: tuple[TemplateSummary, ...],
     stage2: Stage2TemplateSelection,
     selected_template_id: str,
-) -> dict[str, object]:
-    return {
-        "schema_version": 1,
-        "job_id": job_id,
-        "stage": "stage2",
-        "operation": "do_template.select_template",
+) -> JsonObject:
+    return cast(
+        JsonObject,
+        {
+            "schema_version": 1,
+            "job_id": job_id,
+            "stage": "stage2",
+            "operation": "do_template.select_template",
         "requirement_fingerprint": sha256_hex(requirement.strip()),
-        "candidate_template_ids": [t.template_id for t in candidates],
-        "selection": stage2.model_dump(mode="json"),
-        "selected_template_id": selected_template_id,
-    }
+            "candidate_template_ids": [t.template_id for t in candidates],
+            "selection": stage2.model_dump(mode="json"),
+            "selected_template_id": selected_template_id,
+        },
+    )

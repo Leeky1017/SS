@@ -36,6 +36,7 @@ from src.infra.do_template_selection_exceptions import (
     DoTemplateSelectionNoCandidatesError,
 )
 from src.infra.exceptions import JobStoreIOError, SSError
+from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID
 from src.utils.time import utc_now
 
@@ -268,7 +269,7 @@ class DoTemplateSelectionService:
         job: Job,
         kind: ArtifactKind,
         rel_path: str,
-        payload: dict[str, object],
+        payload: JsonObject,
     ) -> None:
         self.store.write_artifact_json(
             tenant_id=job.tenant_id,

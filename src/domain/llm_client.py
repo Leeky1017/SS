@@ -77,5 +77,5 @@ def _first_csv_line_value(text: str, *, key: str) -> list[str]:
     return []
 
 
-def _json_dumps(payload: dict) -> str:
+def _json_dumps(payload: dict[str, object]) -> str:
     return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
