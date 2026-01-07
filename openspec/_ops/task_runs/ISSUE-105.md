@@ -93,3 +93,9 @@
   - `gh pr create ...`
 - Key output:
   - `https://github.com/Leeky1017/SS/pull/114`
+
+### 2026-01-07 Enable auto-merge (closeout)
+- Command:
+  - `gh pr merge 114 --auto --squash`
+- Key output:
+  - `will be automatically merged via squash when all requirements are met`
