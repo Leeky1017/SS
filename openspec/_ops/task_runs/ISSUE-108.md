@@ -78,3 +78,13 @@
   - `gh pr merge --auto --squash 113`
 - Key output:
   - `will be automatically merged via squash when all requirements are met`
+
+### 2026-01-07 01:35 CI fix (mypy)
+- Issue:
+  - CI failed `mypy` on `src/domain/job_service.py` due to invariant list typing for `audit_changes.transistions`.
+- Fix:
+  - Cast `transitions` to `JsonValue` in audit payload.
+- Command:
+  - `.venv/bin/mypy`
+- Key output:
+  - `Success: no issues found`
