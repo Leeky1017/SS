@@ -6,11 +6,12 @@ import threading
 from datetime import datetime, timedelta
 from types import FrameType
 
-from opentelemetry import trace
+from opentelemetry.trace import get_tracer
 
 from src.config import load_config
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
+from src.infra.audit_logger import LoggingAuditLogger
 from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store_factory import build_job_store
@@ -78,6 +79,7 @@ def main() -> None:
             backoff_max_seconds=config.worker_retry_backoff_max_seconds,
         ),
         metrics=metrics,
+        audit=LoggingAuditLogger(),
     )
 
     logger.info("SS_WORKER_STARTUP", extra={"worker_id": config.worker_id})
@@ -97,7 +99,7 @@ def main() -> None:
                 ctx = None
                 if claim.traceparent is not None:
                     ctx = context_from_traceparent(claim.traceparent)
-                tracer = trace.get_tracer(__name__)
+                tracer = get_tracer(__name__)
                 with tracer.start_as_current_span("ss.queue.claim", context=ctx) as span:
                     span.set_attribute("ss.job_id", claim.job_id)
                     span.set_attribute("ss.claim_id", claim.claim_id)

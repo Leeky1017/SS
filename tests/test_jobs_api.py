@@ -97,3 +97,29 @@ def test_get_job_with_legacy_route_sets_deprecation_headers(job_service, store):
     assert response.status_code == 200
     assert response.headers["Deprecation"] == "true"
     assert response.headers["Sunset"] == "2026-06-01"
+
+
+def test_get_job_includes_request_id_header(job_service) -> None:
+    app = create_app()
+    app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    client = TestClient(app)
+
+    job = job_service.create_job(requirement="hello")
+
+    response = client.get(f"/v1/jobs/{job.job_id}")
+
+    assert response.status_code == 200
+    assert response.headers.get("X-SS-Request-Id")
+
+
+def test_get_job_request_id_header_honors_incoming_x_request_id(job_service) -> None:
+    app = create_app()
+    app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    client = TestClient(app)
+
+    job = job_service.create_job(requirement="hello")
+
+    response = client.get(f"/v1/jobs/{job.job_id}", headers={"X-Request-Id": "req-123"})
+
+    assert response.status_code == 200
+    assert response.headers["X-SS-Request-Id"] == "req-123"

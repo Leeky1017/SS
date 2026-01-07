@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import Sequence
 
-from opentelemetry import trace
+from opentelemetry.trace import get_tracer
 
 from src.domain.stata_runner import RunError, RunResult, StataRunner
 from src.infra.stata_run_support import (
@@ -43,7 +43,7 @@ class FakeStataRunner(StataRunner):
         do_file: str,
         timeout_seconds: int | None = None,
     ) -> RunResult:
-        tracer = trace.get_tracer(__name__)
+        tracer = get_tracer(__name__)
         with tracer.start_as_current_span("ss.stata.run") as span:
             span.set_attribute("ss.job_id", job_id)
             span.set_attribute("ss.run_id", run_id)

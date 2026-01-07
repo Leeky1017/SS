@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
-from opentelemetry import trace
+from opentelemetry.trace import get_tracer
 
 from src.domain.job_service import JobScheduler
 from src.domain.models import Job
@@ -31,7 +31,7 @@ class QueueJobScheduler(JobScheduler):
                 sampled=True,
             )
             context = context_from_traceparent(synthetic_traceparent)
-            tracer = trace.get_tracer(__name__)
+            tracer = get_tracer(__name__)
             with tracer.start_as_current_span("ss.job.enqueue", context=context) as span:
                 span.set_attribute("ss.job_id", job.job_id)
                 carrier: dict[str, str] = {}
