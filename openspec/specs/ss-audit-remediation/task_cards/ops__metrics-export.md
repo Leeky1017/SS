@@ -32,12 +32,21 @@ Data safety:
 
 ## Acceptance checklist
 
-- [ ] Define a minimal metrics set (counters/histograms/gauges) aligned with job lifecycle and worker activity
-- [ ] Expose a scrape endpoint and document how to use it in deployment
-- [ ] Ensure metrics do not leak sensitive data (job contents, prompts, etc.)
-- [ ] Add a basic smoke test that the endpoint exists (where practical)
-- [ ] Implementation run log records `ruff check .` and `pytest -q`
+- [x] Define a minimal metrics set (counters/histograms/gauges) aligned with job lifecycle and worker activity
+- [x] Expose a scrape endpoint and document how to use it in deployment
+- [x] Ensure metrics do not leak sensitive data (job contents, prompts, etc.)
+- [x] Add a basic smoke test that the endpoint exists (where practical)
+- [x] Implementation run log records `ruff check .` and `pytest -q`
 
 ## Estimate
 
 - 4-6h
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/111
+- Notes:
+  - API exports Prometheus metrics via `GET /metrics` (request latency + error rate primitives)
+  - Worker exports Prometheus metrics via `SS_WORKER_METRICS_PORT` (worker up/inflight + job throughput)
+  - Metric labels are low-cardinality (route templates, status codes) and avoid sensitive payloads
+- Run log: `openspec/_ops/task_runs/ISSUE-104.md`

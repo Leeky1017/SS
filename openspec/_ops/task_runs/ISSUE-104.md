@@ -46,3 +46,8 @@
   - `.venv/bin/pytest -q`
 - Key output:
   - `78 passed in 2.64s`
+
+### 2026-01-07 15:31 Task card closure (follow-up)
+- PR: https://github.com/Leeky1017/SS/pull/119
+- Note:
+  - Backfill acceptance checklist + `## Completion` for `openspec/specs/ss-audit-remediation/task_cards/ops__metrics-export.md`
