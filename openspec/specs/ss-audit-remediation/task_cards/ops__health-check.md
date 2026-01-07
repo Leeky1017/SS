@@ -28,3 +28,22 @@ Provide explicit liveness and readiness health checks with correct semantics and
 
 - 2-4h
 
+## Deployment probe configuration (Kubernetes)
+
+Example probe configuration (tune thresholds for your environment):
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /health/live
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /health/ready
+    port: 8000
+  initialDelaySeconds: 2
+  periodSeconds: 5
+```

@@ -3,6 +3,17 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 
+class HealthCheck(BaseModel):
+    ok: bool
+    detail: str | None = None
+
+
+class HealthResponse(BaseModel):
+    status: str
+    checks: dict[str, HealthCheck] = Field(default_factory=dict)
+    checked_at: str
+
+
 class CreateJobRequest(BaseModel):
     requirement: str | None = Field(default=None, description="User requirement text")
 
