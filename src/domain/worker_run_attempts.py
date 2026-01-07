@@ -30,10 +30,15 @@ def record_attempt_started(
             artifacts=[],
         )
     )
-    store.save(job)
+    store.save(tenant_id=job.tenant_id, job=job)
     logger.info(
         "SS_WORKER_ATTEMPT_START",
-        extra={"job_id": job.job_id, "run_id": run_id, "attempt": attempt},
+        extra={
+            "tenant_id": job.tenant_id,
+            "job_id": job.job_id,
+            "run_id": run_id,
+            "attempt": attempt,
+        },
     )
 
 

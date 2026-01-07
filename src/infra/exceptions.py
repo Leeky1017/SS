@@ -49,6 +49,15 @@ class JobIdUnsafeError(SSError):
         )
 
 
+class TenantIdUnsafeError(SSError):
+    def __init__(self, *, tenant_id: str):
+        super().__init__(
+            error_code="TENANT_ID_UNSAFE",
+            message=f"tenant id unsafe: {tenant_id}",
+            status_code=400,
+        )
+
+
 class JobAlreadyExistsError(SSError):
     def __init__(self, *, job_id: str):
         super().__init__(

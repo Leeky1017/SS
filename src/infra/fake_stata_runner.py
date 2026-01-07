@@ -20,6 +20,7 @@ from src.infra.stata_run_support import (
     write_text,
 )
 from src.utils.json_types import JsonObject
+from src.utils.tenancy import DEFAULT_TENANT_ID
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,7 @@ class FakeStataRunner(StataRunner):
     def run(
         self,
         *,
+        tenant_id: str = DEFAULT_TENANT_ID,
         job_id: str,
         run_id: str,
         do_file: str,
@@ -45,11 +47,13 @@ class FakeStataRunner(StataRunner):
     ) -> RunResult:
         tracer = get_tracer(__name__)
         with tracer.start_as_current_span("ss.stata.run") as span:
+            span.set_attribute("ss.tenant_id", tenant_id)
             span.set_attribute("ss.job_id", job_id)
             span.set_attribute("ss.run_id", run_id)
             if timeout_seconds is not None:
                 span.set_attribute("ss.timeout_seconds", timeout_seconds)
             result = self._run_impl(
+                tenant_id=tenant_id,
                 job_id=job_id,
                 run_id=run_id,
                 do_file=do_file,
@@ -63,12 +67,13 @@ class FakeStataRunner(StataRunner):
     def _run_impl(
         self,
         *,
+        tenant_id: str,
         job_id: str,
         run_id: str,
         do_file: str,
         timeout_seconds: int | None,
     ) -> RunResult:
-        resolved = self._resolve_dirs(job_id=job_id, run_id=run_id)
+        resolved = self._resolve_dirs(tenant_id=tenant_id, job_id=job_id, run_id=run_id)
         if isinstance(resolved, RunResult):
             return resolved
 
@@ -149,13 +154,18 @@ class FakeStataRunner(StataRunner):
         self._cursor += 1
         return ok
 
-    def _resolve_dirs(self, *, job_id: str, run_id: str) -> RunDirs | RunResult:
-        dirs = resolve_run_dirs(jobs_dir=self._jobs_dir, job_id=job_id, run_id=run_id)
+    def _resolve_dirs(self, *, tenant_id: str, job_id: str, run_id: str) -> RunDirs | RunResult:
+        dirs = resolve_run_dirs(
+            jobs_dir=self._jobs_dir,
+            tenant_id=tenant_id,
+            job_id=job_id,
+            run_id=run_id,
+        )
         if dirs is not None:
             return dirs
         logger.warning(
             "SS_FAKE_STATA_INVALID_WORKSPACE",
-            extra={"job_id": job_id, "run_id": run_id},
+            extra={"tenant_id": tenant_id, "job_id": job_id, "run_id": run_id},
         )
         return result_without_artifacts(
             job_id=job_id,

@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol
 
+from src.utils.tenancy import DEFAULT_TENANT_ID
+
 
 @dataclass(frozen=True)
 class QueueClaim:
@@ -12,11 +14,18 @@ class QueueClaim:
     worker_id: str
     claimed_at: datetime
     lease_expires_at: datetime
+    tenant_id: str = DEFAULT_TENANT_ID
     traceparent: str | None = None
 
 
 class WorkerQueue(Protocol):
-    def enqueue(self, *, job_id: str, traceparent: str | None = None) -> None: ...
+    def enqueue(
+        self,
+        job_id: str,
+        *,
+        tenant_id: str = DEFAULT_TENANT_ID,
+        traceparent: str | None = None,
+    ) -> None: ...
 
     def claim(self, *, worker_id: str) -> QueueClaim | None: ...
 

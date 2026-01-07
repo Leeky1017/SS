@@ -37,5 +37,5 @@ class QueueJobScheduler(JobScheduler):
                 carrier: dict[str, str] = {}
                 inject_current_context(carrier=carrier)
                 traceparent = carrier.get("traceparent", synthetic_traceparent)
-        self.queue.enqueue(job_id=job.job_id, traceparent=traceparent)
-        logger.info("SS_JOB_ENQUEUED", extra={"job_id": job.job_id})
+        self.queue.enqueue(tenant_id=job.tenant_id, job_id=job.job_id, traceparent=traceparent)
+        logger.info("SS_JOB_ENQUEUED", extra={"tenant_id": job.tenant_id, "job_id": job.job_id})

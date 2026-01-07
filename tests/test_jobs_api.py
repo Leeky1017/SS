@@ -69,6 +69,28 @@ def test_get_job_with_missing_job_returns_404(job_service):
     assert response.json()["error_code"] == "JOB_NOT_FOUND"
 
 
+def test_get_job_when_cross_tenant_access_returns_404(job_service) -> None:
+    app = create_app()
+    app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    client = TestClient(app)
+
+    created = client.post(
+        "/v1/jobs",
+        json={"requirement": "hello"},
+        headers={"X-SS-Tenant-ID": "tenant-a"},
+    )
+    assert created.status_code == 200
+    job_id = created.json()["job_id"]
+
+    response = client.get(
+        f"/v1/jobs/{job_id}",
+        headers={"X-SS-Tenant-ID": "tenant-b"},
+    )
+
+    assert response.status_code == 404
+    assert response.json()["error_code"] == "JOB_NOT_FOUND"
+
+
 def test_get_job_with_corrupted_job_json_returns_500(job_service, jobs_dir):
     job_id = "job_corrupt_json"
     job_dir = jobs_dir / job_id

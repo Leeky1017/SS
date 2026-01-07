@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from fastapi import Depends
+from fastapi import Depends, Header, HTTPException
 
 from src.api.audit_context import get_audit_context
 from src.config import Config, load_config
@@ -21,11 +21,23 @@ from src.infra.job_store_factory import build_job_store
 from src.infra.llm_tracing import TracedLLMClient
 from src.infra.prometheus_metrics import PrometheusMetrics
 from src.infra.queue_job_scheduler import QueueJobScheduler
+from src.utils.tenancy import DEFAULT_TENANT_ID, is_safe_tenant_id
 
 
 @lru_cache
 def get_config() -> Config:
     return load_config()
+
+
+def get_tenant_id(x_ss_tenant_id: str | None = Header(default=None, alias="X-SS-Tenant-ID")) -> str:
+    if x_ss_tenant_id is None:
+        return DEFAULT_TENANT_ID
+    tenant_id = x_ss_tenant_id.strip()
+    if tenant_id == "":
+        raise HTTPException(status_code=400, detail="X-SS-Tenant-ID must not be empty")
+    if not is_safe_tenant_id(tenant_id):
+        raise HTTPException(status_code=400, detail="X-SS-Tenant-ID is not a safe path segment")
+    return tenant_id
 
 
 @lru_cache
@@ -109,4 +121,3 @@ def get_draft_service() -> DraftService:
         llm=get_llm_client(),
         state_machine=get_job_state_machine(),
     )
-

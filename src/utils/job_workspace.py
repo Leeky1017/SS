@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from src.utils.tenancy import DEFAULT_TENANT_ID, tenant_jobs_dir
+
 SHARD_PREFIX_LEN = 2
 
 
@@ -39,18 +41,39 @@ def _safe_child_dir(*, base_dir: Path, parts: tuple[str, ...]) -> Path | None:
     return resolved
 
 
-def sharded_job_dir(*, jobs_dir: Path, job_id: str) -> Path | None:
+def sharded_job_dir(
+    *,
+    jobs_dir: Path,
+    tenant_id: str = DEFAULT_TENANT_ID,
+    job_id: str,
+) -> Path | None:
+    tenant_root = tenant_jobs_dir(jobs_dir=jobs_dir, tenant_id=tenant_id)
+    if tenant_root is None:
+        return None
     shard = shard_for_job_id(job_id)
-    return _safe_child_dir(base_dir=jobs_dir, parts=(shard, job_id))
+    return _safe_child_dir(base_dir=tenant_root, parts=(shard, job_id))
 
 
-def legacy_job_dir(*, jobs_dir: Path, job_id: str) -> Path | None:
-    return _safe_child_dir(base_dir=jobs_dir, parts=(job_id,))
+def legacy_job_dir(
+    *,
+    jobs_dir: Path,
+    tenant_id: str = DEFAULT_TENANT_ID,
+    job_id: str,
+) -> Path | None:
+    tenant_root = tenant_jobs_dir(jobs_dir=jobs_dir, tenant_id=tenant_id)
+    if tenant_root is None:
+        return None
+    return _safe_child_dir(base_dir=tenant_root, parts=(job_id,))
 
 
-def resolve_job_dir(*, jobs_dir: Path, job_id: str) -> Path | None:
-    sharded = sharded_job_dir(jobs_dir=jobs_dir, job_id=job_id)
-    legacy = legacy_job_dir(jobs_dir=jobs_dir, job_id=job_id)
+def resolve_job_dir(
+    *,
+    jobs_dir: Path,
+    tenant_id: str = DEFAULT_TENANT_ID,
+    job_id: str,
+) -> Path | None:
+    sharded = sharded_job_dir(jobs_dir=jobs_dir, tenant_id=tenant_id, job_id=job_id)
+    legacy = legacy_job_dir(jobs_dir=jobs_dir, tenant_id=tenant_id, job_id=job_id)
     if sharded is None:
         return None
     if (sharded / "job.json").exists():
@@ -58,4 +81,3 @@ def resolve_job_dir(*, jobs_dir: Path, job_id: str) -> Path | None:
     if legacy is not None and (legacy / "job.json").exists():
         return legacy
     return sharded
-
