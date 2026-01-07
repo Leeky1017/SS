@@ -93,6 +93,8 @@ def _timeout_seconds(*, step: PlanStep) -> int | None:
     raw = step.params.get("timeout_seconds")
     if raw is None:
         return None
+    if isinstance(raw, (dict, list)):
+        return None
     try:
         seconds = int(raw)
     except (TypeError, ValueError):
@@ -118,4 +120,3 @@ def _cap_timeout_seconds(
     if timeout_seconds is None:
         return remaining
     return min(timeout_seconds, remaining)
-

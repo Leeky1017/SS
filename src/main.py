@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import logging
 import os
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import cast
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
 
@@ -31,7 +33,7 @@ def _clear_dependency_caches() -> None:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.shutting_down = False
     config = app.state.config
     logger.info("SS_API_STARTUP", extra={"pid": os.getpid(), "log_level": config.log_level})
@@ -51,7 +53,9 @@ def create_app() -> FastAPI:
     app.state.shutting_down = False
 
     @app.middleware("http")
-    async def reject_during_shutdown(request: Request, call_next):
+    async def reject_during_shutdown(
+        request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         if getattr(request.app.state, "shutting_down", False):
             return _handle_ss_error(request, ServiceShuttingDownError())
         return await call_next(request)

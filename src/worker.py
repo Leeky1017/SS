@@ -4,6 +4,7 @@ import logging
 import signal
 import threading
 from datetime import datetime, timedelta
+from types import FrameType
 
 from src.config import load_config
 from src.domain.state_machine import JobStateMachine
@@ -24,7 +25,7 @@ def main() -> None:
     shutdown_requested = threading.Event()
     shutdown_deadline: datetime | None = None
 
-    def _request_shutdown(signum: int, _frame) -> None:
+    def _request_shutdown(signum: int, _frame: FrameType | None) -> None:
         nonlocal shutdown_deadline
         if shutdown_requested.is_set():
             return
