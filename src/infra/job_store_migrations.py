@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import secrets
 from pathlib import Path
 
 from src.domain.models import (
@@ -42,12 +43,22 @@ def migrate_payload_to_current(*, job_id: str, path: Path, payload: JsonObject) 
         migrated = _migrate_v2_to_v3(job_id=job_id, path=path, payload=migrated)
         schema_version = migrated.get("schema_version")
     if schema_version == JOB_SCHEMA_VERSION_CURRENT:
-        return migrated
+        return _ensure_trace_id(job_id=job_id, path=path, payload=migrated)
     logger.warning(
         "SS_JOB_JSON_SCHEMA_MIGRATION_UNDEFINED",
         extra={"job_id": job_id, "path": str(path), "schema_version": schema_version},
     )
     raise JobDataCorruptedError(job_id=job_id)
+
+
+def _ensure_trace_id(*, job_id: str, path: Path, payload: JsonObject) -> JsonObject:
+    trace_id = payload.get("trace_id")
+    if isinstance(trace_id, str) and trace_id.strip() != "":
+        return payload
+    migrated: JsonObject = dict(payload)
+    migrated["trace_id"] = secrets.token_hex(16)
+    logger.info("SS_JOB_TRACE_ID_BACKFILLED", extra={"job_id": job_id, "path": str(path)})
+    return migrated
 
 
 def _migrate_v1_to_v2(*, job_id: str, path: Path, payload: JsonObject) -> JsonObject:
@@ -95,4 +106,3 @@ def _migrate_v2_to_v3(*, job_id: str, path: Path, payload: JsonObject) -> JsonOb
         },
     )
     return migrated
-

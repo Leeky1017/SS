@@ -18,6 +18,11 @@ class Config:
     do_template_library_dir: Path
     stata_cmd: tuple[str, ...]
     log_level: str
+    tracing_enabled: bool
+    tracing_service_name: str
+    tracing_exporter: str
+    tracing_otlp_endpoint: str
+    tracing_sample_ratio: float
     llm_timeout_seconds: float
     llm_max_attempts: int
     llm_retry_backoff_base_seconds: float
@@ -43,6 +48,24 @@ def _float_value(raw: str, *, default: float) -> float:
         return float(raw)
     except (TypeError, ValueError):
         return default
+
+
+def _bool_value(raw: str, *, default: bool) -> bool:
+    value = str(raw).strip().lower()
+    if value in {"1", "true", "yes", "y", "on"}:
+        return True
+    if value in {"0", "false", "no", "n", "off"}:
+        return False
+    return default
+
+
+def _clamped_ratio(raw: str, *, default: float) -> float:
+    ratio = _float_value(raw, default=default)
+    if ratio < 0.0:
+        return 0.0
+    if ratio > 1.0:
+        return 1.0
+    return ratio
 
 
 def _load_llm_settings(*, env: Mapping[str, str]) -> tuple[float, int, float, float]:
@@ -74,6 +97,18 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     stata_cmd_raw = str(e.get("SS_STATA_CMD", "")).strip()
     stata_cmd = tuple(shlex.split(stata_cmd_raw)) if stata_cmd_raw != "" else tuple()
     log_level = str(e.get("SS_LOG_LEVEL", "INFO")).strip().upper()
+    tracing_enabled = _bool_value(str(e.get("SS_TRACING_ENABLED", "0")), default=False)
+    tracing_service_name = str(e.get("SS_TRACING_SERVICE_NAME", "ss")).strip() or "ss"
+    tracing_exporter = str(e.get("SS_TRACING_EXPORTER", "otlp")).strip().lower()
+    if tracing_exporter not in {"otlp", "console"}:
+        tracing_exporter = "otlp"
+    tracing_otlp_endpoint = str(
+        e.get("SS_TRACING_OTLP_ENDPOINT", "http://localhost:4318/v1/traces")
+    ).strip()
+    tracing_sample_ratio = _clamped_ratio(
+        str(e.get("SS_TRACING_SAMPLE_RATIO", "1.0")),
+        default=1.0,
+    )
     llm_timeout_seconds, llm_max_attempts, llm_backoff_base, llm_backoff_max = _load_llm_settings(
         env=e
     )
@@ -106,6 +141,11 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         do_template_library_dir=do_template_library_dir,
         stata_cmd=stata_cmd,
         log_level=log_level,
+        tracing_enabled=tracing_enabled,
+        tracing_service_name=tracing_service_name,
+        tracing_exporter=tracing_exporter,
+        tracing_otlp_endpoint=tracing_otlp_endpoint,
+        tracing_sample_ratio=tracing_sample_ratio,
         llm_timeout_seconds=llm_timeout_seconds,
         llm_max_attempts=llm_max_attempts,
         llm_retry_backoff_base_seconds=llm_backoff_base,

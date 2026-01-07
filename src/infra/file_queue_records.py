@@ -85,6 +85,9 @@ def load_claim(*, record: JsonObject) -> QueueClaim:
         or lease_expires_at == ""
     ):
         raise QueueDataCorruptedError(path="<record>")
+    traceparent = record.get("traceparent")
+    if not isinstance(traceparent, str) or traceparent.strip() == "":
+        traceparent = None
     try:
         claimed_at_parsed = datetime.fromisoformat(claimed_at)
         lease_expires_at_parsed = datetime.fromisoformat(lease_expires_at)
@@ -96,4 +99,5 @@ def load_claim(*, record: JsonObject) -> QueueClaim:
         worker_id=worker_id,
         claimed_at=claimed_at_parsed,
         lease_expires_at=lease_expires_at_parsed,
+        traceparent=traceparent,
     )

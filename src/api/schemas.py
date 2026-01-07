@@ -20,6 +20,7 @@ class CreateJobRequest(BaseModel):
 
 class CreateJobResponse(BaseModel):
     job_id: str
+    trace_id: str | None = None
     status: str
 
 
@@ -64,6 +65,7 @@ class RunAttemptSummary(BaseModel):
 
 class GetJobResponse(BaseModel):
     job_id: str
+    trace_id: str | None = None
     status: str
     timestamps: JobTimestamps
     draft: DraftSummary | None = None

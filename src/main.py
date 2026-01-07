@@ -18,6 +18,7 @@ from src.api.versioning import add_legacy_deprecation_headers, is_legacy_unversi
 from src.config import load_config
 from src.infra.exceptions import OutOfMemoryError, ServiceShuttingDownError, SSError
 from src.infra.logging_config import build_logging_config
+from src.infra.tracing import configure_tracing
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,7 @@ def _clear_dependency_caches() -> None:
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.shutting_down = False
     config = app.state.config
+    configure_tracing(config=config, component="api")
     logger.info("SS_API_STARTUP", extra={"pid": os.getpid(), "log_level": config.log_level})
     try:
         yield

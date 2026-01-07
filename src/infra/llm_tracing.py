@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import cast
 
+from opentelemetry import trace
+
 from src.domain.llm_client import LLMClient
 from src.domain.models import ArtifactKind, ArtifactRef, Draft, Job, is_safe_job_rel_path
 from src.domain.worker_retry import normalized_max_attempts
@@ -89,21 +91,27 @@ class TracedLLMClient(LLMClient):
         log_call_start(logger=logger, job_id=job.job_id, llm_call_id=call_id, operation=operation)
 
         started_perf = time.perf_counter()
-        outcome = await call_draft_preview_with_retry(
-            inner=self._inner,
-            job=job,
-            prompt=prompt,
-            operation=operation,
-            llm_call_id=call_id,
-            policy=RetryPolicy(
-                timeout_seconds=self._timeout_seconds,
-                max_attempts=self._max_attempts,
-                backoff_base_seconds=self._retry_backoff_base_seconds,
-                backoff_max_seconds=self._retry_backoff_max_seconds,
-            ),
-            redactor=redact_text,
-            logger=logger,
-        )
+        tracer = trace.get_tracer(__name__)
+        with tracer.start_as_current_span(f"ss.llm.{operation}") as span:
+            span.set_attribute("ss.job_id", job.job_id)
+            span.set_attribute("ss.llm_call_id", call_id)
+            span.set_attribute("ss.model", self._model)
+            outcome = await call_draft_preview_with_retry(
+                inner=self._inner,
+                job=job,
+                prompt=prompt,
+                operation=operation,
+                llm_call_id=call_id,
+                policy=RetryPolicy(
+                    timeout_seconds=self._timeout_seconds,
+                    max_attempts=self._max_attempts,
+                    backoff_base_seconds=self._retry_backoff_base_seconds,
+                    backoff_max_seconds=self._retry_backoff_max_seconds,
+                ),
+                redactor=redact_text,
+                logger=logger,
+            )
+            span.set_attribute("ss.ok", outcome.draft is not None)
         ended_at = utc_now()
         duration_ms = int((time.perf_counter() - started_perf) * 1000)
 

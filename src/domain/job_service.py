@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import secrets
 from collections import Counter
 from dataclasses import dataclass
 from typing import cast
@@ -15,6 +16,10 @@ from src.utils.json_types import JsonObject
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
+
+
+def _new_trace_id() -> str:
+    return secrets.token_hex(16)
 
 
 class JobScheduler:
@@ -67,6 +72,7 @@ class JobService:
         job = Job(
             schema_version=JOB_SCHEMA_VERSION_CURRENT,
             job_id=job_id,
+            trace_id=_new_trace_id(),
             status=JobStatus.CREATED,
             requirement=requirement,
             created_at=utc_now().isoformat(),
@@ -167,6 +173,7 @@ class JobService:
             JsonObject,
             {
                 "job_id": job.job_id,
+                "trace_id": job.trace_id,
                 "status": job.status.value,
                 "timestamps": {"created_at": job.created_at, "scheduled_at": job.scheduled_at},
                 "draft": draft_summary,
