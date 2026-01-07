@@ -1,0 +1,202 @@
+{
+  "registry_version": "1.0",
+  "families": [
+    {
+      "id": "data_management",
+      "aliases": ["data_management"],
+      "keywords": ["clean", "missing", "outlier", "recode", "encode", "reshape", "winsorize"],
+      "use_when": "数据清洗与预处理（缺失/异常处理、变量变换、结构转换）。",
+      "fallback_families": ["descriptive_statistics", "data_merge"]
+    },
+    {
+      "id": "data_merge",
+      "aliases": ["data_merge"],
+      "keywords": ["merge", "append", "join", "match", "link", "combine"],
+      "use_when": "多数据集合并/追加/匹配连接等数据整合任务。",
+      "fallback_families": ["data_management"]
+    },
+    {
+      "id": "descriptive_statistics",
+      "aliases": ["descriptive_statistics", "descriptive"],
+      "keywords": ["describe", "summary", "frequency", "correlation", "distribution", "eda", "missing"],
+      "use_when": "描述统计、频数、相关性、分布与探索性分析（EDA）。",
+      "fallback_families": ["visualization", "reporting"]
+    },
+    {
+      "id": "visualization",
+      "aliases": ["visualization"],
+      "keywords": ["plot", "graph", "histogram", "scatter", "boxplot", "line", "bar"],
+      "use_when": "统计图形与可视化输出（探索/展示）。",
+      "fallback_families": ["descriptive_statistics", "reporting"]
+    },
+    {
+      "id": "hypothesis_testing",
+      "aliases": ["hypothesis_testing"],
+      "keywords": ["ttest", "anova", "chisq", "wilcoxon", "mann_whitney", "ks_test", "hypothesis"],
+      "use_when": "假设检验与组间差异检验。",
+      "fallback_families": ["regression", "descriptive_statistics"]
+    },
+    {
+      "id": "regression",
+      "aliases": ["regression"],
+      "keywords": ["regression", "ols", "robust", "cluster", "diagnostic", "specification", "interaction"],
+      "use_when": "回归分析（通用）与稳健性/诊断/设定检查。",
+      "fallback_families": ["linear_regression", "panel_data"]
+    },
+    {
+      "id": "linear_regression",
+      "aliases": ["linear_regression"],
+      "keywords": ["regress", "ols", "vif", "heteroskedasticity", "collinearity", "outlier", "influence"],
+      "use_when": "线性回归及其常见诊断（共线性、异方差、影响点）。",
+      "fallback_families": ["regression"]
+    },
+    {
+      "id": "limited_dependent",
+      "aliases": ["limited_dependent"],
+      "keywords": ["logit", "probit", "tobit", "poisson", "negative_binomial", "heckman", "count"],
+      "use_when": "受限因变量模型（二元/计数/截断/选择偏差）。",
+      "fallback_families": ["linear_regression", "regression"]
+    },
+    {
+      "id": "panel_data",
+      "aliases": ["panel_data", "panel"],
+      "keywords": ["panel", "xtreg", "fixed_effects", "random_effects", "dynamic_panel", "fe", "re"],
+      "use_when": "面板数据模型（固定/随机效应、动态面板等）。",
+      "fallback_families": ["regression", "causal_inference"]
+    },
+    {
+      "id": "causal_inference",
+      "aliases": ["causal_inference"],
+      "keywords": ["did", "psm", "rdd", "iv", "event_study", "synthetic_control", "causal"],
+      "use_when": "因果推断方法（DID/PSM/RDD/IV/事件研究等）。",
+      "fallback_families": ["panel_data", "regression"]
+    },
+    {
+      "id": "time_series",
+      "aliases": ["time_series"],
+      "keywords": ["arima", "var", "vecm", "forecast", "unit_root", "cointegration", "garch"],
+      "use_when": "时间序列建模、预测与平稳性/协整检验。",
+      "fallback_families": ["finance", "regression"]
+    },
+    {
+      "id": "finance",
+      "aliases": ["finance"],
+      "keywords": ["returns", "capm", "fama_macbeth", "portfolio", "risk", "volatility", "event"],
+      "use_when": "金融专题分析（收益率、资产定价、组合与事件研究）。",
+      "fallback_families": ["time_series", "regression"]
+    },
+    {
+      "id": "accounting",
+      "aliases": ["accounting", "audit"],
+      "keywords": ["accounting", "audit", "accrual", "earnings_management", "restatement", "financial_statement"],
+      "use_when": "会计/审计专题分析。",
+      "fallback_families": ["regression", "finance"]
+    },
+    {
+      "id": "survival_analysis",
+      "aliases": ["survival_analysis", "survival"],
+      "keywords": ["cox", "kaplan_meier", "logrank", "hazard", "stset", "time_to_event", "survival"],
+      "use_when": "生存/事件发生时间模型（Cox/KM 等）。",
+      "fallback_families": ["medical", "regression"]
+    },
+    {
+      "id": "medical",
+      "aliases": ["medical"],
+      "keywords": ["clinical", "epidemiology", "odds_ratio", "risk_ratio", "diagnostic", "trial"],
+      "use_when": "医学/生物统计专题分析。",
+      "fallback_families": ["survival_analysis", "regression"]
+    },
+    {
+      "id": "survey",
+      "aliases": ["survey"],
+      "keywords": ["svy", "weight", "strata", "psu", "cluster", "survey"],
+      "use_when": "复杂抽样调查数据（权重/分层/聚类）。",
+      "fallback_families": ["descriptive_statistics", "regression"]
+    },
+    {
+      "id": "spatial",
+      "aliases": ["spatial"],
+      "keywords": ["spatial", "gis", "geocode", "moran", "distance", "spatial_lag"],
+      "use_when": "空间数据处理与空间计量。",
+      "fallback_families": ["regression"]
+    },
+    {
+      "id": "multilevel",
+      "aliases": ["multilevel"],
+      "keywords": ["mixed", "hierarchical", "random_effects", "nested", "multilevel", "mlm"],
+      "use_when": "多层/层级模型（混合效应）。",
+      "fallback_families": ["panel_data", "regression"]
+    },
+    {
+      "id": "gee",
+      "aliases": ["gee"],
+      "keywords": ["gee", "longitudinal", "correlated", "population_averaged", "clustered"],
+      "use_when": "GEE：处理相关/纵向数据的总体平均效应模型。",
+      "fallback_families": ["panel_data"]
+    },
+    {
+      "id": "multivariate",
+      "aliases": ["multivariate"],
+      "keywords": ["pca", "factor", "cluster", "dimension_reduction", "manova", "lda"],
+      "use_when": "多变量方法：降维、聚类、判别与综合分析。",
+      "fallback_families": ["machine_learning"]
+    },
+    {
+      "id": "latent_variable",
+      "aliases": ["latent_variable"],
+      "keywords": ["sem", "gsem", "cfa", "latent", "mediation", "path_analysis"],
+      "use_when": "潜变量与结构方程模型（SEM/GSEM）。",
+      "fallback_families": ["multivariate", "regression"]
+    },
+    {
+      "id": "advanced_methods",
+      "aliases": ["advanced_methods"],
+      "keywords": ["bootstrap", "permutation", "quantile", "spline", "nonparametric", "robust"],
+      "use_when": "高级/稳健方法与重抽样推断。",
+      "fallback_families": ["regression"]
+    },
+    {
+      "id": "machine_learning",
+      "aliases": ["machine_learning"],
+      "keywords": ["lasso", "ridge", "elastic_net", "cross_validation", "prediction", "ml"],
+      "use_when": "机器学习与正则化/预测建模。",
+      "fallback_families": ["linear_regression"]
+    },
+    {
+      "id": "text_analysis",
+      "aliases": ["text_analysis"],
+      "keywords": ["text", "nlp", "tokenize", "tfidf", "topic_model", "sentiment"],
+      "use_when": "文本分析（主题/情感/向量化等）。",
+      "fallback_families": ["machine_learning"]
+    },
+    {
+      "id": "bayesian",
+      "aliases": ["bayesian"],
+      "keywords": ["bayesian", "mcmc", "posterior", "prior", "bayes", "credible_interval"],
+      "use_when": "贝叶斯建模与后验推断。",
+      "fallback_families": ["regression"]
+    },
+    {
+      "id": "sample_size_power",
+      "aliases": ["sample_size_power"],
+      "keywords": ["power", "sample_size", "effect_size", "alpha", "beta", "mde"],
+      "use_when": "样本量与统计功效分析。",
+      "fallback_families": ["hypothesis_testing"]
+    },
+    {
+      "id": "output",
+      "aliases": ["output"],
+      "keywords": ["export", "save", "log", "path", "file", "artifact"],
+      "use_when": "输出文件导出/保存与结果落盘整理。",
+      "fallback_families": ["reporting"]
+    },
+    {
+      "id": "reporting",
+      "aliases": ["reporting"],
+      "keywords": ["report", "table", "summary_table", "docx", "latex", "appendix"],
+      "use_when": "表格/报告整理与可复用的结果呈现。",
+      "fallback_families": ["output"]
+    }
+  ]
+}
+

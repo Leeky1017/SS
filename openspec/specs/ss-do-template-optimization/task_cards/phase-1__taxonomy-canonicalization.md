@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #146
 - Parent: #125
 - Related specs:
   - `openspec/specs/ss-do-template-optimization/spec.md`
@@ -32,4 +32,3 @@ Introduce an SS-owned canonical taxonomy that eliminates ambiguous family duplic
 - [ ] All templates resolve to exactly 1 canonical family
 - [ ] Aliases resolve deterministically and are audited in artifacts/run meta
 - [ ] Stage-1 `FamilySummary` generation exists and is stable under regeneration
-
