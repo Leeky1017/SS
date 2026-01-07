@@ -2,7 +2,7 @@
 
 - Issue: #108
 - Branch: task/108-audit-logging
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/113
 
 ## Plan
 - Define audit event schema + logger port
@@ -56,3 +56,9 @@
 - Key output:
   - `Open PR file overlap: PR #111 touches src/api/deps.py, src/domain/job_service.py, src/domain/worker_service.py, src/main.py, src/worker.py`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 01:22 PR created (draft)
+- Command:
+  - `gh pr create --draft --title "[SS-AUDIT-OPS] Audit logging (who did what) (#108)" --body "Closes #108 ..."`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/113`
