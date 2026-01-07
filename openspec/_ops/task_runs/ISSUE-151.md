@@ -2,20 +2,23 @@
 
 - Issue: #151
 - Branch: task/151-composition-adaptive-multi-data
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/152
 
 ## Goal
 - Upgrade Phase-3 composition from single-dataset chaining to adaptive multi-dataset composition (spec + task breakdown).
 
 ## Status
-- CURRENT: Changes committed + rebased; ready to push, open PR, and enable auto-merge.
+- CURRENT: PR merged; syncing controlplane + closing out worktree/task.
 
 ## Next Actions
 - [x] Update `phase-3__template-composition-pipeline-mvp.md` to adaptive multi-data scope
 - [x] Add `COMPOSITION_ARCHITECTURE.md` (data model + modes + LLM Plan schema)
 - [x] Split into P3.* sub task cards
 - [x] Commit changes with `(#151)`
-- [ ] Create PR with `Closes #151` and enable auto-merge
+- [x] Create PR with `Closes #151` and enable auto-merge
+- [ ] Sync controlplane `main` to `origin/main`
+- [ ] Clean up worktree: `scripts/agent_worktree_cleanup.sh "151" "composition-adaptive-multi-data"`
+- [ ] Archive Rulebook task: `issue-151-composition-adaptive-multi-data`
 
 ## Decisions Made
 - 2026-01-07: Keep this Issue focused on spec/task breakdown; implementation work to be scheduled via sub task cards.
@@ -94,3 +97,22 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-08 PR created + auto-merge
+- Command:
+  - `git push -u origin HEAD`
+  - `gh pr create ...`
+  - `gh pr merge --auto --squash 152`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/152`
+  - `will be automatically merged via squash when all requirements are met`
+
+### 2026-01-08 Checks
+- Command:
+  - `gh pr checks --watch 152`
+- Key output:
+  - `All checks were successful`
+
+### 2026-01-08 Merge
+- Result:
+  - `MERGED: https://github.com/Leeky1017/SS/pull/152`
