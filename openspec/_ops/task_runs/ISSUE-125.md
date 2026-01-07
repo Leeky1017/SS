@@ -67,3 +67,9 @@
   - `gh pr create --title "docs: do-template optimization spec (#125)" --body "Closes #125 ..."`
 - Key output:
   - `https://github.com/Leeky1017/SS/pull/130`
+
+### 2026-01-07 auto-merge enabled
+- Command:
+  - `gh pr merge --auto --squash 130`
+- Key output:
+  - PR will auto-merge when required checks pass
