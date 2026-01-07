@@ -2,6 +2,5 @@
 
 权威版本已迁移到 OpenSpec：
 
-- `openspec/specs/stata-service-legacy-analysis/spec.md`
-- `openspec/specs/stata-service-legacy-analysis/analysis.md`
-
+- `openspec/specs/archive/stata-service-legacy-analysis/spec.md`
+- `openspec/specs/archive/stata-service-legacy-analysis/analysis.md`

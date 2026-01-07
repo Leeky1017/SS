@@ -32,7 +32,7 @@ SS implementations MUST NOT copy legacy patterns such as:
 ### Requirement: Legacy docs live in OpenSpec
 
 Legacy analysis MUST live in OpenSpec and clearly state it is non-canonical.
-The analysis content SHOULD be placed in `openspec/specs/stata-service-legacy-analysis/analysis.md`.
+The analysis content SHOULD be placed in `openspec/specs/archive/stata-service-legacy-analysis/analysis.md`.
 
 #### Scenario: Legacy analysis is discoverable and scoped
 - **WHEN** browsing OpenSpec

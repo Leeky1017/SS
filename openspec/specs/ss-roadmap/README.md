@@ -52,5 +52,5 @@ task card 用于把每个子 Issue 写成 agent 更好消费的“蓝图卡片�
 - `openspec/specs/ss-constitution/`（总纲与硬约束）
 - `openspec/specs/ss-delivery-workflow/`（交付流程门禁）
 - `openspec/specs/openspec-writing-standard/`（写作规范）
-- `openspec/specs/openspec-officialize/`（工具化对齐）
-- `openspec/specs/stata-service-legacy-analysis/`（legacy 仅作语义/边界输入）
+- `openspec/specs/archive/openspec-officialize/`（工具化对齐，已归档）
+- `openspec/specs/archive/stata-service-legacy-analysis/`（legacy 仅作语义/边界输入，已归档）
