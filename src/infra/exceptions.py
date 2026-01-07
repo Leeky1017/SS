@@ -13,6 +13,15 @@ class SSError(Exception):
         return {"error_code": self.error_code, "message": self.message}
 
 
+class ServiceShuttingDownError(SSError):
+    def __init__(self) -> None:
+        super().__init__(
+            error_code="SERVICE_SHUTTING_DOWN",
+            message="service is shutting down",
+            status_code=503,
+        )
+
+
 class JobNotFoundError(SSError):
     def __init__(self, *, job_id: str):
         super().__init__(

@@ -17,6 +17,7 @@ class Config:
     log_level: str
     worker_id: str
     worker_idle_sleep_seconds: float
+    worker_shutdown_grace_seconds: float
     worker_max_attempts: int
     worker_retry_backoff_base_seconds: float
     worker_retry_backoff_max_seconds: float
@@ -53,6 +54,10 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         str(e.get("SS_WORKER_IDLE_SLEEP_SECONDS", "1.0")),
         default=1.0,
     )
+    worker_shutdown_grace_seconds = _float_value(
+        str(e.get("SS_WORKER_SHUTDOWN_GRACE_SECONDS", "30.0")),
+        default=30.0,
+    )
     worker_max_attempts = _int_value(str(e.get("SS_WORKER_MAX_ATTEMPTS", "3")), default=3)
     worker_retry_backoff_base_seconds = _float_value(
         str(e.get("SS_WORKER_RETRY_BACKOFF_BASE_SECONDS", "1.0")),
@@ -71,6 +76,7 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         log_level=log_level,
         worker_id=worker_id,
         worker_idle_sleep_seconds=worker_idle_sleep_seconds,
+        worker_shutdown_grace_seconds=worker_shutdown_grace_seconds,
         worker_max_attempts=worker_max_attempts,
         worker_retry_backoff_base_seconds=worker_retry_backoff_base_seconds,
         worker_retry_backoff_max_seconds=worker_retry_backoff_max_seconds,
