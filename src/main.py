@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import logging
+import os
+from contextlib import asynccontextmanager
 from typing import cast
 
 from fastapi import FastAPI
@@ -9,14 +12,50 @@ from starlette.responses import Response
 
 from src.api.routes import api_router
 from src.config import load_config
-from src.infra.exceptions import SSError
+from src.infra.exceptions import ServiceShuttingDownError, SSError
 from src.infra.logging_config import build_logging_config
+
+logger = logging.getLogger(__name__)
+
+
+def _clear_dependency_caches() -> None:
+    from src.api import deps
+
+    deps.get_config.cache_clear()
+    deps.get_job_store.cache_clear()
+    deps.get_worker_queue.cache_clear()
+    deps.get_llm_client.cache_clear()
+    deps.get_job_state_machine.cache_clear()
+    deps.get_job_idempotency.cache_clear()
+    deps.get_artifacts_service.cache_clear()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.shutting_down = False
+    config = app.state.config
+    logger.info("SS_API_STARTUP", extra={"pid": os.getpid(), "log_level": config.log_level})
+    try:
+        yield
+    finally:
+        app.state.shutting_down = True
+        logger.info("SS_API_SHUTDOWN_INITIATED", extra={"pid": os.getpid()})
+        _clear_dependency_caches()
+        logger.info("SS_API_SHUTDOWN_COMPLETE", extra={"pid": os.getpid()})
 
 
 def create_app() -> FastAPI:
     config = load_config()
-    app = FastAPI(title="SS", version="0.0.0")
+    app = FastAPI(title="SS", version="0.0.0", lifespan=lifespan)
     app.state.config = config
+    app.state.shutting_down = False
+
+    @app.middleware("http")
+    async def reject_during_shutdown(request: Request, call_next):
+        if getattr(request.app.state, "shutting_down", False):
+            return _handle_ss_error(request, ServiceShuttingDownError())
+        return await call_next(request)
+
     app.include_router(api_router)
     app.add_exception_handler(SSError, _handle_ss_error)
     return app

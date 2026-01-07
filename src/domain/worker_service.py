@@ -7,10 +7,13 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
 
-from src.domain.models import Job, JobStatus, PlanStep, PlanStepType, RunAttempt
-from src.domain.stata_runner import RunError, RunResult, StataRunner
+from src.domain.models import Job, JobStatus
+from src.domain.stata_runner import StataRunner
 from src.domain.state_machine import JobStateMachine
+from src.domain.worker_plan_executor import execute_plan
 from src.domain.worker_queue import QueueClaim, WorkerQueue
+from src.domain.worker_retry import backoff_seconds, normalized_max_attempts
+from src.domain.worker_run_attempts import record_attempt_finished, record_attempt_started
 from src.infra.exceptions import (
     JobDataCorruptedError,
     JobNotFoundError,
@@ -21,6 +24,19 @@ from src.infra.job_store import JobStore
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
+
+StopRequested = Callable[[], bool]
+ShutdownDeadline = Callable[[], datetime | None]
+
+_SHUTDOWN_RELEASE_CLAIM_EVENT = "SS_WORKER_SHUTDOWN_RELEASE_CLAIM"
+
+
+def _never_stop() -> bool:
+    return False
+
+
+def _no_deadline() -> datetime | None:
+    return None
 
 
 @dataclass(frozen=True)
@@ -50,20 +66,55 @@ class WorkerService:
         self._clock = clock
         self._sleep = sleep
 
-    def process_next(self, *, worker_id: str) -> bool:
+    def process_next(
+        self,
+        *,
+        worker_id: str,
+        stop_requested: StopRequested | None = None,
+        shutdown_deadline: ShutdownDeadline | None = None,
+    ) -> bool:
+        stop = _never_stop if stop_requested is None else stop_requested
+        deadline = _no_deadline if shutdown_deadline is None else shutdown_deadline
+        if stop():
+            return False
         claim = self._queue.claim(worker_id=worker_id)
         if claim is None:
             return False
-        self.process_claim(claim=claim)
+        if stop():
+            self._release_claim_on_shutdown(
+                claim=claim,
+                event="SS_WORKER_SHUTDOWN_RELEASE_UNPROCESSED_CLAIM",
+            )
+            return False
+        self.process_claim(claim=claim, stop_requested=stop, shutdown_deadline=deadline)
         return True
 
-    def process_claim(self, *, claim: QueueClaim) -> None:
+    def process_claim(
+        self,
+        *,
+        claim: QueueClaim,
+        stop_requested: StopRequested | None = None,
+        shutdown_deadline: ShutdownDeadline | None = None,
+    ) -> None:
+        stop = _never_stop if stop_requested is None else stop_requested
+        deadline = _no_deadline if shutdown_deadline is None else shutdown_deadline
+        if stop():
+            self._release_claim_on_shutdown(claim=claim, event=_SHUTDOWN_RELEASE_CLAIM_EVENT)
+            return
         job = self._load_job_or_handle(claim=claim)
         if job is None:
             return
+        if stop():
+            self._release_claim_on_shutdown(claim=claim, event=_SHUTDOWN_RELEASE_CLAIM_EVENT)
+            return
         if not self._ensure_job_claimable(job=job, claim=claim):
             return
-        self._run_job_with_retries(job=job, claim=claim)
+        self._run_job_with_retries(
+            job=job,
+            claim=claim,
+            stop_requested=stop,
+            shutdown_deadline=deadline,
+        )
 
     def _load_job_or_handle(self, *, claim: QueueClaim) -> Job | None:
         try:
@@ -136,14 +187,41 @@ class WorkerService:
         self._release(claim=claim)
         return False
 
-    def _run_job_with_retries(self, *, job: Job, claim: QueueClaim) -> None:
-        max_attempts = self._normalized_max_attempts()
+    def _run_job_with_retries(
+        self,
+        *,
+        job: Job,
+        claim: QueueClaim,
+        stop_requested: StopRequested,
+        shutdown_deadline: ShutdownDeadline,
+    ) -> None:
+        max_attempts = normalized_max_attempts(self._retry.max_attempts)
         attempt = len(job.runs) + 1
         while attempt <= max_attempts:
+            if stop_requested():
+                self._release_claim_on_shutdown(claim=claim, event=_SHUTDOWN_RELEASE_CLAIM_EVENT)
+                return
             run_id = uuid.uuid4().hex
-            self._record_attempt_started(job=job, run_id=run_id, attempt=attempt)
-            result = self._execute_plan(job=job, run_id=run_id)
-            self._record_attempt_finished(job=job, run_id=run_id, result=result)
+            record_attempt_started(
+                job=job,
+                run_id=run_id,
+                attempt=attempt,
+                store=self._store,
+                clock=self._clock,
+            )
+            result = execute_plan(
+                job=job,
+                run_id=run_id,
+                runner=self._runner,
+                shutdown_deadline=shutdown_deadline(),
+                clock=self._clock,
+            )
+            record_attempt_finished(
+                job=job,
+                run_id=run_id,
+                result=result,
+                clock=self._clock,
+            )
             self._store.save(job)
 
             if result.ok:
@@ -156,43 +234,21 @@ class WorkerService:
                 self._ack(claim=claim)
                 return
 
-            backoff = self._backoff_seconds(attempt=attempt)
+            if stop_requested():
+                self._release_claim_on_shutdown(claim=claim, event=_SHUTDOWN_RELEASE_CLAIM_EVENT)
+                return
+
+            backoff = backoff_seconds(
+                attempt=attempt,
+                base_seconds=self._retry.backoff_base_seconds,
+                max_seconds=self._retry.backoff_max_seconds,
+            )
             logger.info(
                 "SS_WORKER_RETRY_BACKOFF",
                 extra={"job_id": job.job_id, "attempt": attempt, "sleep_seconds": backoff},
             )
             self._sleep(backoff)
             attempt += 1
-
-    def _record_attempt_started(self, *, job: Job, run_id: str, attempt: int) -> None:
-        started_at = self._clock().isoformat()
-        job.runs.append(
-            RunAttempt(
-                run_id=run_id,
-                attempt=attempt,
-                status="running",
-                started_at=started_at,
-                ended_at=None,
-                artifacts=[],
-            )
-        )
-        self._store.save(job)
-        logger.info(
-            "SS_WORKER_ATTEMPT_START",
-            extra={"job_id": job.job_id, "run_id": run_id, "attempt": attempt},
-        )
-
-    def _record_attempt_finished(self, *, job: Job, run_id: str, result: RunResult) -> None:
-        ended_at = self._clock().isoformat()
-        attempt = self._find_attempt(job=job, run_id=run_id)
-        attempt.ended_at = ended_at
-        attempt.status = "succeeded" if result.ok else "failed"
-        attempt.artifacts = list(result.artifacts)
-        self._index_artifacts(job=job, result=result)
-        logger.info(
-            "SS_WORKER_ATTEMPT_DONE",
-            extra={"job_id": job.job_id, "run_id": run_id, "ok": result.ok},
-        )
 
     def _finish_job(self, *, job: Job, status: JobStatus) -> None:
         if self._state_machine.ensure_transition(
@@ -204,123 +260,12 @@ class WorkerService:
         self._store.save(job)
         logger.info("SS_WORKER_JOB_DONE", extra={"job_id": job.job_id, "status": job.status.value})
 
-    def _execute_plan(self, *, job: Job, run_id: str) -> RunResult:
-        if job.llm_plan is None:
-            logger.warning("SS_WORKER_PLAN_MISSING", extra={"job_id": job.job_id})
-            return RunResult(
-                job_id=job.job_id,
-                run_id=run_id,
-                ok=False,
-                exit_code=None,
-                timed_out=False,
-                artifacts=tuple(),
-                error=RunError(error_code="PLAN_MISSING", message="job missing llm_plan"),
-            )
-
-        do_file = ""
-        for step in job.llm_plan.steps:
-            if step.type == PlanStepType.GENERATE_STATA_DO:
-                do_file = self._generate_do_file(job=job, run_id=run_id, step=step)
-                continue
-            if step.type == PlanStepType.RUN_STATA:
-                timeout_seconds = self._timeout_seconds(step=step)
-                if do_file == "":
-                    do_file = self._default_do_file(job=job, run_id=run_id)
-                return self._runner.run(
-                    job_id=job.job_id,
-                    run_id=run_id,
-                    do_file=do_file,
-                    timeout_seconds=timeout_seconds,
-                )
-
-        logger.warning("SS_WORKER_PLAN_NO_RUN_STEP", extra={"job_id": job.job_id})
-        return RunResult(
-            job_id=job.job_id,
-            run_id=run_id,
-            ok=False,
-            exit_code=None,
-            timed_out=False,
-            artifacts=tuple(),
-            error=RunError(error_code="PLAN_INVALID", message="plan missing RUN_STATA step"),
+    def _release_claim_on_shutdown(self, *, claim: QueueClaim, event: str) -> None:
+        logger.info(
+            event,
+            extra={"job_id": claim.job_id, "claim_id": claim.claim_id},
         )
-
-    def _generate_do_file(self, *, job: Job, run_id: str, step: PlanStep) -> str:
-        template = str(step.params.get("template", ""))
-        requirement_fingerprint = str(step.params.get("requirement_fingerprint", ""))
-        lines = [
-            "* SS generated do-file (stub)",
-            f"* template: {template}",
-            f"* job_id: {job.job_id}",
-            f"* run_id: {run_id}",
-            f"* requirement_fingerprint: {requirement_fingerprint}",
-            'display "SS stub do-file"',
-            "exit 0",
-        ]
-        return "\n".join(lines) + "\n"
-
-    def _default_do_file(self, *, job: Job, run_id: str) -> str:
-        lines = [
-            "* SS generated do-file (default)",
-            f"* job_id: {job.job_id}",
-            f"* run_id: {run_id}",
-            'display "SS default do-file"',
-            "exit 0",
-        ]
-        return "\n".join(lines) + "\n"
-
-    def _timeout_seconds(self, *, step: PlanStep) -> int | None:
-        raw = step.params.get("timeout_seconds")
-        if raw is None:
-            return None
-        if isinstance(raw, (dict, list)):
-            return None
-        try:
-            seconds = int(raw)
-        except (TypeError, ValueError):
-            return None
-        if seconds <= 0:
-            return None
-        return seconds
-
-    def _find_attempt(self, *, job: Job, run_id: str) -> RunAttempt:
-        for attempt in reversed(job.runs):
-            if attempt.run_id == run_id:
-                return attempt
-        raise ValueError("run attempt not found")
-
-    def _index_artifacts(self, *, job: Job, result: RunResult) -> None:
-        known = {(ref.kind, ref.rel_path) for ref in job.artifacts_index}
-        for ref in result.artifacts:
-            key = (ref.kind, ref.rel_path)
-            if key in known:
-                continue
-            job.artifacts_index.append(ref)
-            known.add(key)
-
-    def _normalized_max_attempts(self) -> int:
-        try:
-            value = int(self._retry.max_attempts)
-        except (TypeError, ValueError):
-            return 1
-        if value <= 0:
-            return 1
-        return value
-
-    def _backoff_seconds(self, *, attempt: int) -> float:
-        try:
-            base = float(self._retry.backoff_base_seconds)
-        except (TypeError, ValueError):
-            base = 0.0
-        try:
-            cap = float(self._retry.backoff_max_seconds)
-        except (TypeError, ValueError):
-            cap = 0.0
-        if base <= 0:
-            return 0.0
-        if cap <= 0:
-            cap = base
-        seconds = base * (2 ** max(attempt - 1, 0))
-        return float(min(seconds, cap))
+        self._release(claim=claim)
 
     def _ack(self, *, claim: QueueClaim) -> None:
         try:
