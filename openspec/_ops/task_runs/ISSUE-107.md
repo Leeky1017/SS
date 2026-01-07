@@ -35,3 +35,13 @@
   - `/home/leeky/work/SS/.venv/bin/pytest -q`
 - Key output:
   - `82 passed in 3.12s`
+
+### 2026-01-07 15:10 rebase + re-run
+- Command:
+  - `git pull --rebase origin main`
+  - `/home/leeky/work/SS/.venv/bin/ruff check .`
+  - `/home/leeky/work/SS/.venv/bin/pytest -q`
+- Key output:
+  - `Successfully rebased and updated refs/heads/task/107-chaos-tests.`
+  - `All checks passed!`
+  - `85 passed, 5 skipped in 3.39s`
