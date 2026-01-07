@@ -9,6 +9,15 @@ pip install -e ".[dev]"
 python -m src.main
 ```
 
+## 开发（本地检查）
+
+```bash
+. .venv/bin/activate
+ruff check .
+mypy
+pytest -q
+```
+
 ## 最小链路
 
 - `POST /jobs`：创建 job（写入 `jobs/<job_id>/job.json`）

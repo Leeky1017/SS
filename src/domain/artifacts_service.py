@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import cast
 
 from src.domain.models import is_safe_job_rel_path
 from src.infra.exceptions import ArtifactNotFoundError, ArtifactPathUnsafeError
 from src.infra.job_store import JobStore
+from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +17,9 @@ class ArtifactsService:
         self._store = store
         self._jobs_dir = Path(jobs_dir)
 
-    def list_artifacts(self, *, job_id: str) -> list[dict]:
+    def list_artifacts(self, *, job_id: str) -> list[JsonObject]:
         job = self._store.load(job_id)
-        items: list[dict] = []
+        items: list[JsonObject] = []
         for ref in job.artifacts_index:
             extra = ref.model_extra if ref.model_extra is not None else {}
             created_at = extra.get("created_at")
@@ -31,7 +33,7 @@ class ArtifactsService:
                     "kind": ref.kind.value,
                     "rel_path": ref.rel_path,
                     "created_at": created_at,
-                    "meta": meta,
+                    "meta": cast(JsonObject, meta),
                 }
             )
         return items

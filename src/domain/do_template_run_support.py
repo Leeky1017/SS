@@ -4,10 +4,11 @@ import logging
 import shutil
 from pathlib import Path
 
-from src.domain.models import ArtifactKind, ArtifactRef, JobStatus
+from src.domain.models import ArtifactKind, ArtifactRef, Job, JobStatus
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import DoTemplateArtifactsWriteError, DoTemplateContractInvalidError
 from src.infra.stata_run_support import job_rel_path, write_json, write_text
+from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ def safe_output_filename(value: str) -> bool:
     return ".." not in Path(value).parts
 
 
-def output_kind(output: dict) -> ArtifactKind:
+def output_kind(output: JsonObject) -> ArtifactKind:
     output_type = output.get("type", "")
     if output_type == "table":
         return ArtifactKind.STATA_EXPORT_TABLE
@@ -35,20 +36,20 @@ def output_kind(output: dict) -> ArtifactKind:
     return ArtifactKind.STATA_RESULT_LOG
 
 
-def declared_outputs(*, template_id: str, meta: dict) -> tuple[dict, ...]:
+def declared_outputs(*, template_id: str, meta: JsonObject) -> tuple[JsonObject, ...]:
     raw = meta.get("outputs", [])
     if raw is None:
         return tuple()
     if not isinstance(raw, list):
         raise DoTemplateContractInvalidError(template_id=template_id, reason="meta.outputs_invalid")
-    outputs: list[dict] = []
+    outputs: list[JsonObject] = []
     for item in raw:
         if isinstance(item, dict):
             outputs.append(item)
     return tuple(outputs)
 
 
-def output_filename(*, template_id: str, output: dict) -> str:
+def output_filename(*, template_id: str, output: JsonObject) -> str:
     filename = output.get("file", "")
     if not isinstance(filename, str) or not safe_output_filename(filename):
         raise DoTemplateContractInvalidError(
@@ -93,7 +94,7 @@ def write_artifact_json(
     job_id: str,
     run_id: str,
     path: Path,
-    payload: dict,
+    payload: JsonObject,
 ) -> None:
     try:
         write_json(path, payload)
@@ -138,11 +139,11 @@ def ensure_job_status(
     *,
     job_id: str,
     state_machine: JobStateMachine,
-    job,
+    job: Job,
     status: JobStatus,
 ) -> None:
     current = getattr(job, "status", None)
     if current is None or not isinstance(current, JobStatus):
         return
     if state_machine.ensure_transition(job_id=job_id, from_status=current, to_status=status):
-        job.status = status  # pyright: ignore[reportAttributeAccessIssue]
+        job.status = status

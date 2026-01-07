@@ -5,6 +5,7 @@ import logging
 import os
 import tempfile
 from pathlib import Path
+from typing import cast
 
 from pydantic import ValidationError
 
@@ -24,6 +25,7 @@ from src.infra.exceptions import (
     JobNotFoundError,
     JobStoreIOError,
 )
+from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +64,9 @@ class JobStore:
     def _job_path(self, job_id: str) -> Path:
         return self._job_dir(job_id) / "job.json"
 
-    def _assert_supported_schema_version(self, *, job_id: str, path: Path, payload: dict) -> None:
+    def _assert_supported_schema_version(
+        self, *, job_id: str, path: Path, payload: JsonObject
+    ) -> None:
         schema_version = payload.get("schema_version")
         if schema_version not in SUPPORTED_JOB_SCHEMA_VERSIONS:
             logger.warning(
@@ -76,7 +80,9 @@ class JobStore:
             )
             raise JobDataCorruptedError(job_id=job_id)
 
-    def _migrate_payload_to_current(self, *, job_id: str, path: Path, payload: dict) -> dict:
+    def _migrate_payload_to_current(
+        self, *, job_id: str, path: Path, payload: JsonObject
+    ) -> JsonObject:
         schema_version = payload.get("schema_version")
         if schema_version == JOB_SCHEMA_VERSION_CURRENT:
             return payload
@@ -88,8 +94,8 @@ class JobStore:
         )
         raise JobDataCorruptedError(job_id=job_id)
 
-    def _migrate_v1_to_v2(self, *, job_id: str, path: Path, payload: dict) -> dict:
-        migrated = dict(payload)
+    def _migrate_v1_to_v2(self, *, job_id: str, path: Path, payload: JsonObject) -> JsonObject:
+        migrated: JsonObject = dict(payload)
         for key in ("runs", "artifacts_index"):
             if key not in migrated:
                 migrated[key] = []
@@ -128,7 +134,7 @@ class JobStore:
             raise JobDataCorruptedError(job_id=job.job_id)
         self._job_dir(job.job_id).mkdir(parents=True, exist_ok=True)
         try:
-            self._atomic_write(path, job.model_dump(mode="json"))
+            self._atomic_write(path, cast(JsonObject, job.model_dump(mode="json")))
         except OSError as e:
             logger.warning(
                 "SS_JOB_JSON_CREATE_FAILED",
@@ -154,8 +160,9 @@ class JobStore:
                 extra={"job_id": job_id, "path": str(path), "reason": "not_object"},
             )
             raise JobDataCorruptedError(job_id=job_id)
-        self._assert_supported_schema_version(job_id=job_id, path=path, payload=raw)
-        migrated = self._migrate_payload_to_current(job_id=job_id, path=path, payload=raw)
+        payload = cast(JsonObject, raw)
+        self._assert_supported_schema_version(job_id=job_id, path=path, payload=payload)
+        migrated = self._migrate_payload_to_current(job_id=job_id, path=path, payload=payload)
         try:
             job = Job.model_validate(migrated)
         except ValidationError as e:
@@ -164,7 +171,7 @@ class JobStore:
                 extra={"job_id": job_id, "path": str(path), "errors": e.errors()},
             )
             raise JobDataCorruptedError(job_id=job_id) from e
-        if migrated is not raw:
+        if migrated is not payload:
             try:
                 self._atomic_write(path, migrated)
             except OSError as e:
@@ -191,7 +198,7 @@ class JobStore:
             )
             raise JobDataCorruptedError(job_id=job.job_id)
         try:
-            self._atomic_write(path, job.model_dump(mode="json"))
+            self._atomic_write(path, cast(JsonObject, job.model_dump(mode="json")))
         except OSError as e:
             logger.warning(
                 "SS_JOB_JSON_WRITE_FAILED",
@@ -204,7 +211,7 @@ class JobStore:
         job.draft = draft
         self.save(job)
 
-    def write_artifact_json(self, *, job_id: str, rel_path: str, payload: dict) -> None:
+    def write_artifact_json(self, *, job_id: str, rel_path: str, payload: JsonObject) -> None:
         if not is_safe_job_rel_path(rel_path):
             logger.warning(
                 "SS_JOB_ARTIFACT_PATH_UNSAFE",
@@ -232,7 +239,7 @@ class JobStore:
             )
             raise JobStoreIOError(operation="artifact_write", job_id=job_id) from e
 
-    def _atomic_write(self, path: Path, payload: dict) -> None:
+    def _atomic_write(self, path: Path, payload: JsonObject) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
         with tempfile.NamedTemporaryFile(

@@ -3,12 +3,14 @@ from __future__ import annotations
 import logging
 from collections import Counter
 from dataclasses import dataclass
+from typing import cast
 
 from src.domain.idempotency import JobIdempotency
 from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobInputs, JobStatus
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import JobAlreadyExistsError
 from src.infra.job_store import JobStore
+from src.utils.json_types import JsonObject
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
@@ -124,35 +126,47 @@ class JobService:
         logger.info("SS_JOB_RUN_QUEUED", extra={"job_id": job_id, "status": job.status.value})
         return job
 
-    def get_job_summary(self, *, job_id: str) -> dict:
+    def get_job_summary(self, *, job_id: str) -> JsonObject:
         job = self._store.load(job_id)
-        draft_summary = None
+        draft_summary: JsonObject | None = None
         if job.draft is not None:
-            draft_summary = {
-                "created_at": job.draft.created_at,
-                "text_chars": len(job.draft.text),
-            }
+            draft_summary = cast(
+                JsonObject,
+                {
+                    "created_at": job.draft.created_at,
+                    "text_chars": len(job.draft.text),
+                },
+            )
 
         kinds = Counter(ref.kind.value for ref in job.artifacts_index)
-        artifacts_summary = {"total": len(job.artifacts_index), "by_kind": dict(kinds)}
+        artifacts_summary = {
+            "total": len(job.artifacts_index),
+            "by_kind": cast(JsonObject, dict(kinds)),
+        }
 
-        latest_run = None
+        latest_run: JsonObject | None = None
         if job.runs:
             attempt = job.runs[-1]
-            latest_run = {
-                "run_id": attempt.run_id,
-                "attempt": attempt.attempt,
-                "status": attempt.status,
-                "started_at": attempt.started_at,
-                "ended_at": attempt.ended_at,
-                "artifacts_count": len(attempt.artifacts),
-            }
+            latest_run = cast(
+                JsonObject,
+                {
+                    "run_id": attempt.run_id,
+                    "attempt": attempt.attempt,
+                    "status": attempt.status,
+                    "started_at": attempt.started_at,
+                    "ended_at": attempt.ended_at,
+                    "artifacts_count": len(attempt.artifacts),
+                },
+            )
 
-        return {
-            "job_id": job.job_id,
-            "status": job.status.value,
-            "timestamps": {"created_at": job.created_at, "scheduled_at": job.scheduled_at},
-            "draft": draft_summary,
-            "artifacts": artifacts_summary,
-            "latest_run": latest_run,
-        }
+        return cast(
+            JsonObject,
+            {
+                "job_id": job.job_id,
+                "status": job.status.value,
+                "timestamps": {"created_at": job.created_at, "scheduled_at": job.scheduled_at},
+                "draft": draft_summary,
+                "artifacts": artifacts_summary,
+                "latest_run": latest_run,
+            },
+        )

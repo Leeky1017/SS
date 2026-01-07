@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from src.domain.do_template_run_support import (
     append_artifact_if_missing,
@@ -13,6 +14,7 @@ from src.domain.do_template_run_support import (
     write_artifact_text,
 )
 from src.domain.models import ArtifactKind, ArtifactRef
+from src.utils.json_types import JsonObject
 
 
 def write_template_evidence(
@@ -21,7 +23,7 @@ def write_template_evidence(
     run_id: str,
     template_id: str,
     raw_do: str,
-    meta: dict,
+    meta: JsonObject,
     params: dict[str, str],
     artifacts_dir: Path,
     job_dir: Path,
@@ -49,7 +51,7 @@ def write_template_evidence(
         job_id=job_id,
         run_id=run_id,
         path=params_path,
-        payload=params,
+        payload=cast(JsonObject, params),
     )
     return (
         artifact_ref(job_dir=job_dir, kind=ArtifactKind.DO_TEMPLATE_SOURCE, path=source_path),
@@ -61,7 +63,7 @@ def write_template_evidence(
 def archive_outputs(
     *,
     template_id: str,
-    meta: dict,
+    meta: JsonObject,
     work_dir: Path,
     artifacts_dir: Path,
     job_dir: Path,
@@ -95,14 +97,17 @@ def write_run_meta(
     job_dir: Path,
 ) -> ArtifactRef:
     path = artifacts_dir / "do_template_run.meta.json"
-    payload = {
-        "job_id": job_id,
-        "run_id": run_id,
-        "template_id": template_id,
-        "params": params,
-        "archived_outputs": [ref.rel_path for ref in archived_outputs],
-        "missing_outputs": list(missing_outputs),
-    }
+    payload = cast(
+        JsonObject,
+        {
+            "job_id": job_id,
+            "run_id": run_id,
+            "template_id": template_id,
+            "params": cast(JsonObject, params),
+            "archived_outputs": [ref.rel_path for ref in archived_outputs],
+            "missing_outputs": list(missing_outputs),
+        },
+    )
     write_artifact_json(
         template_id=template_id,
         job_id=job_id,

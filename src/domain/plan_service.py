@@ -4,6 +4,7 @@ import hashlib
 import json
 import logging
 import re
+from typing import cast
 
 from src.domain.models import (
     ArtifactKind,
@@ -22,6 +23,7 @@ from src.infra.exceptions import (
     PlanFreezeNotAllowedError,
 )
 from src.infra.job_store import JobStore
+from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +38,9 @@ def _sha256_hex(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8", errors="ignore")).hexdigest()
 
 
-def _plan_id(*, job_id: str, inputs_fingerprint: str, requirement: str, confirmation: dict) -> str:
+def _plan_id(
+    *, job_id: str, inputs_fingerprint: str, requirement: str, confirmation: JsonObject
+) -> str:
     canonical = json.dumps(
         {
             "v": 1,
@@ -104,7 +108,7 @@ class PlanService:
 
         requirement = job.requirement if job.requirement is not None else ""
         requirement_norm = _normalize_whitespace(requirement)
-        confirmation_payload = confirmation.model_dump(mode="json")
+        confirmation_payload = cast(JsonObject, confirmation.model_dump(mode="json"))
         return _plan_id(
             job_id=job.job_id,
             inputs_fingerprint=inputs_fingerprint,

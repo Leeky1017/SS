@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+from typing import cast
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from starlette.requests import Request
+from starlette.responses import Response
 
 from src.api.routes import api_router
 from src.config import load_config
@@ -18,8 +22,9 @@ def create_app() -> FastAPI:
     return app
 
 
-def _handle_ss_error(_request, exc: SSError) -> JSONResponse:
-    return JSONResponse(status_code=exc.status_code, content=exc.to_dict())
+def _handle_ss_error(_request: Request, exc: Exception) -> Response:
+    ss_error = cast(SSError, exc)
+    return JSONResponse(status_code=ss_error.status_code, content=ss_error.to_dict())
 
 
 app = create_app()

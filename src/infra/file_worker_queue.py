@@ -133,6 +133,9 @@ class FileWorkerQueue(WorkerQueue):
             except FileNotFoundError:
                 continue
             lease_expires_at = record.get("lease_expires_at", "")
+            if not isinstance(lease_expires_at, str):
+                logger.warning("SS_QUEUE_CLAIM_EXPIRES_AT_INVALID", extra={"path": str(claim_path)})
+                raise QueueDataCorruptedError(path=str(claim_path))
             try:
                 expires = datetime.fromisoformat(lease_expires_at)
             except (TypeError, ValueError):

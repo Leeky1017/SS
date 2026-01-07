@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from src.infra.exceptions import DoTemplateParameterInvalidError, DoTemplateParameterMissingError
+from src.utils.json_types import JsonObject
 
 
 @dataclass(frozen=True)
@@ -11,7 +12,7 @@ class TemplateParamSpec:
     required: bool
 
 
-def template_param_specs(*, template_id: str, meta: dict) -> tuple[TemplateParamSpec, ...]:
+def template_param_specs(*, template_id: str, meta: JsonObject) -> tuple[TemplateParamSpec, ...]:
     raw = meta.get("parameters", [])
     if not isinstance(raw, list):
         return tuple()
@@ -51,4 +52,3 @@ def render_do_text(
     for name in sorted(resolved.keys(), key=len, reverse=True):
         rendered = rendered.replace(name, resolved.get(name, ""))
     return rendered, resolved
-

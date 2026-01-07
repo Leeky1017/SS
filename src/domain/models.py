@@ -5,6 +5,8 @@ from pathlib import PurePosixPath
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from src.utils.json_types import JsonValue
+
 JOB_SCHEMA_VERSION_V1 = 1
 JOB_SCHEMA_VERSION_V2 = 2
 JOB_SCHEMA_VERSION_CURRENT = JOB_SCHEMA_VERSION_V2
@@ -113,7 +115,7 @@ class PlanStep(BaseModel):
 
     step_id: str
     type: PlanStepType
-    params: dict = Field(default_factory=dict)
+    params: dict[str, JsonValue] = Field(default_factory=dict)
     depends_on: list[str] = Field(default_factory=list)
     produces: list[ArtifactKind] = Field(default_factory=list)
 

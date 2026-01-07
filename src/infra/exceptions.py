@@ -255,7 +255,7 @@ class DoFileInputsManifestInvalidError(SSError):
 
 
 class StataCmdNotFoundError(SSError):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             error_code="STATA_CMD_NOT_FOUND",
             message=(

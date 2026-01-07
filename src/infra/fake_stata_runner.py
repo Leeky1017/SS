@@ -8,6 +8,7 @@ from src.domain.stata_runner import RunError, RunResult, StataRunner
 from src.infra.stata_run_support import (
     DO_FILENAME,
     Execution,
+    RunDirs,
     artifact_refs,
     job_rel_path,
     meta_payload,
@@ -16,6 +17,7 @@ from src.infra.stata_run_support import (
     write_run_artifacts,
     write_text,
 )
+from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +104,7 @@ class FakeStataRunner(StataRunner):
         self._cursor += 1
         return ok
 
-    def _resolve_dirs(self, *, job_id: str, run_id: str):
+    def _resolve_dirs(self, *, job_id: str, run_id: str) -> RunDirs | RunResult:
         dirs = resolve_run_dirs(jobs_dir=self._jobs_dir, job_id=job_id, run_id=run_id)
         if dirs is not None:
             return dirs
@@ -140,7 +142,7 @@ class FakeStataRunner(StataRunner):
     def _write_do_files(
         self,
         *,
-        dirs,
+        dirs: RunDirs,
         job_id: str,
         run_id: str,
         do_file: str,
@@ -168,12 +170,12 @@ class FakeStataRunner(StataRunner):
     def _meta_for(
         self,
         *,
-        dirs,
+        dirs: RunDirs,
         job_id: str,
         run_id: str,
         timeout_seconds: int | None,
         execution: Execution,
-    ) -> dict:
+    ) -> JsonObject:
         return meta_payload(
             job_id=job_id,
             run_id=run_id,
@@ -186,10 +188,10 @@ class FakeStataRunner(StataRunner):
     def _write_run_artifacts(
         self,
         *,
-        dirs,
+        dirs: RunDirs,
         job_id: str,
         run_id: str,
-        meta: dict,
+        meta: JsonObject,
         execution: Execution,
     ) -> tuple[Path, Path, Path, Path, Path] | RunResult:
         try:

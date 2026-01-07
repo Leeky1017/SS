@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 
 from src.api.deps import get_artifacts_service, get_job_service
 from src.api.schemas import (
+    ArtifactIndexItem,
     ArtifactsIndexResponse,
     ConfirmJobRequest,
     ConfirmJobResponse,
@@ -42,7 +43,8 @@ def get_job_artifacts(
     svc: ArtifactsService = Depends(get_artifacts_service),
 ) -> ArtifactsIndexResponse:
     artifacts = svc.list_artifacts(job_id=job_id)
-    return ArtifactsIndexResponse(job_id=job_id, artifacts=artifacts)
+    items = [ArtifactIndexItem.model_validate(item) for item in artifacts]
+    return ArtifactsIndexResponse(job_id=job_id, artifacts=items)
 
 
 @router.get("/jobs/{job_id}/artifacts/{artifact_id:path}")

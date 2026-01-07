@@ -7,19 +7,20 @@ from pathlib import Path
 from typing import Callable
 
 from src.domain.do_template_rendering import render_do_text, template_param_specs
-from src.domain.do_template_repository import DoTemplateRepository
+from src.domain.do_template_repository import DoTemplate, DoTemplateRepository
 from src.domain.do_template_run_evidence import (
     archive_outputs,
     write_run_meta,
     write_template_evidence,
 )
 from src.domain.do_template_run_support import append_artifact_if_missing, ensure_job_status
-from src.domain.models import ArtifactRef, JobStatus, RunAttempt
+from src.domain.models import ArtifactRef, Job, JobStatus, RunAttempt
 from src.domain.stata_runner import RunResult, StataRunner
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import DoTemplateContractInvalidError, SSError
 from src.infra.job_store import JobStore
 from src.infra.stata_run_support import RunDirs, resolve_run_dirs
+from src.utils.json_types import JsonObject
 from src.utils.time import utc_now
 
 
@@ -106,7 +107,7 @@ class DoTemplateRunService:
         run_id: str,
         template_id: str,
         params: dict[str, str],
-        meta: dict,
+        meta: JsonObject,
         work_dir: Path,
         artifacts_dir: Path,
         job_dir: Path,
@@ -180,7 +181,9 @@ class DoTemplateRunService:
         self.store.save(job)
         return run_id_final, dirs
 
-    def _load_and_render_template(self, *, template_id: str, params: dict[str, str]):
+    def _load_and_render_template(
+        self, *, template_id: str, params: dict[str, str]
+    ) -> tuple[DoTemplate, str, dict[str, str]]:
         template = self.repo.get_template(template_id=template_id)
         specs = template_param_specs(template_id=template_id, meta=template.meta)
         rendered_do, resolved_params = render_do_text(
@@ -191,7 +194,7 @@ class DoTemplateRunService:
         )
         return template, rendered_do, resolved_params
 
-    def _ensure_queued(self, *, job_id: str, job, template_id: str) -> None:
+    def _ensure_queued(self, *, job_id: str, job: Job, template_id: str) -> None:
         if job.status == JobStatus.CREATED:
             ensure_job_status(
                 job_id=job_id,
@@ -227,7 +230,7 @@ class DoTemplateRunService:
         run_id: str,
         artifacts: tuple[ArtifactRef, ...],
         ok: bool,
-    ):
+    ) -> None:
         job = self.store.load(job_id)
         status = JobStatus.SUCCEEDED if ok else JobStatus.FAILED
         ensure_job_status(job_id=job_id, state_machine=self.state_machine, job=job, status=status)
