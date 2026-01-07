@@ -4,9 +4,9 @@
 - [x] Write delivery run log: `openspec/_ops/task_runs/ISSUE-125.md`
 
 ## 2. Validation
-- [ ] `rulebook task validate issue-125-do-template-optimization`
-- [ ] `ruff check .`
-- [ ] `pytest -q`
+- [x] `rulebook task validate issue-125-do-template-optimization`
+- [x] `ruff check .`
+- [x] `pytest -q`
 
 ## 3. Delivery
 - [ ] Run `scripts/agent_pr_preflight.sh`

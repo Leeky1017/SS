@@ -45,3 +45,12 @@
   - `openspec/specs/ss-do-template-optimization/spec.md`
   - `openspec/specs/ss-do-template-optimization/README.md`
   - `openspec/specs/ss-do-template-optimization/task_cards/`
+
+### 2026-01-07 local verification
+- Command:
+  - `python3 -m venv .venv && . .venv/bin/activate && pip install -e '.[dev]'`
+  - `. .venv/bin/activate && ruff check .`
+  - `. .venv/bin/activate && pytest -q`
+- Key output:
+  - `ruff`: All checks passed
+  - `pytest`: 95 passed, 5 skipped
