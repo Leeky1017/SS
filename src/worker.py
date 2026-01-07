@@ -13,6 +13,7 @@ from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store_factory import build_job_store
 from src.infra.logging_config import configure_logging
+from src.infra.prometheus_metrics import PrometheusMetrics
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,15 @@ logger = logging.getLogger(__name__)
 def main() -> None:
     config = load_config()
     configure_logging(log_level=config.log_level)
+
+    metrics = PrometheusMetrics()
+    metrics.set_worker_up(worker_id=config.worker_id, up=True)
+    if config.worker_metrics_port > 0:
+        metrics.start_http_server(port=config.worker_metrics_port)
+        logger.info(
+            "SS_WORKER_METRICS_SERVER_STARTED",
+            extra={"worker_id": config.worker_id, "port": config.worker_metrics_port},
+        )
 
     shutdown_requested = threading.Event()
     shutdown_deadline: datetime | None = None
@@ -63,6 +73,7 @@ def main() -> None:
             backoff_base_seconds=config.worker_retry_backoff_base_seconds,
             backoff_max_seconds=config.worker_retry_backoff_max_seconds,
         ),
+        metrics=metrics,
     )
 
     logger.info("SS_WORKER_STARTUP", extra={"worker_id": config.worker_id})
@@ -73,17 +84,19 @@ def main() -> None:
     def _shutdown_deadline() -> datetime | None:
         return shutdown_deadline
 
-    while not shutdown_requested.is_set():
-        processed = service.process_next(
-            worker_id=config.worker_id,
-            stop_requested=_stop_requested,
-            shutdown_deadline=_shutdown_deadline,
-        )
-        if processed:
-            continue
-        shutdown_requested.wait(timeout=config.worker_idle_sleep_seconds)
-
-    logger.info("SS_WORKER_SHUTDOWN_COMPLETE", extra={"worker_id": config.worker_id})
+    try:
+        while not shutdown_requested.is_set():
+            processed = service.process_next(
+                worker_id=config.worker_id,
+                stop_requested=_stop_requested,
+                shutdown_deadline=_shutdown_deadline,
+            )
+            if processed:
+                continue
+            shutdown_requested.wait(timeout=config.worker_idle_sleep_seconds)
+    finally:
+        metrics.set_worker_up(worker_id=config.worker_id, up=False)
+        logger.info("SS_WORKER_SHUTDOWN_COMPLETE", extra={"worker_id": config.worker_id})
 
 
 if __name__ == "__main__":
