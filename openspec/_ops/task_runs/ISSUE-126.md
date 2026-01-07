@@ -2,7 +2,7 @@
 
 - Issue: #126
 - Branch: task/126-ux-b001-inputs-upload-preview
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/136
 
 ## Plan
 - Add dataset upload endpoint + store under `inputs/`
@@ -50,3 +50,13 @@
 - Key output:
   - `All checks passed!`
   - `101 passed, 5 skipped in 4.39s`
+
+### 2026-01-07 20:04 Deliver: preflight + PR
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `git push -u origin HEAD`
+  - `gh pr create --title "[ROUND-01-UX-A] UX-B001: 数据上传 + 数据预览（CSV/Excel/DTA） (#126)" --body "Closes #126 ..."`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+  - `https://github.com/Leeky1017/SS/pull/136`
