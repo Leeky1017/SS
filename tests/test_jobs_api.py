@@ -38,7 +38,7 @@ def test_get_job_with_valid_job_returns_summary(job_service, store):
     ]
     store.save(persisted)
 
-    response = client.get(f"/jobs/{job.job_id}")
+    response = client.get(f"/v1/jobs/{job.job_id}")
 
     assert response.status_code == 200
     payload = response.json()
@@ -63,7 +63,7 @@ def test_get_job_with_missing_job_returns_404(job_service):
     app.dependency_overrides[deps.get_job_service] = lambda: job_service
     client = TestClient(app)
 
-    response = client.get("/jobs/job_missing")
+    response = client.get("/v1/jobs/job_missing")
 
     assert response.status_code == 404
     assert response.json()["error_code"] == "JOB_NOT_FOUND"
@@ -79,7 +79,21 @@ def test_get_job_with_corrupted_job_json_returns_500(job_service, jobs_dir):
     app.dependency_overrides[deps.get_job_service] = lambda: job_service
     client = TestClient(app)
 
-    response = client.get(f"/jobs/{job_id}")
+    response = client.get(f"/v1/jobs/{job_id}")
 
     assert response.status_code == 500
     assert response.json()["error_code"] == "JOB_DATA_CORRUPTED"
+
+
+def test_get_job_with_legacy_route_sets_deprecation_headers(job_service, store):
+    app = create_app()
+    app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    client = TestClient(app)
+
+    job = job_service.create_job(requirement="hello")
+
+    response = client.get(f"/jobs/{job.job_id}")
+
+    assert response.status_code == 200
+    assert response.headers["Deprecation"] == "true"
+    assert response.headers["Sunset"] == "2026-06-01"

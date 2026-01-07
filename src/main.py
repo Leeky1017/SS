@@ -12,7 +12,8 @@ from starlette.middleware.base import RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
 
-from src.api.routes import api_router
+from src.api.routes import api_router, api_v1_router
+from src.api.versioning import add_legacy_deprecation_headers, is_legacy_unversioned_path
 from src.config import load_config
 from src.infra.exceptions import ServiceShuttingDownError, SSError
 from src.infra.logging_config import build_logging_config
@@ -57,10 +58,16 @@ def create_app() -> FastAPI:
         request: Request, call_next: RequestResponseEndpoint
     ) -> Response:
         if getattr(request.app.state, "shutting_down", False):
-            return _handle_ss_error(request, ServiceShuttingDownError())
-        return await call_next(request)
+            response = _handle_ss_error(request, ServiceShuttingDownError())
+        else:
+            response = await call_next(request)
 
-    app.include_router(api_router)
+        if is_legacy_unversioned_path(request.url.path):
+            add_legacy_deprecation_headers(response)
+        return response
+
+    app.include_router(api_v1_router)
+    app.include_router(api_router, include_in_schema=False)
     app.add_exception_handler(SSError, _handle_ss_error)
     return app
 

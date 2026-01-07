@@ -14,12 +14,36 @@ The API layer MUST only perform input validation, dependency injection, and resp
 - **WHEN** reviewing `src/api/`
 - **THEN** it does not implement state-machine rules or runner execution
 
+### Requirement: Stable API is served under an explicit version prefix
+
+SS MUST serve the stable HTTP API under a major version prefix (at least `/v1`) to allow breaking changes to be introduced as `/v2`, `/v3`, etc.
+
+Breaking changes MUST only be introduced by creating a new major version (e.g., `/v2`). Non-breaking additive changes SHOULD remain within the current major version.
+
+#### Scenario: V1 routes are available
+- **WHEN** a client requests `GET /v1/jobs/{job_id}`
+- **THEN** the request is routed to the v1 API surface
+
+### Requirement: Legacy routes are deprecated with an explicit window
+
+When a new major version is introduced, SS MAY keep the previous version available during a defined deprecation window, but MUST emit deprecation headers so clients are not silently broken.
+
+The deprecated surface MUST remain available for a deprecation window of at least 90 days after the deprecation announcement.
+
+The deprecation mechanism MUST include:
+- `Deprecation: true`
+- `Sunset: YYYY-MM-DD` (planned removal date for the deprecated surface)
+
+#### Scenario: Legacy routes emit deprecation headers
+- **WHEN** a client requests `GET /jobs/{job_id}` during the deprecation window
+- **THEN** the response includes `Deprecation` and `Sunset` headers
+
 ### Requirement: Jobs status endpoint exists
 
-SS MUST provide `GET /jobs/{job_id}` as the authoritative query endpoint returning status, timestamps, a draft summary, an artifacts summary, and the latest run attempt if present.
+SS MUST provide `GET /v1/jobs/{job_id}` as the authoritative query endpoint returning status, timestamps, a draft summary, an artifacts summary, and the latest run attempt if present.
 
 #### Scenario: Job query endpoint is available
-- **WHEN** a client requests `GET /jobs/{job_id}`
+- **WHEN** a client requests `GET /v1/jobs/{job_id}`
 - **THEN** the response contains status and a minimal summary without leaking internals
 
 ### Requirement: Artifacts are first-class API resources
@@ -32,9 +56,8 @@ SS MUST expose an artifacts index endpoint and a safe download endpoint that pre
 
 ### Requirement: Run trigger is enqueue-only
 
-SS MUST provide `POST /jobs/{job_id}/run` as an enqueue/transition trigger and MUST NOT execute Stata within the API process.
+SS MUST provide `POST /v1/jobs/{job_id}/run` as an enqueue/transition trigger and MUST NOT execute Stata within the API process.
 
 #### Scenario: Run trigger does not execute
-- **WHEN** `POST /jobs/{job_id}/run` is called
+- **WHEN** `POST /v1/jobs/{job_id}/run` is called
 - **THEN** the job transitions to `queued` and execution happens only in the worker
-

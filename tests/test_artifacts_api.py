@@ -33,7 +33,7 @@ def test_get_job_artifacts_with_valid_job_returns_index(job_service, store, jobs
     ]
     store.save(persisted)
 
-    response = client.get(f"/jobs/{job.job_id}/artifacts")
+    response = client.get(f"/v1/jobs/{job.job_id}/artifacts")
 
     assert response.status_code == 200
     payload = response.json()
@@ -58,7 +58,7 @@ def test_download_job_artifact_with_missing_artifact_returns_404(job_service, st
 
     job = job_service.create_job(requirement="hello")
 
-    response = client.get(f"/jobs/{job.job_id}/artifacts/artifacts/llm/missing.txt")
+    response = client.get(f"/v1/jobs/{job.job_id}/artifacts/artifacts/llm/missing.txt")
 
     assert response.status_code == 404
     assert response.json()["error_code"] == "ARTIFACT_NOT_FOUND"
@@ -75,7 +75,7 @@ def test_download_job_artifact_with_unsafe_path_returns_400(job_service, store, 
     job = job_service.create_job(requirement="hello")
 
     unsafe = quote("../job.json", safe="")
-    response = client.get(f"/jobs/{job.job_id}/artifacts/{unsafe}")
+    response = client.get(f"/v1/jobs/{job.job_id}/artifacts/{unsafe}")
 
     assert response.status_code == 400
     assert response.json()["error_code"] == "ARTIFACT_PATH_UNSAFE"
@@ -103,7 +103,7 @@ def test_download_job_artifact_with_symlink_escape_returns_400(job_service, stor
     evil_path.parent.mkdir(parents=True, exist_ok=True)
     os.symlink(outside, evil_path)
 
-    response = client.get(f"/jobs/{job.job_id}/artifacts/artifacts/evil.txt")
+    response = client.get(f"/v1/jobs/{job.job_id}/artifacts/artifacts/evil.txt")
 
     assert response.status_code == 400
     assert response.json()["error_code"] == "ARTIFACT_PATH_UNSAFE"
@@ -117,8 +117,8 @@ def test_run_job_when_called_twice_is_idempotent(job_service, store, draft_servi
     job = job_service.create_job(requirement=None)
     asyncio.run(draft_service.preview(job_id=job.job_id))
 
-    first = client.post(f"/jobs/{job.job_id}/run")
-    second = client.post(f"/jobs/{job.job_id}/run")
+    first = client.post(f"/v1/jobs/{job.job_id}/run")
+    second = client.post(f"/v1/jobs/{job.job_id}/run")
 
     assert first.status_code == 200
     assert second.status_code == 200
