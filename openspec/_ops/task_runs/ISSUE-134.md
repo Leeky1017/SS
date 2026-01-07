@@ -2,7 +2,7 @@
 
 - Issue: #134
 - Branch: task/134-do-lib-opt-p4p5
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/135
 
 ## Plan
 - Extend ss-do-template-optimization rollout phases
