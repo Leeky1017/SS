@@ -27,7 +27,14 @@
 
 ## Acceptance checklist
 
-- [ ] 成功/失败两条路径均落盘 artifacts
-- [ ] job.json artifacts 索引更新
-- [ ] 脱敏策略覆盖敏感字段与 secrets（日志与 artifacts）
-- [ ] `openspec/_ops/task_runs/ISSUE-21.md` 记录关键命令与输出
+- [x] 成功/失败两条路径均落盘 artifacts
+- [x] job.json artifacts 索引更新
+- [x] 脱敏策略覆盖敏感字段与 secrets（日志与 artifacts）
+- [x] `openspec/_ops/task_runs/ISSUE-21.md` 记录关键命令与输出
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/50
+- Run log: `openspec/_ops/task_runs/ISSUE-21.md`
+- Summary: persist LLM prompt/response artifacts + metadata, with redaction guarantees

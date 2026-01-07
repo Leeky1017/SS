@@ -27,7 +27,14 @@
 
 ## Acceptance checklist
 
-- [ ] domain/intra 分层正确（port 在 domain，subprocess 在 infra）
-- [ ] 执行 cwd 固定在 run attempt 工作目录，禁止越界写入
-- [ ] 测试不依赖真实 Stata（用 fake runner）；可选加本地集成测试
-- [ ] `openspec/_ops/task_runs/ISSUE-24.md` 记录关键命令与输出
+- [x] domain/intra 分层正确（port 在 domain，subprocess 在 infra）
+- [x] 执行 cwd 固定在 run attempt 工作目录，禁止越界写入
+- [x] 测试不依赖真实 Stata（用 fake runner）；可选加本地集成测试
+- [x] `openspec/_ops/task_runs/ISSUE-24.md` 记录关键命令与输出
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/51
+- Run log: `openspec/_ops/task_runs/ISSUE-24.md`
+- Summary: StataRunner port + LocalStataRunner subprocess adapter with workspace isolation

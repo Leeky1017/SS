@@ -27,7 +27,14 @@
 
 ## Acceptance checklist
 
-- [ ] endpoint 存在且响应字段满足契约
-- [ ] API 薄层：不写业务 if/else，不做 IO 细节
-- [ ] 测试覆盖：happy path + not found + corrupted data
-- [ ] `openspec/_ops/task_runs/ISSUE-18.md` 记录关键命令与输出
+- [x] endpoint 存在且响应字段满足契约
+- [x] API 薄层：不写业务 if/else，不做 IO 细节
+- [x] 测试覆盖：happy path + not found + corrupted data
+- [x] `openspec/_ops/task_runs/ISSUE-18.md` 记录关键命令与输出
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/49
+- Run log: `openspec/_ops/task_runs/ISSUE-18.md`
+- Summary: add authoritative `GET /jobs/{job_id}` status/summary endpoint + tests

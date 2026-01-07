@@ -26,7 +26,14 @@
 
 ## Acceptance checklist
 
-- [ ] do-file 生成确定性（同输入 → 同输出）
-- [ ] 最小能力可跑通并产生基础 artifacts（表格/日志）
-- [ ] 单元测试覆盖：稳定性与边界输入
-- [ ] `openspec/_ops/task_runs/ISSUE-25.md` 记录关键命令与输出
+- [x] do-file 生成确定性（同输入 → 同输出）
+- [x] 最小能力可跑通并产生基础 artifacts（表格/日志）
+- [x] 单元测试覆盖：稳定性与边界输入
+- [x] `openspec/_ops/task_runs/ISSUE-25.md` 记录关键命令与输出
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/61
+- Run log: `openspec/_ops/task_runs/ISSUE-25.md`
+- Summary: deterministic DoFileGenerator from LLMPlan with baseline artifacts + tests

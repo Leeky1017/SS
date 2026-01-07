@@ -30,12 +30,19 @@
 
 ## Acceptance checklist
 
-- [ ] 状态机迁移规则在 domain 中集中定义
-- [ ] 非法迁移返回结构化错误（含 error_code）且有事件码日志
-- [ ] 幂等策略可解释且有单元测试
-- [ ] 单元测试覆盖：合法迁移、非法迁移、重复请求幂等
-- [ ] `openspec/_ops/task_runs/ISSUE-17.md` 记录关键命令与输出
+- [x] 状态机迁移规则在 domain 中集中定义
+- [x] 非法迁移返回结构化错误（含 error_code）且有事件码日志
+- [x] 幂等策略可解释且有单元测试
+- [x] 单元测试覆盖：合法迁移、非法迁移、重复请求幂等
+- [x] `openspec/_ops/task_runs/ISSUE-17.md` 记录关键命令与输出
 
 ## Evidence
 
 - Run log: `openspec/_ops/task_runs/ISSUE-17.md`
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/48
+- Run log: `openspec/_ops/task_runs/ISSUE-17.md`
+- Summary: domain state machine guards + idempotency semantics + tests

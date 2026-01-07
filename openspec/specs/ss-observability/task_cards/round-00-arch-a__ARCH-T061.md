@@ -20,7 +20,14 @@
 
 ## Acceptance checklist
 
-- [ ] 事件码规范（SS_XXX_YYY）与必带字段（job_id/run_id/step）明确
-- [ ] main/worker 初始化结构化日志配置，log_level 来自 `src/config.py`
-- [ ] 单元测试/静态检查确保不出现吞异常与无上下文日志
-- [ ] `openspec/_ops/task_runs/ISSUE-26.md` 记录关键命令与输出
+- [x] 事件码规范（SS_XXX_YYY）与必带字段（job_id/run_id/step）明确
+- [x] main/worker 初始化结构化日志配置，log_level 来自 `src/config.py`
+- [x] 单元测试/静态检查确保不出现吞异常与无上下文日志
+- [x] `openspec/_ops/task_runs/ISSUE-26.md` 记录关键命令与输出
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/63
+- Run log: `openspec/_ops/task_runs/ISSUE-26.md`
+- Summary: structured JSON logging contract + shared config + unit tests

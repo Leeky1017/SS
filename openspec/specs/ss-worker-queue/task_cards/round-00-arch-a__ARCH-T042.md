@@ -27,7 +27,14 @@ worker 独立执行 queued job：创建 run_id、执行各 step、归档 artifac
 
 ## Acceptance checklist
 
-- [ ] worker 可独立启动并能消费队列
-- [ ] 每次 attempt 生成 run 目录并写入 meta/artifacts
-- [ ] 测试覆盖：成功一次、失败后重试成功、失败到达上限
-- [ ] `openspec/_ops/task_runs/ISSUE-23.md` 记录关键命令与输出
+- [x] worker 可独立启动并能消费队列
+- [x] 每次 attempt 生成 run 目录并写入 meta/artifacts
+- [x] 测试覆盖：成功一次、失败后重试成功、失败到达上限
+- [x] `openspec/_ops/task_runs/ISSUE-23.md` 记录关键命令与输出
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/59
+- Run log: `openspec/_ops/task_runs/ISSUE-23.md`
+- Summary: worker loop + run attempts dirs + bounded retry/backoff, with tests

@@ -2,7 +2,7 @@
 
 - Issue: #22
 - Branch: task/22-arch-t041-queue-claim
-- PR: (fill)
+- PR: https://github.com/Leeky1017/SS/pull/57
 
 ## Plan
 - Define queue port + file-based claim

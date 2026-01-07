@@ -27,8 +27,15 @@
 
 ## Acceptance checklist
 
-- [ ] artifacts index endpoint 与 download endpoint 都存在
-- [ ] 路径安全：拒绝 `..` 与符号链接逃逸
-- [ ] 重复 trigger 幂等（不重复入队/不破坏状态机）
-- [ ] 测试覆盖：不安全路径、不存在 artifact、重复 trigger
-- [ ] `openspec/_ops/task_runs/ISSUE-19.md` 记录关键命令与输出
+- [x] artifacts index endpoint 与 download endpoint 都存在
+- [x] 路径安全：拒绝 `..` 与符号链接逃逸
+- [x] 重复 trigger 幂等（不重复入队/不破坏状态机）
+- [x] 测试覆盖：不安全路径、不存在 artifact、重复 trigger
+- [x] `openspec/_ops/task_runs/ISSUE-19.md` 记录关键命令与输出
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/54
+- Run log: `openspec/_ops/task_runs/ISSUE-19.md`
+- Summary: artifacts index/download API + run trigger, with path-safety + idempotency tests

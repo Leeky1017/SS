@@ -2,7 +2,7 @@
 
 - Issue: #26
 - Branch: task/26-arch-t061
-- PR: (fill)
+- PR: https://github.com/Leeky1017/SS/pull/63
 
 ## Plan
 - Define structured logging config + formatter

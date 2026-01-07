@@ -31,11 +31,11 @@
 
 ## Acceptance checklist
 
-- [ ] `job.json` v1 字段清单 + 语义说明文档完整
-- [ ] Pydantic 模型覆盖并保持文件 `< 300` 行（必要时拆分）
-- [ ] load/save 对 schema_version 行为明确（校验/拒绝/升级）
-- [ ] 单元测试覆盖：合法/缺字段/错误类型/损坏 JSON
-- [ ] `openspec/_ops/task_runs/ISSUE-16.md` 记录关键命令与输出
+- [x] `job.json` v1 字段清单 + 语义说明文档完整
+- [x] Pydantic 模型覆盖并保持文件 `< 300` 行（必要时拆分）
+- [x] load/save 对 schema_version 行为明确（校验/拒绝/升级）
+- [x] 单元测试覆盖：合法/缺字段/错误类型/损坏 JSON
+- [x] `openspec/_ops/task_runs/ISSUE-16.md` 记录关键命令与输出
 
 ## Evidence
 
@@ -44,3 +44,10 @@
   - `openspec validate --specs --strict --no-interactive`
   - `ruff check .`
   - `pytest -q`
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/46
+- Run log: `openspec/_ops/task_runs/ISSUE-16.md`
+- Summary: job.json v1 contract + domain models + store validation + unit tests
