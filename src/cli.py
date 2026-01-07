@@ -6,14 +6,15 @@ import sys
 import uuid
 from pathlib import Path
 
-from src.config import load_config
+from src.config import Config, load_config
 from src.domain.do_template_run_service import DoTemplateRunService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService, NoopJobScheduler
+from src.domain.job_store import JobStore
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import SSError
 from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
-from src.infra.job_store import JobStore
+from src.infra.job_store_factory import build_job_store
 from src.infra.local_stata_runner import LocalStataRunner
 from src.infra.logging_config import configure_logging
 from src.infra.stata_cmd import resolve_stata_cmd
@@ -100,8 +101,8 @@ def _print_run_summary(
     print(f"artifacts_dir={artifacts_dir}")
 
 
-def _create_job_services(*, jobs_dir: Path) -> tuple[JobStore, JobStateMachine, JobService]:
-    store = JobStore(jobs_dir=jobs_dir)
+def _create_job_services(*, config: Config) -> tuple[JobStore, JobStateMachine, JobService]:
+    store = build_job_store(config=config)
     state_machine = JobStateMachine()
     job_service = JobService(
         store=store,
@@ -133,7 +134,7 @@ def _create_template_run_service(
 
 def _cmd_run_template(
     *,
-    jobs_dir: Path,
+    config: Config,
     library_dir: Path,
     stata_cmd: list[str],
     template_id: str,
@@ -148,19 +149,19 @@ def _cmd_run_template(
         print(f"ERROR: {e}", file=sys.stderr)
         return 2
 
-    store, state_machine, job_service = _create_job_services(jobs_dir=jobs_dir)
+    store, state_machine, job_service = _create_job_services(config=config)
     job = job_service.create_job(
         requirement=f"do_template:{template_id}",
         plan_revision=uuid.uuid4().hex,
     )
     run_id = uuid.uuid4().hex
-    dirs = resolve_run_dirs(jobs_dir=jobs_dir, job_id=job.job_id, run_id=run_id)
+    dirs = resolve_run_dirs(jobs_dir=config.jobs_dir, job_id=job.job_id, run_id=run_id)
     if dirs is None:
         print("ERROR: invalid job/run workspace", file=sys.stderr)
         return 2
     _prepare_run_inputs(work_dir=dirs.work_dir, input_csv=input_csv, sample_data=sample_data)
     svc = _create_template_run_service(
-        jobs_dir=jobs_dir,
+        jobs_dir=config.jobs_dir,
         library_dir=library_dir,
         stata_cmd=stata_cmd,
         store=store,
@@ -179,7 +180,7 @@ def _cmd_run_template(
         print(f"ERROR: {e.error_code}: {e.message}", file=sys.stderr)
         return 2
 
-    _print_run_summary(jobs_dir, job.job_id, run_id, result.ok, result.exit_code)
+    _print_run_summary(config.jobs_dir, job.job_id, run_id, result.ok, result.exit_code)
     return 0 if result.ok else 2
 
 
@@ -208,7 +209,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     return _cmd_run_template(
-        jobs_dir=config.jobs_dir,
+        config=config,
         library_dir=config.do_template_library_dir,
         stata_cmd=stata_cmd,
         template_id=str(args.template_id),

@@ -6,10 +6,10 @@ from dataclasses import dataclass
 from typing import cast
 
 from src.domain.idempotency import JobIdempotency
+from src.domain.job_store import JobStore
 from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobInputs, JobStatus
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import JobAlreadyExistsError
-from src.infra.job_store import JobStore
 from src.utils.json_types import JsonObject
 from src.utils.time import utc_now
 

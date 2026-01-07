@@ -11,7 +11,7 @@ from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_worker_queue import FileWorkerQueue
-from src.infra.job_store import JobStore
+from src.infra.job_store_factory import build_job_store
 from src.infra.logging_config import configure_logging
 from src.utils.time import utc_now
 
@@ -47,7 +47,7 @@ def main() -> None:
     signal.signal(signal.SIGTERM, _request_shutdown)
     signal.signal(signal.SIGINT, _request_shutdown)
 
-    store = JobStore(jobs_dir=config.jobs_dir)
+    store = build_job_store(config=config)
     queue = FileWorkerQueue(
         queue_dir=config.queue_dir,
         lease_ttl_seconds=config.queue_lease_ttl_seconds,

@@ -79,6 +79,15 @@ class JobStoreIOError(SSError):
         )
 
 
+class JobStoreBackendUnsupportedError(SSError):
+    def __init__(self, *, backend: str):
+        super().__init__(
+            error_code="JOB_STORE_BACKEND_UNSUPPORTED",
+            message=f"job store backend unsupported: {backend}",
+            status_code=500,
+        )
+
+
 class LLMCallFailedError(SSError):
     def __init__(self, *, job_id: str, llm_call_id: str):
         super().__init__(

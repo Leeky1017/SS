@@ -6,6 +6,7 @@ import logging
 import re
 from typing import cast
 
+from src.domain.job_store import JobStore
 from src.domain.models import (
     ArtifactKind,
     ArtifactRef,
@@ -22,7 +23,6 @@ from src.infra.exceptions import (
     PlanArtifactsWriteError,
     PlanFreezeNotAllowedError,
 )
-from src.infra.job_store import JobStore
 from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
