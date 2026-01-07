@@ -6,7 +6,7 @@ from src.domain.job_store import JobStore
 from src.domain.llm_client import LLMClient
 from src.domain.models import Draft, JobStatus
 from src.domain.state_machine import JobStateMachine
-from src.infra.exceptions import LLMArtifactsWriteError, LLMCallFailedError
+from src.infra.exceptions import JobStoreIOError, LLMArtifactsWriteError, LLMCallFailedError
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,17 @@ class DraftService:
                 "SS_DRAFT_PREVIEW_LLM_FAILED",
                 extra={"job_id": job_id, "error_code": e.error_code, "error_message": e.message},
             )
-            self._store.save(job)
+            try:
+                self._store.save(job)
+            except JobStoreIOError as persist_error:
+                logger.warning(
+                    "SS_DRAFT_PREVIEW_PERSIST_FAILED",
+                    extra={
+                        "job_id": job_id,
+                        "error_code": persist_error.error_code,
+                        "error_message": persist_error.message,
+                    },
+                )
             raise
         job.draft = draft
         if job.status == JobStatus.CREATED and self._state_machine.ensure_transition(
