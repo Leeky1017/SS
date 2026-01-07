@@ -4,6 +4,8 @@
 
 Implement stress tests that validate SS performance and stability under load, long runtimes, and boundary data volumes, based on stress scenarios 1–4 in `openspec/specs/ss-testing-strategy/README.md`.
 
+Issue: #103
+
 ## In scope
 
 - Create `tests/stress/` and basic resource/perf fixtures (`tests/stress/conftest.py`).
@@ -21,6 +23,6 @@ Implement stress tests that validate SS performance and stability under load, lo
 
 ## Acceptance checklist
 
-- [ ] `tests/stress/` contains 1/2/4 test modules referenced by the strategy README
-- [ ] Tests collect and report baseline metrics (latency/error/resource)
-- [ ] Stress tests have clear runtime bounds and are runnable in a dedicated environment
+- [x] `tests/stress/` contains 1/2/4 test modules referenced by the strategy README
+- [x] Tests collect and report baseline metrics (latency/error/resource)
+- [x] Stress tests have clear runtime bounds and are runnable in a dedicated environment
