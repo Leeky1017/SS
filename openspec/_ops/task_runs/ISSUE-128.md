@@ -33,3 +33,11 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 ci-fix
+- Command:
+  - `.venv/bin/ruff check .`
+  - `.venv/bin/pytest -q`
+- Key output:
+  - `All checks passed!`
+  - `97 passed, 5 skipped in 3.79s`
