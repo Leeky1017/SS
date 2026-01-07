@@ -3,21 +3,22 @@
 - Issue: #158
 - Parent: #125
 - Branch: task/158-stata18-smoke-suite
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/159
 
 ## Goal
 - Build reusable Stata 18 smoke-suite manifest + local runner with structured report, while keeping CI static gates strong when Stata cannot run.
 
 ## Status
-- CURRENT: Manifest + runner + CI-safe validation tests implemented; ready for PR preflight and submission.
+- CURRENT: PR opened; required checks green. Next: enable auto-merge and wait for merge-serial.
 
 ## Next Actions
 - [x] Add smoke-suite manifest + schema (core subset).
 - [x] Implement `ss run-smoke-suite` to write a structured report.
 - [x] Add CI-safe tests to validate manifest (schema + fixtures + params).
 - [x] Run `ruff check .` and `pytest -q`.
-- [ ] Run `scripts/agent_pr_preflight.sh`, open PR, enable auto-merge.
-- [ ] Update `PR:` link after creation.
+- [x] Run `scripts/agent_pr_preflight.sh` and open PR.
+- [x] Update `PR:` link after creation.
+- [ ] Enable auto-merge and watch required checks until merged.
 
 ## Runs
 ### 2026-01-07 issue + worktree
@@ -63,3 +64,13 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 PR status (required checks)
+- Command:
+  - `gh pr view 159 --json url,state,mergeStateStatus,autoMergeRequest,statusCheckRollup`
+- Key output:
+  - `url=https://github.com/Leeky1017/SS/pull/159`
+  - `state=OPEN mergeStateStatus=CLEAN autoMergeRequest=null`
+  - `ci`: `SUCCESS`
+  - `openspec-log-guard`: `SUCCESS`
+  - `merge-serial`: `SUCCESS`
