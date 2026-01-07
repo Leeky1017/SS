@@ -26,9 +26,18 @@ Make `assets/stata_do_library/` internally consistent and schema-validated so SS
 
 ## Acceptance checklist
 
-- [ ] A JSON Schema exists and is CI-enforced for all `do/meta/*.meta.json`
-- [ ] `DO_LIBRARY_INDEX.json` is derived (or validated) so summary fields cannot drift from `tasks.*`
-- [ ] Library docs/contract paths no longer reference `tasks/` as the SS layout
-- [ ] `CAPABILITY_MANIFEST.json` has no hardcoded absolute `ado_path` (or it is clearly non-authoritative and ignored by SS)
-- [ ] `openspec/_ops/task_runs/ISSUE-<N>.md` includes the validation commands + key outputs for this phase
+- [x] A JSON Schema exists and is CI-enforced for all `do/meta/*.meta.json`
+- [x] `DO_LIBRARY_INDEX.json` is derived (or validated) so summary fields cannot drift from `tasks.*`
+- [x] Library docs/contract paths no longer reference `tasks/` as the SS layout
+- [x] `CAPABILITY_MANIFEST.json` has no hardcoded absolute `ado_path` (or it is clearly non-authoritative and ignored by SS)
+- [x] `openspec/_ops/task_runs/ISSUE-133.md` includes the validation commands + key outputs for this phase
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/137
+- Run log: `openspec/_ops/task_runs/ISSUE-133.md`
+- Delivered:
+  - Versioned meta schema + CI validation
+  - Index summary drift fixed + CI-guarded
+  - Docs/contracts path aligned; hardcoded `ado_path` removed
 
