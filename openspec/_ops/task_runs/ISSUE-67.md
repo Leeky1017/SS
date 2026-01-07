@@ -2,7 +2,7 @@
 
 - Issue: #67 https://github.com/Leeky1017/SS/issues/67
 - Branch: task/67-ss-testing-strategy
-- PR: n/a
+- PR: #72 https://github.com/Leeky1017/SS/pull/72
 
 ## Plan
 
@@ -63,3 +63,25 @@
   - `git pull --ff-only origin main`
 - Key output:
   - `Fast-forward`
+
+### 2026-01-07 09:53 PR preflight
+
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 09:53 Push branch
+
+- Command:
+  - `git push -u origin HEAD`
+- Key output:
+  - `HEAD -> task/67-ss-testing-strategy`
+
+### 2026-01-07 09:54 Create PR
+
+- Command:
+  - `gh pr create --title '[ROUND-00-ARCH-A] ARCH-E070: Testing strategy OpenSpec spec + task cards (#67)' --body 'Closes #67'`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/72`
