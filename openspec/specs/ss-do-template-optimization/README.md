@@ -154,5 +154,35 @@ See `openspec/specs/ss-do-template-optimization/task_cards/` for the execution b
 - Phase 1: taxonomy canonicalization + retrieval index
 - Phase 2: duplicate merges + placeholder normalization
 - Phase 3: composition MVP + evidence harness
-- Phase 4: full-library Stata 18 code-quality audit (batch run + fix runtime errors + normalize anchors/style)
-- Phase 5: content enhancement (best practices + diagnostics + output polish + capability gap analysis)
+- Phase 4: full-library Stata 18 code-quality audit (split into 15 parallel task cards):
+  - 4.1 core `T01`–`T20`
+  - 4.2 core `T21`–`T50`
+  - 4.3 data prep `TA*`
+  - 4.4 descriptive `TB*` + `TC*`
+  - 4.5 regression `TD*` + `TE*`
+  - 4.6 panel advanced `TF*`
+  - 4.7 causal `TG*`
+  - 4.8 time series `TH*`
+  - 4.9 survival + multivariate `TI*` + `TJ*`
+  - 4.10 finance `TK*`
+  - 4.11 accounting/audit `TL*`
+  - 4.12 medical/biostats `TM*`
+  - 4.13 spatial + output `TN*` + `TO*`
+  - 4.14 panel + HLM `TP*` + `TQ*`
+  - 4.15 bayes + ML + text + viz `TR*`–`TU*`
+- Phase 5: content enhancement (split into 15 parallel task cards):
+  - 5.1 core `T01`–`T20`
+  - 5.2 core `T21`–`T50`
+  - 5.3 data prep `TA*`
+  - 5.4 descriptive `TB*` + `TC*`
+  - 5.5 regression `TD*` + `TE*`
+  - 5.6 panel advanced `TF*`
+  - 5.7 causal `TG*`
+  - 5.8 time series `TH*`
+  - 5.9 survival + multivariate `TI*` + `TJ*`
+  - 5.10 finance `TK*`
+  - 5.11 accounting/audit `TL*`
+  - 5.12 medical/biostats `TM*`
+  - 5.13 spatial + output `TN*` + `TO*`
+  - 5.14 panel + HLM `TP*` + `TQ*`
+  - 5.15 bayes + ML + text + viz `TR*`–`TU*`
