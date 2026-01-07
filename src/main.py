@@ -36,6 +36,7 @@ def _clear_dependency_caches() -> None:
     deps.get_metrics.cache_clear()
     deps.get_audit_logger.cache_clear()
     deps.get_artifacts_service.cache_clear()
+    deps.get_job_workspace_store.cache_clear()
 
 
 @asynccontextmanager
@@ -132,4 +133,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
