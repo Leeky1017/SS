@@ -34,9 +34,12 @@
 
 ### 2026-01-07 06:06 Lint + tests (with user journeys)
 - Command:
-  - All checks passed!
-  - ......................................................................   [100%]
-70 passed in 0.85s
+  - `.venv/bin/ruff check .`
+  - `.venv/bin/pytest -q`
 - Key output:
   - All checks passed!
   - 70 passed in 0.80s
+
+### 2026-01-07 06:16 Task card completion backfill
+- PR: https://github.com/Leeky1017/SS/pull/100
+- Change: add `## Completion` to `openspec/specs/ss-testing-strategy/task_cards/user_journeys.md`
