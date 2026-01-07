@@ -1,0 +1,147 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "stata18_smoke_suite",
+  "templates": {
+    "T18": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "Core regression commands",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/T18/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "profit",
+        "__INDEPVARS__": "revenue treatment post"
+      }
+    },
+    "TA01": {
+      "dependencies": [
+        {
+          "pkg": "winsor2",
+          "purpose": "Winsorize command",
+          "source": "ssc"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA01/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__WINSOR_VARS__": "y x",
+        "__LOWER_PCTL__": "1",
+        "__UPPER_PCTL__": "99",
+        "__TRIM_OR_WINSOR__": "winsor",
+        "__BY_VAR__": ""
+      }
+    },
+    "TD04": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "sqreg command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TD04/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post"
+      }
+    },
+    "TJ02": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "sem command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TJ02/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__MODEL_SPEC__": "(y <- x)"
+      }
+    },
+    "TP11": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "svy mean command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TP11/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__PSU__": "id",
+        "__PWEIGHT__": "cluster",
+        "__STRATA__": "year",
+        "__VARS__": "y x"
+      }
+    },
+    "TQ06": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "mixed command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TQ06/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__GROUP_VAR__": "cluster",
+        "__LEVEL1_VARS__": "x",
+        "__LEVEL2_VARS__": "treat post"
+      }
+    },
+    "TU05": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "graph bar command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU05/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VAR__": "y",
+        "__CAT_VAR__": "province",
+        "__STAT__": "mean"
+      }
+    }
+  }
+}
+
