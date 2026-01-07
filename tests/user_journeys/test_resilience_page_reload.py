@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
-from src.domain.models import JobConfirmation
-from src.domain.plan_service import PlanService
 from src.domain.worker_service import WorkerService
 
 
@@ -18,7 +16,6 @@ def _create_and_preview(*, client: TestClient) -> str:
 
 def test_resilience_page_reload_and_worker_shutdown_recovery_is_idempotent(
     journey_client: TestClient,
-    journey_plan_service: PlanService,
     journey_worker_service: WorkerService,
     journey_attach_sample_inputs,
 ) -> None:
@@ -26,10 +23,8 @@ def test_resilience_page_reload_and_worker_shutdown_recovery_is_idempotent(
 
     journey_attach_sample_inputs(job_id)
 
-    journey_plan_service.freeze_plan(
-        job_id=job_id,
-        confirmation=JobConfirmation(requirement="difference-in-differences"),
-    )
+    response = journey_client.post(f"/v1/jobs/{job_id}/plan/freeze", json={})
+    assert response.status_code == 200
 
     response = journey_client.post(f"/v1/jobs/{job_id}/confirm", json={"confirmed": True})
     assert response.status_code == 200

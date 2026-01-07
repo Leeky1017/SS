@@ -39,10 +39,12 @@ def job_service(
     store: JobStore,
     state_machine: JobStateMachine,
     idempotency: JobIdempotency,
+    plan_service: PlanService,
 ) -> JobService:
     return JobService(
         store=store,
         scheduler=NoopJobScheduler(),
+        plan_service=plan_service,
         state_machine=state_machine,
         idempotency=idempotency,
     )

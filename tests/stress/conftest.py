@@ -12,8 +12,10 @@ from src.api import deps
 from src.domain.artifacts_service import ArtifactsService
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
+from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobService
 from src.domain.llm_client import StubLLMClient
+from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.fake_stata_runner import FakeStataRunner
@@ -78,6 +80,7 @@ def stress_job_service(
     return JobService(
         store=stress_store,
         scheduler=scheduler,
+        plan_service=PlanService(store=stress_store),
         state_machine=stress_state_machine,
         idempotency=stress_idempotency,
     )
@@ -139,11 +142,16 @@ def stress_app(
     stress_job_service: JobService,
     stress_draft_service: DraftService,
     stress_artifacts_service: ArtifactsService,
+    stress_store: JobStore,
 ) -> Iterator[FastAPI]:
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = lambda: stress_job_service
+    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(
+        store=stress_store
+    )
     app.dependency_overrides[deps.get_draft_service] = lambda: stress_draft_service
     app.dependency_overrides[deps.get_artifacts_service] = lambda: stress_artifacts_service
+    app.dependency_overrides[deps.get_plan_service] = lambda: PlanService(store=stress_store)
     yield app
 
 

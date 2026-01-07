@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import secrets
-from collections import Counter
 from dataclasses import dataclass
 from typing import cast
 
@@ -10,7 +9,8 @@ from src.domain.audit import AuditContext, AuditEvent, AuditLogger, NoopAuditLog
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_store import JobStore
 from src.domain.metrics import NoopMetrics, RuntimeMetrics
-from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobInputs, JobStatus
+from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobConfirmation, JobInputs, JobStatus
+from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import JobAlreadyExistsError
 from src.utils.json_types import JsonObject, JsonValue
@@ -38,13 +38,14 @@ class NoopJobScheduler(JobScheduler):
 
 
 class JobService:
-    """Job lifecycle: create → confirm (queue/schedule)."""
+    """Job lifecycle: create → confirm → queue."""
 
     def __init__(
         self,
         *,
         store: JobStore,
         scheduler: JobScheduler,
+        plan_service: PlanService,
         state_machine: JobStateMachine,
         idempotency: JobIdempotency,
         metrics: RuntimeMetrics | None = None,
@@ -53,6 +54,7 @@ class JobService:
     ):
         self._store = store
         self._scheduler = scheduler
+        self._plan_service = plan_service
         self._state_machine = state_machine
         self._idempotency = idempotency
         self._metrics = NoopMetrics() if metrics is None else metrics
@@ -100,40 +102,18 @@ class JobService:
             plan_revision=plan_revision,
         )
         job_id = self._idempotency.derive_job_id(idempotency_key=idempotency_key)
-        inputs = None
-        if inputs_fingerprint is not None:
-            inputs = JobInputs(fingerprint=inputs_fingerprint)
-        job = Job(
-            schema_version=JOB_SCHEMA_VERSION_CURRENT,
+        job = self._build_job(
             tenant_id=tenant_id,
             job_id=job_id,
-            trace_id=_new_trace_id(),
-            status=JobStatus.CREATED,
             requirement=requirement,
-            created_at=utc_now().isoformat(),
-            inputs=inputs,
+            inputs_fingerprint=inputs_fingerprint,
         )
         try:
             self._store.create(tenant_id=tenant_id, job=job)
         except JobAlreadyExistsError:
-            existing = self._store.load(tenant_id=tenant_id, job_id=job_id)
-            logger.info(
-                "SS_JOB_CREATE_IDEMPOTENT_HIT",
-                extra={
-                    "tenant_id": tenant_id,
-                    "job_id": job_id,
-                    "idempotency_key": idempotency_key,
-                },
+            return self._load_existing_for_create(
+                tenant_id=tenant_id, job_id=job_id, idempotency_key=idempotency_key
             )
-            self._emit_audit(
-                action="job.create",
-                tenant_id=tenant_id,
-                job_id=job_id,
-                result="noop",
-                changes={"status": existing.status.value},
-                metadata={"idempotency_key": idempotency_key},
-            )
-            return existing
         logger.info(
             "SS_JOB_CREATED",
             extra={"tenant_id": tenant_id, "job_id": job_id, "idempotency_key": idempotency_key},
@@ -155,6 +135,7 @@ class JobService:
         tenant_id: str = DEFAULT_TENANT_ID,
         job_id: str,
         confirmed: bool,
+        notes: str | None = None,
     ) -> Job:
         if not confirmed:
             job = self._store.load(tenant_id=tenant_id, job_id=job_id)
@@ -171,7 +152,7 @@ class JobService:
                 metadata={"confirmed": False},
             )
             return job
-        updated = self.trigger_run(tenant_id=tenant_id, job_id=job_id)
+        updated = self.trigger_run(tenant_id=tenant_id, job_id=job_id, notes=notes)
         logger.info(
             "SS_JOB_CONFIRMED",
             extra={"tenant_id": tenant_id, "job_id": job_id, "status": updated.status.value},
@@ -186,7 +167,13 @@ class JobService:
         )
         return updated
 
-    def trigger_run(self, *, tenant_id: str = DEFAULT_TENANT_ID, job_id: str) -> Job:
+    def trigger_run(
+        self,
+        *,
+        tenant_id: str = DEFAULT_TENANT_ID,
+        job_id: str,
+        notes: str | None = None,
+    ) -> Job:
         job = self._store.load(tenant_id=tenant_id, job_id=job_id)
         if job.status in {
             JobStatus.QUEUED,
@@ -194,23 +181,84 @@ class JobService:
             JobStatus.SUCCEEDED,
             JobStatus.FAILED,
         }:
-            logger.info(
-                "SS_JOB_RUN_IDEMPOTENT",
-                extra={"tenant_id": tenant_id, "job_id": job_id, "status": job.status.value},
-            )
-            self._emit_audit(
-                action="job.run.trigger",
-                tenant_id=tenant_id,
-                job_id=job_id,
-                result="noop",
-                changes={"status": job.status.value},
-            )
-            return job
+            return self._run_idempotent_noop(job=job, tenant_id=tenant_id)
+        self._state_machine.ensure_transition(
+            job_id=job_id,
+            from_status=job.status,
+            to_status=JobStatus.CONFIRMED,
+        )
+        self._freeze_plan_for_run(tenant_id=tenant_id, job_id=job_id, notes=notes)
+        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
+        return self._queue_run(job=job, tenant_id=tenant_id)
 
+    def _build_job(
+        self,
+        *,
+        tenant_id: str,
+        job_id: str,
+        requirement: str | None,
+        inputs_fingerprint: str | None,
+    ) -> Job:
+        inputs = None if inputs_fingerprint is None else JobInputs(fingerprint=inputs_fingerprint)
+        return Job(
+            schema_version=JOB_SCHEMA_VERSION_CURRENT,
+            tenant_id=tenant_id,
+            job_id=job_id,
+            trace_id=_new_trace_id(),
+            status=JobStatus.CREATED,
+            requirement=requirement,
+            created_at=utc_now().isoformat(),
+            inputs=inputs,
+        )
+
+    def _load_existing_for_create(
+        self,
+        *,
+        tenant_id: str,
+        job_id: str,
+        idempotency_key: str,
+    ) -> Job:
+        existing = self._store.load(tenant_id=tenant_id, job_id=job_id)
+        logger.info(
+            "SS_JOB_CREATE_IDEMPOTENT_HIT",
+            extra={"tenant_id": tenant_id, "job_id": job_id, "idempotency_key": idempotency_key},
+        )
+        self._emit_audit(
+            action="job.create",
+            tenant_id=tenant_id,
+            job_id=job_id,
+            result="noop",
+            changes={"status": existing.status.value},
+            metadata={"idempotency_key": idempotency_key},
+        )
+        return existing
+
+    def _run_idempotent_noop(self, *, job: Job, tenant_id: str) -> Job:
+        logger.info(
+            "SS_JOB_RUN_IDEMPOTENT",
+            extra={"tenant_id": tenant_id, "job_id": job.job_id, "status": job.status.value},
+        )
+        self._emit_audit(
+            action="job.run.trigger",
+            tenant_id=tenant_id,
+            job_id=job.job_id,
+            result="noop",
+            changes={"status": job.status.value},
+        )
+        return job
+
+    def _freeze_plan_for_run(self, *, tenant_id: str, job_id: str, notes: str | None) -> None:
+        self._plan_service.freeze_plan(
+            tenant_id=tenant_id,
+            job_id=job_id,
+            confirmation=JobConfirmation(notes=notes),
+        )
+
+    def _queue_run(self, *, job: Job, tenant_id: str) -> Job:
         transitions: list[JsonObject] = []
         start_status = job.status.value
         if self._state_machine.ensure_transition(
-            job_id=job_id,
+            job_id=job.job_id,
             from_status=job.status,
             to_status=JobStatus.CONFIRMED,
         ):
@@ -219,7 +267,7 @@ class JobService:
             )
             job.status = JobStatus.CONFIRMED
         if self._state_machine.ensure_transition(
-            job_id=job_id,
+            job_id=job.job_id,
             from_status=job.status,
             to_status=JobStatus.QUEUED,
         ):
@@ -233,12 +281,12 @@ class JobService:
         self._store.save(tenant_id=tenant_id, job=job)
         logger.info(
             "SS_JOB_RUN_QUEUED",
-            extra={"tenant_id": tenant_id, "job_id": job_id, "status": job.status.value},
+            extra={"tenant_id": tenant_id, "job_id": job.job_id, "status": job.status.value},
         )
         self._emit_audit(
             action="job.run.trigger",
             tenant_id=tenant_id,
-            job_id=job_id,
+            job_id=job.job_id,
             result="success",
             changes={
                 "from_status": start_status,
@@ -248,49 +296,3 @@ class JobService:
             },
         )
         return job
-
-    def get_job_summary(self, *, tenant_id: str = DEFAULT_TENANT_ID, job_id: str) -> JsonObject:
-        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
-        draft_summary: JsonObject | None = None
-        if job.draft is not None:
-            draft_summary = cast(
-                JsonObject,
-                {
-                    "created_at": job.draft.created_at,
-                    "text_chars": len(job.draft.text),
-                },
-            )
-
-        kinds = Counter(ref.kind.value for ref in job.artifacts_index)
-        artifacts_summary = {
-            "total": len(job.artifacts_index),
-            "by_kind": cast(JsonObject, dict(kinds)),
-        }
-
-        latest_run: JsonObject | None = None
-        if job.runs:
-            attempt = job.runs[-1]
-            latest_run = cast(
-                JsonObject,
-                {
-                    "run_id": attempt.run_id,
-                    "attempt": attempt.attempt,
-                    "status": attempt.status,
-                    "started_at": attempt.started_at,
-                    "ended_at": attempt.ended_at,
-                    "artifacts_count": len(attempt.artifacts),
-                },
-            )
-
-        return cast(
-            JsonObject,
-            {
-                "job_id": job.job_id,
-                "trace_id": job.trace_id,
-                "status": job.status.value,
-                "timestamps": {"created_at": job.created_at, "scheduled_at": job.scheduled_at},
-                "draft": draft_summary,
-                "artifacts": artifacts_summary,
-                "latest_run": latest_run,
-            },
-        )

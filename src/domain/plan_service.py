@@ -17,11 +17,12 @@ from src.domain.models import (
     PlanStep,
     PlanStepType,
 )
-from src.infra.exceptions import (
-    JobStoreIOError,
+from src.infra.exceptions import JobStoreIOError
+from src.infra.plan_exceptions import (
     PlanAlreadyFrozenError,
     PlanArtifactsWriteError,
     PlanFreezeNotAllowedError,
+    PlanMissingError,
 )
 from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID
@@ -72,6 +73,7 @@ class PlanService:
     ) -> LLMPlan:
         logger.info("SS_PLAN_FREEZE_START", extra={"tenant_id": tenant_id, "job_id": job_id})
         job = self._store.load(tenant_id=tenant_id, job_id=job_id)
+        confirmation = self._effective_confirmation(job=job, confirmation=confirmation)
         expected_plan_id = self._expected_plan_id(job=job, confirmation=confirmation)
 
         if job.llm_plan is not None:
@@ -110,6 +112,27 @@ class PlanService:
             extra={"tenant_id": tenant_id, "job_id": job_id, "plan_id": plan.plan_id},
         )
         return plan
+
+    def get_frozen_plan(
+        self,
+        *,
+        tenant_id: str = DEFAULT_TENANT_ID,
+        job_id: str,
+    ) -> LLMPlan:
+        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
+        if job.llm_plan is None:
+            raise PlanMissingError(job_id=job_id)
+        return job.llm_plan
+
+    def _effective_confirmation(
+        self,
+        *,
+        job: Job,
+        confirmation: JobConfirmation,
+    ) -> JobConfirmation:
+        if confirmation.requirement is None:
+            return confirmation.model_copy(update={"requirement": job.requirement})
+        return confirmation
 
     def _expected_plan_id(self, *, job: Job, confirmation: JobConfirmation) -> str:
         inputs_fingerprint = ""

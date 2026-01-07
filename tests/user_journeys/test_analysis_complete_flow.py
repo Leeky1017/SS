@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
-from src.domain.models import JobConfirmation
-from src.domain.plan_service import PlanService
 from src.domain.worker_service import WorkerService
 
 
@@ -17,7 +15,6 @@ def _create_job(*, client: TestClient, requirement: str) -> str:
 
 def test_analysis_complete_flow_happy_path_transitions_and_downloads(
     journey_client: TestClient,
-    journey_plan_service: PlanService,
     journey_worker_service: WorkerService,
     journey_attach_sample_inputs,
 ) -> None:
@@ -44,10 +41,15 @@ def test_analysis_complete_flow_happy_path_transitions_and_downloads(
 
     journey_attach_sample_inputs(job_id)
 
-    journey_plan_service.freeze_plan(
-        job_id=job_id,
-        confirmation=JobConfirmation(requirement="estimate the effect of X on Y"),
-    )
+    response = journey_client.post(f"/v1/jobs/{job_id}/plan/freeze", json={})
+    assert response.status_code == 200
+    plan_payload = response.json()
+    assert plan_payload["job_id"] == job_id
+    assert plan_payload["plan"]["rel_path"] == "artifacts/plan.json"
+
+    response = journey_client.get(f"/v1/jobs/{job_id}/plan")
+    assert response.status_code == 200
+    assert response.json()["job_id"] == job_id
 
     response = journey_client.post(f"/v1/jobs/{job_id}/confirm", json={"confirmed": True})
     assert response.status_code == 200

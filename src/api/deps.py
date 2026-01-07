@@ -11,11 +11,13 @@ from src.domain.audit import AuditContext, AuditLogger
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_inputs_service import JobInputsService
+from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobScheduler, JobService
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.llm_client import LLMClient, StubLLMClient
 from src.domain.metrics import RuntimeMetrics
+from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.infra.audit_logger import LoggingAuditLogger
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
@@ -105,6 +107,7 @@ def get_job_service(audit_ctx: AuditContext = Depends(get_audit_context)) -> Job
     return JobService(
         store=get_job_store(),
         scheduler=get_job_scheduler(),
+        plan_service=get_plan_service(),
         state_machine=get_job_state_machine(),
         idempotency=get_job_idempotency(),
         metrics=get_runtime_metrics(),
@@ -131,5 +134,16 @@ def get_job_workspace_store() -> JobWorkspaceStore:
     return FileJobWorkspaceStore(jobs_dir=get_config().jobs_dir)
 
 
+@lru_cache
 def get_job_inputs_service() -> JobInputsService:
     return JobInputsService(store=get_job_store(), workspace=get_job_workspace_store())
+
+
+@lru_cache
+def get_job_query_service() -> JobQueryService:
+    return JobQueryService(store=get_job_store())
+
+
+@lru_cache
+def get_plan_service() -> PlanService:
+    return PlanService(store=get_job_store())
