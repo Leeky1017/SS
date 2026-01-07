@@ -6,6 +6,8 @@ import threading
 from datetime import datetime, timedelta
 from types import FrameType
 
+from opentelemetry import trace
+
 from src.config import load_config
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
@@ -14,6 +16,7 @@ from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store_factory import build_job_store
 from src.infra.logging_config import configure_logging
 from src.infra.prometheus_metrics import PrometheusMetrics
+from src.infra.tracing import configure_tracing, context_from_traceparent
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
@@ -22,6 +25,7 @@ logger = logging.getLogger(__name__)
 def main() -> None:
     config = load_config()
     configure_logging(log_level=config.log_level)
+    configure_tracing(config=config, component="worker")
 
     metrics = PrometheusMetrics()
     metrics.set_worker_up(worker_id=config.worker_id, up=True)
@@ -86,11 +90,24 @@ def main() -> None:
 
     try:
         while not shutdown_requested.is_set():
-            processed = service.process_next(
-                worker_id=config.worker_id,
-                stop_requested=_stop_requested,
-                shutdown_deadline=_shutdown_deadline,
-            )
+            claim = queue.claim(worker_id=config.worker_id)
+            if claim is None:
+                processed = False
+            else:
+                ctx = None
+                if claim.traceparent is not None:
+                    ctx = context_from_traceparent(claim.traceparent)
+                tracer = trace.get_tracer(__name__)
+                with tracer.start_as_current_span("ss.queue.claim", context=ctx) as span:
+                    span.set_attribute("ss.job_id", claim.job_id)
+                    span.set_attribute("ss.claim_id", claim.claim_id)
+                    span.set_attribute("ss.worker_id", claim.worker_id)
+                    service.process_claim(
+                        claim=claim,
+                        stop_requested=_stop_requested,
+                        shutdown_deadline=_shutdown_deadline,
+                    )
+                processed = True
             if processed:
                 continue
             shutdown_requested.wait(timeout=config.worker_idle_sleep_seconds)

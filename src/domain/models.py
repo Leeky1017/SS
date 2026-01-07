@@ -185,6 +185,7 @@ class Job(BaseModel):
     schema_version: int
     version: int = Field(default=1, ge=1)
     job_id: str
+    trace_id: str | None = None
     status: JobStatus = Field(default=JobStatus.CREATED)
     requirement: str | None = None
     confirmation: JobConfirmation | None = None

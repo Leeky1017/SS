@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Body, Depends
 from fastapi.responses import FileResponse
+from opentelemetry import trace
 
 from src.api.deps import get_artifacts_service, get_job_service
 from src.api.schemas import (
@@ -16,6 +17,7 @@ from src.api.schemas import (
 )
 from src.domain.artifacts_service import ArtifactsService
 from src.domain.job_service import JobService
+from src.infra.tracing import synthetic_parent_context_for_trace_id
 
 router = APIRouter(tags=["jobs"])
 
@@ -26,7 +28,12 @@ def create_job(
     svc: JobService = Depends(get_job_service),
 ) -> CreateJobResponse:
     job = svc.create_job(requirement=payload.requirement)
-    return CreateJobResponse(job_id=job.job_id, status=job.status.value)
+    if job.trace_id is not None:
+        context = synthetic_parent_context_for_trace_id(trace_id=job.trace_id, sampled=True)
+        tracer = trace.get_tracer(__name__)
+        with tracer.start_as_current_span("ss.job.create", context=context) as span:
+            span.set_attribute("ss.job_id", job.job_id)
+    return CreateJobResponse(job_id=job.job_id, trace_id=job.trace_id, status=job.status.value)
 
 
 @router.get("/jobs/{job_id}", response_model=GetJobResponse)

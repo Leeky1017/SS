@@ -28,10 +28,12 @@ class FileWorkerQueue(WorkerQueue):
     lease_ttl_seconds: int = 60
     clock: Callable[[], datetime] = utc_now
 
-    def enqueue(self, *, job_id: str) -> None:
+    def enqueue(self, *, job_id: str, traceparent: str | None = None) -> None:
         self._ensure_dirs()
         path = self._queued_path(job_id=job_id)
-        payload = {"job_id": job_id, "enqueued_at": self.clock().isoformat()}
+        payload: dict[str, object] = {"job_id": job_id, "enqueued_at": self.clock().isoformat()}
+        if traceparent is not None:
+            payload["traceparent"] = traceparent
         try:
             with path.open("x", encoding="utf-8") as f:
                 json.dump(payload, f, ensure_ascii=False, indent=2, sort_keys=True)

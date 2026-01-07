@@ -17,6 +17,8 @@ def test_create_job_writes_job_json(job_service, store, jobs_dir):
     assert path.exists()
     loaded = store.load(job.job_id)
     assert loaded.job_id == job.job_id
+    assert loaded.trace_id is not None
+    assert len(loaded.trace_id) == 32
     assert loaded.status == JobStatus.CREATED
 
 

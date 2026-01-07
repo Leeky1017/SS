@@ -4,6 +4,8 @@ import logging
 from pathlib import Path
 from typing import Sequence
 
+from opentelemetry import trace
+
 from src.domain.stata_runner import RunError, RunResult, StataRunner
 from src.infra.stata_run_support import (
     DO_FILENAME,
@@ -41,6 +43,31 @@ class FakeStataRunner(StataRunner):
         do_file: str,
         timeout_seconds: int | None = None,
     ) -> RunResult:
+        tracer = trace.get_tracer(__name__)
+        with tracer.start_as_current_span("ss.stata.run") as span:
+            span.set_attribute("ss.job_id", job_id)
+            span.set_attribute("ss.run_id", run_id)
+            if timeout_seconds is not None:
+                span.set_attribute("ss.timeout_seconds", timeout_seconds)
+            result = self._run_impl(
+                job_id=job_id,
+                run_id=run_id,
+                do_file=do_file,
+                timeout_seconds=timeout_seconds,
+            )
+            span.set_attribute("ss.ok", result.ok)
+            if result.exit_code is not None:
+                span.set_attribute("ss.exit_code", result.exit_code)
+            return result
+
+    def _run_impl(
+        self,
+        *,
+        job_id: str,
+        run_id: str,
+        do_file: str,
+        timeout_seconds: int | None,
+    ) -> RunResult:
         resolved = self._resolve_dirs(job_id=job_id, run_id=run_id)
         if isinstance(resolved, RunResult):
             return resolved
@@ -73,10 +100,28 @@ class FakeStataRunner(StataRunner):
         )
         if isinstance(written, RunResult):
             return written
+        return self._build_result(
+            dirs=resolved,
+            job_id=job_id,
+            run_id=run_id,
+            do_artifact_path=do_artifact_path,
+            execution=execution,
+            written=written,
+        )
 
+    def _build_result(
+        self,
+        *,
+        dirs: RunDirs,
+        job_id: str,
+        run_id: str,
+        do_artifact_path: Path,
+        execution: Execution,
+        written: tuple[Path, Path, Path, Path, Path],
+    ) -> RunResult:
         stdout_path, stderr_path, log_path, meta_path, error_path = written
         artifacts = artifact_refs(
-            job_dir=resolved.job_dir,
+            job_dir=dirs.job_dir,
             do_artifact_path=do_artifact_path,
             stdout_path=stdout_path,
             stderr_path=stderr_path,

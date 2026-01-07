@@ -7,6 +7,8 @@ import traceback
 from datetime import datetime, timezone
 from typing import Any
 
+from src.infra.tracing import current_trace_ids
+
 _STANDARD_LOG_RECORD_ATTRS = frozenset(
     {
         "name",
@@ -53,7 +55,7 @@ def _extract_extras(record: logging.LogRecord) -> dict[str, object]:
     for key, value in record.__dict__.items():
         if key in _STANDARD_LOG_RECORD_ATTRS:
             continue
-        if key in {"job_id", "run_id", "step"}:
+        if key in {"job_id", "run_id", "step", "trace_id", "span_id"}:
             continue
         extras[key] = value
     return extras
@@ -61,6 +63,7 @@ def _extract_extras(record: logging.LogRecord) -> dict[str, object]:
 
 class SSJsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
+        trace_id, span_id = current_trace_ids()
         payload: dict[str, Any] = {
             "ts": _iso_utc(float(record.created)),
             "level": record.levelname,
@@ -69,6 +72,8 @@ class SSJsonFormatter(logging.Formatter):
             "job_id": getattr(record, "job_id", None),
             "run_id": getattr(record, "run_id", None),
             "step": getattr(record, "step", None),
+            "trace_id": trace_id,
+            "span_id": span_id,
         }
         payload.update(_extract_extras(record))
         if record.exc_info:

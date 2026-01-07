@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from src.domain.idempotency import JobIdempotency
@@ -72,6 +73,30 @@ def test_worker_service_with_success_once_marks_job_succeeded(tmp_path: Path) ->
     assert (job_dir / "runs" / run_id / "artifacts" / META_FILENAME).exists()
     assert list((queue_dir / "queued").glob("*.json")) == []
     assert list((queue_dir / "claimed").glob("*.json")) == []
+
+
+def test_trigger_run_writes_queue_record_with_traceparent_matching_job_trace_id(
+    tmp_path: Path,
+) -> None:
+    # Arrange
+    jobs_dir = tmp_path / "jobs"
+    queue_dir = tmp_path / "queue"
+    queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
+
+    # Act
+    job_id = _prepare_queued_job(jobs_dir=jobs_dir, queue=queue)
+
+    # Assert
+    queued_files = list((queue_dir / "queued").glob("*.json"))
+    assert len(queued_files) == 1
+    record = json.loads(queued_files[0].read_text(encoding="utf-8"))
+    traceparent = record.get("traceparent")
+    assert isinstance(traceparent, str)
+    parts = traceparent.split("-")
+    assert len(parts) == 4
+    trace_id = parts[1]
+    job = JobStore(jobs_dir=jobs_dir).load(job_id)
+    assert job.trace_id == trace_id
 
 
 def test_worker_service_with_failure_then_success_retries_and_succeeds(tmp_path: Path) -> None:

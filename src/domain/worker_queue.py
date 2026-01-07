@@ -12,14 +12,14 @@ class QueueClaim:
     worker_id: str
     claimed_at: datetime
     lease_expires_at: datetime
+    traceparent: str | None = None
 
 
 class WorkerQueue(Protocol):
-    def enqueue(self, *, job_id: str) -> None: ...
+    def enqueue(self, *, job_id: str, traceparent: str | None = None) -> None: ...
 
     def claim(self, *, worker_id: str) -> QueueClaim | None: ...
 
     def ack(self, *, claim: QueueClaim) -> None: ...
 
     def release(self, *, claim: QueueClaim) -> None: ...
-
