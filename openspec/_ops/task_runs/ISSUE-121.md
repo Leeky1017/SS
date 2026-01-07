@@ -2,7 +2,7 @@
 
 - Issue: #121
 - Branch: task/121-multi-tenant-support
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/122
 
 ## Plan
 - Define tenant model + request context and compatibility rules
@@ -54,3 +54,22 @@
 - Queue layout:
   - Default tenant: existing `queue_dir/{queued,claimed}/*.json`
   - Other tenants: `queue_dir/{queued,claimed}/<tenant_id>/*.json`
+
+### 2026-01-07 00:30 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 00:31 PR created
+- Command:
+  - `gh pr create --base main --head task/121-multi-tenant-support --title \"[ROUND-00-AUDIT-A] AUDIT-S012: Multi-tenant support (tenant isolation) (#121)\" --body \"Closes #121 ...\"`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/122`
+
+### 2026-01-07 00:32 Enable auto-merge
+- Command:
+  - `gh pr merge --auto --squash 122`
+- Key output:
+  - `will be automatically merged via squash when all requirements are met`
