@@ -2,7 +2,7 @@
 
 - Issue: #131
 - Branch: task/131-ux-spec-centralize
-- PR: (fill-after-created)
+- PR: https://github.com/Leeky1017/SS/pull/132
 
 ## Plan
 - Write a dedicated OpenSpec for production-readiness UX blockers
@@ -57,3 +57,12 @@
     - `openspec/specs/ss-api-surface/task_cards/round-01-ux-a__UX-B001.md`
     - `openspec/specs/ss-llm-brain/task_cards/round-01-ux-a__UX-B002.md`
     - `openspec/specs/ss-stata-runner/task_cards/round-01-ux-a__UX-B003.md`
+
+### 2026-01-07 18:35 Deliver: preflight + PR
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `gh pr create --title "[ROUND-01-UX-A] UX-S001: 集中 UX blockers OpenSpec (#131)" --body "Closes #131 ..."`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+  - `https://github.com/Leeky1017/SS/pull/132`
