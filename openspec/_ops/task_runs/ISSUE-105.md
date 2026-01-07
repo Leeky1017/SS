@@ -3,6 +3,7 @@
 - Issue: #105
 - Branch: task/105-audit-o002-health-check
 - PR: https://github.com/Leeky1017/SS/pull/109
+- Closeout PR: https://github.com/Leeky1017/SS/pull/114
 
 ## Plan
 - Add `/health/live` and `/health/ready` endpoints
@@ -60,5 +61,41 @@
 ### 2026-01-07 Enable auto-merge
 - Command:
   - `gh pr merge 109 --auto --squash`
+- Key output:
+  - `will be automatically merged via squash when all requirements are met`
+
+### 2026-01-07 CI fix (mypy)
+- Issue:
+  - `ci` failed on `mypy` due to `HealthResponse.checks` typing
+- Command:
+  - `.venv/bin/mypy`
+  - `git commit -m "fix: satisfy health response typing (#105)"`
+  - `git push`
+- Key output:
+  - `Success: no issues found`
+
+### 2026-01-07 Update branch for auto-merge
+- Command:
+  - `git fetch origin main`
+  - `git merge origin/main`
+  - `git commit --amend -m "chore: sync with main (#105)"`
+  - `git push`
+- Key output:
+  - `Merge made by the 'ort' strategy.`
+
+### 2026-01-07 Merge
+- Result:
+  - `MergedAt: 2026-01-07T07:09:32Z`
+  - `MergeCommit: 9d7a6e71806d0f8431ed8f938514600867818547`
+
+### 2026-01-07 Closeout PR
+- Command:
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/114`
+
+### 2026-01-07 Enable auto-merge (closeout)
+- Command:
+  - `gh pr merge 114 --auto --squash`
 - Key output:
   - `will be automatically merged via squash when all requirements are met`
