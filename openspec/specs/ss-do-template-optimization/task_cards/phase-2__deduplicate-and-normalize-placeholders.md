@@ -36,7 +36,16 @@ Reduce redundancy in the selectable template set and standardize high-frequency 
 
 ## Acceptance checklist
 
-- [ ] Redundant templates are removed from the selectable set (or merged) with docs updated
-- [ ] Placeholder normalization is enforced or deterministically normalized in rendering
-- [ ] Index regeneration reflects the new inventory (no stale IDs)
-- [ ] CI gates catch header/meta/anchor inconsistencies introduced by the merge
+- [x] Redundant templates are removed from the selectable set (or merged) with docs updated
+- [x] Placeholder normalization is enforced or deterministically normalized in rendering
+- [x] Index regeneration reflects the new inventory (no stale IDs)
+- [x] CI gates catch header/meta/anchor inconsistencies introduced by the merge
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/156
+- Run log: `openspec/_ops/task_runs/ISSUE-155.md`
+- Summary:
+  - Deleted redundant templates (TD07/TD08/TD09/TD11/TU15/TH10/TH05/TF13/TB01) and kept the canonical templates.
+  - Standardized placeholders to `__DEPVAR__`, `__INDEPVARS__`, `__TIME_VAR__` across the remaining library.
+  - Regenerated `assets/stata_do_library/DO_LIBRARY_INDEX.json` (and taxonomy family summary) from meta and added CI gates for deprecated placeholders.
