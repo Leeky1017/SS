@@ -53,7 +53,7 @@ Pesaran CD test for cross-sectional dependence
 
 ```stata
 * Template: TF01_xtcsd
-* Script: tasks/do/TF01_xtcsd.do
+* Script: assets/stata_do_library/do/TF01_xtcsd.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

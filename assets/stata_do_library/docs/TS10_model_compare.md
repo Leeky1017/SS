@@ -52,7 +52,7 @@ Compare multiple models using AIC, BIC, and RMSE criteria
 
 ```stata
 * Template: TS10_model_compare
-* Script: tasks/do/TS10_model_compare.do
+* Script: assets/stata_do_library/do/TS10_model_compare.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

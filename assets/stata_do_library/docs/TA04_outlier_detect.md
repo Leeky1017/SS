@@ -57,7 +57,7 @@ Detect outliers using IQR, Z-score or MAD methods, with flag/drop/replace option
 
 ```stata
 * Template: TA04_outlier_detect
-* Script: tasks/do/TA04_outlier_detect.do
+* Script: assets/stata_do_library/do/TA04_outlier_detect.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

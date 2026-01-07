@@ -52,7 +52,7 @@ Draw Bland-Altman plot to assess measurement agreement
 
 ```stata
 * Template: TB10_bland_altman
-* Script: tasks/do/TB10_bland_altman.do
+* Script: assets/stata_do_library/do/TB10_bland_altman.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -51,7 +51,7 @@ Plot Q-Q diagram for normality testing
 
 ```stata
 * Template: TU09_qq_plot
-* Script: tasks/do/TU09_qq_plot.do
+* Script: assets/stata_do_library/do/TU09_qq_plot.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

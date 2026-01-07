@@ -53,7 +53,7 @@ Ridge regression with cross-validation for regularization
 
 ```stata
 * Template: TS02_ridge_reg
-* Script: tasks/do/TS02_ridge_reg.do
+* Script: assets/stata_do_library/do/TS02_ridge_reg.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

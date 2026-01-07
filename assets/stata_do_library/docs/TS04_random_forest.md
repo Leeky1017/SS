@@ -54,7 +54,7 @@ Random Forest for classification or regression with variable importance
 
 ```stata
 * Template: TS04_random_forest
-* Script: tasks/do/TS04_random_forest.do
+* Script: assets/stata_do_library/do/TS04_random_forest.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

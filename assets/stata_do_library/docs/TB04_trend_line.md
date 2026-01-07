@@ -52,7 +52,7 @@ Draw time series trend line plot
 
 ```stata
 * Template: TB04_trend_line
-* Script: tasks/do/TB04_trend_line.do
+* Script: assets/stata_do_library/do/TB04_trend_line.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -54,7 +54,7 @@ Logistic regression for binary classification with confusion matrix and ROC curv
 
 ```stata
 * Template: TS09_logit_classify
-* Script: tasks/do/TS09_logit_classify.do
+* Script: assets/stata_do_library/do/TS09_logit_classify.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

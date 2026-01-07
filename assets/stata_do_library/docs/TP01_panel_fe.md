@@ -54,7 +54,7 @@ Panel data fixed effects estimation
 
 ```stata
 * Template: TP01_panel_fe
-* Script: tasks/do/TP01_panel_fe.do
+* Script: assets/stata_do_library/do/TP01_panel_fe.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

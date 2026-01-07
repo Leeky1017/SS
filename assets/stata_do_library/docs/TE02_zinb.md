@@ -52,7 +52,7 @@ Zero-inflated negative binomial regression
 
 ```stata
 * Template: TE02_zinb
-* Script: tasks/do/TE02_zinb.do
+* Script: assets/stata_do_library/do/TE02_zinb.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -52,7 +52,7 @@ Weighted least squares regression
 
 ```stata
 * Template: TD03_wls
-* Script: tasks/do/TD03_wls.do
+* Script: assets/stata_do_library/do/TD03_wls.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

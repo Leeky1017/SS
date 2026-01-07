@@ -51,7 +51,7 @@ Spatial lag model (SAR)
 
 ```stata
 * Template: TR02_spatial_lag
-* Script: tasks/do/TR02_spatial_lag.do
+* Script: assets/stata_do_library/do/TR02_spatial_lag.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

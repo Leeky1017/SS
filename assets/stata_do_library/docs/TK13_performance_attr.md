@@ -52,7 +52,7 @@ Portfolio performance attribution analysis
 
 ```stata
 * Template: TK13_performance_attr
-* Script: tasks/do/TK13_performance_attr.do
+* Script: assets/stata_do_library/do/TK13_performance_attr.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

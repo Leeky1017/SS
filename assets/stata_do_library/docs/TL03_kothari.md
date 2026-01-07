@@ -51,7 +51,7 @@ Performance-matched discretionary accruals (Kothari)
 
 ```stata
 * Template: TL03_kothari
-* Script: tasks/do/TL03_kothari.do
+* Script: assets/stata_do_library/do/TL03_kothari.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

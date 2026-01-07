@@ -52,7 +52,7 @@ Dictionary-based sentiment analysis calculating text sentiment scores
 
 ```stata
 * Template: TT03_sentiment
-* Script: tasks/do/TT03_sentiment.do
+* Script: assets/stata_do_library/do/TT03_sentiment.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -52,7 +52,7 @@ Nested logit for hierarchical choice data
 
 ```stata
 * Template: TE09_nlogit
-* Script: tasks/do/TE09_nlogit.do
+* Script: assets/stata_do_library/do/TE09_nlogit.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

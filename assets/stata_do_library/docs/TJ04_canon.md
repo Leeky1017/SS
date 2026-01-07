@@ -51,7 +51,7 @@ Canonical Correlation Analysis
 
 ```stata
 * Template: TJ04_canon
-* Script: tasks/do/TJ04_canon.do
+* Script: assets/stata_do_library/do/TJ04_canon.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

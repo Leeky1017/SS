@@ -53,7 +53,7 @@ Credit risk modeling and default probability
 
 ```stata
 * Template: TK10_credit_risk
-* Script: tasks/do/TK10_credit_risk.do
+* Script: assets/stata_do_library/do/TK10_credit_risk.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

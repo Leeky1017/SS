@@ -52,7 +52,7 @@ Survey-weighted tabulation
 
 ```stata
 * Template: TP15_svy_tabulate
-* Script: tasks/do/TP15_svy_tabulate.do
+* Script: assets/stata_do_library/do/TP15_svy_tabulate.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

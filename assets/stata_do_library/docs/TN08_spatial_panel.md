@@ -53,7 +53,7 @@ Spatial panel data models
 
 ```stata
 * Template: TN08_spatial_panel
-* Script: tasks/do/TN08_spatial_panel.do
+* Script: assets/stata_do_library/do/TN08_spatial_panel.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

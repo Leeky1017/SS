@@ -55,7 +55,7 @@ Generalized Estimating Equations for longitudinal data
 
 ```stata
 * Template: TS11_gee_basic
-* Script: tasks/do/TS11_gee_basic.do
+* Script: assets/stata_do_library/do/TS11_gee_basic.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

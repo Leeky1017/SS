@@ -52,7 +52,7 @@ Dynamic panel GMM estimation (Arellano-Bond)
 
 ```stata
 * Template: TP03_panel_gmm
-* Script: tasks/do/TP03_panel_gmm.do
+* Script: assets/stata_do_library/do/TP03_panel_gmm.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

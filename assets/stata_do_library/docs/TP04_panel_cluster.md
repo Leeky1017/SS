@@ -53,7 +53,7 @@ Panel regression with clustered standard errors
 
 ```stata
 * Template: TP04_panel_cluster
-* Script: tasks/do/TP04_panel_cluster.do
+* Script: assets/stata_do_library/do/TP04_panel_cluster.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

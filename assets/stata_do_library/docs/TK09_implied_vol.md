@@ -53,7 +53,7 @@ Calculate implied volatility from option prices
 
 ```stata
 * Template: TK09_implied_vol
-* Script: tasks/do/TK09_implied_vol.do
+* Script: assets/stata_do_library/do/TK09_implied_vol.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

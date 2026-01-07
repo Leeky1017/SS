@@ -56,7 +56,7 @@ Check for duplicates and perform deduplication based on key variables
 
 ```stata
 * Template: TA11_dedup_check
-* Script: tasks/do/TA11_dedup_check.do
+* Script: assets/stata_do_library/do/TA11_dedup_check.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

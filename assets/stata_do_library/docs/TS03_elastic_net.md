@@ -54,7 +54,7 @@ Elastic Net regression combining LASSO and Ridge penalties
 
 ```stata
 * Template: TS03_elastic_net
-* Script: tasks/do/TS03_elastic_net.do
+* Script: assets/stata_do_library/do/TS03_elastic_net.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

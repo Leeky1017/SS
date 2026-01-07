@@ -51,7 +51,7 @@ Feasible GLS for panel data
 
 ```stata
 * Template: TP07_panel_fgls
-* Script: tasks/do/TP07_panel_fgls.do
+* Script: assets/stata_do_library/do/TP07_panel_fgls.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

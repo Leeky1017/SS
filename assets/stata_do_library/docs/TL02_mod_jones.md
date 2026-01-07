@@ -53,7 +53,7 @@ Modified Jones model for discretionary accruals
 
 ```stata
 * Template: TL02_mod_jones
-* Script: tasks/do/TL02_mod_jones.do
+* Script: assets/stata_do_library/do/TL02_mod_jones.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

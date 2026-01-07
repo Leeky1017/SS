@@ -51,7 +51,7 @@ Test for serial correlation in panel data
 
 ```stata
 * Template: TP05_panel_serial
-* Script: tasks/do/TP05_panel_serial.do
+* Script: assets/stata_do_library/do/TP05_panel_serial.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

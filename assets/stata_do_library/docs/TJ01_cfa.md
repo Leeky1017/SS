@@ -50,7 +50,7 @@ Confirmatory Factor Analysis using SEM
 
 ```stata
 * Template: TJ01_cfa
-* Script: tasks/do/TJ01_cfa.do
+* Script: assets/stata_do_library/do/TJ01_cfa.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

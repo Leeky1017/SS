@@ -56,7 +56,7 @@ Fuzzy regression discontinuity design
 
 ```stata
 * Template: TG10_rdd_fuzzy
-* Script: tasks/do/TG10_rdd_fuzzy.do
+* Script: assets/stata_do_library/do/TG10_rdd_fuzzy.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

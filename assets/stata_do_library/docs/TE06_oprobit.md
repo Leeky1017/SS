@@ -51,7 +51,7 @@ Ordered Probit model for ordinal outcomes
 
 ```stata
 * Template: TE06_oprobit
-* Script: tasks/do/TE06_oprobit.do
+* Script: assets/stata_do_library/do/TE06_oprobit.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

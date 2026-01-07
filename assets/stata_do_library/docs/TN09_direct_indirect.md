@@ -51,7 +51,7 @@ Direct and indirect effects decomposition
 
 ```stata
 * Template: TN09_direct_indirect
-* Script: tasks/do/TN09_direct_indirect.do
+* Script: assets/stata_do_library/do/TN09_direct_indirect.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

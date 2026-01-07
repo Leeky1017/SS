@@ -50,7 +50,7 @@ Structural Equation Modeling
 
 ```stata
 * Template: TJ02_sem
-* Script: tasks/do/TJ02_sem.do
+* Script: assets/stata_do_library/do/TJ02_sem.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -52,7 +52,7 @@ Sample size and power calculation for survival studies
 
 ```stata
 * Template: TI11_stpower
-* Script: tasks/do/TI11_stpower.do
+* Script: assets/stata_do_library/do/TI11_stpower.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

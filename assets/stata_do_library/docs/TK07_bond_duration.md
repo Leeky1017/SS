@@ -53,7 +53,7 @@ Bond duration and convexity calculation
 
 ```stata
 * Template: TK07_bond_duration
-* Script: tasks/do/TK07_bond_duration.do
+* Script: assets/stata_do_library/do/TK07_bond_duration.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

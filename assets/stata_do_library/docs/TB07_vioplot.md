@@ -51,7 +51,7 @@ Draw violin plot to show data distribution
 
 ```stata
 * Template: TB07_vioplot
-* Script: tasks/do/TB07_vioplot.do
+* Script: assets/stata_do_library/do/TB07_vioplot.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

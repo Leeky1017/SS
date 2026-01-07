@@ -52,7 +52,7 @@ Plot time series or trend line charts with optional multi-series
 
 ```stata
 * Template: TU04_line_chart
-* Script: tasks/do/TU04_line_chart.do
+* Script: assets/stata_do_library/do/TU04_line_chart.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

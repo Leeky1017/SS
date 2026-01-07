@@ -51,7 +51,7 @@ Export graphs to various formats
 
 ```stata
 * Template: TO07_graph_export
-* Script: tasks/do/TO07_graph_export.do
+* Script: assets/stata_do_library/do/TO07_graph_export.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

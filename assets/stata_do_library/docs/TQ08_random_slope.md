@@ -53,7 +53,7 @@ Random slope multilevel model
 
 ```stata
 * Template: TQ08_random_slope
-* Script: tasks/do/TQ08_random_slope.do
+* Script: assets/stata_do_library/do/TQ08_random_slope.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

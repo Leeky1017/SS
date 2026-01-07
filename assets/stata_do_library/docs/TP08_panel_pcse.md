@@ -51,7 +51,7 @@ Panel-corrected standard errors
 
 ```stata
 * Template: TP08_panel_pcse
-* Script: tasks/do/TP08_panel_pcse.do
+* Script: assets/stata_do_library/do/TP08_panel_pcse.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

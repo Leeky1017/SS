@@ -51,7 +51,7 @@ Spatial Error Model
 
 ```stata
 * Template: TN04_sem_spatial
-* Script: tasks/do/TN04_sem_spatial.do
+* Script: assets/stata_do_library/do/TN04_sem_spatial.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

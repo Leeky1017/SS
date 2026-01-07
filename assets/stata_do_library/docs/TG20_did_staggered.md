@@ -57,7 +57,7 @@ Staggered DID with Callaway-Sant'Anna
 
 ```stata
 * Template: TG20_did_staggered
-* Script: tasks/do/TG20_did_staggered.do
+* Script: assets/stata_do_library/do/TG20_did_staggered.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

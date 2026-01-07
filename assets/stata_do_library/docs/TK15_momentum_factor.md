@@ -53,7 +53,7 @@ Momentum factor construction and analysis
 
 ```stata
 * Template: TK15_momentum_factor
-* Script: tasks/do/TK15_momentum_factor.do
+* Script: assets/stata_do_library/do/TK15_momentum_factor.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

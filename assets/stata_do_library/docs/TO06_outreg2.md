@@ -50,7 +50,7 @@ Export regression tables using outreg2
 
 ```stata
 * Template: TO06_outreg2
-* Script: tasks/do/TO06_outreg2.do
+* Script: assets/stata_do_library/do/TO06_outreg2.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

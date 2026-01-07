@@ -53,7 +53,7 @@ Stratified Cox proportional hazards model
 
 ```stata
 * Template: TI05_stcox_strata
-* Script: tasks/do/TI05_stcox_strata.do
+* Script: assets/stata_do_library/do/TI05_stcox_strata.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

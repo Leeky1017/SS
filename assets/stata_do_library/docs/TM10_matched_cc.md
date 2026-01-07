@@ -52,7 +52,7 @@ Matched case-control study analysis
 
 ```stata
 * Template: TM10_matched_cc
-* Script: tasks/do/TM10_matched_cc.do
+* Script: assets/stata_do_library/do/TM10_matched_cc.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

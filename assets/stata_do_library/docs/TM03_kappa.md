@@ -51,7 +51,7 @@ Cohen's Kappa for inter-rater agreement
 
 ```stata
 * Template: TM03_kappa
-* Script: tasks/do/TM03_kappa.do
+* Script: assets/stata_do_library/do/TM03_kappa.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

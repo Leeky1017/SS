@@ -53,7 +53,7 @@ Panel negative binomial for overdispersed count data
 
 ```stata
 * Template: TF11_xtnbreg
-* Script: tasks/do/TF11_xtnbreg.do
+* Script: assets/stata_do_library/do/TF11_xtnbreg.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

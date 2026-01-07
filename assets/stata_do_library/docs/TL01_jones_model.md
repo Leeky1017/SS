@@ -53,7 +53,7 @@ Jones accruals model for earnings management detection
 
 ```stata
 * Template: TL01_jones_model
-* Script: tasks/do/TL01_jones_model.do
+* Script: assets/stata_do_library/do/TL01_jones_model.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

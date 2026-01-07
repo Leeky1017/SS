@@ -51,7 +51,7 @@ Kruskal-Wallis H test for multiple groups
 
 ```stata
 * Template: TC03_kruskal_wallis
-* Script: tasks/do/TC03_kruskal_wallis.do
+* Script: assets/stata_do_library/do/TC03_kruskal_wallis.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

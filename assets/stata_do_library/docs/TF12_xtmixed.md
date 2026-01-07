@@ -52,7 +52,7 @@ Mixed effects model with random coefficients
 
 ```stata
 * Template: TF12_xtmixed
-* Script: tasks/do/TF12_xtmixed.do
+* Script: assets/stata_do_library/do/TF12_xtmixed.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

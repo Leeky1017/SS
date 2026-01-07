@@ -54,7 +54,7 @@ Hansen panel threshold model
 
 ```stata
 * Template: TF07_xthreg
-* Script: tasks/do/TF07_xthreg.do
+* Script: assets/stata_do_library/do/TF07_xthreg.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

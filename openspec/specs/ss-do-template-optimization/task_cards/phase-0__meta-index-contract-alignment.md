@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #133
 - Parent: #125
 - Related specs:
   - `openspec/specs/ss-do-template-library/spec.md`

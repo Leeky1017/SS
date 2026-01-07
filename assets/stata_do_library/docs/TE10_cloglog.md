@@ -51,7 +51,7 @@ Complementary log-log model for asymmetric binary data
 
 ```stata
 * Template: TE10_cloglog
-* Script: tasks/do/TE10_cloglog.do
+* Script: assets/stata_do_library/do/TE10_cloglog.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

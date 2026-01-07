@@ -51,7 +51,7 @@ Intraclass Correlation Coefficient
 
 ```stata
 * Template: TM04_icc
-* Script: tasks/do/TM04_icc.do
+* Script: assets/stata_do_library/do/TM04_icc.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

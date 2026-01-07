@@ -57,7 +57,7 @@ Panel data IV estimation
 
 ```stata
 * Template: TG16_panel_iv
-* Script: tasks/do/TG16_panel_iv.do
+* Script: assets/stata_do_library/do/TG16_panel_iv.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

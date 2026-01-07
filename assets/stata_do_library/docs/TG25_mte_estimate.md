@@ -55,7 +55,7 @@ Marginal treatment effect estimation
 
 ```stata
 * Template: TG25_mte_estimate
-* Script: tasks/do/TG25_mte_estimate.do
+* Script: assets/stata_do_library/do/TG25_mte_estimate.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

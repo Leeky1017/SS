@@ -50,7 +50,7 @@ Export regression tables to HTML format
 
 ```stata
 * Template: TO01_esttab_html
-* Script: tasks/do/TO01_esttab_html.do
+* Script: assets/stata_do_library/do/TO01_esttab_html.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

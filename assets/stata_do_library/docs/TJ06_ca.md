@@ -52,7 +52,7 @@ Correspondence Analysis for categorical data
 
 ```stata
 * Template: TJ06_ca
-* Script: tasks/do/TJ06_ca.do
+* Script: assets/stata_do_library/do/TJ06_ca.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -51,7 +51,7 @@ Bayesian linear regression
 
 ```stata
 * Template: TR06_bayes_regress
-* Script: tasks/do/TR06_bayes_regress.do
+* Script: assets/stata_do_library/do/TR06_bayes_regress.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

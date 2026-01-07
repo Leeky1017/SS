@@ -56,7 +56,7 @@ Synthetic control method
 
 ```stata
 * Template: TG17_scm_synth
-* Script: tasks/do/TG17_scm_synth.do
+* Script: assets/stata_do_library/do/TG17_scm_synth.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -53,7 +53,7 @@ Heckman two-stage selection model
 
 ```stata
 * Template: TE04_heckman
-* Script: tasks/do/TE04_heckman.do
+* Script: assets/stata_do_library/do/TE04_heckman.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

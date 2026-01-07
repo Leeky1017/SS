@@ -53,7 +53,7 @@ Vector Autoregression model
 
 ```stata
 * Template: TQ02_var_model
-* Script: tasks/do/TQ02_var_model.do
+* Script: assets/stata_do_library/do/TQ02_var_model.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

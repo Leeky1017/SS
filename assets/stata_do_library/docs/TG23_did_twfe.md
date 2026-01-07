@@ -54,7 +54,7 @@ TWFE diagnostics and robust alternatives
 
 ```stata
 * Template: TG23_did_twfe
-* Script: tasks/do/TG23_did_twfe.do
+* Script: assets/stata_do_library/do/TG23_did_twfe.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

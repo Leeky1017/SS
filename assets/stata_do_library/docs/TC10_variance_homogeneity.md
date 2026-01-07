@@ -51,7 +51,7 @@ Variance homogeneity tests (Levene, Bartlett)
 
 ```stata
 * Template: TC10_variance_homogeneity
-* Script: tasks/do/TC10_variance_homogeneity.do
+* Script: assets/stata_do_library/do/TC10_variance_homogeneity.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

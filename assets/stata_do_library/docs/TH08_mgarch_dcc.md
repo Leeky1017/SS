@@ -49,7 +49,7 @@ DCC multivariate GARCH model
 
 ```stata
 * Template: TH08_mgarch_dcc
-* Script: tasks/do/TH08_mgarch_dcc.do
+* Script: assets/stata_do_library/do/TH08_mgarch_dcc.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

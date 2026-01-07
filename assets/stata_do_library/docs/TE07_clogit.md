@@ -52,7 +52,7 @@ Conditional logit for matched/grouped data
 
 ```stata
 * Template: TE07_clogit
-* Script: tasks/do/TE07_clogit.do
+* Script: assets/stata_do_library/do/TE07_clogit.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

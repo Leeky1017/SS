@@ -54,7 +54,7 @@ Copula-based dependence modeling
 
 ```stata
 * Template: TK12_copula_depend
-* Script: tasks/do/TK12_copula_depend.do
+* Script: assets/stata_do_library/do/TK12_copula_depend.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

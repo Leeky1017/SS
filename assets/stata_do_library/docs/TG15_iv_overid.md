@@ -53,7 +53,7 @@ Overidentification tests for IV
 
 ```stata
 * Template: TG15_iv_overid
-* Script: tasks/do/TG15_iv_overid.do
+* Script: assets/stata_do_library/do/TG15_iv_overid.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

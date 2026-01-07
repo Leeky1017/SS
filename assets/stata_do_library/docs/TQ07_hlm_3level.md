@@ -53,7 +53,7 @@ Three-level hierarchical linear model
 
 ```stata
 * Template: TQ07_hlm_3level
-* Script: tasks/do/TQ07_hlm_3level.do
+* Script: assets/stata_do_library/do/TQ07_hlm_3level.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

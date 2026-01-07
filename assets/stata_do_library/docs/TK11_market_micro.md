@@ -54,7 +54,7 @@ Market microstructure analysis including bid-ask spread
 
 ```stata
 * Template: TK11_market_micro
-* Script: tasks/do/TK11_market_micro.do
+* Script: assets/stata_do_library/do/TK11_market_micro.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

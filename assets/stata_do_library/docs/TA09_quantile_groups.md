@@ -57,7 +57,7 @@ Generate group variables based on quantiles, equal intervals, or custom cutpoint
 
 ```stata
 * Template: TA09_quantile_groups
-* Script: tasks/do/TA09_quantile_groups.do
+* Script: assets/stata_do_library/do/TA09_quantile_groups.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

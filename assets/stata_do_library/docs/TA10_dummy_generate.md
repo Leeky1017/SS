@@ -56,7 +56,7 @@ Generate dummy variables for categorical variables with base group selection
 
 ```stata
 * Template: TA10_dummy_generate
-* Script: tasks/do/TA10_dummy_generate.do
+* Script: assets/stata_do_library/do/TA10_dummy_generate.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

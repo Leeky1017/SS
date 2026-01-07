@@ -51,7 +51,7 @@ LASSO regression with L1 regularization
 
 ```stata
 * Template: TD07_lasso
-* Script: tasks/do/TD07_lasso.do
+* Script: assets/stata_do_library/do/TD07_lasso.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

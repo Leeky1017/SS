@@ -51,7 +51,7 @@ Linear Discriminant Analysis
 
 ```stata
 * Template: TJ03_discrim
-* Script: tasks/do/TJ03_discrim.do
+* Script: assets/stata_do_library/do/TJ03_discrim.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

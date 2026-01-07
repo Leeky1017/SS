@@ -51,7 +51,7 @@ Two-part model for semi-continuous data
 
 ```stata
 * Template: TE05_twopm
-* Script: tasks/do/TE05_twopm.do
+* Script: assets/stata_do_library/do/TE05_twopm.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

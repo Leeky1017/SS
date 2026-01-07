@@ -54,7 +54,7 @@ Plot histogram with optional normal distribution overlay
 
 ```stata
 * Template: TU01_histogram
-* Script: tasks/do/TU01_histogram.do
+* Script: assets/stata_do_library/do/TU01_histogram.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

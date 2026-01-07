@@ -54,7 +54,7 @@ Coarsened exact matching for causal inference
 
 ```stata
 * Template: TG05_cem_match
-* Script: tasks/do/TG05_cem_match.do
+* Script: assets/stata_do_library/do/TG05_cem_match.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

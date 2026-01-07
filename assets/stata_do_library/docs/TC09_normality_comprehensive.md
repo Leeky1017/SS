@@ -50,7 +50,7 @@ Comprehensive normality tests (Shapiro-Wilk, Shapiro-Francia)
 
 ```stata
 * Template: TC09_normality_comprehensive
-* Script: tasks/do/TC09_normality_comprehensive.do
+* Script: assets/stata_do_library/do/TC09_normality_comprehensive.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

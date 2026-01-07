@@ -52,7 +52,7 @@ Generate and analyze N-grams (word combinations)
 
 ```stata
 * Template: TT04_ngram
-* Script: tasks/do/TT04_ngram.do
+* Script: assets/stata_do_library/do/TT04_ngram.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

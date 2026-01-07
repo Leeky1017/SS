@@ -56,7 +56,7 @@ Winsorize numeric variables to replace extreme values with specified percentile 
 
 ```stata
 * Template: TA01_winsorize
-* Script: tasks/do/TA01_winsorize.do
+* Script: assets/stata_do_library/do/TA01_winsorize.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

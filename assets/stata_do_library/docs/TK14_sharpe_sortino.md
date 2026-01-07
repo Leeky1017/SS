@@ -52,7 +52,7 @@ Calculate Sharpe ratio and Sortino ratio
 
 ```stata
 * Template: TK14_sharpe_sortino
-* Script: tasks/do/TK14_sharpe_sortino.do
+* Script: assets/stata_do_library/do/TK14_sharpe_sortino.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -57,7 +57,7 @@ Capital Asset Pricing Model estimation with rolling beta
 
 ```stata
 * Template: TK01_capm_estimate
-* Script: tasks/do/TK01_capm_estimate.do
+* Script: assets/stata_do_library/do/TK01_capm_estimate.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

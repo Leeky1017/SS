@@ -53,7 +53,7 @@ High-dimensional fixed effects regression
 
 ```stata
 * Template: TD02_high_dim_fe
-* Script: tasks/do/TD02_high_dim_fe.do
+* Script: assets/stata_do_library/do/TD02_high_dim_fe.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

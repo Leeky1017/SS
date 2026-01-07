@@ -53,7 +53,7 @@ Rolling window regression
 
 ```stata
 * Template: TH14_rolling
-* Script: tasks/do/TH14_rolling.do
+* Script: assets/stata_do_library/do/TH14_rolling.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -51,7 +51,7 @@ Bayesian MCMC diagnostic plots
 
 ```stata
 * Template: TR09_bayesgraph
-* Script: tasks/do/TR09_bayesgraph.do
+* Script: assets/stata_do_library/do/TR09_bayesgraph.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

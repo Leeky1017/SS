@@ -52,7 +52,7 @@ Real earnings management (Roychowdhury 2006)
 
 ```stata
 * Template: TL05_roychowdhury
-* Script: tasks/do/TL05_roychowdhury.do
+* Script: assets/stata_do_library/do/TL05_roychowdhury.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

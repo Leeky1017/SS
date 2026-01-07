@@ -57,7 +57,7 @@ Propensity score matching (1:1/1:N)
 
 ```stata
 * Template: TG02_psm_match
-* Script: tasks/do/TG02_psm_match.do
+* Script: assets/stata_do_library/do/TG02_psm_match.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

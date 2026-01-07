@@ -52,7 +52,7 @@ ROC curve analysis for diagnostic test evaluation
 
 ```stata
 * Template: TM01_roc_analysis
-* Script: tasks/do/TM01_roc_analysis.do
+* Script: assets/stata_do_library/do/TM01_roc_analysis.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

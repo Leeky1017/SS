@@ -2,7 +2,7 @@
 
 > **版本**: 1.1  
 > **状态**: ENFORCED（强制执行）  
-> **适用范围**: `tasks/do/**/*.do` 下全部 `.do` 文件（不分新旧、不分模块）  
+> **适用范围**: `assets/stata_do_library/do/**/*.do` 下全部 `.do` 文件（不分新旧、不分模块）  
 > **硬门槛**: TaskD 的 `domain/log_analyzer.py` 必须能稳定解析 `SS_*` 锚点  
 > **更新日期**: 2024-12-13
 
@@ -20,11 +20,11 @@
 
 | 文件 | 用途 |
 |------|------|
-| `tasks/DO_LIBRARY_EXPANSION_PLAN.md` | 需求规划（模块清单/覆盖面/新增方向） |
+| `assets/stata_do_library/DO_LIBRARY_EXPANSION_PLAN.md` | 需求规划（模块清单/覆盖面/新增方向） |
 | `stata_dependencies.txt` | 依赖白名单（官方 + 社区命令） |
-| `tasks/DO_AUDIT_REPORT.md` | 现状审计 |
-| `tasks/DO_LIBRARY_INDEX.json` | 机器可读索引 |
-| `tasks/DO_LINT_RULES.py` | 可执行门禁 |
+| `assets/stata_do_library/DO_AUDIT_REPORT.md` | 现状审计 |
+| `assets/stata_do_library/DO_LIBRARY_INDEX.json` | 机器可读索引 |
+| `assets/stata_do_library/DO_LINT_RULES.py` | 可执行门禁 |
 | `domain/log_analyzer.py` | SS 系统解析约束（锚点可解析性是硬门槛） |
 
 ---
@@ -218,35 +218,62 @@ SS_RC|code=<_rc>|cmd=<short_cmd>|msg=<short_msg>|severity=<warn|fail>
 ### 6.1 文件结构
 
 ```
-tasks/do/Txxx_slug.do
-tasks/do/Txxx_slug.md
-tasks/do/meta/Txxx_slug.meta.json
+assets/stata_do_library/do/Txxx_slug.do
+assets/stata_do_library/docs/Txxx_slug.md
+assets/stata_do_library/do/meta/Txxx_slug.meta.json
 ```
 
 ### 6.2 meta.json 必须字段
 
 ```json
 {
-  "id": "T004",
-  "slug": "merge_datasets",
-  "title": "...",
-  "module": "B",
-  "level": "L1",
-  "roles": ["main_dataset", "merge_table"],
-  "parameters": [
-    {"name": "key_vars", "type": "list[string]", "required": true},
-    {"name": "keep_policy", "type": "enum", "values": ["match", "master", "using", "all"], "required": true}
+  "contract_version": "1.1",
+  "dependencies": [
+    {"pkg": "stata", "purpose": "Core commands", "source": "built-in"}
   ],
-  "dependencies": [{"pkg": "reghdfe", "source": "ssc"}],
-  "outputs": [{"type": "table", "desc": "..."}],
-  "tags": ["merge", "panel"]
+  "description": "Merge two datasets by key and export merge diagnostics",
+  "family": "data_management",
+  "id": "T04",
+  "inputs": [
+    {"name": "data.csv", "required": true, "role": "main_dataset"},
+    {"name": "using.csv", "required": true, "role": "merge_table"}
+  ],
+  "level": "L1",
+  "module": "B",
+  "outputs": [
+    {"description": "Execution log", "file": "result.log", "type": "log"},
+    {"description": "Merge diagnostics", "file": "table_merge_report.csv", "type": "table"}
+  ],
+  "parameters": [
+    {
+      "description": "Key vars (space-separated)",
+      "name": "__KEY_VARS__",
+      "required": true,
+      "type": "list[string]"
+    },
+    {
+      "default": "match",
+      "description": "Keep policy",
+      "kind": "enum",
+      "name": "__KEEP_POLICY__",
+      "options": ["match", "master", "using", "all"],
+      "required": false,
+      "type": "string"
+    }
+  ],
+  "slug": "merge_datasets",
+  "tags": ["merge", "data_quality", "data_management"],
+  "title": "Merge Datasets",
+  "title_zh": "数据合并",
+  "version": "2.0.0"
 }
 ```
 
+
 ### 6.3 索引文件
 
-- `tasks/DO_LIBRARY_INDEX.json`（汇总所有 meta，供系统读取）
-- `tasks/DO_LIBRARY_INDEX.sha256`（防篡改与发布一致性）
+- `assets/stata_do_library/DO_LIBRARY_INDEX.json`（汇总所有 meta，供系统读取）
+- `assets/stata_do_library/DO_LIBRARY_INDEX.sha256`（防篡改与发布一致性）
 
 ---
 
@@ -256,10 +283,10 @@ tasks/do/meta/Txxx_slug.meta.json
 
 必须先完成（并纳入 CI）：
 
-- `tasks/SS_DO_CONTRACT.md`（本文件）
-- `tasks/DO_POLICY.md`（社区命令允许 + 白名单机制）
-- `tasks/DO_QUALITY_UPGRADE_TASK.md`（L0/L1/L2 能力门槛，无行数门槛）
-- `tasks/DO_LINT_RULES.py`（可执行门禁）
+- `assets/stata_do_library/SS_DO_CONTRACT.md`（本文件）
+- `assets/stata_do_library/DO_POLICY.md`（社区命令允许 + 白名单机制）
+- `assets/stata_do_library/DO_QUALITY_UPGRADE_TASK.md`（L0/L1/L2 能力门槛，无行数门槛）
+- `assets/stata_do_library/DO_LINT_RULES.py`（可执行门禁）
 - `tests/test_do_contract.py`（CI 必杀：0 CRITICAL）
 
 ### 7.2 再做全量升级（旧模板全改：壳 + 内容本体）
@@ -277,7 +304,7 @@ tasks/do/meta/Txxx_slug.meta.json
 
 ### 7.3 最后做扩张（新增模板）
 
-- 按 `tasks/DO_LIBRARY_EXPANSION_PLAN.md` 模块补齐缺口
+- 按 `assets/stata_do_library/DO_LIBRARY_EXPANSION_PLAN.md` 模块补齐缺口
 - 每新增 1 个模板：必须同时提供 `.do + .md + meta.json`，并进入 index
 - 重复模板合并：同一任务目的只保留 1 个"主模板"，其余标记为 alias
 
@@ -298,7 +325,7 @@ tasks/do/meta/Txxx_slug.meta.json
 
 | 检查项 | 要求 |
 |--------|------|
-| 硬契约合规 | `tasks/do/` 下所有 `.do`：100% 合规 |
+| 硬契约合规 | `assets/stata_do_library/do/` 下所有 `.do`：100% 合规 |
 | Linter | 0 CRITICAL、0 HIGH |
 | 索引完整 | `DO_LIBRARY_INDEX.json` 包含所有模板、无重复 id、alias 指向合法 |
 | 依赖合规 | 模板声明的依赖 100% 在 `stata_dependencies.txt` 内 |

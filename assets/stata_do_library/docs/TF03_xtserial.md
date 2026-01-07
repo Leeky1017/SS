@@ -53,7 +53,7 @@ Wooldridge test for serial correlation
 
 ```stata
 * Template: TF03_xtserial
-* Script: tasks/do/TF03_xtserial.do
+* Script: assets/stata_do_library/do/TF03_xtserial.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

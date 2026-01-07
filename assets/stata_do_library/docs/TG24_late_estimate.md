@@ -54,7 +54,7 @@ Local average treatment effect estimation
 
 ```stata
 * Template: TG24_late_estimate
-* Script: tasks/do/TG24_late_estimate.do
+* Script: assets/stata_do_library/do/TG24_late_estimate.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

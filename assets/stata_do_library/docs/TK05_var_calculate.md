@@ -54,7 +54,7 @@ Value at Risk calculation
 
 ```stata
 * Template: TK05_var_calculate
-* Script: tasks/do/TK05_var_calculate.do
+* Script: assets/stata_do_library/do/TK05_var_calculate.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -51,7 +51,7 @@ Cohort study relative risk analysis
 
 ```stata
 * Template: TM09_cohort_rr
-* Script: tasks/do/TM09_cohort_rr.do
+* Script: assets/stata_do_library/do/TM09_cohort_rr.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

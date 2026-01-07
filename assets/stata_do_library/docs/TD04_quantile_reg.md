@@ -52,7 +52,7 @@ Quantile regression at multiple quantiles
 
 ```stata
 * Template: TD04_quantile_reg
-* Script: tasks/do/TD04_quantile_reg.do
+* Script: assets/stata_do_library/do/TD04_quantile_reg.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

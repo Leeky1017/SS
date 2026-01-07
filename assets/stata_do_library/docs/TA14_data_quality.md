@@ -55,7 +55,7 @@ Comprehensive data quality assessment with missing values, outliers, and consist
 
 ```stata
 * Template: TA14_data_quality
-* Script: tasks/do/TA14_data_quality.do
+* Script: assets/stata_do_library/do/TA14_data_quality.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 
