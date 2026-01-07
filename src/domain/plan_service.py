@@ -17,8 +17,8 @@ from src.domain.models import (
     PlanStep,
     PlanStepType,
 )
-from src.infra.exceptions import (
-    JobStoreIOError,
+from src.infra.exceptions import JobStoreIOError
+from src.infra.plan_exceptions import (
     PlanAlreadyFrozenError,
     PlanArtifactsWriteError,
     PlanFreezeNotAllowedError,
