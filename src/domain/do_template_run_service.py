@@ -14,11 +14,11 @@ from src.domain.do_template_run_evidence import (
     write_template_evidence,
 )
 from src.domain.do_template_run_support import append_artifact_if_missing, ensure_job_status
+from src.domain.job_store import JobStore
 from src.domain.models import ArtifactRef, Job, JobStatus, RunAttempt
 from src.domain.stata_runner import RunResult, StataRunner
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import DoTemplateContractInvalidError, SSError
-from src.infra.job_store import JobStore
 from src.infra.stata_run_support import RunDirs, resolve_run_dirs
 from src.utils.json_types import JsonObject
 from src.utils.time import utc_now

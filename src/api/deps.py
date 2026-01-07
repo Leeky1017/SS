@@ -7,10 +7,11 @@ from src.domain.artifacts_service import ArtifactsService
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobScheduler, JobService
+from src.domain.job_store import JobStore
 from src.domain.llm_client import LLMClient, StubLLMClient
 from src.domain.state_machine import JobStateMachine
 from src.infra.file_worker_queue import FileWorkerQueue
-from src.infra.job_store import JobStore
+from src.infra.job_store_factory import build_job_store
 from src.infra.llm_tracing import TracedLLMClient
 from src.infra.queue_job_scheduler import QueueJobScheduler
 
@@ -22,7 +23,7 @@ def get_config() -> Config:
 
 @lru_cache
 def get_job_store() -> JobStore:
-    return JobStore(jobs_dir=get_config().jobs_dir)
+    return build_job_store(config=get_config())
 
 
 @lru_cache

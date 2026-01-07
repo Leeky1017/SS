@@ -4,9 +4,9 @@ import logging
 from datetime import datetime
 from typing import Callable
 
+from src.domain.job_store import JobStore
 from src.domain.models import Job, RunAttempt
 from src.domain.stata_runner import RunResult
-from src.infra.job_store import JobStore
 
 logger = logging.getLogger(__name__)
 
@@ -71,4 +71,3 @@ def index_artifacts(*, job: Job, result: RunResult) -> None:
             continue
         job.artifacts_index.append(ref)
         known.add(key)
-

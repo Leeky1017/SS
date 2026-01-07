@@ -4,9 +4,9 @@ import logging
 from pathlib import Path
 from typing import cast
 
+from src.domain.job_store import JobStore
 from src.domain.models import is_safe_job_rel_path
 from src.infra.exceptions import ArtifactNotFoundError, ArtifactPathUnsafeError
-from src.infra.job_store import JobStore
 from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)

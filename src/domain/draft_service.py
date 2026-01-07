@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import logging
 
+from src.domain.job_store import JobStore
 from src.domain.llm_client import LLMClient
 from src.domain.models import Draft, JobStatus
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import LLMArtifactsWriteError, LLMCallFailedError
-from src.infra.job_store import JobStore
 
 logger = logging.getLogger(__name__)
 

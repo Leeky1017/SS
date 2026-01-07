@@ -10,6 +10,9 @@ from typing import Mapping
 @dataclass(frozen=True)
 class Config:
     jobs_dir: Path
+    job_store_backend: str
+    job_store_postgres_dsn: str
+    job_store_redis_url: str
     queue_dir: Path
     queue_lease_ttl_seconds: int
     do_template_library_dir: Path
@@ -59,6 +62,9 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     """Load config from environment variables with explicit defaults."""
     e = os.environ if env is None else env
     jobs_dir = Path(str(e.get("SS_JOBS_DIR", "./jobs"))).expanduser()
+    job_store_backend = str(e.get("SS_JOB_STORE_BACKEND", "file")).strip().lower()
+    job_store_postgres_dsn = str(e.get("SS_JOB_STORE_POSTGRES_DSN", "")).strip()
+    job_store_redis_url = str(e.get("SS_JOB_STORE_REDIS_URL", "")).strip()
     queue_dir = Path(str(e.get("SS_QUEUE_DIR", "./queue"))).expanduser()
     queue_lease_ttl_seconds = _int_value(str(e.get("SS_QUEUE_LEASE_TTL_SECONDS", "60")), default=60)
     do_template_library_dir = Path(
@@ -90,6 +96,9 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     )
     return Config(
         jobs_dir=jobs_dir,
+        job_store_backend=job_store_backend,
+        job_store_postgres_dsn=job_store_postgres_dsn,
+        job_store_redis_url=job_store_redis_url,
         queue_dir=queue_dir,
         queue_lease_ttl_seconds=queue_lease_ttl_seconds,
         do_template_library_dir=do_template_library_dir,

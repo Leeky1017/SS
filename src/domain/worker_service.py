@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
 
+from src.domain.job_store import JobStore
 from src.domain.models import Job, JobStatus
 from src.domain.stata_runner import StataRunner
 from src.domain.state_machine import JobStateMachine
@@ -20,7 +21,6 @@ from src.infra.exceptions import (
     JobStoreIOError,
     QueueIOError,
 )
-from src.infra.job_store import JobStore
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
