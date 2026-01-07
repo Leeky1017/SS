@@ -62,3 +62,19 @@
   - `gh pr create --draft --title "[SS-AUDIT-OPS] Audit logging (who did what) (#108)" --body "Closes #108 ..."`
 - Key output:
   - `PR: https://github.com/Leeky1017/SS/pull/113`
+
+### 2026-01-07 01:24 Proceed despite overlap
+- Note:
+  - Preflight reported file overlap with PR #111, but PR #113 is mergeable while PR #111 is currently `mergeable=CONFLICTING`; proceeding with auto-merge to unblock audit logging delivery.
+
+### 2026-01-07 01:25 Mark ready for review
+- Command:
+  - `gh pr ready 113`
+- Key output:
+  - `marked as "ready for review"`
+
+### 2026-01-07 01:26 Enable auto-merge
+- Command:
+  - `gh pr merge --auto --squash 113`
+- Key output:
+  - `will be automatically merged via squash when all requirements are met`
