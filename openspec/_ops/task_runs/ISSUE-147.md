@@ -7,7 +7,7 @@
 - Implement two-stage LLM do-template selection (family → template) with token-budgeted prompts, hard candidate membership verification, and auditable evidence artifacts.
 
 ## Status
-- CURRENT: Stage-1/Stage-2 selection + evidence implemented; running repo-wide checks and opening PR next.
+- CURRENT: PR opened; auto-merge enabled; waiting for required checks.
 
 ## Next Actions
 - [x] Specify two-stage selection protocol in OpenSpec
@@ -17,6 +17,7 @@
 - [x] Run `pytest -q`
 - [x] Run `openspec validate --specs --strict --no-interactive`
 - [x] Run `scripts/agent_pr_preflight.sh` and open PR
+- [ ] Wait for `ci` / `merge-serial` green and auto-merge
 
 ## Decisions Made
 - 2026-01-07: Use `assets/stata_do_library/DO_LIBRARY_INDEX.json` as the source for family and template summaries (canonical IDs).
@@ -24,6 +25,7 @@
 ## Errors Encountered
 - 2026-01-07: `gh issue create` TLS handshake timeout → retried and succeeded.
 - 2026-01-07: `scripts/agent_controlplane_sync.sh` reported dirty controlplane → continued with isolated worktree.
+- 2026-01-07: PR `ci` failed on `mypy` type errors → fixed payload typing and pushed.
 
 ## Runs
 ### 2026-01-07 22:39 create issue
@@ -106,5 +108,37 @@
   - `gh pr create --title \"feat: two-stage do-template selection (#147)\" --body \"Closes #147 ...\"`
 - Key output:
   - `https://github.com/Leeky1017/SS/pull/150`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/150
+
+### 2026-01-07 23:29 enable auto-merge
+- Command:
+  - `gh pr merge --auto --squash 150`
+- Key output:
+  - `PR will be automatically merged via squash when all requirements are met`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/150
+
+### 2026-01-07 23:32 ci failure (mypy)
+- Command:
+  - `gh run view 20787107989 --log-failed`
+- Key output:
+  - `mypy: Found 2 errors in 2 files`
+- Evidence:
+  - `https://github.com/Leeky1017/SS/actions/runs/20787107989`
+
+### 2026-01-07 23:34 mypy
+- Command:
+  - `../../.venv/bin/mypy`
+- Key output:
+  - `Success: no issues found`
+- Evidence:
+  - `src/domain/do_template_selection_service.py`
+
+### 2026-01-07 23:35 push fix
+- Command:
+  - `git push`
+- Key output:
+  - `task/147-llm-two-stage-template-selection -> task/147-llm-two-stage-template-selection`
 - Evidence:
   - PR: https://github.com/Leeky1017/SS/pull/150
