@@ -3,6 +3,7 @@
 - Issue: #105
 - Branch: task/105-audit-o002-health-check
 - PR: https://github.com/Leeky1017/SS/pull/109
+- Closeout PR: https://github.com/Leeky1017/SS/pull/114
 
 ## Plan
 - Add `/health/live` and `/health/ready` endpoints
@@ -86,3 +87,9 @@
 - Result:
   - `MergedAt: 2026-01-07T07:09:32Z`
   - `MergeCommit: 9d7a6e71806d0f8431ed8f938514600867818547`
+
+### 2026-01-07 Closeout PR
+- Command:
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/114`

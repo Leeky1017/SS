@@ -50,7 +50,8 @@ readinessProbe:
 
 ## Completion
 
-- PR: https://github.com/Leeky1017/SS/pull/109
+- Implementation PR: https://github.com/Leeky1017/SS/pull/109
+- Closeout PR: https://github.com/Leeky1017/SS/pull/114
 - Run log: `openspec/_ops/task_runs/ISSUE-105.md`
 - Result:
   - Added `/health/live` (liveness) + `/health/ready` (readiness with per-dependency status)
