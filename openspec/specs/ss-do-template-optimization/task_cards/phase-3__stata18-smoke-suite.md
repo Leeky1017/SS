@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #158
 - Parent: #125
 - Related specs:
   - `openspec/specs/ss-do-template-library/spec.md`
@@ -30,4 +30,3 @@ Provide reproducible evidence that templates run on real Stata 18 (where licensi
 - [ ] Smoke-suite manifest exists and covers the “core” template subset
 - [ ] Local execution writes a structured report (pass/fail + missing deps + outputs)
 - [ ] Evidence is captured in `openspec/_ops/task_runs/ISSUE-<N>.md` for the implementation issue
-

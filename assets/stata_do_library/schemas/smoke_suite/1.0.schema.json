@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Leeky1017/SS/blob/main/assets/stata_do_library/schemas/smoke_suite/1.0.schema.json",
+  "title": "SS Stata 18 smoke-suite manifest (schema_version=1.0)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "suite_id", "templates"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "suite_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$",
+      "minLength": 1
+    },
+    "templates": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^T([0-9]{2}|[A-U][0-9]{2})$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/template_entry"
+      }
+    }
+  },
+  "$defs": {
+    "fixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "dest"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dest": {
+          "type": "string",
+          "pattern": "^[^/\\\\]+$",
+          "minLength": 1
+        }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pkg", "source"],
+      "properties": {
+        "pkg": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "enum": ["built-in", "ssc"]
+        },
+        "purpose": {
+          "type": "string"
+        }
+      }
+    },
+    "template_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixtures", "params", "dependencies"],
+      "properties": {
+        "fixtures": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/fixture"
+          }
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/dependency"
+          }
+        }
+      }
+    }
+  }
+}
+

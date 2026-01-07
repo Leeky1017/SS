@@ -28,6 +28,8 @@ def find_unsafe_dofile_reason(do_file: str) -> str | None:
         for token in tokens:
             stripped = token.strip("\"'")
             if stripped.startswith("/") and len(stripped) > 1:
+                if set(stripped) == {"/"}:
+                    continue
                 return f"absolute_path (line {idx})"
         if _ABS_POSIX_QUOTED.search(line) or _ABS_WINDOWS.search(line):
             return f"absolute_path (line {idx})"
