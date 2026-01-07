@@ -5,6 +5,7 @@ import secrets
 from collections.abc import Mapping, MutableMapping
 
 from opentelemetry import propagate, trace
+from opentelemetry.context import Context
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
@@ -37,16 +38,16 @@ def carrier_from_traceparent(traceparent: str) -> dict[str, str]:
     return {"traceparent": traceparent}
 
 
-def context_from_traceparent(traceparent: str) -> object:
+def context_from_traceparent(traceparent: str) -> Context:
     return extract_context(carrier=carrier_from_traceparent(traceparent))
 
 
-def synthetic_parent_context_for_trace_id(*, trace_id: str, sampled: bool) -> object:
+def synthetic_parent_context_for_trace_id(*, trace_id: str, sampled: bool) -> Context:
     traceparent = build_traceparent(trace_id=trace_id, span_id=new_span_id_hex(), sampled=sampled)
     return context_from_traceparent(traceparent)
 
 
-def extract_context(*, carrier: Mapping[str, str]) -> object:
+def extract_context(*, carrier: Mapping[str, str]) -> Context:
     return _propagator.extract(carrier=carrier)
 
 

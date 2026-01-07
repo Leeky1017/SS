@@ -56,7 +56,8 @@ class FakeStataRunner(StataRunner):
                 timeout_seconds=timeout_seconds,
             )
             span.set_attribute("ss.ok", result.ok)
-            span.set_attribute("ss.exit_code", result.exit_code)
+            if result.exit_code is not None:
+                span.set_attribute("ss.exit_code", result.exit_code)
             return result
 
     def _run_impl(
