@@ -11,6 +11,7 @@ from opentelemetry import trace
 from src.config import load_config
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
+from src.infra.audit_logger import LoggingAuditLogger
 from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store_factory import build_job_store
@@ -78,6 +79,7 @@ def main() -> None:
             backoff_max_seconds=config.worker_retry_backoff_max_seconds,
         ),
         metrics=metrics,
+        audit=LoggingAuditLogger(),
     )
 
     logger.info("SS_WORKER_STARTUP", extra={"worker_id": config.worker_id})
@@ -121,3 +123,4 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         raise SystemExit(0) from None
+

@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import time
+import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import cast
@@ -33,6 +34,7 @@ def _clear_dependency_caches() -> None:
     deps.get_job_state_machine.cache_clear()
     deps.get_job_idempotency.cache_clear()
     deps.get_metrics.cache_clear()
+    deps.get_audit_logger.cache_clear()
     deps.get_artifacts_service.cache_clear()
 
 
@@ -56,6 +58,7 @@ def create_app() -> FastAPI:
     app = FastAPI(title="SS", version="0.0.0", lifespan=lifespan)
     app.state.config = config
     app.state.shutting_down = False
+
     from src.api.deps import get_metrics
 
     metrics = get_metrics()
@@ -64,6 +67,13 @@ def create_app() -> FastAPI:
     async def reject_during_shutdown(
         request: Request, call_next: RequestResponseEndpoint
     ) -> Response:
+        request_id = request.headers.get("x-ss-request-id")
+        if request_id is None:
+            request_id = request.headers.get("x-request-id")
+        if request_id is None or request_id.strip() == "":
+            request_id = uuid.uuid4().hex
+        request.state.request_id = request_id
+
         started = time.perf_counter()
         if getattr(request.app.state, "shutting_down", False):
             response = _handle_ss_error(request, ServiceShuttingDownError())
@@ -83,6 +93,7 @@ def create_app() -> FastAPI:
 
         if is_legacy_unversioned_path(request.url.path):
             add_legacy_deprecation_headers(response)
+        response.headers["X-SS-Request-Id"] = request_id
         return response
 
     app.include_router(api_v1_router)
@@ -121,3 +132,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

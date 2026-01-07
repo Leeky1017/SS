@@ -30,6 +30,16 @@
 - `SS_TRACING_OTLP_ENDPOINT`：OTLP HTTP traces endpoint（默认 `http://localhost:4318/v1/traces`）
 - `SS_TRACING_SAMPLE_RATIO`：采样率 `0.0~1.0`（默认 `1.0`）
 
+## 审计事件（Audit logging）
+
+审计事件使用结构化日志 `event=SS_AUDIT_EVENT`，用于回答 “谁在什么时候做了什么”：
+
+- 资源关联：`job_id`（以及 `audit_resource_type` / `audit_resource_id`）
+- 请求关联：`request_id`（API 会回传响应头 `X-SS-Request-Id`，也支持透传 `X-Request-Id` / `X-SS-Request-Id`）
+- 行为与结果：`audit_action` / `audit_result`
+- 参与者：`audit_actor_kind` / `audit_actor_id` / `audit_actor_ip` / `audit_actor_user_agent`
+- 变更：`audit_changes`（例如 `from_status` → `to_status`）
+
 ## Task cards
 
 - `openspec/specs/ss-observability/task_cards/round-00-arch-a__ARCH-T061.md`（Issue #26）

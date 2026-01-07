@@ -86,3 +86,4 @@ def confirm_job(
         status=job.status.value,
         scheduled_at=job.scheduled_at,
     )
+

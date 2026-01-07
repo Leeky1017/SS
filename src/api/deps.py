@@ -2,8 +2,12 @@ from __future__ import annotations
 
 from functools import lru_cache
 
+from fastapi import Depends
+
+from src.api.audit_context import get_audit_context
 from src.config import Config, load_config
 from src.domain.artifacts_service import ArtifactsService
+from src.domain.audit import AuditContext, AuditLogger
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobScheduler, JobService
@@ -11,6 +15,7 @@ from src.domain.job_store import JobStore
 from src.domain.llm_client import LLMClient, StubLLMClient
 from src.domain.metrics import RuntimeMetrics
 from src.domain.state_machine import JobStateMachine
+from src.infra.audit_logger import LoggingAuditLogger
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store_factory import build_job_store
 from src.infra.llm_tracing import TracedLLMClient
@@ -72,17 +77,24 @@ def get_runtime_metrics() -> RuntimeMetrics:
     return get_metrics()
 
 
+@lru_cache
+def get_audit_logger() -> AuditLogger:
+    return LoggingAuditLogger()
+
+
 def get_job_scheduler() -> JobScheduler:
     return QueueJobScheduler(queue=get_worker_queue())
 
 
-def get_job_service() -> JobService:
+def get_job_service(audit_ctx: AuditContext = Depends(get_audit_context)) -> JobService:
     return JobService(
         store=get_job_store(),
         scheduler=get_job_scheduler(),
         state_machine=get_job_state_machine(),
         idempotency=get_job_idempotency(),
         metrics=get_runtime_metrics(),
+        audit=get_audit_logger(),
+        audit_context=audit_ctx,
     )
 
 
@@ -97,3 +109,4 @@ def get_draft_service() -> DraftService:
         llm=get_llm_client(),
         state_machine=get_job_state_machine(),
     )
+

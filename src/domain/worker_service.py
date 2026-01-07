@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
 
+from src.domain.audit import AuditContext, AuditEvent, AuditLogger, NoopAuditLogger
 from src.domain.job_store import JobStore
 from src.domain.metrics import NoopMetrics, RuntimeMetrics
 from src.domain.models import Job, JobStatus
@@ -57,6 +58,7 @@ class WorkerService:
         state_machine: JobStateMachine,
         retry: WorkerRetryPolicy,
         metrics: RuntimeMetrics | None = None,
+        audit: AuditLogger | None = None,
         clock: Callable[[], datetime] = utc_now,
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
@@ -66,8 +68,32 @@ class WorkerService:
         self._state_machine = state_machine
         self._retry = retry
         self._metrics = NoopMetrics() if metrics is None else metrics
+        self._audit = NoopAuditLogger() if audit is None else audit
         self._clock = clock
         self._sleep = sleep
+
+    def _emit_audit(
+        self,
+        *,
+        claim: QueueClaim,
+        action: str,
+        result: str,
+        changes: dict[str, object] | None = None,
+        metadata: dict[str, object] | None = None,
+    ) -> None:
+        ctx = AuditContext.system(actor_id=claim.worker_id, source="worker")
+        self._audit.emit(
+            event=AuditEvent(
+                action=action,
+                result=result,
+                resource_type="job",
+                resource_id=claim.job_id,
+                job_id=claim.job_id,
+                context=ctx,
+                changes=changes,
+                metadata=metadata,
+            )
+        )
 
     def process_next(
         self,
@@ -168,8 +194,16 @@ class WorkerService:
                 from_status=job.status,
                 to_status=JobStatus.RUNNING,
             ):
+                from_status = job.status.value
                 job.status = JobStatus.RUNNING
                 self._store.save(job)
+                self._emit_audit(
+                    claim=claim,
+                    action="job.status.transition",
+                    result="success",
+                    changes={"from_status": from_status, "to_status": job.status.value},
+                    metadata={"claim_id": claim.claim_id},
+                )
             return True
 
         if job.status == JobStatus.RUNNING:
@@ -232,12 +266,12 @@ class WorkerService:
             self._store.save(job)
 
             if result.ok:
-                self._finish_job(job=job, status=JobStatus.SUCCEEDED)
+                self._finish_job(job=job, status=JobStatus.SUCCEEDED, claim=claim)
                 self._ack(claim=claim)
                 return
 
             if attempt >= max_attempts:
-                self._finish_job(job=job, status=JobStatus.FAILED)
+                self._finish_job(job=job, status=JobStatus.FAILED, claim=claim)
                 self._ack(claim=claim)
                 return
 
@@ -257,7 +291,8 @@ class WorkerService:
             self._sleep(backoff)
             attempt += 1
 
-    def _finish_job(self, *, job: Job, status: JobStatus) -> None:
+    def _finish_job(self, *, job: Job, status: JobStatus, claim: QueueClaim) -> None:
+        from_status = job.status.value
         if self._state_machine.ensure_transition(
             job_id=job.job_id,
             from_status=job.status,
@@ -267,6 +302,13 @@ class WorkerService:
         self._store.save(job)
         logger.info("SS_WORKER_JOB_DONE", extra={"job_id": job.job_id, "status": job.status.value})
         self._metrics.record_job_finished(status=status.value)
+        if from_status != job.status.value:
+            self._emit_audit(
+                claim=claim,
+                action="job.status.transition",
+                result="success",
+                changes={"from_status": from_status, "to_status": job.status.value},
+            )
 
     def _release_claim_on_shutdown(self, *, claim: QueueClaim, event: str) -> None:
         logger.info(
@@ -302,3 +344,4 @@ class WorkerService:
                 },
             )
             raise
+

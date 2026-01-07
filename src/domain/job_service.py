@@ -6,13 +6,14 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import cast
 
+from src.domain.audit import AuditContext, AuditEvent, AuditLogger, NoopAuditLogger
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_store import JobStore
 from src.domain.metrics import NoopMetrics, RuntimeMetrics
 from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobInputs, JobStatus
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import JobAlreadyExistsError
-from src.utils.json_types import JsonObject
+from src.utils.json_types import JsonObject, JsonValue
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
@@ -46,12 +47,40 @@ class JobService:
         state_machine: JobStateMachine,
         idempotency: JobIdempotency,
         metrics: RuntimeMetrics | None = None,
+        audit: AuditLogger | None = None,
+        audit_context: AuditContext | None = None,
     ):
         self._store = store
         self._scheduler = scheduler
         self._state_machine = state_machine
         self._idempotency = idempotency
         self._metrics = NoopMetrics() if metrics is None else metrics
+        self._audit = NoopAuditLogger() if audit is None else audit
+        self._audit_context = (
+            AuditContext.system(actor_id="unknown") if audit_context is None else audit_context
+        )
+
+    def _emit_audit(
+        self,
+        *,
+        action: str,
+        job_id: str,
+        result: str,
+        changes: JsonObject | None = None,
+        metadata: JsonObject | None = None,
+    ) -> None:
+        self._audit.emit(
+            event=AuditEvent(
+                action=action,
+                result=result,
+                resource_type="job",
+                resource_id=job_id,
+                job_id=job_id,
+                context=self._audit_context,
+                changes=changes,
+                metadata=metadata,
+            )
+        )
 
     def create_job(
         self,
@@ -86,9 +115,23 @@ class JobService:
                 "SS_JOB_CREATE_IDEMPOTENT_HIT",
                 extra={"job_id": job_id, "idempotency_key": idempotency_key},
             )
+            self._emit_audit(
+                action="job.create",
+                job_id=job_id,
+                result="noop",
+                changes={"status": existing.status.value},
+                metadata={"idempotency_key": idempotency_key},
+            )
             return existing
         logger.info("SS_JOB_CREATED", extra={"job_id": job_id, "idempotency_key": idempotency_key})
         self._metrics.record_job_created()
+        self._emit_audit(
+            action="job.create",
+            job_id=job_id,
+            result="success",
+            changes={"status": job.status.value},
+            metadata={"idempotency_key": idempotency_key},
+        )
         return job
 
     def confirm_job(self, *, job_id: str, confirmed: bool) -> Job:
@@ -98,9 +141,23 @@ class JobService:
                 "SS_JOB_CONFIRM_SKIPPED",
                 extra={"job_id": job_id, "status": job.status.value},
             )
+            self._emit_audit(
+                action="job.confirm",
+                job_id=job_id,
+                result="noop",
+                changes={"status": job.status.value},
+                metadata={"confirmed": False},
+            )
             return job
         updated = self.trigger_run(job_id=job_id)
         logger.info("SS_JOB_CONFIRMED", extra={"job_id": job_id, "status": updated.status.value})
+        self._emit_audit(
+            action="job.confirm",
+            job_id=job_id,
+            result="success",
+            changes={"status": updated.status.value},
+            metadata={"confirmed": True},
+        )
         return updated
 
     def trigger_run(self, *, job_id: str) -> Job:
@@ -115,25 +172,48 @@ class JobService:
                 "SS_JOB_RUN_IDEMPOTENT",
                 extra={"job_id": job_id, "status": job.status.value},
             )
+            self._emit_audit(
+                action="job.run.trigger",
+                job_id=job_id,
+                result="noop",
+                changes={"status": job.status.value},
+            )
             return job
 
+        transitions: list[JsonObject] = []
+        start_status = job.status.value
         if self._state_machine.ensure_transition(
             job_id=job_id,
             from_status=job.status,
             to_status=JobStatus.CONFIRMED,
         ):
+            transitions.append(
+                {"from_status": job.status.value, "to_status": JobStatus.CONFIRMED.value}
+            )
             job.status = JobStatus.CONFIRMED
         if self._state_machine.ensure_transition(
             job_id=job_id,
             from_status=job.status,
             to_status=JobStatus.QUEUED,
         ):
+            transitions.append({"from_status": job.status.value, "to_status": JobStatus.QUEUED.value})
             job.status = JobStatus.QUEUED
             if job.scheduled_at is None:
                 job.scheduled_at = utc_now().isoformat()
             self._scheduler.schedule(job=job)
         self._store.save(job)
         logger.info("SS_JOB_RUN_QUEUED", extra={"job_id": job_id, "status": job.status.value})
+        self._emit_audit(
+            action="job.run.trigger",
+            job_id=job_id,
+            result="success",
+            changes={
+                "from_status": start_status,
+                "to_status": job.status.value,
+                "transitions": cast(JsonValue, transitions),
+                "scheduled_at": job.scheduled_at,
+            },
+        )
         return job
 
     def get_job_summary(self, *, job_id: str) -> JsonObject:
@@ -181,3 +261,4 @@ class JobService:
                 "latest_run": latest_run,
             },
         )
+
