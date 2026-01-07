@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import cast
 
-from opentelemetry import trace
+from opentelemetry.trace import get_tracer
 
 from src.domain.llm_client import LLMClient
 from src.domain.models import ArtifactKind, ArtifactRef, Draft, Job, is_safe_job_rel_path
@@ -91,7 +91,7 @@ class TracedLLMClient(LLMClient):
         log_call_start(logger=logger, job_id=job.job_id, llm_call_id=call_id, operation=operation)
 
         started_perf = time.perf_counter()
-        tracer = trace.get_tracer(__name__)
+        tracer = get_tracer(__name__)
         with tracer.start_as_current_span(f"ss.llm.{operation}") as span:
             span.set_attribute("ss.job_id", job.job_id)
             span.set_attribute("ss.llm_call_id", call_id)

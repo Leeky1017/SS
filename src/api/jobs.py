@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Body, Depends
 from fastapi.responses import FileResponse
-from opentelemetry import trace
+from opentelemetry.trace import get_tracer
 
 from src.api.deps import get_artifacts_service, get_job_service
 from src.api.schemas import (
@@ -30,7 +30,7 @@ def create_job(
     job = svc.create_job(requirement=payload.requirement)
     if job.trace_id is not None:
         context = synthetic_parent_context_for_trace_id(trace_id=job.trace_id, sampled=True)
-        tracer = trace.get_tracer(__name__)
+        tracer = get_tracer(__name__)
         with tracer.start_as_current_span("ss.job.create", context=context) as span:
             span.set_attribute("ss.job_id", job.job_id)
     return CreateJobResponse(job_id=job.job_id, trace_id=job.trace_id, status=job.status.value)

@@ -6,7 +6,7 @@ import threading
 from datetime import datetime, timedelta
 from types import FrameType
 
-from opentelemetry import trace
+from opentelemetry.trace import get_tracer
 
 from src.config import load_config
 from src.domain.state_machine import JobStateMachine
@@ -99,7 +99,7 @@ def main() -> None:
                 ctx = None
                 if claim.traceparent is not None:
                     ctx = context_from_traceparent(claim.traceparent)
-                tracer = trace.get_tracer(__name__)
+                tracer = get_tracer(__name__)
                 with tracer.start_as_current_span("ss.queue.claim", context=ctx) as span:
                     span.set_attribute("ss.job_id", claim.job_id)
                     span.set_attribute("ss.claim_id", claim.claim_id)
@@ -123,4 +123,3 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         raise SystemExit(0) from None
-
