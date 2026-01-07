@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import shlex
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Mapping
 
@@ -18,11 +18,6 @@ class Config:
     do_template_library_dir: Path
     stata_cmd: tuple[str, ...]
     log_level: str
-    tracing_enabled: bool
-    tracing_service_name: str
-    tracing_exporter: str
-    tracing_otlp_endpoint: str
-    tracing_sample_ratio: float
     llm_timeout_seconds: float
     llm_max_attempts: int
     llm_retry_backoff_base_seconds: float
@@ -34,6 +29,11 @@ class Config:
     worker_retry_backoff_base_seconds: float
     worker_retry_backoff_max_seconds: float
     worker_metrics_port: int = 8001
+    tracing_enabled: bool = field(default=False, kw_only=True)
+    tracing_service_name: str = field(default="ss", kw_only=True)
+    tracing_exporter: str = field(default="otlp", kw_only=True)
+    tracing_otlp_endpoint: str = field(default="http://localhost:4318/v1/traces", kw_only=True)
+    tracing_sample_ratio: float = field(default=1.0, kw_only=True)
 
 
 def _int_value(raw: str, *, default: int) -> int:
