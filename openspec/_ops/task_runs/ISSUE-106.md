@@ -2,7 +2,7 @@
 
 - Issue: #106
 - Branch: task/106-distributed-tracing
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/118
 
 ## Plan
 - Define trace propagation + config
