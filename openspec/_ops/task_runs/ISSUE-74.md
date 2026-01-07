@@ -2,7 +2,7 @@
 
 - Issue: #74
 - Branch: task/74-data-version-upgrade
-- PR: (fill)
+- PR: https://github.com/Leeky1017/SS/pull/77
 
 ## Plan
 - Define job.json schema version policy (read/write + support window)
@@ -56,3 +56,9 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 00:17 PR created
+- Command:
+  - `gh pr create --base main --head task/74-data-version-upgrade --title "[SS-AUDIT-PHASE-1] Data version upgrade strategy (#74)" --body "Closes #74 ..."`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/77`
