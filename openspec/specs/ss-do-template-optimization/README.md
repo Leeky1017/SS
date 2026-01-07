@@ -154,3 +154,5 @@ See `openspec/specs/ss-do-template-optimization/task_cards/` for the execution b
 - Phase 1: taxonomy canonicalization + retrieval index
 - Phase 2: duplicate merges + placeholder normalization
 - Phase 3: composition MVP + evidence harness
+- Phase 4: full-library Stata 18 code-quality audit (batch run + fix runtime errors + normalize anchors/style)
+- Phase 5: content enhancement (best practices + diagnostics + output polish + capability gap analysis)
