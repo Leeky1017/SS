@@ -26,3 +26,10 @@ Issue: #103
 - [x] `tests/stress/` contains 1/2/4 test modules referenced by the strategy README
 - [x] Tests collect and report baseline metrics (latency/error/resource)
 - [x] Stress tests have clear runtime bounds and are runnable in a dedicated environment
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/110
+- Implemented stress scenarios 1/2/4 under `tests/stress/` (load, stability, boundary inputs)
+- Added baseline metrics reporting (p99/error/RSS/fd) via JSON reports
+- Run log: `openspec/_ops/task_runs/ISSUE-103.md`
