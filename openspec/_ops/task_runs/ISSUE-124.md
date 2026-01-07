@@ -2,7 +2,7 @@
 
 - Issue: #124
 - Branch: task/124-ux-audit-prod
-- PR: (fill-after-created)
+- PR: https://github.com/Leeky1017/SS/pull/129
 
 ## Plan
 - Audit UX闭环（代码走查 + 可运行验证）
@@ -63,3 +63,12 @@
   - `openspec/specs/ss-api-surface/task_cards/round-01-ux-a__UX-B001.md`
   - `openspec/specs/ss-llm-brain/task_cards/round-01-ux-a__UX-B002.md`
   - `openspec/specs/ss-stata-runner/task_cards/round-01-ux-a__UX-B003.md`
+
+### 2026-01-07 17:48 Deliver: preflight + PR
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `gh pr create --title "[ROUND-00-AUDIT-A] UX-AUDIT-PROD: 生产就绪审计（用户体验闭环） (#124)" --body "Closes #124 ..."`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+  - `https://github.com/Leeky1017/SS/pull/129`
