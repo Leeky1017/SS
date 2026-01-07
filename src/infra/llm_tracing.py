@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import hashlib
 import json
 import logging
@@ -11,10 +10,19 @@ from datetime import datetime
 from pathlib import Path, PurePosixPath
 from typing import cast
 
-from src.domain.llm_client import LLMClient, LLMProviderError
+from src.domain.llm_client import LLMClient
 from src.domain.models import ArtifactKind, ArtifactRef, Draft, Job, is_safe_job_rel_path
-from src.domain.worker_retry import backoff_seconds, normalized_max_attempts
+from src.domain.worker_retry import normalized_max_attempts
 from src.infra.exceptions import LLMArtifactsWriteError, LLMCallFailedError
+from src.infra.llm_call_retry import (
+    RetryPolicy,
+    call_draft_preview_with_retry,
+    log_call_done,
+    log_call_failed,
+    log_call_start,
+    normalized_backoff_seconds,
+    normalized_timeout_seconds,
+)
 from src.utils.json_types import JsonObject
 from src.utils.time import utc_now
 
@@ -57,16 +65,6 @@ def _llm_call_id(*, operation: str, started_at: datetime, prompt_fingerprint: st
     return f"{operation}-{ts}-{prompt_fingerprint[:12]}"
 
 
-def _normalized_timeout_seconds(value: float | None, *, default: float) -> float:
-    try:
-        seconds = float(value) if value is not None else float(default)
-    except (TypeError, ValueError):
-        return float(default)
-    if seconds <= 0:
-        return float(default)
-    return float(seconds)
-
-
 @dataclass(frozen=True)
 class LLMCallArtifacts:
     prompt_ref: ArtifactRef
@@ -75,14 +73,6 @@ class LLMCallArtifacts:
 
     def as_list(self) -> list[ArtifactRef]:
         return [self.prompt_ref, self.response_ref, self.meta_ref]
-
-
-@dataclass(frozen=True)
-class _CallOutcome:
-    draft: Draft | None
-    response_text: str
-    error: Exception | None
-    attempts: int
 
 
 class TracedLLMClient(LLMClient):
@@ -104,16 +94,16 @@ class TracedLLMClient(LLMClient):
         self._model = model
         self._temperature = temperature
         self._seed = seed
-        self._timeout_seconds = _normalized_timeout_seconds(timeout_seconds, default=30.0)
+        self._timeout_seconds = normalized_timeout_seconds(timeout_seconds, default=30.0)
         self._max_attempts = normalized_max_attempts(max_attempts)
-        try:
-            self._retry_backoff_base_seconds = float(retry_backoff_base_seconds)
-        except (TypeError, ValueError):
-            self._retry_backoff_base_seconds = 1.0
-        try:
-            self._retry_backoff_max_seconds = float(retry_backoff_max_seconds)
-        except (TypeError, ValueError):
-            self._retry_backoff_max_seconds = 30.0
+        self._retry_backoff_base_seconds = normalized_backoff_seconds(
+            retry_backoff_base_seconds,
+            default=1.0,
+        )
+        self._retry_backoff_max_seconds = normalized_backoff_seconds(
+            retry_backoff_max_seconds,
+            default=30.0,
+        )
 
     async def draft_preview(self, *, job: Job, prompt: str) -> Draft:
         return await self._call_and_record(job=job, operation="draft_preview", prompt=prompt)
@@ -125,14 +115,23 @@ class TracedLLMClient(LLMClient):
             started_at=started_at,
             prompt_fingerprint=_sha256_hex(prompt),
         )
-        self._log_call_start(job_id=job.job_id, llm_call_id=call_id, operation=operation)
+        log_call_start(logger=logger, job_id=job.job_id, llm_call_id=call_id, operation=operation)
 
         started_perf = time.perf_counter()
-        outcome = await self._call_with_retry(
+        outcome = await call_draft_preview_with_retry(
+            inner=self._inner,
             job=job,
+            prompt=prompt,
             operation=operation,
             llm_call_id=call_id,
-            prompt=prompt,
+            policy=RetryPolicy(
+                timeout_seconds=self._timeout_seconds,
+                max_attempts=self._max_attempts,
+                backoff_base_seconds=self._retry_backoff_base_seconds,
+                backoff_max_seconds=self._retry_backoff_max_seconds,
+            ),
+            redactor=redact_text,
+            logger=logger,
         )
         ended_at = utc_now()
         duration_ms = int((time.perf_counter() - started_perf) * 1000)
@@ -157,161 +156,25 @@ class TracedLLMClient(LLMClient):
         )
         job.artifacts_index.extend(artifacts.as_list())
 
-        self._log_call_done(
+        log_call_done(
+            logger=logger,
             job_id=job.job_id,
             llm_call_id=call_id,
             operation=operation,
             ok=bool(meta["ok"]),
         )
         if outcome.draft is None:
-            self._log_call_failed(
+            log_call_failed(
+                logger=logger,
                 job_id=job.job_id,
                 llm_call_id=call_id,
                 operation=operation,
                 attempts=outcome.attempts,
+                timeout_seconds=self._timeout_seconds,
                 error=outcome.error,
             )
             raise LLMCallFailedError(job_id=job.job_id, llm_call_id=call_id) from outcome.error
         return outcome.draft
-
-    async def _call_with_retry(
-        self,
-        *,
-        job: Job,
-        operation: str,
-        llm_call_id: str,
-        prompt: str,
-    ) -> _CallOutcome:
-        max_attempts = normalized_max_attempts(self._max_attempts)
-        timeout_seconds = _normalized_timeout_seconds(self._timeout_seconds, default=30.0)
-        last_error: Exception | None = None
-        for attempt in range(1, max_attempts + 1):
-            try:
-                draft = await asyncio.wait_for(
-                    self._inner.draft_preview(job=job, prompt=prompt),
-                    timeout=timeout_seconds,
-                )
-                return _CallOutcome(
-                    draft=draft,
-                    response_text=draft.text,
-                    error=None,
-                    attempts=attempt,
-                )
-            except asyncio.TimeoutError as e:
-                last_error = e
-                self._log_timeout(
-                    job_id=job.job_id,
-                    llm_call_id=llm_call_id,
-                    operation=operation,
-                    attempt=attempt,
-                    timeout_seconds=timeout_seconds,
-                    will_retry=attempt < max_attempts,
-                )
-            except LLMProviderError as e:
-                last_error = e
-                self._log_provider_error(
-                    job_id=job.job_id,
-                    llm_call_id=llm_call_id,
-                    operation=operation,
-                    attempt=attempt,
-                    timeout_seconds=timeout_seconds,
-                    will_retry=attempt < max_attempts,
-                    error=e,
-                )
-            if attempt < max_attempts:
-                await asyncio.sleep(self._retry_delay_seconds(attempt=attempt))
-        return _CallOutcome(draft=None, response_text="", error=last_error, attempts=max_attempts)
-
-    def _retry_delay_seconds(self, *, attempt: int) -> float:
-        return backoff_seconds(
-            attempt=attempt,
-            base_seconds=self._retry_backoff_base_seconds,
-            max_seconds=self._retry_backoff_max_seconds,
-        )
-
-    def _log_call_start(self, *, job_id: str, llm_call_id: str, operation: str) -> None:
-        logger.info(
-            "SS_LLM_CALL_START",
-            extra={"job_id": job_id, "llm_call_id": llm_call_id, "operation": operation},
-        )
-
-    def _log_call_done(self, *, job_id: str, llm_call_id: str, operation: str, ok: bool) -> None:
-        logger.info(
-            "SS_LLM_CALL_DONE",
-            extra={
-                "job_id": job_id,
-                "llm_call_id": llm_call_id,
-                "operation": operation,
-                "ok": ok,
-            },
-        )
-
-    def _log_timeout(
-        self,
-        *,
-        job_id: str,
-        llm_call_id: str,
-        operation: str,
-        attempt: int,
-        timeout_seconds: float,
-        will_retry: bool,
-    ) -> None:
-        logger.warning(
-            "SS_LLM_CALL_TIMEOUT",
-            extra={
-                "job_id": job_id,
-                "llm_call_id": llm_call_id,
-                "operation": operation,
-                "attempt": attempt,
-                "timeout_seconds": timeout_seconds,
-                "will_retry": will_retry,
-            },
-        )
-
-    def _log_provider_error(
-        self,
-        *,
-        job_id: str,
-        llm_call_id: str,
-        operation: str,
-        attempt: int,
-        timeout_seconds: float,
-        will_retry: bool,
-        error: LLMProviderError,
-    ) -> None:
-        logger.warning(
-            "SS_LLM_CALL_PROVIDER_ERROR",
-            extra={
-                "job_id": job_id,
-                "llm_call_id": llm_call_id,
-                "operation": operation,
-                "attempt": attempt,
-                "timeout_seconds": timeout_seconds,
-                "will_retry": will_retry,
-                "error_message": redact_text(str(error)),
-            },
-        )
-
-    def _log_call_failed(
-        self,
-        *,
-        job_id: str,
-        llm_call_id: str,
-        operation: str,
-        attempts: int,
-        error: Exception | None,
-    ) -> None:
-        logger.error(
-            "SS_LLM_CALL_FAILED",
-            extra={
-                "job_id": job_id,
-                "llm_call_id": llm_call_id,
-                "operation": operation,
-                "attempts": attempts,
-                "timeout_seconds": self._timeout_seconds,
-                "error_type": None if error is None else type(error).__name__,
-            },
-        )
 
     def _build_meta(
         self,
