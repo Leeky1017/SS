@@ -2,7 +2,7 @@
 
 - Issue: #103
 - Branch: task/103-stress-tests
-- PR: (fill-after-created)
+- PR: https://github.com/Leeky1017/SS/pull/110
 
 ## Plan
 - Implement `tests/stress/` scenarios 1/2/4
@@ -37,3 +37,19 @@
 - Key output:
   - `All checks passed!`
   - `76 passed, 5 skipped in 2.60s`
+
+### 2026-01-07 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 PR create + auto-merge
+- Command:
+  - `git push -u origin HEAD`
+  - `gh pr create ...`
+  - `gh pr merge --auto --squash 110`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/110`
+  - `will be automatically merged via squash when all requirements are met`
