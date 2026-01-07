@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: #151
+- Issue: TBD
 - Parent: #125
 - Related specs:
   - `openspec/specs/ss-do-template-optimization/spec.md`
