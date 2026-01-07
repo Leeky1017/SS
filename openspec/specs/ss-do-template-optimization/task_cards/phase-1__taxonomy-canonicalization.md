@@ -28,7 +28,15 @@ Introduce an SS-owned canonical taxonomy that eliminates ambiguous family duplic
 
 ## Acceptance checklist
 
-- [ ] A canonical family registry exists (versioned, test-covered)
-- [ ] All templates resolve to exactly 1 canonical family
-- [ ] Aliases resolve deterministically and are audited in artifacts/run meta
-- [ ] Stage-1 `FamilySummary` generation exists and is stable under regeneration
+- [x] A canonical family registry exists (versioned, test-covered)
+- [x] All templates resolve to exactly 1 canonical family
+- [x] Aliases resolve deterministically and are audited in artifacts/run meta
+- [x] Stage-1 `FamilySummary` generation exists and is stable under regeneration
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/148
+- Added versioned canonical family registry + JSON Schema.
+- Canonicalized all 319 templates into 28 canonical families (dedup: panel/descriptive/survival/audit via aliases).
+- Generated stable token-budgeted `FamilySummary` and locked it with CI tests.
+- Run log: `openspec/_ops/task_runs/ISSUE-146.md`
