@@ -73,3 +73,11 @@
   - `gh pr merge --auto --squash 122`
 - Key output:
   - `will be automatically merged via squash when all requirements are met`
+
+### 2026-01-07 00:40 Fix OpenSpec validation for ss-multi-tenant
+- Context:
+  - CI failed `openspec validate --specs --strict` because `openspec/specs/ss-multi-tenant/spec.md` was missing `## Requirements`.
+- Command:
+  - `openspec validate ss-multi-tenant --type spec --strict --no-interactive`
+- Key output:
+  - `Specification 'ss-multi-tenant' is valid`
