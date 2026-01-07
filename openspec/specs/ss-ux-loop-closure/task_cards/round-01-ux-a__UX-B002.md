@@ -89,9 +89,18 @@ Minimum tests (suggested):
 
 ## Acceptance checklist
 
-- [ ] The user path guarantees plan exists before `queued`
-- [ ] Plan is previewable via API or artifacts download
-- [ ] Plan persistence matches `ss-llm-brain` contract (job.json + artifacts + index)
-- [ ] Idempotency + conflict behaviors are covered by tests
-- [ ] User journey tests no longer call `PlanService.freeze_plan()` directly
+- [x] The user path guarantees plan exists before `queued`
+- [x] Plan is previewable via API or artifacts download
+- [x] Plan persistence matches `ss-llm-brain` contract (job.json + artifacts + index)
+- [x] Idempotency + conflict behaviors are covered by tests
+- [x] User journey tests no longer call `PlanService.freeze_plan()` directly
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/143
+- Run log: `openspec/_ops/task_runs/ISSUE-127.md`
+- Summary:
+  - Confirm/run auto-freezes the plan before queueing
+  - Added `POST /v1/jobs/{job_id}/plan/freeze` + `GET /v1/jobs/{job_id}/plan`
+  - Persisted plan to `job.json` + `artifacts/plan.json` and indexed kind `plan.json`
+  - Added HTTP + user-journey coverage for idempotency + conflict
