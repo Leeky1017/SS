@@ -2,7 +2,7 @@
 
 - Issue: #68
 - Branch: task/68-spec-archive
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/69
 
 ## Plan
 - Identify completed specs under `openspec/specs/`
@@ -72,3 +72,10 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 Open PR
+- Command:
+  - `git push -u origin HEAD`
+  - `gh pr create --base main --head task/68-spec-archive --title "chore: archive completed specs (#68)" --body "Closes #68 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/69`
