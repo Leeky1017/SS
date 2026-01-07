@@ -2,7 +2,7 @@
 
 - Issue: #89
 - Branch: task/89-split-llm-tracing
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/91
 
 ## Plan
 - Split `src/infra/llm_tracing.py` to <300 LOC
@@ -19,3 +19,9 @@
   - `All checks passed!`
   - `64 passed`
   - `Totals: 16 passed, 0 failed (16 items)`
+
+### 2026-01-07 PR + auto-merge
+- Command:
+  - `scripts/agent_pr_automerge_and_sync.sh`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/91`
