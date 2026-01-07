@@ -89,3 +89,21 @@ class RunJobResponse(BaseModel):
     job_id: str
     status: str
     scheduled_at: str | None = None
+
+
+class InputsUploadResponse(BaseModel):
+    job_id: str
+    manifest_rel_path: str
+    fingerprint: str
+
+
+class InputsPreviewColumn(BaseModel):
+    name: str
+    inferred_type: str
+
+
+class InputsPreviewResponse(BaseModel):
+    job_id: str
+    row_count: int | None = None
+    columns: list[InputsPreviewColumn] = Field(default_factory=list)
+    sample_rows: list[dict[str, str | int | float | bool | None]] = Field(default_factory=list)

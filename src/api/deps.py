@@ -10,12 +10,15 @@ from src.domain.artifacts_service import ArtifactsService
 from src.domain.audit import AuditContext, AuditLogger
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
+from src.domain.job_inputs_service import JobInputsService
 from src.domain.job_service import JobScheduler, JobService
 from src.domain.job_store import JobStore
+from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.llm_client import LLMClient, StubLLMClient
 from src.domain.metrics import RuntimeMetrics
 from src.domain.state_machine import JobStateMachine
 from src.infra.audit_logger import LoggingAuditLogger
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store_factory import build_job_store
 from src.infra.llm_tracing import TracedLLMClient
@@ -121,3 +124,12 @@ def get_draft_service() -> DraftService:
         llm=get_llm_client(),
         state_machine=get_job_state_machine(),
     )
+
+
+@lru_cache
+def get_job_workspace_store() -> JobWorkspaceStore:
+    return FileJobWorkspaceStore(jobs_dir=get_config().jobs_dir)
+
+
+def get_job_inputs_service() -> JobInputsService:
+    return JobInputsService(store=get_job_store(), workspace=get_job_workspace_store())

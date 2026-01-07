@@ -1,10 +1,15 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Body, Depends, File, Form, Query, UploadFile
 from fastapi.responses import FileResponse
 from opentelemetry.trace import get_tracer
 
-from src.api.deps import get_artifacts_service, get_job_service, get_tenant_id
+from src.api.deps import (
+    get_artifacts_service,
+    get_job_inputs_service,
+    get_job_service,
+    get_tenant_id,
+)
 from src.api.schemas import (
     ArtifactIndexItem,
     ArtifactsIndexResponse,
@@ -13,9 +18,12 @@ from src.api.schemas import (
     CreateJobRequest,
     CreateJobResponse,
     GetJobResponse,
+    InputsPreviewResponse,
+    InputsUploadResponse,
     RunJobResponse,
 )
 from src.domain.artifacts_service import ArtifactsService
+from src.domain.job_inputs_service import JobInputsService
 from src.domain.job_service import JobService
 from src.infra.tracing import synthetic_parent_context_for_trace_id
 
@@ -44,6 +52,43 @@ def get_job(
     svc: JobService = Depends(get_job_service),
 ) -> GetJobResponse:
     return GetJobResponse.model_validate(svc.get_job_summary(tenant_id=tenant_id, job_id=job_id))
+
+
+@router.post("/jobs/{job_id}/inputs/upload", response_model=InputsUploadResponse)
+async def upload_job_inputs(
+    job_id: str,
+    file: UploadFile = File(...),
+    role: str = Form(default="primary_dataset"),
+    filename: str | None = Form(default=None),
+    tenant_id: str = Depends(get_tenant_id),
+    svc: JobInputsService = Depends(get_job_inputs_service),
+) -> InputsUploadResponse:
+    payload = svc.upload_primary_dataset(
+        tenant_id=tenant_id,
+        job_id=job_id,
+        data=await file.read(),
+        original_name=file.filename,
+        filename_override=filename,
+        content_type=file.content_type,
+    )
+    return InputsUploadResponse.model_validate(payload)
+
+
+@router.get("/jobs/{job_id}/inputs/preview", response_model=InputsPreviewResponse)
+def preview_job_inputs(
+    job_id: str,
+    rows: int = Query(default=20, ge=1, le=200),
+    columns: int = Query(default=50, ge=1, le=200),
+    tenant_id: str = Depends(get_tenant_id),
+    svc: JobInputsService = Depends(get_job_inputs_service),
+) -> InputsPreviewResponse:
+    payload = svc.preview_primary_dataset(
+        tenant_id=tenant_id,
+        job_id=job_id,
+        rows=rows,
+        columns=columns,
+    )
+    return InputsPreviewResponse.model_validate(payload)
 
 
 @router.get("/jobs/{job_id}/artifacts", response_model=ArtifactsIndexResponse)

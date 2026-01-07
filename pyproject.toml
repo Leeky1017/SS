@@ -8,9 +8,13 @@ dependencies = [
   "opentelemetry-api>=1.24.0",
   "opentelemetry-exporter-otlp-proto-http>=1.24.0",
   "opentelemetry-sdk>=1.24.0",
+  "openpyxl>=3.1.0",
+  "pandas>=2.2.0",
   "pydantic>=2.6.0",
+  "python-multipart>=0.0.9",
   "prometheus-client>=0.20.0",
   "uvicorn>=0.27.0",
+  "xlrd>=2.0.1",
 ]
 
 [project.optional-dependencies]
