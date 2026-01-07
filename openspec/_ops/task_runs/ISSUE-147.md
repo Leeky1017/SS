@@ -7,7 +7,7 @@
 - Implement two-stage LLM do-template selection (family → template) with token-budgeted prompts, hard candidate membership verification, and auditable evidence artifacts.
 
 ## Status
-- CURRENT: PR opened; auto-merge enabled; waiting for required checks.
+- CURRENT: Task card + rulebook archived; opening closeout PR for docs-only updates.
 
 ## Next Actions
 - [x] Specify two-stage selection protocol in OpenSpec
@@ -17,7 +17,10 @@
 - [x] Run `pytest -q`
 - [x] Run `openspec validate --specs --strict --no-interactive`
 - [x] Run `scripts/agent_pr_preflight.sh` and open PR
-- [ ] Wait for `ci` / `merge-serial` green and auto-merge
+- [x] Wait for `ci` / `merge-serial` green and auto-merge
+- [x] Update task card acceptance + completion
+- [x] Archive rulebook task
+- [ ] Open closeout PR + enable auto-merge
 
 ## Decisions Made
 - 2026-01-07: Use `assets/stata_do_library/DO_LIBRARY_INDEX.json` as the source for family and template summaries (canonical IDs).
@@ -142,3 +145,37 @@
   - `task/147-llm-two-stage-template-selection -> task/147-llm-two-stage-template-selection`
 - Evidence:
   - PR: https://github.com/Leeky1017/SS/pull/150
+
+### 2026-01-08 00:03 merge: PR merged
+- Command:
+  - `gh pr view 150 --json mergedAt,mergeCommit,state`
+- Key output:
+  - `mergedAt: 2026-01-07T16:01:28Z`
+  - `mergeCommit: fbe7a50d5c60da642e08ba4ed7cd1deef5871da5`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/150
+
+### 2026-01-08 00:04 post-merge: sync + cleanup
+- Command:
+  - `scripts/agent_controlplane_sync.sh`
+  - `scripts/agent_worktree_cleanup.sh 147 llm-two-stage-template-selection`
+- Key output:
+  - `Fast-forward`
+  - `OK: cleaned worktree .worktrees/issue-147-llm-two-stage-template-selection and local branch task/147-llm-two-stage-template-selection`
+
+### 2026-01-08 00:05 closeout worktree setup
+- Command:
+  - `scripts/agent_worktree_setup.sh 147 llm-two-stage-template-selection-closeout`
+- Key output:
+  - `Worktree created: .worktrees/issue-147-llm-two-stage-template-selection-closeout`
+  - `Branch: task/147-llm-two-stage-template-selection-closeout`
+
+### 2026-01-08 00:06 closeout: rulebook archive
+- Command:
+  - `rulebook task validate issue-147-llm-two-stage-template-selection`
+  - `rulebook task archive issue-147-llm-two-stage-template-selection`
+- Key output:
+  - `✅ Task issue-147-llm-two-stage-template-selection is valid`
+  - `✅ Task issue-147-llm-two-stage-template-selection archived successfully`
+- Evidence:
+  - `rulebook/tasks/archive/2026-01-07-issue-147-llm-two-stage-template-selection`
