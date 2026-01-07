@@ -49,3 +49,10 @@
   - `openspec validate --specs --strict --no-interactive`
 - Key output:
   - `Totals: 17 passed, 0 failed (17 items)`
+
+### 2026-01-07 01:20 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `Open PR file overlap: PR #111 touches src/api/deps.py, src/domain/job_service.py, src/domain/worker_service.py, src/main.py, src/worker.py`
+  - `OK: no hard dependencies found in execution plan`
