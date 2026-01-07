@@ -27,6 +27,15 @@ Provide reproducible evidence that templates run on real Stata 18 (where licensi
 
 ## Acceptance checklist
 
-- [ ] Smoke-suite manifest exists and covers the “core” template subset
-- [ ] Local execution writes a structured report (pass/fail + missing deps + outputs)
-- [ ] Evidence is captured in `openspec/_ops/task_runs/ISSUE-<N>.md` for the implementation issue
+- [x] Smoke-suite manifest exists and covers the “core” template subset
+- [x] Local execution writes a structured report (pass/fail + missing deps + outputs)
+- [x] Evidence is captured in `openspec/_ops/task_runs/ISSUE-<N>.md` for the implementation issue
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/159
+- Done:
+  - Added a versioned smoke-suite manifest + JSON schema for a core template subset.
+  - Added a local `run-smoke-suite` command that emits a structured JSON report.
+  - Added CI-safe validation tests and fixed a Stata `///` continuation false positive in safety scanning.
+- Run log: `openspec/_ops/task_runs/ISSUE-158.md`

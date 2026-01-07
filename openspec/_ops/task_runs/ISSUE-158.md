@@ -9,7 +9,7 @@
 - Build reusable Stata 18 smoke-suite manifest + local runner with structured report, while keeping CI static gates strong when Stata cannot run.
 
 ## Status
-- CURRENT: PR opened; required checks green. Next: enable auto-merge and wait for merge-serial.
+- CURRENT: PR merged (via squash). Post-merge closeout in progress (task card, rulebook archive, worktree cleanup).
 
 ## Next Actions
 - [x] Add smoke-suite manifest + schema (core subset).
@@ -18,7 +18,11 @@
 - [x] Run `ruff check .` and `pytest -q`.
 - [x] Run `scripts/agent_pr_preflight.sh` and open PR.
 - [x] Update `PR:` link after creation.
-- [ ] Enable auto-merge and watch required checks until merged.
+- [x] Enable auto-merge and watch required checks until merged.
+- [x] Sync controlplane `main` to `origin/main` after merge.
+- [x] Close out task card (acceptance + completion).
+- [x] Archive Rulebook task.
+- [ ] Cleanup worktree after closeout PR merge.
 
 ## Runs
 ### 2026-01-07 issue + worktree
@@ -74,3 +78,43 @@
   - `ci`: `SUCCESS`
   - `openspec-log-guard`: `SUCCESS`
   - `merge-serial`: `SUCCESS`
+
+### 2026-01-07 enable auto-merge
+- Command:
+  - `gh pr merge 159 --auto --squash`
+- Key output:
+  - `Pull request Leeky1017/SS#159 will be automatically merged via squash when all requirements are met`
+
+### 2026-01-07 pr checks watch
+- Command:
+  - `gh pr checks --watch 159`
+- Key output:
+  - `All checks were successful`
+
+### 2026-01-07 PR merged
+- Command:
+  - `gh pr view 159 --json state,mergedAt,mergeCommit`
+- Key output:
+  - `state=MERGED`
+  - `mergedAt=2026-01-07T18:51:36Z`
+  - `mergeCommit=6ead6e1a39abd18adda9a0d3664f4ba84ec584dc`
+
+### 2026-01-08 controlplane sync (post-merge)
+- Command:
+  - `scripts/agent_controlplane_sync.sh`
+- Key output:
+  - `Updating 8fbecf2..6ead6e1`
+  - `Fast-forward`
+
+### 2026-01-08 archive Rulebook task
+- Command:
+  - `git mv rulebook/tasks/issue-158-stata18-smoke-suite rulebook/tasks/archive/2026-01-08-issue-158-stata18-smoke-suite`
+- Evidence:
+  - `rulebook/tasks/archive/2026-01-08-issue-158-stata18-smoke-suite/`
+
+### 2026-01-08 closeout PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
