@@ -7,16 +7,8 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from src.domain.idempotency import JobIdempotency
-from src.domain.job_service import JobService
-from src.domain.models import (
-    JOB_SCHEMA_VERSION_V1,
-    Job,
-    JobConfirmation,
-    JobStatus,
-    LLMPlan,
-    PlanStep,
-    PlanStepType,
-)
+from src.domain.job_service import JobService, NoopJobScheduler
+from src.domain.models import JobConfirmation, JobStatus
 from src.domain.plan_service import PlanService
 from src.domain.stata_runner import RunResult
 from src.domain.state_machine import JobStateMachine
@@ -109,12 +101,26 @@ def test_worker_service_when_shutdown_requested_after_claim_releases_claim_and_s
     assert JobStore(jobs_dir=jobs_dir).load(job_id).status == JobStatus.QUEUED
 
 
-def test_execute_plan_with_shutdown_deadline_caps_timeout_seconds() -> None:
+def test_execute_plan_with_shutdown_deadline_caps_timeout_seconds(tmp_path: Path) -> None:
     now = datetime(2026, 1, 1, tzinfo=timezone.utc)
     deadline = now + timedelta(seconds=10)
 
     runner = _CapturingRunner()
-    job = _job_with_default_plan(job_id="job-1", now=now)
+    jobs_dir = tmp_path / "jobs"
+    store = JobStore(jobs_dir=jobs_dir)
+    job_service = JobService(
+        store=store,
+        scheduler=NoopJobScheduler(),
+        state_machine=JobStateMachine(),
+        idempotency=JobIdempotency(),
+    )
+    plan_service = PlanService(store=store)
+
+    job = job_service.create_job(requirement="hello")
+    job.status = JobStatus.DRAFT_READY
+    store.save(job)
+    plan_service.freeze_plan(job_id=job.job_id, confirmation=JobConfirmation(requirement="hello"))
+    job = store.load(job.job_id)
     result = execute_plan(
         job=job,
         run_id="run-1",
@@ -149,33 +155,3 @@ class _CapturingRunner:
             artifacts=tuple(),
             error=None,
         )
-
-
-def _job_with_default_plan(*, job_id: str, now: datetime) -> Job:
-    plan = LLMPlan(
-        plan_id="plan-1",
-        rel_path="artifacts/plan.json",
-        steps=[
-            PlanStep(
-                step_id="generate_do",
-                type=PlanStepType.GENERATE_STATA_DO,
-                params={"template": "stub_descriptive_v1", "requirement_fingerprint": "req"},
-                depends_on=[],
-                produces=[],
-            ),
-            PlanStep(
-                step_id="run_stata",
-                type=PlanStepType.RUN_STATA,
-                params={"timeout_seconds": 300},
-                depends_on=["generate_do"],
-                produces=[],
-            ),
-        ],
-    )
-    return Job(
-        schema_version=JOB_SCHEMA_VERSION_V1,
-        job_id=job_id,
-        status=JobStatus.RUNNING,
-        created_at=now.isoformat(),
-        llm_plan=plan,
-    )
