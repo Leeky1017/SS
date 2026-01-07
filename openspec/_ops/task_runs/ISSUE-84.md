@@ -51,3 +51,14 @@
 ### 2026-01-07 12:24 PR created
 - Evidence:
   - `https://github.com/Leeky1017/SS/pull/90`
+
+### 2026-01-07 12:25 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 12:25 Auto-merge enabled
+- Command:
+  - `gh pr merge --auto --squash 90`
