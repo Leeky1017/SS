@@ -8,6 +8,7 @@ from src.domain.audit import AuditContext, AuditEvent, AuditLogger
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService, NoopJobScheduler
 from src.domain.models import JobStatus
+from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobIllegalTransitionError, JobStateMachine
 from src.utils.job_workspace import resolve_job_dir
 
@@ -33,6 +34,7 @@ def test_confirm_job_emits_audit_events_for_confirm_and_run_trigger(store, draft
     job_service = JobService(
         store=store,
         scheduler=NoopJobScheduler(),
+        plan_service=PlanService(store=store),
         state_machine=JobStateMachine(),
         idempotency=JobIdempotency(),
         audit=audit,

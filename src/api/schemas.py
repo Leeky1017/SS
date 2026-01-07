@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
+from src.utils.json_types import JsonValue
+
 
 class HealthCheck(BaseModel):
     ok: bool
@@ -31,12 +33,42 @@ class DraftPreviewResponse(BaseModel):
 
 class ConfirmJobRequest(BaseModel):
     confirmed: bool = True
+    notes: str | None = None
 
 
 class ConfirmJobResponse(BaseModel):
     job_id: str
     status: str
     scheduled_at: str | None = None
+
+
+class PlanStepResponse(BaseModel):
+    step_id: str
+    type: str
+    params: dict[str, JsonValue] = Field(default_factory=dict)
+    depends_on: list[str] = Field(default_factory=list)
+    produces: list[str] = Field(default_factory=list)
+
+
+class LLMPlanResponse(BaseModel):
+    plan_version: int
+    plan_id: str
+    rel_path: str
+    steps: list[PlanStepResponse] = Field(default_factory=list)
+
+
+class FreezePlanRequest(BaseModel):
+    notes: str | None = None
+
+
+class FreezePlanResponse(BaseModel):
+    job_id: str
+    plan: LLMPlanResponse
+
+
+class GetPlanResponse(BaseModel):
+    job_id: str
+    plan: LLMPlanResponse
 
 
 class JobTimestamps(BaseModel):

@@ -37,6 +37,9 @@ def _clear_dependency_caches() -> None:
     deps.get_audit_logger.cache_clear()
     deps.get_artifacts_service.cache_clear()
     deps.get_job_workspace_store.cache_clear()
+    deps.get_job_inputs_service.cache_clear()
+    deps.get_job_query_service.cache_clear()
+    deps.get_plan_service.cache_clear()
 
 
 @asynccontextmanager
