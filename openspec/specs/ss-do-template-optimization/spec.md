@@ -79,6 +79,65 @@ SS MUST provide an LLM-facing retrieval index that supports budgeted prompts and
   2) template selection from a trimmed candidate set
 - **AND** the chosen `template_id` MUST be a member of the candidate set (otherwise structured failure)
 
+### Requirement: Stage-1 selects canonical family IDs (schema-bound)
+
+SS MUST run a stage-1 family selection step that returns canonical family IDs from `FamilySummary[]` for the user requirement.
+
+Stage-1 input:
+- user requirement text, and
+- `FamilySummary[]` (canonical family IDs + short summaries).
+
+Stage-1 output MUST be schema-bound JSON and MUST include:
+- `families[]` where each item includes:
+  - `family_id` (canonical)
+  - `reason`
+  - `confidence` (0.0–1.0)
+
+Stage-1 MUST hard-validate that every returned family ID is a member of the provided canonical family ID set; otherwise it MUST retry/fail in a bounded, structured way.
+
+#### Scenario: Stage-1 output uses canonical family IDs
+- **GIVEN** a `FamilySummary[]` list with canonical IDs
+- **WHEN** the LLM returns a stage-1 selection output
+- **THEN** every selected ID is in the canonical ID set
+- **AND** the output includes reasons + confidences per selected family
+
+### Requirement: Stage-2 selects a template from a token-budgeted candidate set (schema-bound)
+
+SS MUST run a stage-2 template selection step that selects a `template_id` from a token-budgeted, trimmed candidate set built from the stage-1 selected families.
+
+Stage-2 input:
+- user requirement text, and
+- candidate families → load `TemplateSummary[]` for those families.
+
+Stage-2 preparation MUST:
+- rank templates, then
+- deterministically trim to a topK candidate set within a configured token budget.
+
+Stage-2 output MUST be schema-bound JSON and MUST include:
+- `template_id`
+- `reason` and `confidence` (0.0–1.0)
+
+Stage-2 MUST hard-validate `template_id ∈ candidate_template_ids`; otherwise it MUST retry/fail in a bounded, structured way.
+
+#### Scenario: Stage-2 rejects out-of-candidate template IDs
+- **GIVEN** a trimmed candidate set of template IDs
+- **WHEN** the LLM returns a `template_id` not in the candidate set
+- **THEN** SS retries (bounded) or fails with a structured error
+- **AND** it does not proceed with an unverified template ID
+
+### Requirement: Selection writes evidence artifacts (auditable + verifiable)
+
+Template selection MUST write evidence artifacts that capture:
+- stage-1 provided family set + chosen families (with reasons + confidence),
+- stage-2 candidate template set (post-trim) + final selection (with reasons + confidence).
+
+The evidence artifacts MUST be indexed as job artifacts and MUST use enumerated `do_template.*` kinds.
+
+#### Scenario: Selection evidence is persisted and indexed
+- **WHEN** template selection runs for a job
+- **THEN** evidence artifacts exist on disk under the job workspace
+- **AND** the job `artifacts_index` contains refs for the selection artifacts
+
 ### Requirement: Template composition is explicit and minimal (no hidden workflow engine)
 
 If SS supports multi-template runs, it MUST do so as an explicit ordered pipeline with explicit input/output wiring (no implicit state transfer).
@@ -98,4 +157,3 @@ SS MUST provide:
 #### Scenario: Quality gates block regressions
 - **WHEN** a template violates schema/contract/index invariants
 - **THEN** CI fails with a structured error report referencing the offending template ID(s)
-

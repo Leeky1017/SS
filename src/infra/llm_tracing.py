@@ -17,7 +17,7 @@ from src.domain.worker_retry import normalized_max_attempts
 from src.infra.exceptions import LLMArtifactsWriteError, LLMCallFailedError
 from src.infra.llm_call_retry import (
     RetryPolicy,
-    call_draft_preview_with_retry,
+    call_complete_text_with_retry,
     log_call_done,
     log_call_failed,
     log_call_start,
@@ -37,16 +37,11 @@ from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass(frozen=True)
 class LLMCallArtifacts:
     prompt_ref: ArtifactRef
     response_ref: ArtifactRef
     meta_ref: ArtifactRef
-
-    def as_list(self) -> list[ArtifactRef]:
-        return [self.prompt_ref, self.response_ref, self.meta_ref]
-
 
 class TracedLLMClient(LLMClient):
     def __init__(
@@ -78,10 +73,14 @@ class TracedLLMClient(LLMClient):
             default=30.0,
         )
 
-    async def draft_preview(self, *, job: Job, prompt: str) -> Draft:
-        return await self._call_and_record(job=job, operation="draft_preview", prompt=prompt)
+    async def complete_text(self, *, job: Job, operation: str, prompt: str) -> str:
+        return await self._call_and_record(job=job, operation=operation, prompt=prompt)
 
-    async def _call_and_record(self, *, job: Job, operation: str, prompt: str) -> Draft:
+    async def draft_preview(self, *, job: Job, prompt: str) -> Draft:
+        text = await self.complete_text(job=job, operation="draft_preview", prompt=prompt)
+        return Draft(text=text, created_at=utc_now().isoformat())
+
+    async def _call_and_record(self, *, job: Job, operation: str, prompt: str) -> str:
         started_at = utc_now()
         call_id = llm_call_id(
             operation=operation,
@@ -96,7 +95,7 @@ class TracedLLMClient(LLMClient):
             span.set_attribute("ss.job_id", job.job_id)
             span.set_attribute("ss.llm_call_id", call_id)
             span.set_attribute("ss.model", self._model)
-            outcome = await call_draft_preview_with_retry(
+            outcome = await call_complete_text_with_retry(
                 inner=self._inner,
                 job=job,
                 prompt=prompt,
@@ -111,7 +110,7 @@ class TracedLLMClient(LLMClient):
                 redactor=redact_text,
                 logger=logger,
             )
-            span.set_attribute("ss.ok", outcome.draft is not None)
+            span.set_attribute("ss.ok", outcome.text is not None)
         ended_at = utc_now()
         duration_ms = int((time.perf_counter() - started_perf) * 1000)
 
@@ -134,7 +133,8 @@ class TracedLLMClient(LLMClient):
             response=outcome.response_text,
             meta=meta,
         )
-        job.artifacts_index.extend(artifacts.as_list())
+        refs = [artifacts.prompt_ref, artifacts.response_ref, artifacts.meta_ref]
+        job.artifacts_index.extend(refs)
 
         log_call_done(
             logger=logger,
@@ -143,7 +143,7 @@ class TracedLLMClient(LLMClient):
             operation=operation,
             ok=bool(meta["ok"]),
         )
-        if outcome.draft is None:
+        if outcome.text is None:
             log_call_failed(
                 logger=logger,
                 job_id=job.job_id,
@@ -154,7 +154,7 @@ class TracedLLMClient(LLMClient):
                 error=outcome.error,
             )
             raise LLMCallFailedError(job_id=job.job_id, llm_call_id=call_id) from outcome.error
-        return outcome.draft
+        return outcome.response_text
 
     def _build_meta(
         self,
