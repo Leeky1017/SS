@@ -4,8 +4,6 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from src.domain.models import JobConfirmation
-from src.domain.plan_service import PlanService
 from src.domain.worker_service import WorkerService
 
 
@@ -21,16 +19,13 @@ def _create_job_ready_for_submit(*, client: TestClient) -> str:
 
 def test_duplicate_submission_confirm_is_idempotent_and_queues_once(
     journey_client: TestClient,
-    journey_plan_service: PlanService,
     journey_worker_service: WorkerService,
     journey_queue_dir: Path,
 ) -> None:
     job_id = _create_job_ready_for_submit(client=journey_client)
 
-    journey_plan_service.freeze_plan(
-        job_id=job_id,
-        confirmation=JobConfirmation(requirement="run a regression and export table"),
-    )
+    response = journey_client.post(f"/v1/jobs/{job_id}/plan/freeze", json={})
+    assert response.status_code == 200
 
     responses = []
     url = f"/v1/jobs/{job_id}/confirm"

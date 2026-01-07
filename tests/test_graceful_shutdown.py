@@ -24,13 +24,14 @@ def _prepare_queued_job(*, jobs_dir: Path, queue: FileWorkerQueue) -> str:
     store = JobStore(jobs_dir=jobs_dir)
     state_machine = JobStateMachine()
     scheduler = QueueJobScheduler(queue=queue)
+    plan_service = PlanService(store=store)
     job_service = JobService(
         store=store,
         scheduler=scheduler,
+        plan_service=plan_service,
         state_machine=state_machine,
         idempotency=JobIdempotency(),
     )
-    plan_service = PlanService(store=store)
 
     job = job_service.create_job(requirement="hello")
     job.status = JobStatus.DRAFT_READY
@@ -108,13 +109,14 @@ def test_execute_plan_with_shutdown_deadline_caps_timeout_seconds(tmp_path: Path
     runner = _CapturingRunner()
     jobs_dir = tmp_path / "jobs"
     store = JobStore(jobs_dir=jobs_dir)
+    plan_service = PlanService(store=store)
     job_service = JobService(
         store=store,
         scheduler=NoopJobScheduler(),
+        plan_service=plan_service,
         state_machine=JobStateMachine(),
         idempotency=JobIdempotency(),
     )
-    plan_service = PlanService(store=store)
 
     job = job_service.create_job(requirement="hello")
     job.status = JobStatus.DRAFT_READY

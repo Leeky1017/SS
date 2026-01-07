@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.api import deps
+from src.domain.job_query_service import JobQueryService
 from src.main import create_app
 from src.utils.job_workspace import resolve_job_dir
 
@@ -28,9 +29,10 @@ def job_dir_for(jobs_dir: Path) -> Callable[[str], Path]:
 
 
 @pytest.fixture
-def app(job_service, draft_service):
+def app(job_service, draft_service, store):
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
     app.dependency_overrides[deps.get_draft_service] = lambda: draft_service
     return app
 
@@ -38,4 +40,3 @@ def app(job_service, draft_service):
 @pytest.fixture
 def client(app) -> TestClient:
     return TestClient(app)
-

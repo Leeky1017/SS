@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi.testclient import TestClient
 
 from src.api import deps
+from src.domain.job_query_service import JobQueryService
 from src.domain.models import ArtifactKind, ArtifactRef, Draft, RunAttempt
 from src.main import create_app
 
@@ -10,6 +11,7 @@ from src.main import create_app
 def test_get_job_with_valid_job_returns_summary(job_service, store):
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
     client = TestClient(app)
 
     job = job_service.create_job(requirement="hello")
@@ -58,9 +60,10 @@ def test_get_job_with_valid_job_returns_summary(job_service, store):
     assert payload["latest_run"]["artifacts_count"] == 1
 
 
-def test_get_job_with_missing_job_returns_404(job_service):
+def test_get_job_with_missing_job_returns_404(job_service, store):
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
     client = TestClient(app)
 
     response = client.get("/v1/jobs/job_missing")
@@ -69,9 +72,10 @@ def test_get_job_with_missing_job_returns_404(job_service):
     assert response.json()["error_code"] == "JOB_NOT_FOUND"
 
 
-def test_get_job_when_cross_tenant_access_returns_404(job_service) -> None:
+def test_get_job_when_cross_tenant_access_returns_404(job_service, store) -> None:
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
     client = TestClient(app)
 
     created = client.post(
@@ -91,7 +95,7 @@ def test_get_job_when_cross_tenant_access_returns_404(job_service) -> None:
     assert response.json()["error_code"] == "JOB_NOT_FOUND"
 
 
-def test_get_job_with_corrupted_job_json_returns_500(job_service, jobs_dir):
+def test_get_job_with_corrupted_job_json_returns_500(job_service, store, jobs_dir):
     job_id = "job_corrupt_json"
     job_dir = jobs_dir / job_id
     job_dir.mkdir(parents=True, exist_ok=True)
@@ -99,6 +103,7 @@ def test_get_job_with_corrupted_job_json_returns_500(job_service, jobs_dir):
 
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
     client = TestClient(app)
 
     response = client.get(f"/v1/jobs/{job_id}")
@@ -110,6 +115,7 @@ def test_get_job_with_corrupted_job_json_returns_500(job_service, jobs_dir):
 def test_get_job_with_legacy_route_sets_deprecation_headers(job_service, store):
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
     client = TestClient(app)
 
     job = job_service.create_job(requirement="hello")
@@ -121,9 +127,10 @@ def test_get_job_with_legacy_route_sets_deprecation_headers(job_service, store):
     assert response.headers["Sunset"] == "2026-06-01"
 
 
-def test_get_job_includes_request_id_header(job_service) -> None:
+def test_get_job_includes_request_id_header(job_service, store) -> None:
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
     client = TestClient(app)
 
     job = job_service.create_job(requirement="hello")
@@ -134,9 +141,10 @@ def test_get_job_includes_request_id_header(job_service) -> None:
     assert response.headers.get("X-SS-Request-Id")
 
 
-def test_get_job_request_id_header_honors_incoming_x_request_id(job_service) -> None:
+def test_get_job_request_id_header_honors_incoming_x_request_id(job_service, store) -> None:
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = lambda: job_service
+    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
     client = TestClient(app)
 
     job = job_service.create_job(requirement="hello")

@@ -11,6 +11,7 @@ from src.domain.do_template_run_service import DoTemplateRunService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService, NoopJobScheduler
 from src.domain.job_store import JobStore
+from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import SSError
 from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
@@ -108,9 +109,11 @@ def _print_run_summary(
 def _create_job_services(*, config: Config) -> tuple[JobStore, JobStateMachine, JobService]:
     store = build_job_store(config=config)
     state_machine = JobStateMachine()
+    plan_service = PlanService(store=store)
     job_service = JobService(
         store=store,
         scheduler=NoopJobScheduler(),
+        plan_service=plan_service,
         state_machine=state_machine,
         idempotency=JobIdempotency(),
     )

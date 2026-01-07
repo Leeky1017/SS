@@ -11,6 +11,7 @@ from src.api import deps
 from src.domain.artifacts_service import ArtifactsService
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
+from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobService
 from src.domain.llm_client import StubLLMClient
 from src.domain.plan_service import PlanService
@@ -62,9 +63,11 @@ def journey_job_service(
     journey_queue: FileWorkerQueue,
 ) -> JobService:
     scheduler = QueueJobScheduler(queue=journey_queue)
+    plan_service = PlanService(store=journey_store)
     return JobService(
         store=journey_store,
         scheduler=scheduler,
+        plan_service=plan_service,
         state_machine=journey_state_machine,
         idempotency=journey_idempotency,
     )
@@ -119,15 +122,24 @@ def journey_plan_service(journey_store: JobStore) -> PlanService:
 
 
 @pytest.fixture
+def journey_job_query_service(journey_store: JobStore) -> JobQueryService:
+    return JobQueryService(store=journey_store)
+
+
+@pytest.fixture
 def journey_app(
     journey_job_service: JobService,
     journey_draft_service: DraftService,
     journey_artifacts_service: ArtifactsService,
+    journey_plan_service: PlanService,
+    journey_job_query_service: JobQueryService,
 ) -> Iterator[FastAPI]:
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = lambda: journey_job_service
+    app.dependency_overrides[deps.get_job_query_service] = lambda: journey_job_query_service
     app.dependency_overrides[deps.get_draft_service] = lambda: journey_draft_service
     app.dependency_overrides[deps.get_artifacts_service] = lambda: journey_artifacts_service
+    app.dependency_overrides[deps.get_plan_service] = lambda: journey_plan_service
     yield app
 
 

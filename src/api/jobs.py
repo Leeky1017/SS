@@ -4,7 +4,13 @@ from fastapi import APIRouter, Body, Depends
 from fastapi.responses import FileResponse
 from opentelemetry.trace import get_tracer
 
-from src.api.deps import get_artifacts_service, get_job_service, get_tenant_id
+from src.api.deps import (
+    get_artifacts_service,
+    get_job_query_service,
+    get_job_service,
+    get_plan_service,
+    get_tenant_id,
+)
 from src.api.schemas import (
     ArtifactIndexItem,
     ArtifactsIndexResponse,
@@ -12,11 +18,18 @@ from src.api.schemas import (
     ConfirmJobResponse,
     CreateJobRequest,
     CreateJobResponse,
+    FreezePlanRequest,
+    FreezePlanResponse,
     GetJobResponse,
+    GetPlanResponse,
+    LLMPlanResponse,
     RunJobResponse,
 )
 from src.domain.artifacts_service import ArtifactsService
+from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobService
+from src.domain.models import JobConfirmation
+from src.domain.plan_service import PlanService
 from src.infra.tracing import synthetic_parent_context_for_trace_id
 
 router = APIRouter(tags=["jobs"])
@@ -41,7 +54,7 @@ def create_job(
 def get_job(
     job_id: str,
     tenant_id: str = Depends(get_tenant_id),
-    svc: JobService = Depends(get_job_service),
+    svc: JobQueryService = Depends(get_job_query_service),
 ) -> GetJobResponse:
     return GetJobResponse.model_validate(svc.get_job_summary(tenant_id=tenant_id, job_id=job_id))
 
@@ -86,9 +99,45 @@ def confirm_job(
     tenant_id: str = Depends(get_tenant_id),
     svc: JobService = Depends(get_job_service),
 ) -> ConfirmJobResponse:
-    job = svc.confirm_job(tenant_id=tenant_id, job_id=job_id, confirmed=payload.confirmed)
+    job = svc.confirm_job(
+        tenant_id=tenant_id,
+        job_id=job_id,
+        confirmed=payload.confirmed,
+        notes=payload.notes,
+    )
     return ConfirmJobResponse(
         job_id=job.job_id,
         status=job.status.value,
         scheduled_at=job.scheduled_at,
+    )
+
+
+@router.post("/jobs/{job_id}/plan/freeze", response_model=FreezePlanResponse)
+def freeze_plan(
+    job_id: str,
+    payload: FreezePlanRequest = Body(default_factory=FreezePlanRequest),
+    tenant_id: str = Depends(get_tenant_id),
+    svc: PlanService = Depends(get_plan_service),
+) -> FreezePlanResponse:
+    plan = svc.freeze_plan(
+        tenant_id=tenant_id,
+        job_id=job_id,
+        confirmation=JobConfirmation(notes=payload.notes),
+    )
+    return FreezePlanResponse(
+        job_id=job_id,
+        plan=LLMPlanResponse.model_validate(plan.model_dump(mode="json")),
+    )
+
+
+@router.get("/jobs/{job_id}/plan", response_model=GetPlanResponse)
+def get_plan(
+    job_id: str,
+    tenant_id: str = Depends(get_tenant_id),
+    svc: PlanService = Depends(get_plan_service),
+) -> GetPlanResponse:
+    plan = svc.get_frozen_plan(tenant_id=tenant_id, job_id=job_id)
+    return GetPlanResponse(
+        job_id=job_id,
+        plan=LLMPlanResponse.model_validate(plan.model_dump(mode="json")),
     )

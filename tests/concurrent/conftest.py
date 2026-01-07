@@ -45,11 +45,13 @@ def job_service(
     store: JobStore,
     queue: FileWorkerQueue,
     state_machine: JobStateMachine,
+    plan_service: PlanService,
 ) -> JobService:
     scheduler = QueueJobScheduler(queue=queue)
     return JobService(
         store=store,
         scheduler=scheduler,
+        plan_service=plan_service,
         state_machine=state_machine,
         idempotency=JobIdempotency(),
     )
