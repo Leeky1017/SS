@@ -60,3 +60,14 @@
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
   - `https://github.com/Leeky1017/SS/pull/136`
+
+### 2026-01-07 20:12 Fix: mypy (pandas preview typing)
+- Context:
+  - PR checks failed on `mypy`: missing stubs for `pandas` + missing annotations in `src/domain/dataset_preview.py`
+- Command:
+  - `.venv/bin/pip install -e '.[dev]'`
+  - `.venv/bin/mypy`
+  - `.venv/bin/pytest -q`
+- Key output:
+  - `Success: no issues found in 75 source files`
+  - `101 passed, 5 skipped`

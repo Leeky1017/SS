@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 from src.utils.json_types import JsonObject
 
@@ -20,13 +20,15 @@ def _jsonable_value(value: Any) -> str | int | float | bool | None:
     return str(value)
 
 
-def _read_preview_frame(*, path: Path, fmt: str, rows: int):
+def _read_preview_frame(*, path: Path, fmt: str, rows: int) -> Any:
     import pandas as pd
 
     if fmt == "csv":
         return pd.read_csv(path, nrows=rows)
     if fmt == "excel":
-        engine = "xlrd" if path.suffix.lower() == ".xls" else "openpyxl"
+        engine: Literal["xlrd", "openpyxl"] = (
+            "xlrd" if path.suffix.lower() == ".xls" else "openpyxl"
+        )
         return pd.read_excel(path, nrows=rows, engine=engine)
     if fmt == "dta":
         it = pd.read_stata(path, chunksize=rows)
@@ -37,7 +39,7 @@ def _read_preview_frame(*, path: Path, fmt: str, rows: int):
     raise ValueError(f"unsupported format: {fmt}")
 
 
-def _infer_columns(*, df, columns: int) -> list[dict[str, str]]:
+def _infer_columns(*, df: Any, columns: int) -> list[dict[str, str]]:
     import pandas as pd
 
     types = pd.api.types
@@ -60,7 +62,11 @@ def _infer_columns(*, df, columns: int) -> list[dict[str, str]]:
     return columns_preview
 
 
-def _sample_rows(*, df, columns: int) -> list[dict[str, str | int | float | bool | None]]:
+def _sample_rows(
+    *,
+    df: Any,
+    columns: int,
+) -> list[dict[str, str | int | float | bool | None]]:
     limited = df.iloc[:, :columns]
     raw_rows = limited.to_dict(orient="records")
     sample_rows: list[dict[str, str | int | float | bool | None]] = []
