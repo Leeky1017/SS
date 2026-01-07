@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define SS job workspace layout, `job.json` v1 contract, and artifact indexing rules so runs are deterministic and auditable.
+Define SS job workspace layout, versioned `job.json` contract, and artifact indexing rules so runs are deterministic and auditable.
 
 ## Requirements
 
@@ -29,4 +29,3 @@ Artifacts MUST use an enumerated `kind` vocabulary (no ad-hoc free strings) so d
 #### Scenario: Artifact kind vocabulary is listed
 - **WHEN** browsing `openspec/specs/ss-job-contract/README.md`
 - **THEN** it lists recommended artifact kinds and examples
-

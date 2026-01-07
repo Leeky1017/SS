@@ -16,8 +16,8 @@ def test_load_with_valid_job_json_returns_job(job_service, store, jobs_dir):
 
     loaded = store.load(job.job_id)
 
-    assert raw["schema_version"] == 1
-    assert loaded.schema_version == 1
+    assert raw["schema_version"] == 2
+    assert loaded.schema_version == 2
 
 
 def test_load_with_missing_schema_version_raises_job_data_corrupted_error(store, jobs_dir):

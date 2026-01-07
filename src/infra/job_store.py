@@ -8,7 +8,14 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from src.domain.models import JOB_SCHEMA_VERSION_V1, Draft, Job, is_safe_job_rel_path
+from src.domain.models import (
+    JOB_SCHEMA_VERSION_CURRENT,
+    JOB_SCHEMA_VERSION_V1,
+    SUPPORTED_JOB_SCHEMA_VERSIONS,
+    Draft,
+    Job,
+    is_safe_job_rel_path,
+)
 from src.infra.exceptions import (
     ArtifactPathUnsafeError,
     JobAlreadyExistsError,
@@ -57,24 +64,65 @@ class JobStore:
 
     def _assert_supported_schema_version(self, *, job_id: str, path: Path, payload: dict) -> None:
         schema_version = payload.get("schema_version")
-        if schema_version != JOB_SCHEMA_VERSION_V1:
+        if schema_version not in SUPPORTED_JOB_SCHEMA_VERSIONS:
             logger.warning(
                 "SS_JOB_JSON_SCHEMA_VERSION_UNSUPPORTED",
-                extra={"job_id": job_id, "path": str(path), "schema_version": schema_version},
+                extra={
+                    "job_id": job_id,
+                    "path": str(path),
+                    "schema_version": schema_version,
+                    "supported_versions": list(SUPPORTED_JOB_SCHEMA_VERSIONS),
+                },
             )
             raise JobDataCorruptedError(job_id=job_id)
+
+    def _migrate_payload_to_current(self, *, job_id: str, path: Path, payload: dict) -> dict:
+        schema_version = payload.get("schema_version")
+        if schema_version == JOB_SCHEMA_VERSION_CURRENT:
+            return payload
+        if schema_version == JOB_SCHEMA_VERSION_V1:
+            return self._migrate_v1_to_v2(job_id=job_id, path=path, payload=payload)
+        logger.warning(
+            "SS_JOB_JSON_SCHEMA_MIGRATION_UNDEFINED",
+            extra={"job_id": job_id, "path": str(path), "schema_version": schema_version},
+        )
+        raise JobDataCorruptedError(job_id=job_id)
+
+    def _migrate_v1_to_v2(self, *, job_id: str, path: Path, payload: dict) -> dict:
+        migrated = dict(payload)
+        for key in ("runs", "artifacts_index"):
+            if key not in migrated:
+                migrated[key] = []
+                continue
+            if not isinstance(migrated[key], list):
+                logger.warning(
+                    "SS_JOB_JSON_CORRUPTED",
+                    extra={"job_id": job_id, "path": str(path), "reason": f"{key}_not_list"},
+                )
+                raise JobDataCorruptedError(job_id=job_id)
+        migrated["schema_version"] = JOB_SCHEMA_VERSION_CURRENT
+        logger.info(
+            "SS_JOB_JSON_SCHEMA_MIGRATED",
+            extra={
+                "job_id": job_id,
+                "from_version": JOB_SCHEMA_VERSION_V1,
+                "to_version": JOB_SCHEMA_VERSION_CURRENT,
+            },
+        )
+        return migrated
 
     def create(self, job: Job) -> None:
         path = self._job_path(job.job_id)
         if path.exists():
             raise JobAlreadyExistsError(job_id=job.job_id)
-        if job.schema_version != JOB_SCHEMA_VERSION_V1:
+        if job.schema_version != JOB_SCHEMA_VERSION_CURRENT:
             logger.warning(
                 "SS_JOB_JSON_SCHEMA_VERSION_UNSUPPORTED",
                 extra={
                     "job_id": job.job_id,
                     "path": str(path),
                     "schema_version": job.schema_version,
+                    "expected_schema_version": JOB_SCHEMA_VERSION_CURRENT,
                 },
             )
             raise JobDataCorruptedError(job_id=job.job_id)
@@ -107,26 +155,38 @@ class JobStore:
             )
             raise JobDataCorruptedError(job_id=job_id)
         self._assert_supported_schema_version(job_id=job_id, path=path, payload=raw)
+        migrated = self._migrate_payload_to_current(job_id=job_id, path=path, payload=raw)
         try:
-            return Job.model_validate(raw)
+            job = Job.model_validate(migrated)
         except ValidationError as e:
             logger.warning(
                 "SS_JOB_JSON_INVALID",
                 extra={"job_id": job_id, "path": str(path), "errors": e.errors()},
             )
             raise JobDataCorruptedError(job_id=job_id) from e
+        if migrated is not raw:
+            try:
+                self._atomic_write(path, migrated)
+            except OSError as e:
+                logger.warning(
+                    "SS_JOB_JSON_MIGRATION_WRITE_FAILED",
+                    extra={"job_id": job_id, "path": str(path)},
+                )
+                raise JobStoreIOError(operation="migrate_write", job_id=job_id) from e
+        return job
 
     def save(self, job: Job) -> None:
         path = self._job_path(job.job_id)
         if not path.exists():
             raise JobNotFoundError(job_id=job.job_id)
-        if job.schema_version != JOB_SCHEMA_VERSION_V1:
+        if job.schema_version != JOB_SCHEMA_VERSION_CURRENT:
             logger.warning(
                 "SS_JOB_JSON_SCHEMA_VERSION_UNSUPPORTED",
                 extra={
                     "job_id": job.job_id,
                     "path": str(path),
                     "schema_version": job.schema_version,
+                    "expected_schema_version": JOB_SCHEMA_VERSION_CURRENT,
                 },
             )
             raise JobDataCorruptedError(job_id=job.job_id)

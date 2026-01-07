@@ -5,7 +5,7 @@ from collections import Counter
 from dataclasses import dataclass
 
 from src.domain.idempotency import JobIdempotency
-from src.domain.models import JOB_SCHEMA_VERSION_V1, Job, JobInputs, JobStatus
+from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobInputs, JobStatus
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import JobAlreadyExistsError
 from src.infra.job_store import JobStore
@@ -60,7 +60,7 @@ class JobService:
         if inputs_fingerprint is not None:
             inputs = JobInputs(fingerprint=inputs_fingerprint)
         job = Job(
-            schema_version=JOB_SCHEMA_VERSION_V1,
+            schema_version=JOB_SCHEMA_VERSION_CURRENT,
             job_id=job_id,
             status=JobStatus.CREATED,
             requirement=requirement,
