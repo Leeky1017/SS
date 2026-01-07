@@ -6,6 +6,9 @@ from pathlib import PurePosixPath
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 JOB_SCHEMA_VERSION_V1 = 1
+JOB_SCHEMA_VERSION_V2 = 2
+JOB_SCHEMA_VERSION_CURRENT = JOB_SCHEMA_VERSION_V2
+SUPPORTED_JOB_SCHEMA_VERSIONS = [JOB_SCHEMA_VERSION_V1, JOB_SCHEMA_VERSION_V2]
 LLM_PLAN_VERSION_V1 = 1
 
 
@@ -188,6 +191,6 @@ class Job(BaseModel):
     @field_validator("schema_version")
     @classmethod
     def schema_version_must_match_current(cls, value: int) -> int:
-        if value != JOB_SCHEMA_VERSION_V1:
+        if value != JOB_SCHEMA_VERSION_CURRENT:
             raise ValueError(f"unsupported schema_version: {value}")
         return value
