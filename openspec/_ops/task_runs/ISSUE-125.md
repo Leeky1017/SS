@@ -2,7 +2,7 @@
 
 - Issue: #125
 - Branch: task/125-do-template-optimization
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/130
 
 ## Plan
 - Inventory templates + meta/index for taxonomy, duplicates, and drift
@@ -61,3 +61,9 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 pr opened
+- Command:
+  - `gh pr create --title "docs: do-template optimization spec (#125)" --body "Closes #125 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/130`
