@@ -4,6 +4,8 @@
 
 Implement user-journey tests that validate SS behavior at the level a real user experiences (state continuity, idempotency, recovery), using the A–D scenarios defined in `openspec/specs/ss-testing-strategy/README.md`.
 
+Issue: #94
+
 ## In scope
 
 - Create `tests/user_journeys/` and shared fixtures (`tests/user_journeys/conftest.py`).
@@ -23,7 +25,7 @@ Implement user-journey tests that validate SS behavior at the level a real user 
 
 ## Acceptance checklist
 
-- [ ] `tests/user_journeys/` contains A–D test modules referenced by the strategy README
-- [ ] Tests validate state continuity across steps (`bundle_id → draft_id → job_id`)
-- [ ] Duplicate/rapid submissions do not create duplicated jobs (or are explicitly rejected)
-- [ ] Recovery cases (reload / retry) are idempotent and do not corrupt job state
+- [x] `tests/user_journeys/` contains A–D test modules referenced by the strategy README
+- [x] Tests validate state continuity across steps (`job_id` persists; `draft` and artifacts evolve)
+- [x] Duplicate/rapid submissions do not create duplicated jobs (or are explicitly rejected)
+- [x] Recovery cases (reload / retry) are idempotent and do not corrupt job state
