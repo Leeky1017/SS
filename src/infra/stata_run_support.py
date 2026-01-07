@@ -9,6 +9,7 @@ from typing import Callable, Sequence, cast
 
 from src.domain.models import ArtifactKind, ArtifactRef
 from src.domain.stata_runner import RunError, RunResult
+from src.utils.job_workspace import resolve_job_dir
 from src.utils.json_types import JsonObject
 
 DO_FILENAME = "stata.do"
@@ -55,9 +56,8 @@ def resolve_run_dirs(*, jobs_dir: Path, job_id: str, run_id: str) -> RunDirs | N
     if not safe_segment(job_id) or not safe_segment(run_id):
         return None
 
-    base = jobs_dir.resolve()
-    job_dir = (jobs_dir / job_id).resolve()
-    if not job_dir.is_relative_to(base):
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
+    if job_dir is None:
         return None
 
     run_dir = (job_dir / "runs" / run_id).resolve()

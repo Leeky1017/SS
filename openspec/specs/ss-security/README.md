@@ -9,7 +9,7 @@
 
 ## 执行隔离（硬约束）
 
-- runner `cwd` MUST 固定在 `jobs/<job_id>/runs/<run_id>/work/`
+- runner `cwd` MUST 固定在 `jobs/<shard>/<job_id>/runs/<run_id>/work/`（legacy: `jobs/<job_id>/runs/<run_id>/work/`）
 - do-file 生成与执行 MUST 禁止越界写入（`..`、绝对路径等）
 
 ## 脱敏（硬约束）
@@ -19,4 +19,3 @@
 ## Task cards
 
 - `openspec/specs/ss-security/task_cards/round-00-arch-a__ARCH-T062.md`（Issue #27）
-

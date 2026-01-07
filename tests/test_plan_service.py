@@ -7,6 +7,7 @@ import pytest
 
 from src.domain.models import ArtifactKind, JobConfirmation
 from src.infra.exceptions import PlanAlreadyFrozenError, PlanFreezeNotAllowedError
+from src.utils.job_workspace import resolve_job_dir
 
 
 def test_freeze_plan_when_job_not_ready_raises_plan_freeze_not_allowed_error(
@@ -37,7 +38,9 @@ def test_freeze_plan_persists_llm_plan_and_plan_artifact(
     assert loaded.llm_plan is not None
     assert loaded.llm_plan.plan_id == plan.plan_id
 
-    plan_path = jobs_dir / job.job_id / plan.rel_path
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+    assert job_dir is not None
+    plan_path = job_dir / plan.rel_path
     assert plan_path.exists()
     plan_payload = json.loads(plan_path.read_text(encoding="utf-8"))
     assert plan_payload["plan_id"] == plan.plan_id

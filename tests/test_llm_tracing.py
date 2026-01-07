@@ -14,10 +14,13 @@ from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import LLMCallFailedError
 from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
+from src.utils.job_workspace import resolve_job_dir
 
 
 def _read_job_artifact(*, jobs_dir: Path, job_id: str, rel_path: str) -> str:
-    return (jobs_dir / job_id / rel_path).read_text(encoding="utf-8")
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
+    assert job_dir is not None
+    return (job_dir / rel_path).read_text(encoding="utf-8")
 
 
 def test_preview_when_llm_succeeds_writes_llm_artifacts_and_redacts_secrets(

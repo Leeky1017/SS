@@ -23,6 +23,7 @@ from src.infra.llm_call_retry import (
     normalized_backoff_seconds,
     normalized_timeout_seconds,
 )
+from src.utils.job_workspace import resolve_job_dir
 from src.utils.json_types import JsonObject
 from src.utils.time import utc_now
 
@@ -263,8 +264,11 @@ class TracedLLMClient(LLMClient):
     def _safe_artifact_path(self, *, job_id: str, rel_path: str) -> Path:
         if not is_safe_job_rel_path(rel_path):
             raise ValueError("unsafe_rel_path")
-        base = (self._jobs_dir / job_id).resolve(strict=False)
-        resolved = (self._jobs_dir / job_id / rel_path).resolve(strict=False)
+        job_dir = resolve_job_dir(jobs_dir=self._jobs_dir, job_id=job_id)
+        if job_dir is None:
+            raise ValueError("unsafe_job_id")
+        base = job_dir.resolve(strict=False)
+        resolved = (job_dir / rel_path).resolve(strict=False)
         if not resolved.is_relative_to(base):
             raise ValueError("symlink_escape")
         return resolved
