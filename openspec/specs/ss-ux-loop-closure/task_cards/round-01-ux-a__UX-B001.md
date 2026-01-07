@@ -118,9 +118,17 @@ Minimum tests (suggested):
 
 ## Acceptance checklist
 
-- [ ] API: dataset upload endpoint exists under `/v1` and persists under `inputs/`
-- [ ] API: dataset preview endpoint exists and returns bounded columns + sample rows
-- [ ] `job.json` updates `inputs.manifest_rel_path` and `inputs.fingerprint`
-- [ ] Errors are structured with stable `error_code` values
-- [ ] Tests cover happy path + key invalid inputs and path-safety
+- [x] API: dataset upload endpoint exists under `/v1` and persists under `inputs/`
+- [x] API: dataset preview endpoint exists and returns bounded columns + sample rows
+- [x] `job.json` updates `inputs.manifest_rel_path` and `inputs.fingerprint`
+- [x] Errors are structured with stable `error_code` values
+- [x] Tests cover happy path + key invalid inputs and path-safety
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/136
+- Run log: `openspec/_ops/task_runs/ISSUE-126.md`
+- Summary:
+  - Implemented `/v1/jobs/{job_id}/inputs/upload` and `/v1/jobs/{job_id}/inputs/preview`
+  - Persisted `inputs/manifest.json` + `sha256:<hex>` fingerprint into `job.json`
+  - Added tests for happy path + key invalid inputs
