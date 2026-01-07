@@ -88,3 +88,17 @@
   - `.venv/bin/mypy`
 - Key output:
   - `Success: no issues found`
+
+### 2026-01-07 01:45 CI fix (chaos OOM override compatibility)
+- Issue:
+  - CI failed `tests/chaos/test_oom_graceful_degrade.py` because API routes passed a new `ctx=` kwarg into a dependency-overridden JobService stub.
+- Fix:
+  - Keep `JobService` public method signatures stable and inject request-scoped `AuditContext` via `src/api/deps.py` when constructing `JobService`.
+- Command:
+  - `.venv/bin/ruff check .`
+  - `.venv/bin/pytest -q`
+  - `.venv/bin/mypy`
+- Key output:
+  - `All checks passed!`
+  - `80 passed`
+  - `Success: no issues found`

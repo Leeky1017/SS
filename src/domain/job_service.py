@@ -69,18 +69,17 @@ class JobService:
         changes: JsonObject | None = None,
         metadata: JsonObject | None = None,
     ) -> None:
-        self._audit.emit(
-            event=AuditEvent(
-                action=action,
-                result=result,
-                resource_type="job",
-                resource_id=job_id,
-                job_id=job_id,
-                context=self._audit_context,
-                changes=changes,
-                metadata=metadata,
-            )
+        event = AuditEvent(
+            action=action,
+            result=result,
+            resource_type="job",
+            resource_id=job_id,
+            job_id=job_id,
+            context=self._audit_context,
+            changes=changes,
+            metadata=metadata,
         )
+        self._audit.emit(event=event)
 
     def create_job(
         self,
@@ -261,4 +260,3 @@ class JobService:
                 "latest_run": latest_run,
             },
         )
-

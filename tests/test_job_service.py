@@ -23,15 +23,6 @@ class InMemoryAuditLogger(AuditLogger):
 def test_confirm_job_emits_audit_events_for_confirm_and_run_trigger(store, draft_service) -> None:
     # Arrange
     audit = InMemoryAuditLogger()
-    job_service = JobService(
-        store=store,
-        scheduler=NoopJobScheduler(),
-        state_machine=JobStateMachine(),
-        idempotency=JobIdempotency(),
-        audit=audit,
-    )
-    job = job_service.create_job(requirement=None)
-    asyncio.run(draft_service.preview(job_id=job.job_id))
     ctx = AuditContext.user(
         actor_id="user-1",
         request_id="req-1",
@@ -39,9 +30,19 @@ def test_confirm_job_emits_audit_events_for_confirm_and_run_trigger(store, draft
         user_agent="pytest",
         source="api",
     )
+    job_service = JobService(
+        store=store,
+        scheduler=NoopJobScheduler(),
+        state_machine=JobStateMachine(),
+        idempotency=JobIdempotency(),
+        audit=audit,
+        audit_context=ctx,
+    )
+    job = job_service.create_job(requirement=None)
+    asyncio.run(draft_service.preview(job_id=job.job_id))
 
     # Act
-    job_service.confirm_job(job_id=job.job_id, confirmed=True, ctx=ctx)
+    job_service.confirm_job(job_id=job.job_id, confirmed=True)
 
     # Assert
     actions = [event.action for event in audit.events]
