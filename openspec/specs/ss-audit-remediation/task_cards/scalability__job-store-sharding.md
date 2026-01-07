@@ -18,13 +18,21 @@ Define and implement a sharded path scheme for the file backend (or the chosen b
 
 ## Acceptance checklist
 
-- [ ] Define the shard function and directory layout (e.g., prefix-based shard directories)
-- [ ] Existing jobs remain loadable without manual moves, or a safe migration path is provided
-- [ ] Tests cover path resolution and compatibility behavior
-- [ ] Document operational implications (backup/restore, cleanup, listing performance)
-- [ ] Implementation run log records `ruff check .` and `pytest -q`
+- [x] Define the shard function and directory layout (e.g., prefix-based shard directories)
+- [x] Existing jobs remain loadable without manual moves, or a safe migration path is provided
+- [x] Tests cover path resolution and compatibility behavior
+- [x] Document operational implications (backup/restore, cleanup, listing performance)
+- [x] Implementation run log records `ruff check .` and `pytest -q`
 
 ## Estimate
 
 - 4-6h
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/101
+- Notes:
+  - Job workspace layout updated to `jobs/<shard>/<job_id>/...` with legacy fallback
+  - File JobStore + runners/artifacts path resolution updated for sharded directories
+  - Tests updated/added to cover sharded + legacy behavior
+- Run log: `openspec/_ops/task_runs/ISSUE-96.md`

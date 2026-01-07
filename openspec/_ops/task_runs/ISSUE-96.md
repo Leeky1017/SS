@@ -78,3 +78,7 @@
   - `gh pr merge --auto --squash 101`
 - Key output:
   - `will be automatically merged via squash when all requirements are met`
+
+### 2026-01-07 06:30 Task card closure
+- Note:
+  - `openspec/specs/ss-audit-remediation/task_cards/scalability__job-store-sharding.md` backfilled after merge in PR https://github.com/Leeky1017/SS/pull/102
