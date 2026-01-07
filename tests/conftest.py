@@ -56,6 +56,10 @@ def draft_service(store: JobStore, state_machine: JobStateMachine, jobs_dir: Pat
         model="stub",
         temperature=0.0,
         seed=None,
+        timeout_seconds=30.0,
+        max_attempts=3,
+        retry_backoff_base_seconds=1.0,
+        retry_backoff_max_seconds=30.0,
     )
     return DraftService(store=store, llm=llm, state_machine=state_machine)
 

@@ -36,12 +36,17 @@ def get_worker_queue() -> FileWorkerQueue:
 
 @lru_cache
 def get_llm_client() -> LLMClient:
+    config = get_config()
     return TracedLLMClient(
         inner=StubLLMClient(),
-        jobs_dir=get_config().jobs_dir,
+        jobs_dir=config.jobs_dir,
         model="stub",
         temperature=0.0,
         seed=None,
+        timeout_seconds=config.llm_timeout_seconds,
+        max_attempts=config.llm_max_attempts,
+        retry_backoff_base_seconds=config.llm_retry_backoff_base_seconds,
+        retry_backoff_max_seconds=config.llm_retry_backoff_max_seconds,
     )
 
 

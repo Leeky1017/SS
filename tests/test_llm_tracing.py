@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 from pathlib import Path
 
 import pytest
@@ -92,6 +93,10 @@ def test_preview_when_llm_fails_persists_llm_artifacts_and_raises_llm_call_faile
         model="fake",
         temperature=None,
         seed=None,
+        timeout_seconds=30.0,
+        max_attempts=3,
+        retry_backoff_base_seconds=0.0,
+        retry_backoff_max_seconds=0.0,
     )
     svc = DraftService(store=store, llm=llm, state_machine=state_machine)
     job = job_service.create_job(requirement="trigger failure")
@@ -115,3 +120,48 @@ def test_preview_when_llm_fails_persists_llm_artifacts_and_raises_llm_call_faile
     assert meta["error_type"] == "LLMProviderError"
     assert meta["error_message"] is not None
     assert secret not in meta["error_message"]
+
+
+def test_preview_when_llm_times_out_retries_and_logs_timeout(
+    job_service,
+    store: JobStore,
+    jobs_dir: Path,
+    state_machine: JobStateMachine,
+    caplog: pytest.LogCaptureFixture,
+):
+    # Arrange
+    class SlowLLMClient(LLMClient):
+        def __init__(self) -> None:
+            self.calls = 0
+
+        async def draft_preview(self, *, job: Job, prompt: str) -> Draft:
+            self.calls += 1
+            await asyncio.sleep(3600)
+            return Draft(text="unexpected", created_at="never")
+
+    slow = SlowLLMClient()
+    llm = TracedLLMClient(
+        inner=slow,
+        jobs_dir=jobs_dir,
+        model="fake",
+        temperature=None,
+        seed=None,
+        timeout_seconds=0.05,
+        max_attempts=3,
+        retry_backoff_base_seconds=0.0,
+        retry_backoff_max_seconds=0.0,
+    )
+    svc = DraftService(store=store, llm=llm, state_machine=state_machine)
+    job = job_service.create_job(requirement="trigger timeout")
+
+    # Act / Assert
+    with caplog.at_level(logging.WARNING):
+        with pytest.raises(LLMCallFailedError):
+            asyncio.run(svc.preview(job_id=job.job_id))
+
+    assert slow.calls == 3
+    timeout_records = [r for r in caplog.records if r.msg == "SS_LLM_CALL_TIMEOUT"]
+    assert len(timeout_records) == 3
+    assert timeout_records[0].job_id == job.job_id
+    assert timeout_records[0].attempt == 1
+    assert timeout_records[0].timeout_seconds == pytest.approx(0.05, rel=0.1)
