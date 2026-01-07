@@ -3,7 +3,7 @@
 - Issue: #155
 - Parent: #125
 - Branch: task/155-phase-2-deduplicate-and-normalize-placeholders
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/156
 
 ## Goal
 - Deduplicate first-wave exact duplicates in `assets/stata_do_library/do/` and standardize high-frequency placeholders across remaining templates.
