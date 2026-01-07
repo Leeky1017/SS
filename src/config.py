@@ -28,7 +28,7 @@ class Config:
     worker_max_attempts: int
     worker_retry_backoff_base_seconds: float
     worker_retry_backoff_max_seconds: float
-    worker_metrics_port: int
+    worker_metrics_port: int = 8001
 
 
 def _int_value(raw: str, *, default: int) -> int:
