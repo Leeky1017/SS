@@ -17,8 +17,8 @@
 * Family:       F - 面板数据与政策评估
 * Description:  估计面板随机效应回归模型
 * 
-* Placeholders: __DEP_VAR__     - 因变量
-*               __INDEP_VARS__  - 自变量列表
+* Placeholders: __DEPVAR__     - 因变量
+*               __INDEPVARS__  - 自变量列表
 *               __ID_VAR__      - 个体标识变量
 *               __TIME_VAR__    - 时间变量
 *
@@ -109,8 +109,8 @@ display "═══════════════════════�
 display "SECTION 1: 变量检查与面板设置"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-local dep_var "__DEP_VAR__"
-local indep_vars "__INDEP_VARS__"
+local dep_var "__DEPVAR__"
+local indep_vars "__INDEPVARS__"
 local id_var "__ID_VAR__"
 local time_var "__TIME_VAR__"
 

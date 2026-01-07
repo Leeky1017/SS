@@ -31,7 +31,7 @@ DCC multivariate GARCH model
 | 占位符 | 类型 | 必需 | 说明 |
 |--------|------|------|------|
 | `__VARS__` | string | 是 | Variables |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 
 ## 输出
 

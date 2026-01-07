@@ -24,7 +24,7 @@ display "SS_TASK_VERSION:2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 local depvar = "__DEPVAR__"
-local timevar = "__TIMEVAR__"
+local timevar = "__TIME_VAR__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"

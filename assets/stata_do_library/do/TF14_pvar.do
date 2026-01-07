@@ -37,7 +37,7 @@ display "SS_DEP_CHECK|pkg=pvar|source=ssc|status=ok"
 
 local vars = "__VARS__"
 local panelvar = "__PANELVAR__"
-local timevar = "__TIMEVAR__"
+local timevar = "__TIME_VAR__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"

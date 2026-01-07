@@ -18,8 +18,8 @@
 * Description:  自动执行描述统计、回归分析
 * 
 * Placeholders: __NUMERIC_VARS__  - 数值变量列表
-*               __DEP_VAR__       - 因变量
-*               __INDEP_VARS__    - 自变量列表
+*               __DEPVAR__       - 因变量
+*               __INDEPVARS__    - 自变量列表
 *
 * Author:       Stata Task Template System
 * Stata:        18.0+ (official commands only)
@@ -87,8 +87,8 @@ local n_total = _N
 display ">>> 数据加载成功: `n_total' 条观测"
 
 local numeric_vars "__NUMERIC_VARS__"
-local dep_var "__DEP_VAR__"
-local indep_vars "__INDEP_VARS__"
+local dep_var "__DEPVAR__"
+local indep_vars "__INDEPVARS__"
 
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 

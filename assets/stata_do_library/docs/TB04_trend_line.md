@@ -32,7 +32,7 @@ Draw time series trend line plot
 | 占位符 | 类型 | 必需 | 说明 |
 |--------|------|------|------|
 | `__YVAR__` | string | 是 | Y variable |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 
 ## 输出
 

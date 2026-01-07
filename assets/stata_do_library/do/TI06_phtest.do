@@ -24,7 +24,7 @@ display "SS_TASK_BEGIN|id=TI06|level=L1|title=PH_Test"
 display "SS_TASK_VERSION:2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
-local timevar = "__TIMEVAR__"
+local timevar = "__TIME_VAR__"
 local failvar = "__FAILVAR__"
 local indepvars = "__INDEPVARS__"
 

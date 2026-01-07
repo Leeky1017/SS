@@ -31,7 +31,7 @@ Seasonal ARIMA model estimation
 | 占位符 | 类型 | 必需 | 说明 |
 |--------|------|------|------|
 | `__VAR__` | string | 是 | Variable |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 | `__P__` | number | 是 | AR order |
 | `__D__` | number | 是 | Differencing order |
 | `__Q__` | number | 是 | MA order |

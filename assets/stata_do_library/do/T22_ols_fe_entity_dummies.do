@@ -16,8 +16,8 @@
 * Family:       D - 线性回归
 * Description:  通过areg实现实体固定效应
 * 
-* Placeholders: __DEP_VAR__     - 因变量
-*               __INDEP_VARS__  - 自变量列表
+* Placeholders: __DEPVAR__     - 因变量
+*               __INDEPVARS__  - 自变量列表
 *               __ENTITY_VAR__  - 实体变量（固定效应）
 *
 * Author:       Stata Task Template System
@@ -107,8 +107,8 @@ display "═══════════════════════�
 display "SECTION 1: 变量检查与准备"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-local dep_var "__DEP_VAR__"
-local indep_vars "__INDEP_VARS__"
+local dep_var "__DEPVAR__"
+local indep_vars "__INDEPVARS__"
 local entity_var "__ENTITY_VAR__"
 
 capture confirm variable `dep_var'

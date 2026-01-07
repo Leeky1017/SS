@@ -33,7 +33,7 @@ Generalized Estimating Equations for longitudinal data
 | `__DEPVAR__` | string | 是 | Dependent variable |
 | `__INDEPVARS__` | list[string] | 是 | Independent variables |
 | `__PANELVAR__` | string | 是 | Panel variable |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 | `__FAMILY__` | string | 否 | Distribution family |
 | `__CORR__` | string | 否 | Correlation structure |
 

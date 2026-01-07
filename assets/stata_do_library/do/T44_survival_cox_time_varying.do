@@ -18,7 +18,7 @@
 *               __START_VAR__   - 区间起点变量
 *               __STOP_VAR__    - 区间终点变量
 *               __EVENT_VAR__   - 事件变量
-*               __INDEP_VARS__  - 协变量列表
+*               __INDEPVARS__  - 协变量列表
 *
 * Author:       Stata Task Template System
 * Stata:        18.0+ (official commands only)
@@ -100,7 +100,7 @@ local id_var "__ID_VAR__"
 local start_var "__START_VAR__"
 local stop_var "__STOP_VAR__"
 local event_var "__EVENT_VAR__"
-local indep_vars "__INDEP_VARS__"
+local indep_vars "__INDEPVARS__"
 
 display ""
 display ">>> 数据格式: 计数过程（每个风险区间一行）"

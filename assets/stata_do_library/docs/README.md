@@ -8,7 +8,7 @@
 上层服务根据用户需求，从 `tasks_index.json` 中匹配合适的任务模板。
 
 ### 2. 占位符渲染
-每个 `.do` 模板使用双下划线大写占位符（如 `__DEP_VAR__`、`__INDEP_VARS__`），上层服务根据用户提供的 JSON 配置进行字符串替换，生成最终的 `user.do` 文件。
+每个 `.do` 模板使用双下划线大写占位符（如 `__DEPVAR__`、`__INDEPVARS__`），上层服务根据用户提供的 JSON 配置进行字符串替换，生成最终的 `user.do` 文件。
 
 ### 3. 与 `/run_stata` API 集成
 1. 选择任务模板 → 2. 渲染占位符生成 `user.do` → 3. 调用 `POST /run_stata` 提交 `user.do` + `data.csv` → 4. 获取 `result.log` 及输出文件
@@ -17,8 +17,8 @@
 
 | 占位符 | 说明 | 示例值 |
 |--------|------|--------|
-| `__DEP_VAR__` | 因变量名 | `income` |
-| `__INDEP_VARS__` | 自变量列表（空格分隔） | `age edu gender` |
+| `__DEPVAR__` | 因变量名 | `income` |
+| `__INDEPVARS__` | 自变量列表（空格分隔） | `age edu gender` |
 | `__NUMERIC_VARS__` | 数值变量列表 | `x1 x2 x3` |
 | `__CATEGORICAL_VAR__` | 分类变量名 | `region` |
 | `__GROUP_VAR__` | 分组变量名 | `gender` |
@@ -166,7 +166,7 @@ graph LR
 3. **配置占位符**：
    ```json
    {
-     "__DEP_VAR__": "wage",
+     "__DEPVAR__": "wage",
      "__INDEP_VAR__": "education"
    }
    ```

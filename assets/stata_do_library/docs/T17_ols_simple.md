@@ -83,7 +83,7 @@ $$R^2_{adj} = 1 - \frac{(1-R^2)(n-1)}{n-k-1}$$
 
 | 占位符 | 含义 | 类型 | 必填 | 合法取值示例 |
 |--------|------|------|------|-------------|
-| `__DEP_VAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
+| `__DEPVAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
 | `__INDEP_VAR__` | 自变量 | 单变量名 | ✓ 是 | `size` |
 
 ### 渲染规则
@@ -96,7 +96,7 @@ config = {
 }
 
 placeholders = {
-    "__DEP_VAR__": config["dep_var"],
+    "__DEPVAR__": config["dep_var"],
     "__INDEP_VAR__": config["indep_var"]
 }
 ```

@@ -23,7 +23,7 @@ display "SS_TASK_BEGIN|id=TI07|level=L2|title=Shared_Frailty"
 display "SS_TASK_VERSION:2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
-local timevar = "__TIMEVAR__"
+local timevar = "__TIME_VAR__"
 local failvar = "__FAILVAR__"
 local indepvars = "__INDEPVARS__"
 local group_var = "__GROUP_VAR__"

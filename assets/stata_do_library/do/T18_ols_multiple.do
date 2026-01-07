@@ -18,8 +18,8 @@
 * Family:       D - 线性回归
 * Description:  估计多个自变量对因变量的线性关系
 * 
-* Placeholders: __DEP_VAR__     - 因变量
-*               __INDEP_VARS__  - 自变量列表（空格分隔）
+* Placeholders: __DEPVAR__     - 因变量
+*               __INDEPVARS__  - 自变量列表（空格分隔）
 *
 * Author:       Stata Task Template System
 * Stata:        18.0+ (official + community commands)
@@ -109,8 +109,8 @@ display "═══════════════════════�
 display "SECTION 1: 变量检查与准备"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-local dep_var "__DEP_VAR__"
-local indep_vars "__INDEP_VARS__"
+local dep_var "__DEPVAR__"
+local indep_vars "__INDEPVARS__"
 
 capture confirm variable `dep_var'
 if _rc {

@@ -12,7 +12,7 @@
 * ==============================================================================
 * Task ID:      TB04_trend_line
 * Task Name:    时间趋势图
-* Placeholders: __YVAR__, __TIMEVAR__
+* Placeholders: __YVAR__, __TIME_VAR__
 * Stata:        18.0+ (official commands)
 * ==============================================================================
 
@@ -37,7 +37,7 @@ display "SS_TASK_VERSION:2.0.1"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 local yvar = "__YVAR__"
-local timevar = "__TIMEVAR__"
+local timevar = "__TIME_VAR__"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"

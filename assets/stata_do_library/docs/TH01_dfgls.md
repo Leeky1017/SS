@@ -31,7 +31,7 @@ Elliott-Rothenberg-Stock DF-GLS unit root test
 | 占位符 | 类型 | 必需 | 说明 |
 |--------|------|------|------|
 | `__VAR__` | string | 是 | Variable to test |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 | `__MAXLAG__` | number | 是 | Maximum lag |
 
 ## 输出

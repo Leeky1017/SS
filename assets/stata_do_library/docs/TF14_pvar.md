@@ -32,7 +32,7 @@ Panel VAR model for dynamic panel relationships
 |--------|------|------|------|
 | `__VARS__` | string | 是 | VAR variables |
 | `__PANELVAR__` | string | 是 | Panel variable |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 
 ## 输出
 

@@ -31,7 +31,7 @@ Multilevel growth curve modeling
 | 占位符 | 类型 | 必需 | 说明 |
 |--------|------|------|------|
 | `__DEPVAR__` | string | 是 | Dependent variable |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 | `__GROUPVAR__` | string | 是 | Subject ID |
 
 ## 输出

@@ -90,8 +90,8 @@ $$VIF_j = \frac{1}{1 - R_j^2}$$
 
 | 占位符 | 含义 | 类型 | 必填 | 合法取值示例 |
 |--------|------|------|------|-------------|
-| `__DEP_VAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
-| `__INDEP_VARS__` | 自变量列表 | 空格分隔变量 | ✓ 是 | `size lev growth` |
+| `__DEPVAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
+| `__INDEPVARS__` | 自变量列表 | 空格分隔变量 | ✓ 是 | `size lev growth` |
 
 ### 渲染规则
 
@@ -103,8 +103,8 @@ config = {
 }
 
 placeholders = {
-    "__DEP_VAR__": config["dep_var"],
-    "__INDEP_VARS__": " ".join(config["indep_vars"])
+    "__DEPVAR__": config["dep_var"],
+    "__INDEPVARS__": " ".join(config["indep_vars"])
 }
 ```
 

@@ -14,8 +14,8 @@
 * Family:       E - 有限因变量模型
 * Description:  估计无序多分类因变量的Multinomial Logit模型
 * 
-* Placeholders: __DEP_VAR__        - 因变量（无序多分类）
-*               __INDEP_VARS__     - 自变量列表
+* Placeholders: __DEPVAR__        - 因变量（无序多分类）
+*               __INDEPVARS__     - 自变量列表
 *               __BASE_CATEGORY__  - 基础类别
 *
 * Author:       Stata Task Template System
@@ -94,8 +94,8 @@ display "═══════════════════════�
 display "SECTION 1: 变量检查与准备"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-local dep_var "__DEP_VAR__"
-local indep_vars "__INDEP_VARS__"
+local dep_var "__DEPVAR__"
+local indep_vars "__INDEPVARS__"
 local base_cat "__BASE_CATEGORY__"
 
 capture confirm variable `dep_var'

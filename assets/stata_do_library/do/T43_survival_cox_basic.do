@@ -18,7 +18,7 @@
 * 
 * Placeholders: __TIME_VAR__    - 生存时间变量
 *               __EVENT_VAR__   - 事件变量
-*               __INDEP_VARS__  - 协变量列表
+*               __INDEPVARS__  - 协变量列表
 *
 * Author:       Stata Task Template System
 * Stata:        18.0+ (official commands only)
@@ -98,7 +98,7 @@ display "═══════════════════════�
 
 local time_var "__TIME_VAR__"
 local event_var "__EVENT_VAR__"
-local indep_vars "__INDEP_VARS__"
+local indep_vars "__INDEPVARS__"
 
 display ""
 display ">>> 时间变量:        `time_var'"

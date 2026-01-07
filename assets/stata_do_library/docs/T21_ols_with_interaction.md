@@ -89,8 +89,8 @@ $$\frac{\partial Y}{\partial X} = \beta_1 + \beta_3 \times M$$
 
 | 占位符 | 含义 | 类型 | 必填 | 合法取值示例 |
 |--------|------|------|------|-------------|
-| `__DEP_VAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
-| `__INDEP_VARS__` | 控制变量 | 空格分隔变量 | ✓ 是 | `size lev` |
+| `__DEPVAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
+| `__INDEPVARS__` | 控制变量 | 空格分隔变量 | ✓ 是 | `size lev` |
 | `__INTERACT_VAR1__` | 核心自变量 | 单变量名 | ✓ 是 | `rd` |
 | `__INTERACT_VAR2__` | 调节变量 | 单变量名 | ✓ 是 | `soe` |
 
@@ -106,8 +106,8 @@ config = {
 }
 
 placeholders = {
-    "__DEP_VAR__": config["dep_var"],
-    "__INDEP_VARS__": " ".join(config["indep_vars"]),
+    "__DEPVAR__": config["dep_var"],
+    "__INDEPVARS__": " ".join(config["indep_vars"]),
     "__INTERACT_VAR1__": config["interact_var1"],
     "__INTERACT_VAR2__": config["interact_var2"]
 }

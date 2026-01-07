@@ -102,7 +102,7 @@ DO_TEMPLATE = '''* =============================================================
 * Inputs:       data.csv (main_dataset)
 * Outputs:      table_{task_id}.csv
 *
-* Placeholders: __DEP_VAR__, __INDEP_VARS__
+* Placeholders: __DEPVAR__, __INDEPVARS__
 *
 * Author:       Stata Task Template System
 * Stata:        18.0+ (official + community commands allowed)
@@ -137,8 +137,8 @@ local n_input = _N
 display "SS_METRIC:n_input:`n_input'"
 
 * ============ 变量检查 ============
-local dep_var = "__DEP_VAR__"
-local indep_vars = "__INDEP_VARS__"
+local dep_var = "__DEPVAR__"
+local indep_vars = "__INDEPVARS__"
 
 foreach var in `dep_var' {{
     capture confirm variable `var'
@@ -201,8 +201,8 @@ MD_TEMPLATE = '''# {task_id}: {name}
 
 | 占位符 | 类型 | 必需 | 说明 |
 |--------|------|------|------|
-| `__DEP_VAR__` | varname | 是 | 因变量 |
-| `__INDEP_VARS__` | varlist | 是 | 自变量列表 |
+| `__DEPVAR__` | varname | 是 | 因变量 |
+| `__INDEPVARS__` | varlist | 是 | 自变量列表 |
 
 ## 输出
 
@@ -272,8 +272,8 @@ def generate_task(task: Dict, output_dir: Path):
         'dependencies': {'official': [], 'community': deps},
         'outputs': {'tables': [f"table_{task_id}.csv"], 'figures': [], 'data': [], 'reports': []},
         'placeholders': {
-            '__DEP_VAR__': {'type': 'varname', 'required': True, 'default': '', 'description': '因变量'},
-            '__INDEP_VARS__': {'type': 'varlist', 'required': True, 'default': '', 'description': '自变量列表'}
+            '__DEPVAR__': {'type': 'varname', 'required': True, 'default': '', 'description': '因变量'},
+            '__INDEPVARS__': {'type': 'varlist', 'required': True, 'default': '', 'description': '自变量列表'}
         },
         'expected_anchors': {'SS_TASK_START': 1, 'SS_TASK_END': 1, 'SS_OUTPUT_FILE': '>=1', 'SS_METRIC': '>=1'},
         'required_metrics': ['n_input', 'n_obs'],

@@ -78,8 +78,8 @@ $$Y_{it} - \theta\bar{Y}_i = (1-\theta)\alpha + (X_{it} - \theta\bar{X}_i)'\beta
 
 | 占位符 | 含义 | 类型 | 必填 | 合法取值示例 |
 |--------|------|------|------|-------------|
-| `__DEP_VAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
-| `__INDEP_VARS__` | 自变量列表 | 空格分隔变量 | ✓ 是 | `size lev soe` |
+| `__DEPVAR__` | 因变量 | 单变量名 | ✓ 是 | `roa` |
+| `__INDEPVARS__` | 自变量列表 | 空格分隔变量 | ✓ 是 | `size lev soe` |
 | `__ID_VAR__` | 个体标识 | 单变量名 | ✓ 是 | `stkcd` |
 | `__TIME_VAR__` | 时间变量 | 单变量名 | ✓ 是 | `year` |
 

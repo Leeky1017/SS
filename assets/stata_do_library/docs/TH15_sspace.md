@@ -31,7 +31,7 @@ State space model estimation
 | 占位符 | 类型 | 必需 | 说明 |
 |--------|------|------|------|
 | `__DEPVAR__` | string | 是 | Dependent variable |
-| `__TIMEVAR__` | string | 是 | Time variable |
+| `__TIME_VAR__` | string | 是 | Time variable |
 
 ## 输出
 

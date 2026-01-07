@@ -16,7 +16,7 @@
 * Family:       C - 假设检验
 * Description:  比较三组或更多组的均值是否存在显著差异
 * 
-* Placeholders: __DEP_VAR__    - 因变量（连续变量）
+* Placeholders: __DEPVAR__    - 因变量（连续变量）
 *               __GROUP_VAR__  - 分组变量（分类变量）
 *
 * Author:       Stata Task Template System
@@ -95,7 +95,7 @@ display "═══════════════════════�
 display "SECTION 1: 变量检查与准备"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-local dep_var "__DEP_VAR__"
+local dep_var "__DEPVAR__"
 local group_var "__GROUP_VAR__"
 
 capture confirm variable `dep_var'

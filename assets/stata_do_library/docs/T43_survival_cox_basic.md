@@ -83,7 +83,7 @@ $$\frac{h_1(t)}{h_0(t)} = HR = constant$$
 |--------|------|------|------|-------------|
 | `__TIME_VAR__` | 生存时间 | 单变量名 | ✓ 是 | `duration` |
 | `__EVENT_VAR__` | 事件指示 | 单变量名 | ✓ 是 | `default` |
-| `__INDEP_VARS__` | 协变量列表 | 多变量名 | ✓ 是 | `age leverage roa` |
+| `__INDEPVARS__` | 协变量列表 | 多变量名 | ✓ 是 | `age leverage roa` |
 
 ## 输出文件清单与 Schema
 

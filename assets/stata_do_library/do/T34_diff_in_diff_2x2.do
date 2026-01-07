@@ -17,7 +17,7 @@
 * Family:       F - 面板数据与政策评估
 * Description:  估计经典双重差分模型
 * 
-* Placeholders: __DEP_VAR__       - 因变量
+* Placeholders: __DEPVAR__       - 因变量
 *               __TREAT_VAR__     - 处理组变量
 *               __POST_VAR__      - 政策后变量
 *               __CONTROL_VARS__  - 控制变量列表
@@ -109,7 +109,7 @@ display "═══════════════════════�
 display "SECTION 1: 变量检查"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-local dep_var "__DEP_VAR__"
+local dep_var "__DEPVAR__"
 local treat_var "__TREAT_VAR__"
 local post_var "__POST_VAR__"
 local control_vars "__CONTROL_VARS__"
