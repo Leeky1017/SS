@@ -19,13 +19,22 @@ Evaluate and choose a distributed job storage approach and define an explicit mi
 
 ## Acceptance checklist
 
-- [ ] Define the JobStore backend interface and the minimal guarantees required (consistency, concurrency, failure modes)
-- [ ] Compare at least two backend options (e.g., Redis, Postgres) with tradeoffs and operational requirements
-- [ ] Produce a concrete migration plan (rollout steps, fallback plan, data migration considerations)
-- [ ] Document the decision and how to configure the backend for deployment
-- [ ] Implementation run log records key commands and the final decision artifact path(s)
+- [x] Define the JobStore backend interface and the minimal guarantees required (consistency, concurrency, failure modes)
+- [x] Compare at least two backend options (e.g., Redis, Postgres) with tradeoffs and operational requirements
+- [x] Produce a concrete migration plan (rollout steps, fallback plan, data migration considerations)
+- [x] Document the decision and how to configure the backend for deployment
+- [x] Implementation run log records key commands and the final decision artifact path(s)
 
 ## Estimate
 
 - 8-10h
 
+## Completion
+
+- Issue: #84
+- PR: https://github.com/Leeky1017/SS/pull/90
+- Notes:
+  - Decision + tradeoffs: `openspec/specs/ss-job-store/decision.md`
+  - Migration plan: `openspec/specs/ss-job-store/migration.md`
+  - Contract/spec: `openspec/specs/ss-job-store/spec.md`
+- Run log: `openspec/_ops/task_runs/ISSUE-84.md`

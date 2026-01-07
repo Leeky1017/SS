@@ -18,13 +18,22 @@ Define a practical queue scalability plan (including throughput targets, failure
 
 ## Acceptance checklist
 
-- [ ] Define throughput targets and constraints (jobs/min, p95 latency, worker count assumptions)
-- [ ] Document the queue backend options and recommend a default for production
-- [ ] Define the rollout/migration plan, including how to test and validate throughput
-- [ ] Ensure any chosen design preserves single-claimer semantics and bounded retries
-- [ ] Implementation run log records evidence of measurement and decision
+- [x] Define throughput targets and constraints (jobs/min, p95 latency, worker count assumptions)
+- [x] Document the queue backend options and recommend a default for production
+- [x] Define the rollout/migration plan, including how to test and validate throughput
+- [x] Ensure any chosen design preserves single-claimer semantics and bounded retries
+- [x] Implementation run log records evidence of measurement and decision
 
 ## Estimate
 
 - 8-12h
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/99
+- Notes:
+  - Throughput envelope + migration trigger: `openspec/specs/ss-worker-queue/throughput.md`
+  - Production backend decision (Postgres default; Redis/RabbitMQ options): `openspec/specs/ss-worker-queue/decision.md`
+  - Rollout/migration checklist: `openspec/specs/ss-worker-queue/migration.md`
+  - Repeatable benchmark script: `scripts/bench_queue_throughput.py`
+- Run log: `openspec/_ops/task_runs/ISSUE-95.md`
