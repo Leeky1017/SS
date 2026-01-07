@@ -18,11 +18,11 @@ Provide explicit liveness and readiness health checks with correct semantics and
 
 ## Acceptance checklist
 
-- [ ] Add liveness and readiness endpoints with stable response schema
-- [ ] Readiness reflects dependency availability and returns a failure status code when unhealthy
-- [ ] Health checks do not swallow unexpected errors (fail explicitly with structured responses)
-- [ ] Document how probes should be configured in deployment
-- [ ] Implementation run log records `ruff check .` and `pytest -q`
+- [x] Add liveness and readiness endpoints with stable response schema
+- [x] Readiness reflects dependency availability and returns a failure status code when unhealthy
+- [x] Health checks do not swallow unexpected errors (fail explicitly with structured responses)
+- [x] Document how probes should be configured in deployment
+- [x] Implementation run log records `ruff check .` and `pytest -q`
 
 ## Estimate
 
@@ -47,3 +47,11 @@ readinessProbe:
   initialDelaySeconds: 2
   periodSeconds: 5
 ```
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/109
+- Run log: `openspec/_ops/task_runs/ISSUE-105.md`
+- Result:
+  - Added `/health/live` (liveness) + `/health/ready` (readiness with per-dependency status)
+  - Readiness returns `503` when unhealthy while liveness stays `200`
