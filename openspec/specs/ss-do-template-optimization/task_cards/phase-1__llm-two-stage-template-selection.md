@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #147
 - Parent: #125
 - Related specs:
   - `openspec/specs/ss-do-template-library/spec.md`
@@ -29,8 +29,15 @@ Enable LLM-driven template selection over 300+ templates without injecting the f
 
 ## Acceptance checklist
 
-- [ ] Stage-1 family selection produces canonical family IDs (with reasons + confidence)
-- [ ] Stage-2 selection enforces `template_id ∈ candidates`
-- [ ] Token budgeting + topK trimming is deterministic and test-covered
-- [ ] Selection artifacts are written into run evidence (`do_template.*` artifacts)
+- [x] Stage-1 family selection produces canonical family IDs (with reasons + confidence)
+- [x] Stage-2 selection enforces `template_id ∈ candidates`
+- [x] Token budgeting + topK trimming is deterministic and test-covered
+- [x] Selection artifacts are written into run evidence (`do_template.*` artifacts)
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/150
+- Implemented two-stage LLM template selection (family → template) with auditable evidence artifacts.
+- Enforced hard candidate membership for `family_id` and `template_id` with bounded structured retry.
+- Added deterministic token-budgeted candidate trimming and unit tests to prevent regressions.
+- Run log: `openspec/_ops/task_runs/ISSUE-147.md`
