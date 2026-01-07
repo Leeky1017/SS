@@ -2,7 +2,7 @@
 
 - Issue: #93
 - Branch: task/93-concurrency-tests
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/97
 
 ## Plan
 - Add `tests/concurrent/` fixtures
@@ -26,3 +26,10 @@
 - Key output:
   - `All checks passed!`
   - `40 passed`
+
+### 2026-01-07 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
