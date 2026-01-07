@@ -2,7 +2,7 @@
 
 - Issue: #146
 - Branch: `task/146-do-lib-opt-p1-taxonomy`
-- PR: (fill after created)
+- PR: https://github.com/Leeky1017/SS/pull/148
 
 ## Plan
 - Add canonical family registry (versioned) + deterministic alias resolution.
@@ -41,3 +41,28 @@
   - `Totals: 20 passed, 0 failed (20 items)`
   - `All checks passed!`
   - `117 passed, 5 skipped`
+
+### 2026-01-07 00:40 UTC preflight + PR open
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `git push -u origin HEAD`
+  - `gh pr create --title "[ROUND-00-ARCH-A] DO-LIB-OPT-P1: taxonomy canonicalization (#146)" --body "Closes #146 ..."`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+  - PR: `https://github.com/Leeky1017/SS/pull/148`
+
+### 2026-01-07 00:41 UTC enable auto-merge
+- Command:
+  - `gh pr merge --auto --squash`
+- Key output:
+  - `PR #148 will be automatically merged via squash when all requirements are met`
+
+### 2026-01-07 00:50 UTC task card closeout
+- Evidence:
+  - `openspec/specs/ss-do-template-optimization/task_cards/phase-1__taxonomy-canonicalization.md`
+
+### 2026-01-07 01:00 UTC task card closeout PR
+- Key output:
+  - PR: `https://github.com/Leeky1017/SS/pull/149`
+  - Auto-merge enabled (squash)
