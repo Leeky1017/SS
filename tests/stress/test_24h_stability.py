@@ -40,10 +40,23 @@ def _confirm_job(*, client: TestClient, recorder: LatencyRecorder, job_id: str) 
     assert response.status_code == 200
 
 
-def _run_one_iteration(*, client: TestClient, recorder: LatencyRecorder, requirement: str) -> None:
+def _drain_queue(*, worker, worker_id: str, max_steps: int) -> None:
+    for _ in range(max_steps):
+        if not worker.process_next(worker_id=worker_id):
+            return
+
+
+def _run_one_iteration(
+    *,
+    client: TestClient,
+    recorder: LatencyRecorder,
+    requirement: str,
+    worker,
+) -> None:
     job_id = _create_job(client=client, recorder=recorder, requirement=requirement)
     _preview_job(client=client, recorder=recorder, job_id=job_id)
     _confirm_job(client=client, recorder=recorder, job_id=job_id)
+    _drain_queue(worker=worker, worker_id="stability", max_steps=5)
 
 
 def _max_or_none(values: list[float | int | None]) -> float | int | None:
@@ -53,7 +66,11 @@ def _max_or_none(values: list[float | int | None]) -> float | int | None:
     return max(known)
 
 
-def test_stability_run_loop_24h_bounds_resources(stress_client: TestClient, tmp_path: Path) -> None:
+def test_stability_run_loop_24h_bounds_resources(
+    stress_client: TestClient,
+    stress_worker_factory,
+    tmp_path: Path,
+) -> None:
     duration_seconds = env_int("SS_STRESS_DURATION_SECONDS", 60)
     sample_every_seconds = env_int("SS_STRESS_SAMPLE_EVERY_SECONDS", 10)
     sleep_between_iterations = env_float("SS_STRESS_ITERATION_SLEEP_SECONDS", 0.05)
@@ -62,13 +79,19 @@ def test_stability_run_loop_24h_bounds_resources(stress_client: TestClient, tmp_
     max_open_fds = env_int("SS_STRESS_MAX_OPEN_FDS", 1024)
 
     recorder = LatencyRecorder()
+    worker = stress_worker_factory()
     snapshots = [take_resource_snapshot()]
     started_at = time.monotonic()
     next_sample_at = started_at + float(sample_every_seconds)
 
     while time.monotonic() - started_at < float(duration_seconds):
         requirement = f"stability-{uuid.uuid4()}"
-        _run_one_iteration(client=stress_client, recorder=recorder, requirement=requirement)
+        _run_one_iteration(
+            client=stress_client,
+            recorder=recorder,
+            requirement=requirement,
+            worker=worker,
+        )
         if sleep_between_iterations > 0:
             time.sleep(sleep_between_iterations)
 
