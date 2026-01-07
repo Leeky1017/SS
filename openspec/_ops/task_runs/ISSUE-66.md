@@ -2,7 +2,7 @@
 
 - Issue: #66
 - Branch: `task/66-audit-p010`
-- PR: (fill after created)
+- PR: https://github.com/Leeky1017/SS/pull/70
 
 ## Plan
 - Read `Audit/` and extract actionable findings
