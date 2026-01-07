@@ -36,3 +36,9 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 PR + auto-merge
+- Command:
+  - `scripts/agent_pr_automerge_and_sync.sh --pr 87 --no-create`
+- Key output:
+  - `OK: merged PR #87 and synced controlplane main`
