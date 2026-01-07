@@ -41,3 +41,21 @@
   - `.venv/bin/pytest -q`
 - Key output:
   - `68 passed`
+
+### 2026-01-07 00:20 Rebase
+- Command:
+  - `git pull --rebase`
+- Key output:
+  - `Successfully rebased and updated refs/heads/task/96-job-store-sharding.`
+
+### 2026-01-07 00:21 Lint (post-rebase)
+- Command:
+  - `.venv/bin/ruff check .`
+- Key output:
+  - `All checks passed!`
+
+### 2026-01-07 00:21 Tests (post-rebase)
+- Command:
+  - `.venv/bin/pytest -q`
+- Key output:
+  - `76 passed`
