@@ -49,7 +49,7 @@ State space model estimation
 
 ```stata
 * Template: TH15_sspace
-* Script: tasks/do/TH15_sspace.do
+* Script: assets/stata_do_library/do/TH15_sspace.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

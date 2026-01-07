@@ -51,7 +51,7 @@ Abnormal discretionary expenses
 
 ```stata
 * Template: TL08_ab_disexp
-* Script: tasks/do/TL08_ab_disexp.do
+* Script: assets/stata_do_library/do/TL08_ab_disexp.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

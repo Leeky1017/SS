@@ -53,7 +53,7 @@ Panel VAR model for dynamic panel relationships
 
 ```stata
 * Template: TF14_pvar
-* Script: tasks/do/TF14_pvar.do
+* Script: assets/stata_do_library/do/TF14_pvar.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

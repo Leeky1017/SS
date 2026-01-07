@@ -53,7 +53,7 @@ Test proportional hazards assumption
 
 ```stata
 * Template: TI06_phtest
-* Script: tasks/do/TI06_phtest.do
+* Script: assets/stata_do_library/do/TI06_phtest.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

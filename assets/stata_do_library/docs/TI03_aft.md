@@ -53,7 +53,7 @@ Accelerated Failure Time survival model
 
 ```stata
 * Template: TI03_aft
-* Script: tasks/do/TI03_aft.do
+* Script: assets/stata_do_library/do/TI03_aft.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -52,7 +52,7 @@ Altman Z-Score for bankruptcy prediction
 
 ```stata
 * Template: TL11_altman_zscore
-* Script: tasks/do/TL11_altman_zscore.do
+* Script: assets/stata_do_library/do/TL11_altman_zscore.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -54,7 +54,7 @@ GEE for binary outcomes with logit link
 
 ```stata
 * Template: TS12_gee_logit
-* Script: tasks/do/TS12_gee_logit.do
+* Script: assets/stata_do_library/do/TS12_gee_logit.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

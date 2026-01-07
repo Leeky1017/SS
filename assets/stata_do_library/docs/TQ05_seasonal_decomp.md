@@ -52,7 +52,7 @@ Seasonal decomposition of time series
 
 ```stata
 * Template: TQ05_seasonal_decomp
-* Script: tasks/do/TQ05_seasonal_decomp.do
+* Script: assets/stata_do_library/do/TQ05_seasonal_decomp.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -51,7 +51,7 @@ Bayesian logistic regression
 
 ```stata
 * Template: TR07_bayes_logit
-* Script: tasks/do/TR07_bayes_logit.do
+* Script: assets/stata_do_library/do/TR07_bayes_logit.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

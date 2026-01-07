@@ -51,7 +51,7 @@ Spatial Autoregressive model
 
 ```stata
 * Template: TN03_sar
-* Script: tasks/do/TN03_sar.do
+* Script: assets/stata_do_library/do/TN03_sar.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -57,7 +57,7 @@ Generate lag, difference, and growth rate variables for panel data
 
 ```stata
 * Template: TA05_var_generate
-* Script: tasks/do/TA05_var_generate.do
+* Script: assets/stata_do_library/do/TA05_var_generate.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

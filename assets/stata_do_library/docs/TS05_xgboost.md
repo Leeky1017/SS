@@ -55,7 +55,7 @@ Gradient Boosting (XGBoost) for prediction with variable importance
 
 ```stata
 * Template: TS05_xgboost
-* Script: tasks/do/TS05_xgboost.do
+* Script: assets/stata_do_library/do/TS05_xgboost.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

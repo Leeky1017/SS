@@ -52,7 +52,7 @@ Survey-weighted logistic regression
 
 ```stata
 * Template: TP13_svy_logit
-* Script: tasks/do/TP13_svy_logit.do
+* Script: assets/stata_do_library/do/TP13_svy_logit.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

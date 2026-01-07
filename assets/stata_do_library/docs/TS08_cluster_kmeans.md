@@ -54,7 +54,7 @@ K-means clustering with elbow method for optimal K
 
 ```stata
 * Template: TS08_cluster_kmeans
-* Script: tasks/do/TS08_cluster_kmeans.do
+* Script: assets/stata_do_library/do/TS08_cluster_kmeans.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

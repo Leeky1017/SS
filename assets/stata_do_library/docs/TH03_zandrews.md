@@ -51,7 +51,7 @@ Zivot-Andrews structural break unit root test
 
 ```stata
 * Template: TH03_zandrews
-* Script: tasks/do/TH03_zandrews.do
+* Script: assets/stata_do_library/do/TH03_zandrews.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

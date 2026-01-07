@@ -51,7 +51,7 @@ Plot correlation matrix heatmap
 
 ```stata
 * Template: TU06_heatmap
-* Script: tasks/do/TU06_heatmap.do
+* Script: assets/stata_do_library/do/TU06_heatmap.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

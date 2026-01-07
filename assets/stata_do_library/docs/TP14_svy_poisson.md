@@ -52,7 +52,7 @@ Survey-weighted Poisson regression
 
 ```stata
 * Template: TP14_svy_poisson
-* Script: tasks/do/TP14_svy_poisson.do
+* Script: assets/stata_do_library/do/TP14_svy_poisson.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

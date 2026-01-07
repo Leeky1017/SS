@@ -52,7 +52,7 @@ Multilevel Poisson regression
 
 ```stata
 * Template: TQ10_mepoisson
-* Script: tasks/do/TQ10_mepoisson.do
+* Script: assets/stata_do_library/do/TQ10_mepoisson.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

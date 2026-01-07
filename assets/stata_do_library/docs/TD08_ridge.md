@@ -51,7 +51,7 @@ Ridge regression with L2 regularization
 
 ```stata
 * Template: TD08_ridge
-* Script: tasks/do/TD08_ridge.do
+* Script: assets/stata_do_library/do/TD08_ridge.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

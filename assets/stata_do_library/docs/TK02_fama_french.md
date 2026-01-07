@@ -55,7 +55,7 @@ Fama-French three/five factor model estimation
 
 ```stata
 * Template: TK02_fama_french
-* Script: tasks/do/TK02_fama_french.do
+* Script: assets/stata_do_library/do/TK02_fama_french.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

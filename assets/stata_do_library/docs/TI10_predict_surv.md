@@ -52,7 +52,7 @@ Predict survival probabilities from fitted model
 
 ```stata
 * Template: TI10_predict_surv
-* Script: tasks/do/TI10_predict_surv.do
+* Script: assets/stata_do_library/do/TI10_predict_surv.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

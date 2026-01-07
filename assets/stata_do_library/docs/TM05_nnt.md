@@ -51,7 +51,7 @@ Number Needed to Treat calculation
 
 ```stata
 * Template: TM05_nnt
-* Script: tasks/do/TM05_nnt.do
+* Script: assets/stata_do_library/do/TM05_nnt.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -53,7 +53,7 @@ Low beta anomaly analysis
 
 ```stata
 * Template: TK19_beta_anomaly
-* Script: tasks/do/TK19_beta_anomaly.do
+* Script: assets/stata_do_library/do/TK19_beta_anomaly.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -53,7 +53,7 @@ Fama-MacBeth two-step regression for finance panels
 
 ```stata
 * Template: TF13_xtfmb
-* Script: tasks/do/TF13_xtfmb.do
+* Script: assets/stata_do_library/do/TF13_xtfmb.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

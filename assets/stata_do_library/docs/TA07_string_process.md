@@ -56,7 +56,7 @@ Clean and transform string variables with trim, case conversion, regex operation
 
 ```stata
 * Template: TA07_string_process
-* Script: tasks/do/TA07_string_process.do
+* Script: assets/stata_do_library/do/TA07_string_process.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

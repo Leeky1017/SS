@@ -54,7 +54,7 @@ K-fold cross-validation for model evaluation
 
 ```stata
 * Template: TS06_cross_valid
-* Script: tasks/do/TS06_cross_valid.do
+* Script: assets/stata_do_library/do/TS06_cross_valid.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

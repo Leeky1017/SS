@@ -50,7 +50,7 @@ Johansen cointegration rank test
 
 ```stata
 * Template: TH09_vecrank
-* Script: tasks/do/TH09_vecrank.do
+* Script: assets/stata_do_library/do/TH09_vecrank.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

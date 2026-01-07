@@ -49,7 +49,7 @@ EGARCH asymmetric volatility model
 
 ```stata
 * Template: TH06_egarch
-* Script: tasks/do/TH06_egarch.do
+* Script: assets/stata_do_library/do/TH06_egarch.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

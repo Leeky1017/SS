@@ -53,7 +53,7 @@ Principal Component Analysis for dimensionality reduction
 
 ```stata
 * Template: TS07_pca_analysis
-* Script: tasks/do/TS07_pca_analysis.do
+* Script: assets/stata_do_library/do/TS07_pca_analysis.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

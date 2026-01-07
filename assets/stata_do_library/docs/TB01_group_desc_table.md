@@ -52,7 +52,7 @@ Generate grouped descriptive statistics table in paper Table 1 format
 
 ```stata
 * Template: TB01_group_desc_table
-* Script: tasks/do/TB01_group_desc_table.do
+* Script: assets/stata_do_library/do/TB01_group_desc_table.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

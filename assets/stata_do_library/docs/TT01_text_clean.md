@@ -53,7 +53,7 @@ Clean text data including removing special characters, standardizing case, and r
 
 ```stata
 * Template: TT01_text_clean
-* Script: tasks/do/TT01_text_clean.do
+* Script: assets/stata_do_library/do/TT01_text_clean.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -50,7 +50,7 @@ Granger causality test
 
 ```stata
 * Template: TH13_vargranger
-* Script: tasks/do/TH13_vargranger.do
+* Script: assets/stata_do_library/do/TH13_vargranger.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

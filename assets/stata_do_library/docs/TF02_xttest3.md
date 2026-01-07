@@ -53,7 +53,7 @@ Modified Wald test for groupwise heteroskedasticity
 
 ```stata
 * Template: TF02_xttest3
-* Script: tasks/do/TF02_xttest3.do
+* Script: assets/stata_do_library/do/TF02_xttest3.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

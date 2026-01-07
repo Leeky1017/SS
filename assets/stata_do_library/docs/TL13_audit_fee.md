@@ -52,7 +52,7 @@ Audit fee determinants model
 
 ```stata
 * Template: TL13_audit_fee
-* Script: tasks/do/TL13_audit_fee.do
+* Script: assets/stata_do_library/do/TL13_audit_fee.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

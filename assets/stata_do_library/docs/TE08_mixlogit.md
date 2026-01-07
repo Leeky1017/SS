@@ -53,7 +53,7 @@ Mixed logit for discrete choice data
 
 ```stata
 * Template: TE08_mixlogit
-* Script: tasks/do/TE08_mixlogit.do
+* Script: assets/stata_do_library/do/TE08_mixlogit.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

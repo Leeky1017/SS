@@ -52,7 +52,7 @@ Regression with bootstrap standard errors
 
 ```stata
 * Template: TD12_bootstrap_se
-* Script: tasks/do/TD12_bootstrap_se.do
+* Script: assets/stata_do_library/do/TD12_bootstrap_se.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

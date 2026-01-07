@@ -53,7 +53,7 @@ Vector Error Correction Model
 
 ```stata
 * Template: TQ03_vecm_model
-* Script: tasks/do/TQ03_vecm_model.do
+* Script: assets/stata_do_library/do/TQ03_vecm_model.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

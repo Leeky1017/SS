@@ -55,7 +55,7 @@ Event study methodology for abnormal returns
 
 ```stata
 * Template: TK03_event_study
-* Script: tasks/do/TK03_event_study.do
+* Script: assets/stata_do_library/do/TK03_event_study.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

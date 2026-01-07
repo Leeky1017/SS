@@ -50,7 +50,7 @@ Export regression tables to Word format
 
 ```stata
 * Template: TO03_esttab_word
-* Script: tasks/do/TO03_esttab_word.do
+* Script: assets/stata_do_library/do/TO03_esttab_word.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

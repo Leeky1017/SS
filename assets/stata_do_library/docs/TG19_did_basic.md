@@ -55,7 +55,7 @@ Basic difference-in-differences
 
 ```stata
 * Template: TG19_did_basic
-* Script: tasks/do/TG19_did_basic.do
+* Script: assets/stata_do_library/do/TG19_did_basic.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

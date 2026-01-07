@@ -50,7 +50,7 @@ Calculate text readability metrics including word count, sentence count, and ave
 
 ```stata
 * Template: TT05_readability
-* Script: tasks/do/TT05_readability.do
+* Script: assets/stata_do_library/do/TT05_readability.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

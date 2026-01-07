@@ -51,7 +51,7 @@ Log-binomial regression for risk ratios
 
 ```stata
 * Template: TM13_log_binomial
-* Script: tasks/do/TM13_log_binomial.do
+* Script: assets/stata_do_library/do/TM13_log_binomial.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

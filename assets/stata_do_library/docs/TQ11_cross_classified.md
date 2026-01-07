@@ -53,7 +53,7 @@ Cross-classified multilevel model
 
 ```stata
 * Template: TQ11_cross_classified
-* Script: tasks/do/TQ11_cross_classified.do
+* Script: assets/stata_do_library/do/TQ11_cross_classified.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

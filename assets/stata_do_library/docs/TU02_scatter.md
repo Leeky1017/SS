@@ -53,7 +53,7 @@ Plot scatter diagram with optional fit lines and grouping
 
 ```stata
 * Template: TU02_scatter
-* Script: tasks/do/TU02_scatter.do
+* Script: assets/stata_do_library/do/TU02_scatter.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

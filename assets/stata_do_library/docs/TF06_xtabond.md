@@ -53,7 +53,7 @@ Difference GMM estimation for dynamic panels
 
 ```stata
 * Template: TF06_xtabond
-* Script: tasks/do/TF06_xtabond.do
+* Script: assets/stata_do_library/do/TF06_xtabond.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

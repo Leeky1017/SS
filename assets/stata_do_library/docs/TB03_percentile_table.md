@@ -51,7 +51,7 @@ Calculate percentiles and quantiles table for numeric variables
 
 ```stata
 * Template: TB03_percentile_table
-* Script: tasks/do/TB03_percentile_table.do
+* Script: assets/stata_do_library/do/TB03_percentile_table.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

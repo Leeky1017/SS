@@ -57,7 +57,7 @@ Inverse probability weighting for ATE/ATT estimation
 
 ```stata
 * Template: TG03_ipw_weight
-* Script: tasks/do/TG03_ipw_weight.do
+* Script: assets/stata_do_library/do/TG03_ipw_weight.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

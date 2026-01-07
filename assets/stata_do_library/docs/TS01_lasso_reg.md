@@ -55,7 +55,7 @@ LASSO regression with cross-validation for variable selection and regularization
 
 ```stata
 * Template: TS01_lasso_reg
-* Script: tasks/do/TS01_lasso_reg.do
+* Script: assets/stata_do_library/do/TS01_lasso_reg.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

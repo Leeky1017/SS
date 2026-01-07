@@ -52,7 +52,7 @@ Create publication-ready Table 1 with descriptive statistics
 
 ```stata
 * Template: TO08_table1
-* Script: tasks/do/TO08_table1.do
+* Script: assets/stata_do_library/do/TO08_table1.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -54,7 +54,7 @@ Parallel trends test for DID
 
 ```stata
 * Template: TG21_did_parallel
-* Script: tasks/do/TG21_did_parallel.do
+* Script: assets/stata_do_library/do/TG21_did_parallel.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

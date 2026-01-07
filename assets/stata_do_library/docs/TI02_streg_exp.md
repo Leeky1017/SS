@@ -52,7 +52,7 @@ Exponential parametric survival regression model
 
 ```stata
 * Template: TI02_streg_exp
-* Script: tasks/do/TI02_streg_exp.do
+* Script: assets/stata_do_library/do/TI02_streg_exp.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

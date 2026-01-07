@@ -56,7 +56,7 @@ Perform stratified random sampling with proportional/equal/fixed methods
 
 ```stata
 * Template: TA13_stratified_sample
-* Script: tasks/do/TA13_stratified_sample.do
+* Script: assets/stata_do_library/do/TA13_stratified_sample.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

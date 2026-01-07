@@ -50,7 +50,7 @@ GARCH(1,1) volatility model
 
 ```stata
 * Template: TH05_garch
-* Script: tasks/do/TH05_garch.do
+* Script: assets/stata_do_library/do/TH05_garch.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

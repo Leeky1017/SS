@@ -53,7 +53,7 @@ System GMM estimation for dynamic panels
 
 ```stata
 * Template: TF05_xtabond2_sys
-* Script: tasks/do/TF05_xtabond2_sys.do
+* Script: assets/stata_do_library/do/TF05_xtabond2_sys.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

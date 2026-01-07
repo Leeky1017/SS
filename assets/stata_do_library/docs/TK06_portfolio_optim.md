@@ -53,7 +53,7 @@ Mean-variance portfolio optimization
 
 ```stata
 * Template: TK06_portfolio_optim
-* Script: tasks/do/TK06_portfolio_optim.do
+* Script: assets/stata_do_library/do/TK06_portfolio_optim.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

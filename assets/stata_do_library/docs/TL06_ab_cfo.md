@@ -51,7 +51,7 @@ Abnormal cash flow from operations
 
 ```stata
 * Template: TL06_ab_cfo
-* Script: tasks/do/TL06_ab_cfo.do
+* Script: assets/stata_do_library/do/TL06_ab_cfo.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

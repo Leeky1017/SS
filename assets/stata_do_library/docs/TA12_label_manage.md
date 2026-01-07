@@ -55,7 +55,7 @@ Batch manage variable labels and value labels with import/export/clean/auto
 
 ```stata
 * Template: TA12_label_manage
-* Script: tasks/do/TA12_label_manage.do
+* Script: assets/stata_do_library/do/TA12_label_manage.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

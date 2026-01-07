@@ -51,7 +51,7 @@ Spatial Durbin Model
 
 ```stata
 * Template: TN05_sdm
-* Script: tasks/do/TN05_sdm.do
+* Script: assets/stata_do_library/do/TN05_sdm.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -52,7 +52,7 @@ Plot box plots showing distribution and outliers with optional grouping
 
 ```stata
 * Template: TU03_boxplot
-* Script: tasks/do/TU03_boxplot.do
+* Script: assets/stata_do_library/do/TU03_boxplot.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

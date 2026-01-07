@@ -55,7 +55,7 @@ Standardize (Z-score) or normalize (Min-Max) numeric variables
 
 ```stata
 * Template: TA02_standardize
-* Script: tasks/do/TA02_standardize.do
+* Script: assets/stata_do_library/do/TA02_standardize.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

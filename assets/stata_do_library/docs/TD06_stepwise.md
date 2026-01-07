@@ -51,7 +51,7 @@ Stepwise regression for variable selection
 
 ```stata
 * Template: TD06_stepwise
-* Script: tasks/do/TD06_stepwise.do
+* Script: assets/stata_do_library/do/TD06_stepwise.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

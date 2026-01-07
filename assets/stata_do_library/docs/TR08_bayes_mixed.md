@@ -52,7 +52,7 @@ Bayesian multilevel/mixed model
 
 ```stata
 * Template: TR08_bayes_mixed
-* Script: tasks/do/TR08_bayes_mixed.do
+* Script: assets/stata_do_library/do/TR08_bayes_mixed.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

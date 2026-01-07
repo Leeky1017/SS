@@ -53,7 +53,7 @@ Cox model with shared frailty for clustered survival data
 
 ```stata
 * Template: TI07_shared_frailty
-* Script: tasks/do/TI07_shared_frailty.do
+* Script: assets/stata_do_library/do/TI07_shared_frailty.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

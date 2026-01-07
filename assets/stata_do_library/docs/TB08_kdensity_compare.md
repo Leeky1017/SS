@@ -51,7 +51,7 @@ Draw grouped kernel density comparison plot
 
 ```stata
 * Template: TB08_kdensity_compare
-* Script: tasks/do/TB08_kdensity_compare.do
+* Script: assets/stata_do_library/do/TB08_kdensity_compare.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -51,7 +51,7 @@ Fisher exact test for small sample contingency tables
 
 ```stata
 * Template: TC06_fisher_exact
-* Script: tasks/do/TC06_fisher_exact.do
+* Script: assets/stata_do_library/do/TC06_fisher_exact.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

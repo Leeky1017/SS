@@ -52,7 +52,7 @@ Mixture cure survival model
 
 ```stata
 * Template: TI09_stcure
-* Script: tasks/do/TI09_stcure.do
+* Script: assets/stata_do_library/do/TI09_stcure.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -56,7 +56,7 @@ Multiple imputation for missing data using chained equations (MICE)
 
 ```stata
 * Template: TA03_mi_impute
-* Script: tasks/do/TA03_mi_impute.do
+* Script: assets/stata_do_library/do/TA03_mi_impute.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

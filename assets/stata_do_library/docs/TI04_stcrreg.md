@@ -52,7 +52,7 @@ Competing risks regression (Fine-Gray model)
 
 ```stata
 * Template: TI04_stcrreg
-* Script: tasks/do/TI04_stcrreg.do
+* Script: assets/stata_do_library/do/TI04_stcrreg.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

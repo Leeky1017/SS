@@ -53,7 +53,7 @@ Panel Poisson model for count data
 
 ```stata
 * Template: TF10_xtpoisson
-* Script: tasks/do/TF10_xtpoisson.do
+* Script: assets/stata_do_library/do/TF10_xtpoisson.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

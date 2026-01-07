@@ -55,7 +55,7 @@ Placebo tests for SCM
 
 ```stata
 * Template: TG18_scm_placebo
-* Script: tasks/do/TG18_scm_placebo.do
+* Script: assets/stata_do_library/do/TG18_scm_placebo.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

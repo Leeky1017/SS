@@ -55,7 +55,7 @@ Propensity score estimation using Logit/Probit
 
 ```stata
 * Template: TG01_pscore_estimate
-* Script: tasks/do/TG01_pscore_estimate.do
+* Script: assets/stata_do_library/do/TG01_pscore_estimate.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

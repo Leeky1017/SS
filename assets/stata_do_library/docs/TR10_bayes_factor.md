@@ -51,7 +51,7 @@ Compute Bayes factors for model comparison using MCMC sampling to evaluate relat
 
 ```stata
 * Template: TR10_bayes_factor
-* Script: tasks/do/TR10_bayes_factor.do
+* Script: assets/stata_do_library/do/TR10_bayes_factor.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

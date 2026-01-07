@@ -54,7 +54,7 @@ Panel Tobit model for censored data
 
 ```stata
 * Template: TF08_xttobit
-* Script: tasks/do/TF08_xttobit.do
+* Script: assets/stata_do_library/do/TF08_xttobit.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

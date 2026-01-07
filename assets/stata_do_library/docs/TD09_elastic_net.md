@@ -52,7 +52,7 @@ Elastic Net regression with L1+L2 regularization
 
 ```stata
 * Template: TD09_elastic_net
-* Script: tasks/do/TD09_elastic_net.do
+* Script: assets/stata_do_library/do/TD09_elastic_net.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

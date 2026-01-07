@@ -53,7 +53,7 @@ Panel Logit model with fixed effects
 
 ```stata
 * Template: TF09_xtlogit
-* Script: tasks/do/TF09_xtlogit.do
+* Script: assets/stata_do_library/do/TF09_xtlogit.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

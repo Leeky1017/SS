@@ -51,7 +51,7 @@ Augmented Dickey-Fuller unit root test
 
 ```stata
 * Template: TQ04_adf_test
-* Script: tasks/do/TQ04_adf_test.do
+* Script: assets/stata_do_library/do/TQ04_adf_test.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

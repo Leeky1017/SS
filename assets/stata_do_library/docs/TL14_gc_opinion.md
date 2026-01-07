@@ -51,7 +51,7 @@ Going concern opinion prediction model
 
 ```stata
 * Template: TL14_gc_opinion
-* Script: tasks/do/TL14_gc_opinion.do
+* Script: assets/stata_do_library/do/TL14_gc_opinion.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

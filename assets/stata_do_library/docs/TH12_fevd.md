@@ -52,7 +52,7 @@ Forecast error variance decomposition
 
 ```stata
 * Template: TH12_fevd
-* Script: tasks/do/TH12_fevd.do
+* Script: assets/stata_do_library/do/TH12_fevd.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

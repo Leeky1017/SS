@@ -51,7 +51,7 @@ Vector error correction model
 
 ```stata
 * Template: TH10_vec
-* Script: tasks/do/TH10_vec.do
+* Script: assets/stata_do_library/do/TH10_vec.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

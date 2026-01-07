@@ -50,7 +50,7 @@ Multidimensional Scaling
 
 ```stata
 * Template: TJ05_mds
-* Script: tasks/do/TJ05_mds.do
+* Script: assets/stata_do_library/do/TJ05_mds.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

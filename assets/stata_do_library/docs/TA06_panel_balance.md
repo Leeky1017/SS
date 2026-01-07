@@ -56,7 +56,7 @@ Convert unbalanced panel to balanced panel by filling or dropping
 
 ```stata
 * Template: TA06_panel_balance
-* Script: tasks/do/TA06_panel_balance.do
+* Script: assets/stata_do_library/do/TA06_panel_balance.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

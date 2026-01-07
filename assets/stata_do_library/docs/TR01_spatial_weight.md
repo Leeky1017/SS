@@ -51,7 +51,7 @@ Create spatial weight matrix
 
 ```stata
 * Template: TR01_spatial_weight
-* Script: tasks/do/TR01_spatial_weight.do
+* Script: assets/stata_do_library/do/TR01_spatial_weight.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

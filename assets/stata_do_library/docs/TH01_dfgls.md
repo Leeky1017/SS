@@ -50,7 +50,7 @@ Elliott-Rothenberg-Stock DF-GLS unit root test
 
 ```stata
 * Template: TH01_dfgls
-* Script: tasks/do/TH01_dfgls.do
+* Script: assets/stata_do_library/do/TH01_dfgls.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

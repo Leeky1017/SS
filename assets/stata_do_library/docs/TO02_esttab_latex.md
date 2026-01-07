@@ -50,7 +50,7 @@ Export regression tables to LaTeX format
 
 ```stata
 * Template: TO02_esttab_latex
-* Script: tasks/do/TO02_esttab_latex.do
+* Script: assets/stata_do_library/do/TO02_esttab_latex.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

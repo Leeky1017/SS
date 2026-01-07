@@ -52,7 +52,7 @@ Moran's I spatial autocorrelation test
 
 ```stata
 * Template: TR04_moran_test
-* Script: tasks/do/TR04_moran_test.do
+* Script: assets/stata_do_library/do/TR04_moran_test.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

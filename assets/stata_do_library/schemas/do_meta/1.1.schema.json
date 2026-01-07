@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Leeky1017/SS/blob/main/assets/stata_do_library/schemas/do_meta/1.1.schema.json",
+  "title": "SS Stata do-template meta (contract_version=1.1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "dependencies",
+    "description",
+    "family",
+    "id",
+    "inputs",
+    "level",
+    "module",
+    "outputs",
+    "parameters",
+    "slug",
+    "tags",
+    "title",
+    "title_zh",
+    "version"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "const": "1.1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^T([0-9]{2}|[A-U][0-9]{2})$"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title_zh": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "module": {
+      "type": "string",
+      "pattern": "^[A-U]$"
+    },
+    "family": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "level": {
+      "type": "string",
+      "enum": ["L0", "L1", "L2", "L3"]
+    },
+    "tags": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dependency"
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/input"
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/output"
+      }
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/parameter"
+      }
+    }
+  },
+  "$defs": {
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pkg", "purpose", "source"],
+      "properties": {
+        "pkg": {
+          "type": "string",
+          "minLength": 1
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "enum": ["built-in", "ssc", "stata"]
+        }
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "required", "role"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["append_table", "config", "main_dataset", "merge_table", "output_files"]
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "file", "type"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1,
+          "allOf": [
+            { "not": { "pattern": "^(\\/|\\\\\\\\)" } },
+            { "not": { "pattern": "\\.\\." } }
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": ["data", "figure", "graph", "log", "manifest", "report", "table"]
+        }
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "name", "required", "type"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^__[A-Z0-9_]+__$"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["integer", "list[string]", "number", "string", "varlist", "varname"]
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["enum"]
+        },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "default": {
+          "type": ["boolean", "integer", "number", "null", "string"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "kind": { "const": "enum" } },
+            "required": ["kind"]
+          },
+          "then": { "required": ["options"] }
+        },
+        {
+          "if": { "required": ["options"] },
+          "then": {
+            "properties": { "kind": { "const": "enum" } },
+            "required": ["kind"]
+          }
+        }
+      ]
+    }
+  }
+}

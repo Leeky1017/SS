@@ -54,7 +54,7 @@ Fama-MacBeth two-stage regression
 
 ```stata
 * Template: TK20_fama_macbeth
-* Script: tasks/do/TK20_fama_macbeth.do
+* Script: assets/stata_do_library/do/TK20_fama_macbeth.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

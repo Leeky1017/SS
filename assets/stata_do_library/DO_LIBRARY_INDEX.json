@@ -3,12 +3,12 @@
   "audit_date": "2025-12-16",
   "total_tasks": 319,
   "compliance_summary": {
-    "prod_ready": 50,
+    "prod_ready": 319,
     "needs_rework": 0,
     "forbidden": 0,
-    "anchor_compliant": 50,
-    "hardcoded_path_free": 50,
-    "dangerous_command_free": 50
+    "anchor_compliant": 319,
+    "hardcoded_path_free": 319,
+    "dangerous_command_free": 319
   },
   "families": {
     "data_management": {

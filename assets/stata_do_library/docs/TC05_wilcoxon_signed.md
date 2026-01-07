@@ -51,7 +51,7 @@ Wilcoxon signed-rank test for paired data
 
 ```stata
 * Template: TC05_wilcoxon_signed
-* Script: tasks/do/TC05_wilcoxon_signed.do
+* Script: assets/stata_do_library/do/TC05_wilcoxon_signed.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

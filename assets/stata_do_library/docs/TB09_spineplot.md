@@ -51,7 +51,7 @@ Draw spine plot for categorical variable relationships
 
 ```stata
 * Template: TB09_spineplot
-* Script: tasks/do/TB09_spineplot.do
+* Script: assets/stata_do_library/do/TB09_spineplot.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -52,7 +52,7 @@ Two-level hierarchical linear model
 
 ```stata
 * Template: TQ06_hlm_2level
-* Script: tasks/do/TQ06_hlm_2level.do
+* Script: assets/stata_do_library/do/TQ06_hlm_2level.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

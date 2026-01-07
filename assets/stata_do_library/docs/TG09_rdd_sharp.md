@@ -57,7 +57,7 @@ Sharp regression discontinuity design
 
 ```stata
 * Template: TG09_rdd_sharp
-* Script: tasks/do/TG09_rdd_sharp.do
+* Script: assets/stata_do_library/do/TG09_rdd_sharp.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

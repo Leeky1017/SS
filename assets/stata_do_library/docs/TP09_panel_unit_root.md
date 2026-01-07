@@ -51,7 +51,7 @@ Panel unit root tests (LLC, IPS, Fisher)
 
 ```stata
 * Template: TP09_panel_unit_root
-* Script: tasks/do/TP09_panel_unit_root.do
+* Script: assets/stata_do_library/do/TP09_panel_unit_root.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

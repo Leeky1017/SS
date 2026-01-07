@@ -50,7 +50,7 @@ Export results to Excel using putexcel
 
 ```stata
 * Template: TO04_putexcel
-* Script: tasks/do/TO04_putexcel.do
+* Script: assets/stata_do_library/do/TO04_putexcel.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

@@ -53,7 +53,7 @@ Two-way fixed effects regression (individual and time)
 
 ```stata
 * Template: TD01_twoway_fe
-* Script: tasks/do/TD01_twoway_fe.do
+* Script: assets/stata_do_library/do/TD01_twoway_fe.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

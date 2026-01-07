@@ -51,7 +51,7 @@ Lagrange Multiplier tests for spatial dependence
 
 ```stata
 * Template: TN10_lm_tests
-* Script: tasks/do/TN10_lm_tests.do
+* Script: assets/stata_do_library/do/TN10_lm_tests.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

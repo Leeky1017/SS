@@ -52,7 +52,7 @@ Funnel plot for publication bias assessment
 
 ```stata
 * Template: TM07_funnel_plot
-* Script: tasks/do/TM07_funnel_plot.do
+* Script: assets/stata_do_library/do/TM07_funnel_plot.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 

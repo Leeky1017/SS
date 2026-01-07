@@ -53,7 +53,7 @@ Tobit model for censored/truncated data
 
 ```stata
 * Template: TE03_tobit
-* Script: tasks/do/TE03_tobit.do
+* Script: assets/stata_do_library/do/TE03_tobit.do
 * 将占位符替换为你的变量名/参数，然后交由执行器运行。
 ```
 
