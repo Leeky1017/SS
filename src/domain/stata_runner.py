@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from src.domain.models import ArtifactRef
+from src.utils.tenancy import DEFAULT_TENANT_ID
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,7 @@ class StataRunner(Protocol):
     def run(
         self,
         *,
+        tenant_id: str = DEFAULT_TENANT_ID,
         job_id: str,
         run_id: str,
         do_file: str,

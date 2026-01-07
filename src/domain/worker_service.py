@@ -151,11 +151,12 @@ class WorkerService:
 
     def _load_job_or_handle(self, *, claim: QueueClaim) -> Job | None:
         try:
-            return self._store.load(claim.job_id)
+            return self._store.load(tenant_id=claim.tenant_id, job_id=claim.job_id)
         except JobNotFoundError:
             logger.warning(
                 "SS_WORKER_JOB_NOT_FOUND",
                 extra={
+                    "tenant_id": claim.tenant_id,
                     "job_id": claim.job_id,
                     "claim_id": claim.claim_id,
                     "worker_id": claim.worker_id,
@@ -167,6 +168,7 @@ class WorkerService:
             logger.warning(
                 "SS_WORKER_JOB_CORRUPTED",
                 extra={
+                    "tenant_id": claim.tenant_id,
                     "job_id": claim.job_id,
                     "claim_id": claim.claim_id,
                     "worker_id": claim.worker_id,
@@ -178,6 +180,7 @@ class WorkerService:
             logger.warning(
                 "SS_WORKER_JOB_LOAD_FAILED",
                 extra={
+                    "tenant_id": claim.tenant_id,
                     "job_id": claim.job_id,
                     "claim_id": claim.claim_id,
                     "worker_id": claim.worker_id,
@@ -196,7 +199,7 @@ class WorkerService:
             ):
                 from_status = job.status.value
                 job.status = JobStatus.RUNNING
-                self._store.save(job)
+                self._store.save(tenant_id=claim.tenant_id, job=job)
                 self._emit_audit(
                     claim=claim,
                     action="job.status.transition",
@@ -263,7 +266,7 @@ class WorkerService:
                 result=result,
                 clock=self._clock,
             )
-            self._store.save(job)
+            self._store.save(tenant_id=claim.tenant_id, job=job)
 
             if result.ok:
                 self._finish_job(job=job, status=JobStatus.SUCCEEDED, claim=claim)
@@ -299,7 +302,7 @@ class WorkerService:
             to_status=status,
         ):
             job.status = status
-        self._store.save(job)
+        self._store.save(tenant_id=claim.tenant_id, job=job)
         logger.info("SS_WORKER_JOB_DONE", extra={"job_id": job.job_id, "status": job.status.value})
         self._metrics.record_job_finished(status=status.value)
         if from_status != job.status.value:
@@ -344,4 +347,3 @@ class WorkerService:
                 },
             )
             raise
-

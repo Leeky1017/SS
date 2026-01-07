@@ -11,6 +11,7 @@ from src.domain.models import ArtifactKind, ArtifactRef
 from src.domain.stata_runner import RunError, RunResult
 from src.utils.job_workspace import resolve_job_dir
 from src.utils.json_types import JsonObject
+from src.utils.tenancy import DEFAULT_TENANT_ID
 
 DO_FILENAME = "stata.do"
 STDOUT_FILENAME = "run.stdout"
@@ -52,11 +53,17 @@ def job_rel_path(*, job_dir: Path, path: Path) -> str:
     return path.relative_to(job_dir).as_posix()
 
 
-def resolve_run_dirs(*, jobs_dir: Path, job_id: str, run_id: str) -> RunDirs | None:
+def resolve_run_dirs(
+    *,
+    jobs_dir: Path,
+    tenant_id: str = DEFAULT_TENANT_ID,
+    job_id: str,
+    run_id: str,
+) -> RunDirs | None:
     if not safe_segment(job_id) or not safe_segment(run_id):
         return None
 
-    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, tenant_id=tenant_id, job_id=job_id)
     if job_dir is None:
         return None
 

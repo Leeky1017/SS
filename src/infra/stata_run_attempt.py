@@ -59,13 +59,17 @@ def _collect_exported_table(*, dirs: RunDirs, job_id: str, run_id: str) -> Artif
 def _prepare_workspace(
     *,
     jobs_dir: Path,
+    tenant_id: str,
     job_id: str,
     run_id: str,
     do_file: str,
 ) -> tuple[RunDirs, Path] | RunResult:
-    dirs = resolve_run_dirs(jobs_dir=jobs_dir, job_id=job_id, run_id=run_id)
+    dirs = resolve_run_dirs(jobs_dir=jobs_dir, tenant_id=tenant_id, job_id=job_id, run_id=run_id)
     if dirs is None:
-        logger.warning("SS_STATA_RUN_INVALID_WORKSPACE", extra={"job_id": job_id, "run_id": run_id})
+        logger.warning(
+            "SS_STATA_RUN_INVALID_WORKSPACE",
+            extra={"tenant_id": tenant_id, "job_id": job_id, "run_id": run_id},
+        )
         return result_without_artifacts(
             job_id=job_id,
             run_id=run_id,
@@ -254,6 +258,7 @@ def _run_in_workspace(
 def run_local_stata_attempt(
     *,
     jobs_dir: Path,
+    tenant_id: str,
     job_id: str,
     run_id: str,
     do_file: str,
@@ -261,7 +266,13 @@ def run_local_stata_attempt(
     timeout_seconds: int | None,
     subprocess_runner: Callable[..., subprocess.CompletedProcess[str]] | None,
 ) -> RunResult:
-    prepared = _prepare_workspace(jobs_dir=jobs_dir, job_id=job_id, run_id=run_id, do_file=do_file)
+    prepared = _prepare_workspace(
+        jobs_dir=jobs_dir,
+        tenant_id=tenant_id,
+        job_id=job_id,
+        run_id=run_id,
+        do_file=do_file,
+    )
     if isinstance(prepared, RunResult):
         return prepared
     dirs, do_artifact_path = prepared
@@ -270,7 +281,12 @@ def run_local_stata_attempt(
         cmd = build_stata_batch_cmd(stata_cmd=stata_cmd, do_filename=DO_FILENAME)
         logger.warning(
             "SS_STATA_DOFILE_UNSAFE",
-            extra={"job_id": job_id, "run_id": run_id, "reason": unsafe_reason},
+            extra={
+                "tenant_id": tenant_id,
+                "job_id": job_id,
+                "run_id": run_id,
+                "reason": unsafe_reason,
+            },
         )
         return _persist_run(
             dirs=dirs,

@@ -7,6 +7,7 @@ from src.domain.llm_client import LLMClient
 from src.domain.models import Draft, JobStatus
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import JobStoreIOError, LLMArtifactsWriteError, LLMCallFailedError
+from src.utils.tenancy import DEFAULT_TENANT_ID
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +20,9 @@ class DraftService:
         self._llm = llm
         self._state_machine = state_machine
 
-    async def preview(self, *, job_id: str) -> Draft:
-        logger.info("SS_DRAFT_PREVIEW_START", extra={"job_id": job_id})
-        job = self._store.load(job_id)
+    async def preview(self, *, tenant_id: str = DEFAULT_TENANT_ID, job_id: str) -> Draft:
+        logger.info("SS_DRAFT_PREVIEW_START", extra={"tenant_id": tenant_id, "job_id": job_id})
+        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
         requirement = job.requirement if job.requirement is not None else ""
         prompt = requirement.strip()
         try:
@@ -29,14 +30,20 @@ class DraftService:
         except (LLMCallFailedError, LLMArtifactsWriteError) as e:
             logger.warning(
                 "SS_DRAFT_PREVIEW_LLM_FAILED",
-                extra={"job_id": job_id, "error_code": e.error_code, "error_message": e.message},
+                extra={
+                    "tenant_id": tenant_id,
+                    "job_id": job_id,
+                    "error_code": e.error_code,
+                    "error_message": e.message,
+                },
             )
             try:
-                self._store.save(job)
+                self._store.save(tenant_id=tenant_id, job=job)
             except JobStoreIOError as persist_error:
                 logger.warning(
                     "SS_DRAFT_PREVIEW_PERSIST_FAILED",
                     extra={
+                        "tenant_id": tenant_id,
                         "job_id": job_id,
                         "error_code": persist_error.error_code,
                         "error_message": persist_error.message,
@@ -50,6 +57,9 @@ class DraftService:
             to_status=JobStatus.DRAFT_READY,
         ):
             job.status = JobStatus.DRAFT_READY
-        self._store.save(job)
-        logger.info("SS_DRAFT_PREVIEW_DONE", extra={"job_id": job_id, "status": job.status.value})
+        self._store.save(tenant_id=tenant_id, job=job)
+        logger.info(
+            "SS_DRAFT_PREVIEW_DONE",
+            extra={"tenant_id": tenant_id, "job_id": job_id, "status": job.status.value},
+        )
         return draft

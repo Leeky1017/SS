@@ -6,6 +6,7 @@ from typing import Callable, Sequence
 
 from src.domain.stata_runner import RunResult, StataRunner
 from src.infra.stata_run_attempt import run_local_stata_attempt
+from src.utils.tenancy import DEFAULT_TENANT_ID
 
 
 class LocalStataRunner(StataRunner):
@@ -23,6 +24,7 @@ class LocalStataRunner(StataRunner):
     def run(
         self,
         *,
+        tenant_id: str = DEFAULT_TENANT_ID,
         job_id: str,
         run_id: str,
         do_file: str,
@@ -30,6 +32,7 @@ class LocalStataRunner(StataRunner):
     ) -> RunResult:
         return run_local_stata_attempt(
             jobs_dir=self._jobs_dir,
+            tenant_id=tenant_id,
             job_id=job_id,
             run_id=run_id,
             do_file=do_file,

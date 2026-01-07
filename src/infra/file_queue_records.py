@@ -11,6 +11,7 @@ from typing import cast
 from src.domain.worker_queue import QueueClaim
 from src.infra.exceptions import QueueDataCorruptedError, QueueIOError
 from src.utils.json_types import JsonObject
+from src.utils.tenancy import DEFAULT_TENANT_ID, is_safe_tenant_id
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +73,14 @@ def build_claim_fields(
 
 
 def load_claim(*, record: JsonObject) -> QueueClaim:
+    raw_tenant_id = record.get("tenant_id")
+    if raw_tenant_id is None:
+        tenant_id = DEFAULT_TENANT_ID
+    else:
+        tenant_id = str(raw_tenant_id)
+    if tenant_id == "" or not is_safe_tenant_id(tenant_id):
+        raise QueueDataCorruptedError(path="<record>")
+
     job_id = str(record.get("job_id", ""))
     claim_id = str(record.get("claim_id", ""))
     worker_id = str(record.get("worker_id", ""))
@@ -94,6 +103,7 @@ def load_claim(*, record: JsonObject) -> QueueClaim:
     except ValueError as e:
         raise QueueDataCorruptedError(path="<record>") from e
     return QueueClaim(
+        tenant_id=tenant_id,
         job_id=job_id,
         claim_id=claim_id,
         worker_id=worker_id,

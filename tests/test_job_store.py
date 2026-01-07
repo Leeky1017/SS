@@ -5,9 +5,11 @@ import os
 
 import pytest
 
+from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobStatus
 from src.infra.exceptions import (
     ArtifactPathUnsafeError,
     JobDataCorruptedError,
+    JobNotFoundError,
     JobVersionConflictError,
 )
 from src.utils.job_workspace import resolve_job_dir, shard_for_job_id
@@ -195,3 +197,42 @@ def test_save_with_legacy_job_dir_keeps_legacy_path(store, jobs_dir) -> None:
 
     shard = shard_for_job_id(job_id)
     assert not (jobs_dir / shard / job_id / "job.json").exists()
+
+
+def test_job_store_with_same_job_id_across_tenants_is_isolated(store, jobs_dir) -> None:
+    job_id = "job_same_id"
+
+    job_a = Job(
+        schema_version=JOB_SCHEMA_VERSION_CURRENT,
+        tenant_id="tenant-a",
+        job_id=job_id,
+        status=JobStatus.CREATED,
+        created_at="2026-01-07T00:00:00+00:00",
+    )
+    job_b = Job(
+        schema_version=JOB_SCHEMA_VERSION_CURRENT,
+        tenant_id="tenant-b",
+        job_id=job_id,
+        status=JobStatus.CREATED,
+        created_at="2026-01-07T00:00:00+00:00",
+    )
+
+    store.create(job_a, tenant_id="tenant-a")
+    store.create(job_b, tenant_id="tenant-b")
+
+    loaded_a = store.load(job_id, tenant_id="tenant-a")
+    loaded_b = store.load(job_id, tenant_id="tenant-b")
+
+    assert loaded_a.tenant_id == "tenant-a"
+    assert loaded_b.tenant_id == "tenant-b"
+
+    dir_a = resolve_job_dir(jobs_dir=jobs_dir, tenant_id="tenant-a", job_id=job_id)
+    dir_b = resolve_job_dir(jobs_dir=jobs_dir, tenant_id="tenant-b", job_id=job_id)
+    assert dir_a is not None
+    assert dir_b is not None
+    assert dir_a != dir_b
+    assert (dir_a / "job.json").exists()
+    assert (dir_b / "job.json").exists()
+
+    with pytest.raises(JobNotFoundError):
+        store.load(job_id, tenant_id="tenant-c")

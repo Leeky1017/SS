@@ -45,6 +45,7 @@ def execute_plan(
             if do_file == "":
                 do_file = _default_do_file(job=job, run_id=run_id)
             return runner.run(
+                tenant_id=job.tenant_id,
                 job_id=job.job_id,
                 run_id=run_id,
                 do_file=do_file,

@@ -20,6 +20,7 @@ from src.infra.logging_config import configure_logging
 from src.infra.stata_cmd import resolve_stata_cmd
 from src.infra.stata_run_support import resolve_run_dirs
 from src.utils.job_workspace import resolve_job_dir
+from src.utils.tenancy import DEFAULT_TENANT_ID
 
 
 def _parse_params(values: list[str]) -> dict[str, str]:
@@ -89,12 +90,13 @@ def _cmd_list_templates(*, library_dir: Path, limit: int) -> int:
 
 def _print_run_summary(
     jobs_dir: Path,
+    tenant_id: str,
     job_id: str,
     run_id: str,
     ok: bool,
     exit_code: int | None,
 ) -> None:
-    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, tenant_id=tenant_id, job_id=job_id)
     artifacts_dir = None if job_dir is None else job_dir / "runs" / run_id / "artifacts"
     print(f"job_id={job_id}")
     print(f"run_id={run_id}")
@@ -153,11 +155,17 @@ def _cmd_run_template(
 
     store, state_machine, job_service = _create_job_services(config=config)
     job = job_service.create_job(
+        tenant_id=DEFAULT_TENANT_ID,
         requirement=f"do_template:{template_id}",
         plan_revision=uuid.uuid4().hex,
     )
     run_id = uuid.uuid4().hex
-    dirs = resolve_run_dirs(jobs_dir=config.jobs_dir, job_id=job.job_id, run_id=run_id)
+    dirs = resolve_run_dirs(
+        jobs_dir=config.jobs_dir,
+        tenant_id=DEFAULT_TENANT_ID,
+        job_id=job.job_id,
+        run_id=run_id,
+    )
     if dirs is None:
         print("ERROR: invalid job/run workspace", file=sys.stderr)
         return 2
@@ -172,6 +180,7 @@ def _cmd_run_template(
 
     try:
         result = svc.run(
+            tenant_id=DEFAULT_TENANT_ID,
             job_id=job.job_id,
             template_id=template_id,
             params=params,
@@ -182,7 +191,14 @@ def _cmd_run_template(
         print(f"ERROR: {e.error_code}: {e.message}", file=sys.stderr)
         return 2
 
-    _print_run_summary(config.jobs_dir, job.job_id, run_id, result.ok, result.exit_code)
+    _print_run_summary(
+        config.jobs_dir,
+        DEFAULT_TENANT_ID,
+        job.job_id,
+        run_id,
+        result.ok,
+        result.exit_code,
+    )
     return 0 if result.ok else 2
 
 

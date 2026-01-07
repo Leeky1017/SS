@@ -24,6 +24,7 @@ from src.infra.exceptions import (
     PlanFreezeNotAllowedError,
 )
 from src.utils.json_types import JsonObject
+from src.utils.tenancy import DEFAULT_TENANT_ID
 
 logger = logging.getLogger(__name__)
 
@@ -62,9 +63,15 @@ class PlanService:
     def __init__(self, *, store: JobStore):
         self._store = store
 
-    def freeze_plan(self, *, job_id: str, confirmation: JobConfirmation) -> LLMPlan:
-        logger.info("SS_PLAN_FREEZE_START", extra={"job_id": job_id})
-        job = self._store.load(job_id)
+    def freeze_plan(
+        self,
+        *,
+        tenant_id: str = DEFAULT_TENANT_ID,
+        job_id: str,
+        confirmation: JobConfirmation,
+    ) -> LLMPlan:
+        logger.info("SS_PLAN_FREEZE_START", extra={"tenant_id": tenant_id, "job_id": job_id})
+        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
         expected_plan_id = self._expected_plan_id(job=job, confirmation=confirmation)
 
         if job.llm_plan is not None:
@@ -92,13 +99,16 @@ class PlanService:
             raise PlanFreezeNotAllowedError(job_id=job_id, status=job.status.value)
 
         plan = self._build_plan(job=job, confirmation=confirmation, plan_id=expected_plan_id)
-        self._write_plan_artifact(job_id=job_id, plan=plan)
+        self._write_plan_artifact(tenant_id=tenant_id, job_id=job_id, plan=plan)
 
         job.confirmation = confirmation
         job.llm_plan = plan
         self._ensure_plan_artifact_index(job=job, rel_path=plan.rel_path)
-        self._store.save(job)
-        logger.info("SS_PLAN_FROZEN", extra={"job_id": job_id, "plan_id": plan.plan_id})
+        self._store.save(tenant_id=tenant_id, job=job)
+        logger.info(
+            "SS_PLAN_FROZEN",
+            extra={"tenant_id": tenant_id, "job_id": job_id, "plan_id": plan.plan_id},
+        )
         return plan
 
     def _expected_plan_id(self, *, job: Job, confirmation: JobConfirmation) -> str:
@@ -149,9 +159,10 @@ class PlanService:
         ]
         return LLMPlan(plan_id=plan_id, rel_path=rel_path, steps=steps)
 
-    def _write_plan_artifact(self, *, job_id: str, plan: LLMPlan) -> None:
+    def _write_plan_artifact(self, *, tenant_id: str, job_id: str, plan: LLMPlan) -> None:
         try:
             self._store.write_artifact_json(
+                tenant_id=tenant_id,
                 job_id=job_id,
                 rel_path=plan.rel_path,
                 payload=plan.model_dump(mode="json"),

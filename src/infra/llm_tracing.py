@@ -127,6 +127,7 @@ class TracedLLMClient(LLMClient):
             attempts=outcome.attempts,
         )
         artifacts = self._write_artifacts(
+            tenant_id=job.tenant_id,
             job_id=job.job_id,
             call_id=call_id,
             prompt=prompt,
@@ -202,6 +203,7 @@ class TracedLLMClient(LLMClient):
     def _write_artifacts(
         self,
         *,
+        tenant_id: str,
         job_id: str,
         call_id: str,
         prompt: str,
@@ -214,9 +216,21 @@ class TracedLLMClient(LLMClient):
         meta_rel = (rel_dir / "meta.json").as_posix()
         written: list[Path] = []
         try:
-            prompt_path = self._safe_artifact_path(job_id=job_id, rel_path=prompt_rel)
-            response_path = self._safe_artifact_path(job_id=job_id, rel_path=response_rel)
-            meta_path = self._safe_artifact_path(job_id=job_id, rel_path=meta_rel)
+            prompt_path = self._safe_artifact_path(
+                tenant_id=tenant_id,
+                job_id=job_id,
+                rel_path=prompt_rel,
+            )
+            response_path = self._safe_artifact_path(
+                tenant_id=tenant_id,
+                job_id=job_id,
+                rel_path=response_rel,
+            )
+            meta_path = self._safe_artifact_path(
+                tenant_id=tenant_id,
+                job_id=job_id,
+                rel_path=meta_rel,
+            )
 
             self._atomic_write_text(path=prompt_path, text=redact_text(prompt))
             written.append(prompt_path)
@@ -272,10 +286,10 @@ class TracedLLMClient(LLMClient):
         data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
         self._atomic_write_text(path=path, text=data)
 
-    def _safe_artifact_path(self, *, job_id: str, rel_path: str) -> Path:
+    def _safe_artifact_path(self, *, tenant_id: str, job_id: str, rel_path: str) -> Path:
         if not is_safe_job_rel_path(rel_path):
             raise ValueError("unsafe_rel_path")
-        job_dir = resolve_job_dir(jobs_dir=self._jobs_dir, job_id=job_id)
+        job_dir = resolve_job_dir(jobs_dir=self._jobs_dir, tenant_id=tenant_id, job_id=job_id)
         if job_dir is None:
             raise ValueError("unsafe_job_id")
         base = job_dir.resolve(strict=False)

@@ -9,6 +9,7 @@ from src.domain.models import is_safe_job_rel_path
 from src.infra.exceptions import ArtifactNotFoundError, ArtifactPathUnsafeError
 from src.utils.job_workspace import resolve_job_dir
 from src.utils.json_types import JsonObject
+from src.utils.tenancy import DEFAULT_TENANT_ID
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +19,13 @@ class ArtifactsService:
         self._store = store
         self._jobs_dir = Path(jobs_dir)
 
-    def list_artifacts(self, *, job_id: str) -> list[JsonObject]:
-        job = self._store.load(job_id)
+    def list_artifacts(
+        self,
+        *,
+        tenant_id: str = DEFAULT_TENANT_ID,
+        job_id: str,
+    ) -> list[JsonObject]:
+        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
         items: list[JsonObject] = []
         for ref in job.artifacts_index:
             extra = ref.model_extra if ref.model_extra is not None else {}
@@ -39,7 +45,13 @@ class ArtifactsService:
             )
         return items
 
-    def resolve_download_path(self, *, job_id: str, rel_path: str) -> Path:
+    def resolve_download_path(
+        self,
+        *,
+        tenant_id: str = DEFAULT_TENANT_ID,
+        job_id: str,
+        rel_path: str,
+    ) -> Path:
         if not is_safe_job_rel_path(rel_path):
             logger.warning(
                 "SS_ARTIFACT_PATH_UNSAFE",
@@ -47,11 +59,11 @@ class ArtifactsService:
             )
             raise ArtifactPathUnsafeError(job_id=job_id, rel_path=rel_path)
 
-        job = self._store.load(job_id)
+        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
         if not any(ref.rel_path == rel_path for ref in job.artifacts_index):
             raise ArtifactNotFoundError(job_id=job_id, rel_path=rel_path)
 
-        job_dir = resolve_job_dir(jobs_dir=self._jobs_dir, job_id=job_id)
+        job_dir = resolve_job_dir(jobs_dir=self._jobs_dir, tenant_id=tenant_id, job_id=job_id)
         if job_dir is None:
             raise ArtifactNotFoundError(job_id=job_id, rel_path=rel_path)
         base = job_dir.resolve(strict=False)

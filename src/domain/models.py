@@ -5,7 +5,9 @@ from pathlib import PurePosixPath
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from src.utils.job_workspace import is_safe_path_segment
 from src.utils.json_types import JsonValue
+from src.utils.tenancy import DEFAULT_TENANT_ID
 
 JOB_SCHEMA_VERSION_V1 = 1
 JOB_SCHEMA_VERSION_V2 = 2
@@ -184,6 +186,7 @@ class Job(BaseModel):
 
     schema_version: int
     version: int = Field(default=1, ge=1)
+    tenant_id: str = Field(default=DEFAULT_TENANT_ID)
     job_id: str
     trace_id: str | None = None
     status: JobStatus = Field(default=JobStatus.CREATED)
@@ -202,4 +205,11 @@ class Job(BaseModel):
     def schema_version_must_match_current(cls, value: int) -> int:
         if value != JOB_SCHEMA_VERSION_CURRENT:
             raise ValueError(f"unsupported schema_version: {value}")
+        return value
+
+    @field_validator("tenant_id")
+    @classmethod
+    def tenant_id_must_be_safe_segment(cls, value: str) -> str:
+        if not is_safe_path_segment(value):
+            raise ValueError("tenant_id must be a safe path segment")
         return value

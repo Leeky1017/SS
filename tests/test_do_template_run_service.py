@@ -21,6 +21,7 @@ class FakeRunner:
     def run(
         self,
         *,
+        tenant_id: str = "default",
         job_id: str,
         run_id: str,
         do_file: str,
