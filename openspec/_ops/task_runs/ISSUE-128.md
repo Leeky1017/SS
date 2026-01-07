@@ -2,7 +2,7 @@
 
 - Issue: #128
 - Branch: task/128-ux-b003-worker-loop
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/138
 
 ## Plan
 - Wire worker execution: manifest → DoFileGenerator → runner
