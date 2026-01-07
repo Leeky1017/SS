@@ -2,7 +2,7 @@
 
 - Issue: #84
 - Branch: task/84-audit-2-3-distributed-jobstore
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/90
 
 ## Plan
 - Define JobStore backend guarantees + interface
@@ -47,3 +47,7 @@
   - `openspec validate --specs --strict --no-interactive`
 - Key output:
   - `Totals: 17 passed, 0 failed (17 items)`
+
+### 2026-01-07 12:24 PR created
+- Evidence:
+  - `https://github.com/Leeky1017/SS/pull/90`
