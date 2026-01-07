@@ -7,13 +7,16 @@ from pathlib import Path
 from src.domain.do_file_generator import DEFAULT_SUMMARY_TABLE_FILENAME
 from src.domain.models import ArtifactKind
 from src.infra.local_stata_runner import LocalStataRunner
+from src.utils.job_workspace import resolve_job_dir
 
 
 def test_run_when_subprocess_succeeds_writes_artifacts_and_returns_ok(job_service, jobs_dir: Path):
     # Arrange
     job = job_service.create_job(requirement="ok")
     run_id = "run_ok"
-    expected_work_dir = jobs_dir / job.job_id / "runs" / run_id / "work"
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+    assert job_dir is not None
+    expected_work_dir = job_dir / "runs" / run_id / "work"
 
     def fake_run(cmd, *, cwd, timeout, text, capture_output, check):
         assert cmd[-3:] == ["-b", "do", "stata.do"]
@@ -32,7 +35,7 @@ def test_run_when_subprocess_succeeds_writes_artifacts_and_returns_ok(job_servic
     assert result.timed_out is False
     assert result.error is None
 
-    artifacts_dir = jobs_dir / job.job_id / "runs" / run_id / "artifacts"
+    artifacts_dir = job_dir / "runs" / run_id / "artifacts"
     assert (artifacts_dir / "stata.do").exists()
     assert (artifacts_dir / "run.stdout").read_text(encoding="utf-8") == "hello\n"
     assert (artifacts_dir / "run.stderr").read_text(encoding="utf-8") == ""
@@ -50,6 +53,8 @@ def test_run_when_export_table_exists_copies_to_artifacts_and_returns_ref(
     # Arrange
     job = job_service.create_job(requirement="ok")
     run_id = "run_export_table"
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+    assert job_dir is not None
 
     def fake_run(cmd, *, cwd, timeout, text, capture_output, check):
         table_path = Path(cwd, DEFAULT_SUMMARY_TABLE_FILENAME)
@@ -62,7 +67,7 @@ def test_run_when_export_table_exists_copies_to_artifacts_and_returns_ref(
     result = runner.run(job_id=job.job_id, run_id=run_id, do_file="display 1\n", timeout_seconds=3)
 
     # Assert
-    artifacts_dir = jobs_dir / job.job_id / "runs" / run_id / "artifacts"
+    artifacts_dir = job_dir / "runs" / run_id / "artifacts"
     assert (artifacts_dir / DEFAULT_SUMMARY_TABLE_FILENAME).exists()
 
     table_refs = [a for a in result.artifacts if a.kind == ArtifactKind.STATA_EXPORT_TABLE]
@@ -77,6 +82,8 @@ def test_run_when_subprocess_returns_nonzero_writes_error_artifact_and_returns_f
     # Arrange
     job = job_service.create_job(requirement="bad")
     run_id = "run_nonzero"
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+    assert job_dir is not None
 
     def fake_run(cmd, *, cwd, timeout, text, capture_output, check):
         return subprocess.CompletedProcess(args=cmd, returncode=9, stdout="out", stderr="err")
@@ -93,7 +100,7 @@ def test_run_when_subprocess_returns_nonzero_writes_error_artifact_and_returns_f
     assert result.error is not None
     assert result.error.error_code == "STATA_NONZERO_EXIT"
 
-    artifacts_dir = jobs_dir / job.job_id / "runs" / run_id / "artifacts"
+    artifacts_dir = job_dir / "runs" / run_id / "artifacts"
     error_path = artifacts_dir / "run.error.json"
     assert error_path.exists()
     payload = json.loads(error_path.read_text(encoding="utf-8"))
@@ -107,6 +114,8 @@ def test_run_when_subprocess_times_out_writes_error_artifact_and_returns_failed(
     # Arrange
     job = job_service.create_job(requirement="timeout")
     run_id = "run_timeout"
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+    assert job_dir is not None
 
     def fake_run(cmd, *, cwd, timeout, text, capture_output, check):
         raise subprocess.TimeoutExpired(cmd=cmd, timeout=timeout, output="partial", stderr="late")
@@ -123,7 +132,7 @@ def test_run_when_subprocess_times_out_writes_error_artifact_and_returns_failed(
     assert result.error is not None
     assert result.error.error_code == "STATA_TIMEOUT"
 
-    artifacts_dir = jobs_dir / job.job_id / "runs" / run_id / "artifacts"
+    artifacts_dir = job_dir / "runs" / run_id / "artifacts"
     assert (artifacts_dir / "run.stdout").read_text(encoding="utf-8") == "partial"
     assert (artifacts_dir / "run.stderr").read_text(encoding="utf-8") == "late"
     assert (artifacts_dir / "run.error.json").exists()
@@ -158,6 +167,8 @@ def test_run_when_dofile_is_unsafe_returns_failed_without_running_subprocess(
     # Arrange
     job = job_service.create_job(requirement="unsafe")
     run_id = "run_unsafe"
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+    assert job_dir is not None
     called = {"value": False}
 
     def fake_run(cmd, *, cwd, timeout, text, capture_output, check):
@@ -184,6 +195,6 @@ def test_run_when_dofile_is_unsafe_returns_failed_without_running_subprocess(
     assert result.error is not None
     assert result.error.error_code == "STATA_DOFILE_UNSAFE"
 
-    artifacts_dir = jobs_dir / job.job_id / "runs" / run_id / "artifacts"
+    artifacts_dir = job_dir / "runs" / run_id / "artifacts"
     assert (artifacts_dir / "stata.do").exists()
     assert (artifacts_dir / "run.error.json").exists()

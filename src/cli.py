@@ -19,6 +19,7 @@ from src.infra.local_stata_runner import LocalStataRunner
 from src.infra.logging_config import configure_logging
 from src.infra.stata_cmd import resolve_stata_cmd
 from src.infra.stata_run_support import resolve_run_dirs
+from src.utils.job_workspace import resolve_job_dir
 
 
 def _parse_params(values: list[str]) -> dict[str, str]:
@@ -93,7 +94,8 @@ def _print_run_summary(
     ok: bool,
     exit_code: int | None,
 ) -> None:
-    artifacts_dir = jobs_dir / job_id / "runs" / run_id / "artifacts"
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
+    artifacts_dir = None if job_dir is None else job_dir / "runs" / run_id / "artifacts"
     print(f"job_id={job_id}")
     print(f"run_id={run_id}")
     print(f"ok={ok}")

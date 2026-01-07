@@ -6,11 +6,14 @@ import pytest
 
 from src.domain.models import JobStatus
 from src.domain.state_machine import JobIllegalTransitionError
+from src.utils.job_workspace import resolve_job_dir
 
 
 def test_create_job_writes_job_json(job_service, store, jobs_dir):
     job = job_service.create_job(requirement="hello", inputs_fingerprint="fp_1")
-    path = jobs_dir / job.job_id / "job.json"
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+    assert job_dir is not None
+    path = job_dir / "job.json"
     assert path.exists()
     loaded = store.load(job.job_id)
     assert loaded.job_id == job.job_id

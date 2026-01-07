@@ -29,41 +29,69 @@ from src.infra.job_store_migrations import (
     assert_supported_schema_version,
     migrate_payload_to_current,
 )
+from src.utils.job_workspace import is_safe_path_segment, shard_for_job_id
 from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
 
 
 class JobStore:
-    """File-based job store: jobs/<job_id>/job.json with atomic writes."""
+    """File-based job store with sharded job directories and atomic writes."""
 
     def __init__(self, *, jobs_dir: Path):
         self._jobs_dir = Path(jobs_dir)
 
-    def _is_safe_job_id(self, value: str) -> bool:
-        if value == "":
-            return False
-        if value.startswith("~"):
-            return False
-        if "/" in value or "\\" in value:
-            return False
-        return value not in {".", ".."}
+    def _resolve_sharded_job_dir(self, job_id: str) -> Path:
+        if not is_safe_path_segment(job_id):
+            logger.warning("SS_JOB_ID_UNSAFE", extra={"job_id": job_id, "reason": "segment"})
+            raise JobIdUnsafeError(job_id=job_id)
+        shard = shard_for_job_id(job_id)
+        if not is_safe_path_segment(shard):
+            logger.warning(
+                "SS_JOB_ID_UNSAFE",
+                extra={"job_id": job_id, "reason": "shard_segment", "shard": shard},
+            )
+            raise JobIdUnsafeError(job_id=job_id)
 
-    def _resolve_job_dir(self, job_id: str) -> Path:
-        if not self._is_safe_job_id(job_id):
+        base = self._jobs_dir.resolve(strict=False)
+        job_dir = (self._jobs_dir / shard / job_id).resolve(strict=False)
+        if not job_dir.is_relative_to(base):
+            logger.warning(
+                "SS_JOB_ID_UNSAFE",
+                extra={"job_id": job_id, "reason": "symlink_escape", "layout": "sharded"},
+            )
+            raise JobIdUnsafeError(job_id=job_id)
+        return job_dir
+
+    def _resolve_legacy_job_dir(self, job_id: str) -> Path:
+        if not is_safe_path_segment(job_id):
             logger.warning("SS_JOB_ID_UNSAFE", extra={"job_id": job_id, "reason": "segment"})
             raise JobIdUnsafeError(job_id=job_id)
 
         base = self._jobs_dir.resolve(strict=False)
         job_dir = (self._jobs_dir / job_id).resolve(strict=False)
         if not job_dir.is_relative_to(base):
-            logger.warning("SS_JOB_ID_UNSAFE", extra={"job_id": job_id, "reason": "symlink_escape"})
+            logger.warning(
+                "SS_JOB_ID_UNSAFE",
+                extra={"job_id": job_id, "reason": "symlink_escape", "layout": "legacy"},
+            )
             raise JobIdUnsafeError(job_id=job_id)
-
         return job_dir
 
+    def _resolve_job_dir_for_existing_job(self, job_id: str) -> Path | None:
+        sharded = self._resolve_sharded_job_dir(job_id)
+        if (sharded / "job.json").exists():
+            return sharded
+        legacy = self._resolve_legacy_job_dir(job_id)
+        if (legacy / "job.json").exists():
+            return legacy
+        return None
+
     def _job_dir(self, job_id: str) -> Path:
-        return self._resolve_job_dir(job_id)
+        job_dir = self._resolve_job_dir_for_existing_job(job_id)
+        if job_dir is not None:
+            return job_dir
+        return self._resolve_sharded_job_dir(job_id)
 
     def _job_path(self, job_id: str) -> Path:
         return self._job_dir(job_id) / "job.json"
@@ -89,34 +117,38 @@ class JobStore:
         return cast(JsonObject, raw)
 
     def create(self, job: Job) -> None:
-        path = self._job_path(job.job_id)
-        if path.exists():
+        sharded_dir = self._resolve_sharded_job_dir(job.job_id)
+        legacy_dir = self._resolve_legacy_job_dir(job.job_id)
+        sharded_path = sharded_dir / "job.json"
+        legacy_path = legacy_dir / "job.json"
+        if sharded_path.exists() or legacy_path.exists():
             raise JobAlreadyExistsError(job_id=job.job_id)
         if job.schema_version != JOB_SCHEMA_VERSION_CURRENT:
             logger.warning(
                 "SS_JOB_JSON_SCHEMA_VERSION_UNSUPPORTED",
                 extra={
                     "job_id": job.job_id,
-                    "path": str(path),
+                    "path": str(sharded_path),
                     "schema_version": job.schema_version,
                     "expected_schema_version": JOB_SCHEMA_VERSION_CURRENT,
                 },
             )
             raise JobDataCorruptedError(job_id=job.job_id)
-        self._job_dir(job.job_id).mkdir(parents=True, exist_ok=True)
+        sharded_dir.mkdir(parents=True, exist_ok=True)
         try:
-            self._atomic_write(path, cast(JsonObject, job.model_dump(mode="json")))
+            self._atomic_write(sharded_path, cast(JsonObject, job.model_dump(mode="json")))
         except OSError as e:
             logger.warning(
                 "SS_JOB_JSON_CREATE_FAILED",
-                extra={"job_id": job.job_id, "path": str(path)},
+                extra={"job_id": job.job_id, "path": str(sharded_path)},
             )
             raise JobStoreIOError(operation="create", job_id=job.job_id) from e
 
     def load(self, job_id: str) -> Job:
-        path = self._job_path(job_id)
-        if not path.exists():
+        job_dir = self._resolve_job_dir_for_existing_job(job_id)
+        if job_dir is None:
             raise JobNotFoundError(job_id=job_id)
+        path = job_dir / "job.json"
         payload = self._read_job_payload(job_id=job_id, path=path)
         assert_supported_schema_version(job_id=job_id, path=path, payload=payload)
         migrated = migrate_payload_to_current(job_id=job_id, path=path, payload=payload)
@@ -140,9 +172,10 @@ class JobStore:
         return job
 
     def save(self, job: Job) -> None:
-        path = self._job_path(job.job_id)
-        if not path.exists():
+        job_dir = self._resolve_job_dir_for_existing_job(job.job_id)
+        if job_dir is None:
             raise JobNotFoundError(job_id=job.job_id)
+        path = job_dir / "job.json"
         if job.schema_version != JOB_SCHEMA_VERSION_CURRENT:
             logger.warning(
                 "SS_JOB_JSON_SCHEMA_VERSION_UNSUPPORTED",
@@ -209,8 +242,8 @@ class JobStore:
             )
             raise ArtifactPathUnsafeError(job_id=job_id, rel_path=rel_path)
 
-        job_dir = self._job_dir(job_id)
-        if not job_dir.exists():
+        job_dir = self._resolve_job_dir_for_existing_job(job_id)
+        if job_dir is None:
             raise JobNotFoundError(job_id=job_id)
 
         path = (job_dir / rel_path).resolve(strict=False)

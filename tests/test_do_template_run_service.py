@@ -11,6 +11,7 @@ from src.domain.stata_runner import RunResult
 from src.infra.exceptions import DoTemplateParameterMissingError
 from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.stata_run_support import job_rel_path, resolve_run_dirs, write_text
+from src.utils.job_workspace import resolve_job_dir
 
 
 class FakeRunner:
@@ -96,7 +97,9 @@ def test_run_when_template_ok_archives_template_and_outputs(
 
     # Assert
     assert result.ok is True
-    artifacts_dir = jobs_dir / job.job_id / "runs" / "run_demo" / "artifacts"
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+    assert job_dir is not None
+    artifacts_dir = job_dir / "runs" / "run_demo" / "artifacts"
     assert (artifacts_dir / "template" / "source.do").exists()
     assert (artifacts_dir / "template" / "meta.json").exists()
     assert (artifacts_dir / "template" / "params.json").exists()

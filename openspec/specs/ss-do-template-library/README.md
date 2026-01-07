@@ -79,7 +79,7 @@ SS 侧应把模板当成“可版本化的外部输入”，并强制最小合�
 
 ## 安全与审计边界（必须）
 
-- do-file 执行工作目录：限制在 `jobs/<job_id>/runs/<run_id>/`
+- do-file 执行工作目录：限制在 `jobs/<shard>/<job_id>/runs/<run_id>/`（legacy: `jobs/<job_id>/runs/<run_id>/`）
 - 路径规则：
   - 输入使用相对路径（指向 job inputs）
   - 禁止跨目录写入（`..`、绝对路径、符号链接逃逸）

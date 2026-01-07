@@ -7,6 +7,7 @@ from typing import cast
 from src.domain.job_store import JobStore
 from src.domain.models import is_safe_job_rel_path
 from src.infra.exceptions import ArtifactNotFoundError, ArtifactPathUnsafeError
+from src.utils.job_workspace import resolve_job_dir
 from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
@@ -50,8 +51,11 @@ class ArtifactsService:
         if not any(ref.rel_path == rel_path for ref in job.artifacts_index):
             raise ArtifactNotFoundError(job_id=job_id, rel_path=rel_path)
 
-        base = (self._jobs_dir / job_id).resolve(strict=False)
-        candidate = self._jobs_dir / job_id / rel_path
+        job_dir = resolve_job_dir(jobs_dir=self._jobs_dir, job_id=job_id)
+        if job_dir is None:
+            raise ArtifactNotFoundError(job_id=job_id, rel_path=rel_path)
+        base = job_dir.resolve(strict=False)
+        candidate = job_dir / rel_path
         try:
             resolved = candidate.resolve(strict=True)
         except FileNotFoundError as e:

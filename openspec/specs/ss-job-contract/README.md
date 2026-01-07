@@ -16,10 +16,30 @@
   - `from_version`
   - `to_version`
 
+## Job 存储分片（强约束）
+
+目标：避免 `jobs/` 单目录在高 job 数量下触发文件系统限制与性能退化。
+
+- 分片目录：`jobs/<shard>/<job_id>/...`
+- shard 函数（v1）：对 `job_<hex...>`，取去掉 `job_` 前缀后的前 2 个字符作为 `<shard>`。
+  - 例：`job_0123456789abcdef` → `<shard>` = `01`
+- 查找规则：
+  - 优先使用分片路径：若 `jobs/<shard>/<job_id>/job.json` 存在，则该 job 的工作区固定在该目录。
+  - 兼容 legacy：若分片路径不存在但 `jobs/<job_id>/job.json` 存在，则继续使用 legacy 工作区目录（不要求人工迁移即可加载/写入）。
+
+迁移策略（legacy → sharded）：
+- 默认策略：不强制批量迁移；依赖上述查找规则保持旧数据可用，新 job 进入分片布局。
+- 运维迁移（可选）：在停止写入（停止 API/worker）后，把 `jobs/<job_id>/` 移动到 `jobs/<shard>/<job_id>/`，并保留目录内相对结构不变。
+
+运维影响（需要显式认知）：
+- 备份/恢复：应备份整个 `jobs/` 树；恢复时允许同时存在 legacy 与分片布局。
+- 清理：删除某个 job 时需要同时检查 `jobs/<shard>/<job_id>/` 与 `jobs/<job_id>/` 两种可能路径。
+- 列表性能：对极高 job 数量场景，应避免对 `jobs/` 根目录做全量列举；优先在 shard 目录内做范围扫描。
+
 ## Job 工作区（建议结构）
 
 ```text
-jobs/<job_id>/
+jobs/<shard>/<job_id>/
   job.json
   inputs/
     manifest.json
@@ -40,7 +60,7 @@ jobs/<job_id>/
 
 ## job.json v3（当前写入版本；字段清单与语义）
 
-位置：`jobs/<job_id>/job.json`
+位置：`jobs/<shard>/<job_id>/job.json`（legacy: `jobs/<job_id>/job.json`）
 
 最小合法示例：
 

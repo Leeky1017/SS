@@ -24,7 +24,7 @@ Each LLM call MUST write prompt/response/meta artifacts and MUST index them in t
 
 #### Artifact layout (v1, minimal)
 
-- Root: `jobs/<job_id>/artifacts/llm/<llm_call_id>/`
+- Root: `jobs/<shard>/<job_id>/artifacts/llm/<llm_call_id>/` (legacy: `jobs/<job_id>/artifacts/llm/<llm_call_id>/`)
 - Files:
   - `prompt.txt` (kind: `llm.prompt`, redacted text)
   - `response.txt` (kind: `llm.response`, redacted text; empty if no response)

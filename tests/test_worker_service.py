@@ -13,6 +13,7 @@ from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store import JobStore
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.infra.stata_run_support import META_FILENAME
+from src.utils.job_workspace import resolve_job_dir
 
 
 def _prepare_queued_job(*, jobs_dir: Path, queue: FileWorkerQueue) -> str:
@@ -66,7 +67,9 @@ def test_worker_service_with_success_once_marks_job_succeeded(tmp_path: Path) ->
     assert job.runs[0].status == "succeeded"
     assert any(ref.kind == ArtifactKind.RUN_META_JSON for ref in job.artifacts_index)
     run_id = job.runs[0].run_id
-    assert (jobs_dir / job_id / "runs" / run_id / "artifacts" / META_FILENAME).exists()
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
+    assert job_dir is not None
+    assert (job_dir / "runs" / run_id / "artifacts" / META_FILENAME).exists()
     assert list((queue_dir / "queued").glob("*.json")) == []
     assert list((queue_dir / "claimed").glob("*.json")) == []
 
@@ -99,7 +102,9 @@ def test_worker_service_with_failure_then_success_retries_and_succeeds(tmp_path:
     assert job.runs[1].status == "succeeded"
     assert job.runs[0].run_id != job.runs[1].run_id
     run_ids = {attempt.run_id for attempt in job.runs}
-    assert len(list((jobs_dir / job_id / "runs").iterdir())) == len(run_ids)
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
+    assert job_dir is not None
+    assert len(list((job_dir / "runs").iterdir())) == len(run_ids)
     assert list((queue_dir / "queued").glob("*.json")) == []
     assert list((queue_dir / "claimed").glob("*.json")) == []
 
@@ -130,8 +135,9 @@ def test_worker_service_with_failures_until_max_marks_job_failed(tmp_path: Path)
     assert len(job.runs) == 2
     assert job.runs[0].status == "failed"
     assert job.runs[1].status == "failed"
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
+    assert job_dir is not None
     for attempt in job.runs:
-        assert (jobs_dir / job_id / "runs" / attempt.run_id / "artifacts" / META_FILENAME).exists()
+        assert (job_dir / "runs" / attempt.run_id / "artifacts" / META_FILENAME).exists()
     assert list((queue_dir / "queued").glob("*.json")) == []
     assert list((queue_dir / "claimed").glob("*.json")) == []
-

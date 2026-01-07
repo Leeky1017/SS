@@ -34,7 +34,7 @@
 
 1. 停止 API + worker（确保没有写入发生）。
 2. 运行一次性迁移工具（file → postgres）：
-   - 遍历 `jobs/<job_id>/job.json`
+   - 遍历 `jobs/<shard>/<job_id>/job.json`（legacy: `jobs/<job_id>/job.json`）
    - 对 payload 执行 `load()` 等价的 schema migration（v1/v2 → current）
    - 写入 Postgres（保持 `job_id` 与 `version`）
 3. 将配置切换为 Postgres：

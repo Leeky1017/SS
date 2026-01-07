@@ -8,7 +8,7 @@ Define SS job workspace layout, versioned `job.json` contract, and artifact inde
 
 ### Requirement: Job is persisted as a versioned job.json record
 
-SS MUST persist each job as `jobs/<job_id>/job.json` and MUST include a `schema_version` field for forward-compatible migrations.
+SS MUST persist each job as `jobs/<shard>/<job_id>/job.json` and MUST include a `schema_version` field for forward-compatible migrations. SS MUST keep legacy jobs at `jobs/<job_id>/job.json` loadable for backward compatibility.
 
 #### Scenario: Job contract doc exists
 - **WHEN** browsing `openspec/specs/ss-job-contract/`

@@ -10,6 +10,7 @@ from src.api import deps
 from src.domain.artifacts_service import ArtifactsService
 from src.domain.models import ArtifactKind, ArtifactRef
 from src.main import create_app
+from src.utils.job_workspace import resolve_job_dir
 
 
 def test_get_job_artifacts_with_valid_job_returns_index(job_service, store, jobs_dir):
@@ -99,7 +100,9 @@ def test_download_job_artifact_with_symlink_escape_returns_400(job_service, stor
     ]
     store.save(persisted)
 
-    evil_path = jobs_dir / job.job_id / "artifacts" / "evil.txt"
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+    assert job_dir is not None
+    evil_path = job_dir / "artifacts" / "evil.txt"
     evil_path.parent.mkdir(parents=True, exist_ok=True)
     os.symlink(outside, evil_path)
 
