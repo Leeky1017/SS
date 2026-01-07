@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import fcntl
 import json
 import logging
 import os
@@ -11,8 +12,6 @@ from pydantic import ValidationError
 
 from src.domain.models import (
     JOB_SCHEMA_VERSION_CURRENT,
-    JOB_SCHEMA_VERSION_V1,
-    SUPPORTED_JOB_SCHEMA_VERSIONS,
     Draft,
     Job,
     is_safe_job_rel_path,
@@ -24,6 +23,11 @@ from src.infra.exceptions import (
     JobIdUnsafeError,
     JobNotFoundError,
     JobStoreIOError,
+    JobVersionConflictError,
+)
+from src.infra.job_store_migrations import (
+    assert_supported_schema_version,
+    migrate_payload_to_current,
 )
 from src.utils.json_types import JsonObject
 
@@ -64,58 +68,25 @@ class JobStore:
     def _job_path(self, job_id: str) -> Path:
         return self._job_dir(job_id) / "job.json"
 
-    def _assert_supported_schema_version(
-        self, *, job_id: str, path: Path, payload: JsonObject
-    ) -> None:
-        schema_version = payload.get("schema_version")
-        if schema_version not in SUPPORTED_JOB_SCHEMA_VERSIONS:
+    def _job_lock_path(self, job_id: str) -> Path:
+        return self._job_dir(job_id) / "job.json.lock"
+
+    def _read_job_payload(self, *, job_id: str, path: Path) -> JsonObject:
+        try:
+            raw = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as e:
+            logger.warning("SS_JOB_JSON_CORRUPTED", extra={"job_id": job_id, "path": str(path)})
+            raise JobDataCorruptedError(job_id=job_id) from e
+        except OSError as e:
+            logger.warning("SS_JOB_JSON_READ_FAILED", extra={"job_id": job_id, "path": str(path)})
+            raise JobStoreIOError(operation="read", job_id=job_id) from e
+        if not isinstance(raw, dict):
             logger.warning(
-                "SS_JOB_JSON_SCHEMA_VERSION_UNSUPPORTED",
-                extra={
-                    "job_id": job_id,
-                    "path": str(path),
-                    "schema_version": schema_version,
-                    "supported_versions": list(SUPPORTED_JOB_SCHEMA_VERSIONS),
-                },
+                "SS_JOB_JSON_CORRUPTED",
+                extra={"job_id": job_id, "path": str(path), "reason": "not_object"},
             )
             raise JobDataCorruptedError(job_id=job_id)
-
-    def _migrate_payload_to_current(
-        self, *, job_id: str, path: Path, payload: JsonObject
-    ) -> JsonObject:
-        schema_version = payload.get("schema_version")
-        if schema_version == JOB_SCHEMA_VERSION_CURRENT:
-            return payload
-        if schema_version == JOB_SCHEMA_VERSION_V1:
-            return self._migrate_v1_to_v2(job_id=job_id, path=path, payload=payload)
-        logger.warning(
-            "SS_JOB_JSON_SCHEMA_MIGRATION_UNDEFINED",
-            extra={"job_id": job_id, "path": str(path), "schema_version": schema_version},
-        )
-        raise JobDataCorruptedError(job_id=job_id)
-
-    def _migrate_v1_to_v2(self, *, job_id: str, path: Path, payload: JsonObject) -> JsonObject:
-        migrated: JsonObject = dict(payload)
-        for key in ("runs", "artifacts_index"):
-            if key not in migrated:
-                migrated[key] = []
-                continue
-            if not isinstance(migrated[key], list):
-                logger.warning(
-                    "SS_JOB_JSON_CORRUPTED",
-                    extra={"job_id": job_id, "path": str(path), "reason": f"{key}_not_list"},
-                )
-                raise JobDataCorruptedError(job_id=job_id)
-        migrated["schema_version"] = JOB_SCHEMA_VERSION_CURRENT
-        logger.info(
-            "SS_JOB_JSON_SCHEMA_MIGRATED",
-            extra={
-                "job_id": job_id,
-                "from_version": JOB_SCHEMA_VERSION_V1,
-                "to_version": JOB_SCHEMA_VERSION_CURRENT,
-            },
-        )
-        return migrated
+        return cast(JsonObject, raw)
 
     def create(self, job: Job) -> None:
         path = self._job_path(job.job_id)
@@ -146,23 +117,9 @@ class JobStore:
         path = self._job_path(job_id)
         if not path.exists():
             raise JobNotFoundError(job_id=job_id)
-        try:
-            raw = json.loads(path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError as e:
-            logger.warning("SS_JOB_JSON_CORRUPTED", extra={"job_id": job_id, "path": str(path)})
-            raise JobDataCorruptedError(job_id=job_id) from e
-        except OSError as e:
-            logger.warning("SS_JOB_JSON_READ_FAILED", extra={"job_id": job_id, "path": str(path)})
-            raise JobStoreIOError(operation="read", job_id=job_id) from e
-        if not isinstance(raw, dict):
-            logger.warning(
-                "SS_JOB_JSON_CORRUPTED",
-                extra={"job_id": job_id, "path": str(path), "reason": "not_object"},
-            )
-            raise JobDataCorruptedError(job_id=job_id)
-        payload = cast(JsonObject, raw)
-        self._assert_supported_schema_version(job_id=job_id, path=path, payload=payload)
-        migrated = self._migrate_payload_to_current(job_id=job_id, path=path, payload=payload)
+        payload = self._read_job_payload(job_id=job_id, path=path)
+        assert_supported_schema_version(job_id=job_id, path=path, payload=payload)
+        migrated = migrate_payload_to_current(job_id=job_id, path=path, payload=payload)
         try:
             job = Job.model_validate(migrated)
         except ValidationError as e:
@@ -197,8 +154,41 @@ class JobStore:
                 },
             )
             raise JobDataCorruptedError(job_id=job.job_id)
+        lock_path = self._job_lock_path(job.job_id)
         try:
-            self._atomic_write(path, cast(JsonObject, job.model_dump(mode="json")))
+            with lock_path.open("a+", encoding="utf-8") as lock_file:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+                payload = self._read_job_payload(job_id=job.job_id, path=path)
+                assert_supported_schema_version(job_id=job.job_id, path=path, payload=payload)
+                current = migrate_payload_to_current(job_id=job.job_id, path=path, payload=payload)
+                disk_version = current.get("version", 1)
+                if not isinstance(disk_version, int) or disk_version < 1:
+                    logger.warning(
+                        "SS_JOB_JSON_CORRUPTED",
+                        extra={
+                            "job_id": job.job_id,
+                            "path": str(path),
+                            "reason": "version_invalid",
+                        },
+                    )
+                    raise JobDataCorruptedError(job_id=job.job_id)
+                if job.version != disk_version:
+                    logger.warning(
+                        "SS_JOB_JSON_VERSION_CONFLICT",
+                        extra={
+                            "job_id": job.job_id,
+                            "path": str(path),
+                            "expected_version": job.version,
+                            "actual_version": disk_version,
+                        },
+                    )
+                    raise JobVersionConflictError(
+                        job_id=job.job_id, expected_version=job.version, actual_version=disk_version
+                    )
+                new_version = disk_version + 1
+                to_write = job.model_copy(update={"version": new_version})
+                self._atomic_write(path, cast(JsonObject, to_write.model_dump(mode="json")))
+                job.version = new_version
         except OSError as e:
             logger.warning(
                 "SS_JOB_JSON_WRITE_FAILED",

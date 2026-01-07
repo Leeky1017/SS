@@ -5,7 +5,11 @@ import os
 
 import pytest
 
-from src.infra.exceptions import ArtifactPathUnsafeError, JobDataCorruptedError
+from src.infra.exceptions import (
+    ArtifactPathUnsafeError,
+    JobDataCorruptedError,
+    JobVersionConflictError,
+)
 
 
 def test_load_with_valid_job_json_returns_job(job_service, store, jobs_dir):
@@ -16,8 +20,10 @@ def test_load_with_valid_job_json_returns_job(job_service, store, jobs_dir):
 
     loaded = store.load(job.job_id)
 
-    assert raw["schema_version"] == 2
-    assert loaded.schema_version == 2
+    assert raw["schema_version"] == 3
+    assert raw["version"] == 1
+    assert loaded.schema_version == 3
+    assert loaded.version == 1
 
 
 def test_load_with_missing_schema_version_raises_job_data_corrupted_error(store, jobs_dir):
@@ -131,3 +137,17 @@ def test_write_artifact_json_with_symlink_escape_raises_artifact_path_unsafe_err
         )
     assert exc.value.error_code == "ARTIFACT_PATH_UNSAFE"
     assert not (outside_dir / "plan.json").exists()
+
+
+def test_save_with_stale_version_raises_job_version_conflict_error(job_service, store) -> None:
+    job = job_service.create_job(requirement="hello")
+
+    first = store.load(job.job_id)
+    second = store.load(job.job_id)
+
+    first.requirement = "first update"
+    store.save(first)
+
+    second.requirement = "second update"
+    with pytest.raises(JobVersionConflictError):
+        store.save(second)

@@ -9,8 +9,13 @@ from src.utils.json_types import JsonValue
 
 JOB_SCHEMA_VERSION_V1 = 1
 JOB_SCHEMA_VERSION_V2 = 2
-JOB_SCHEMA_VERSION_CURRENT = JOB_SCHEMA_VERSION_V2
-SUPPORTED_JOB_SCHEMA_VERSIONS = [JOB_SCHEMA_VERSION_V1, JOB_SCHEMA_VERSION_V2]
+JOB_SCHEMA_VERSION_V3 = 3
+JOB_SCHEMA_VERSION_CURRENT = JOB_SCHEMA_VERSION_V3
+SUPPORTED_JOB_SCHEMA_VERSIONS = [
+    JOB_SCHEMA_VERSION_V1,
+    JOB_SCHEMA_VERSION_V2,
+    JOB_SCHEMA_VERSION_V3,
+]
 LLM_PLAN_VERSION_V1 = 1
 
 
@@ -178,6 +183,7 @@ class Job(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     schema_version: int
+    version: int = Field(default=1, ge=1)
     job_id: str
     status: JobStatus = Field(default=JobStatus.CREATED)
     requirement: str | None = None

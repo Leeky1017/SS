@@ -8,8 +8,8 @@
 - 写入策略：永远写入当前版本（current write version）。
 - 读取策略：支持一段有限的旧版本（supported read versions），并在 `load()` 时通过显式迁移步骤升级到当前版本（并回写）。
 - 兼容性窗口（当前）：
-  - current write version: `2`
-  - supported read versions: `1`, `2`
+  - current write version: `3`
+  - supported read versions: `1`, `2`, `3`
 - 缺失/未知 `schema_version`：视为数据损坏，拒绝加载（需要人工修复或显式迁移扩展）。
 - 迁移可观测性：每次迁移必须记录结构化日志事件 `SS_JOB_JSON_SCHEMA_MIGRATED`，包含：
   - `job_id`
@@ -38,7 +38,7 @@ jobs/<job_id>/
 - Runner 的 `cwd` MUST 固定在 `runs/<run_id>/work/`。
 - Artifacts 的 `rel_path` MUST 是 job 目录内相对路径（禁止绝对路径与 `..` 逃逸）。
 
-## job.json v2（当前写入版本；字段清单与语义）
+## job.json v3（当前写入版本；字段清单与语义）
 
 位置：`jobs/<job_id>/job.json`
 
@@ -46,7 +46,8 @@ jobs/<job_id>/
 
 ```json
 {
-  "schema_version": 2,
+  "schema_version": 3,
+  "version": 1,
   "job_id": "job_0123456789abcdef",
   "status": "created",
   "created_at": "2026-01-06T17:50:00+00:00",
@@ -57,7 +58,8 @@ jobs/<job_id>/
 ```
 
 必须包含：
-- `schema_version`（int；v2 固定为 `2`）
+- `schema_version`（int；v3 固定为 `3`）
+- `version`（int；>= 1；每次成功写入必须单调递增）
 - `job_id`（string）
 - `status`（string enum）
 - `created_at`（ISO string）
@@ -65,9 +67,10 @@ jobs/<job_id>/
 - `runs[]`（list；允许为空）
 - `artifacts_index[]`（list；允许为空）
 
-字段语义（v2）：
+字段语义（v3）：
 
-- `schema_version`: 版本号（v2 固定为 `2`；v1 读取后会迁移到 v2）。
+- `schema_version`: 版本号（v3 固定为 `3`；v1/v2 读取后会迁移到 v3）。
+- `version`: 并发控制版本号（单调递增）；用于防止并发写入时的 silent overwrite（保存时需要做乐观锁冲突检测）。
 - `job_id`: job 唯一标识（建议前缀 `job_`，其余为安全的短 token）。
 - `status`: job 状态（枚举；v1 为 `created` / `draft_ready` / `confirmed` / `queued` / `running` / `succeeded` / `failed`；允许迁移见 `openspec/specs/ss-state-machine/spec.md`）。
 - `created_at`: job 创建时间（ISO8601）。
@@ -75,7 +78,7 @@ jobs/<job_id>/
 - `runs[]`: 运行尝试列表（worker 执行记录与重试）。
 - `artifacts_index[]`: Artifacts 索引（见下）。
 
-可选字段（v2 预留，按 YAGNI 逐步落地，但口径先统一）：
+可选字段（v3 预留，按 YAGNI 逐步落地，但口径先统一）：
 
 - `scheduled_at`（ISO string | null）：当进入排队/调度态时写入。
 - `inputs`：
