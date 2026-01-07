@@ -71,3 +71,16 @@
 - Key output:
   - `Success: no issues found in 75 source files`
   - `101 passed, 5 skipped`
+
+### 2026-01-07 20:30 Merge: PR merged
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/136`
+  - `mergedAt: 2026-01-07T12:30:32Z`
+
+### 2026-01-07 20:31 Post-merge: sync + cleanup
+- Command:
+  - `scripts/agent_controlplane_sync.sh`
+  - `scripts/agent_worktree_cleanup.sh 126 ux-b001-inputs-upload-preview`
+- Key output:
+  - `Fast-forward`
+  - `OK: cleaned worktree .worktrees/issue-126-ux-b001-inputs-upload-preview`
