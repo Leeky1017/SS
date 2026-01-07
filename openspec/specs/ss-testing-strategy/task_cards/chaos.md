@@ -23,7 +23,7 @@ Implement chaos tests that validate SS behavior under resource exhaustion and de
 
 ## Acceptance checklist
 
-- [ ] `tests/chaos/` contains chaos test modules referenced by the strategy README
-- [ ] Disk/permission/LLM failure paths return clear, stable error responses (no traceback leaks)
-- [ ] Failures do not corrupt persisted job state or artifacts
-- [ ] Fault injection is explicit and does not rely on environment flakiness
+- [x] `tests/chaos/` contains chaos test modules referenced by the strategy README
+- [x] Disk/permission/LLM failure paths return clear, stable error responses (no traceback leaks)
+- [x] Failures do not corrupt persisted job state or artifacts
+- [x] Fault injection is explicit and does not rely on environment flakiness

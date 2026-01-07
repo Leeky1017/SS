@@ -22,6 +22,15 @@ class ServiceShuttingDownError(SSError):
         )
 
 
+class OutOfMemoryError(SSError):
+    def __init__(self) -> None:
+        super().__init__(
+            error_code="RESOURCE_OOM",
+            message="system is out of memory",
+            status_code=503,
+        )
+
+
 class JobNotFoundError(SSError):
     def __init__(self, *, job_id: str):
         super().__init__(

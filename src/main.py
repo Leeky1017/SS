@@ -15,7 +15,7 @@ from starlette.responses import Response
 from src.api.routes import api_router, api_v1_router
 from src.api.versioning import add_legacy_deprecation_headers, is_legacy_unversioned_path
 from src.config import load_config
-from src.infra.exceptions import ServiceShuttingDownError, SSError
+from src.infra.exceptions import OutOfMemoryError, ServiceShuttingDownError, SSError
 from src.infra.logging_config import build_logging_config
 
 logger = logging.getLogger(__name__)
@@ -69,12 +69,18 @@ def create_app() -> FastAPI:
     app.include_router(api_v1_router)
     app.include_router(api_router, include_in_schema=False)
     app.add_exception_handler(SSError, _handle_ss_error)
+    app.add_exception_handler(MemoryError, _handle_oom_error)
     return app
 
 
 def _handle_ss_error(_request: Request, exc: Exception) -> Response:
     ss_error = cast(SSError, exc)
     return JSONResponse(status_code=ss_error.status_code, content=ss_error.to_dict())
+
+
+def _handle_oom_error(request: Request, _exc: Exception) -> Response:
+    logger.error("SS_RESOURCE_OOM", extra={"path": request.url.path})
+    return JSONResponse(status_code=503, content=OutOfMemoryError().to_dict())
 
 
 app = create_app()

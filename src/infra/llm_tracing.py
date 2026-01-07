@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import logging
-import re
+import os
+import tempfile
 import time
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path, PurePosixPath
 from typing import cast
 
@@ -23,47 +22,18 @@ from src.infra.llm_call_retry import (
     normalized_backoff_seconds,
     normalized_timeout_seconds,
 )
+from src.infra.llm_tracing_support import (
+    LLM_META_SCHEMA_VERSION_V1,
+    estimate_tokens,
+    llm_call_id,
+    redact_text,
+    sha256_hex,
+)
 from src.utils.job_workspace import resolve_job_dir
 from src.utils.json_types import JsonObject
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
-
-LLM_META_SCHEMA_VERSION_V1 = 1
-
-_REDACTIONS: list[tuple[re.Pattern[str], str]] = [
-    (re.compile(r"(?i)(authorization\\s*:\\s*bearer)\\s+[^\\s]+"), r"\\1 <REDACTED>"),
-    (re.compile(r"sk-[A-Za-z0-9]{20,}"), "sk-<REDACTED>"),
-    (
-        re.compile(r"(?i)\\b(api[_-]?key|token|secret|password)\\b\\s*[:=]\\s*[^\\s,;]+"),
-        r"\\1=<REDACTED>",
-    ),
-    (re.compile(r"/home/[^\\s]+"), "/home/<REDACTED>"),
-    (re.compile(r"/Users/[^\\s]+"), "/Users/<REDACTED>"),
-]
-
-
-def redact_text(text: str) -> str:
-    value = text
-    for pattern, replacement in _REDACTIONS:
-        value = pattern.sub(replacement, value)
-    return value
-
-
-def _sha256_hex(value: str) -> str:
-    return hashlib.sha256(value.encode("utf-8", errors="ignore")).hexdigest()
-
-
-def _estimate_tokens(text: str) -> int:
-    stripped = text.strip()
-    if stripped == "":
-        return 0
-    return max(1, len(stripped) // 4)
-
-
-def _llm_call_id(*, operation: str, started_at: datetime, prompt_fingerprint: str) -> str:
-    ts = started_at.strftime("%Y%m%dT%H%M%S") + f"{started_at.microsecond:06d}Z"
-    return f"{operation}-{ts}-{prompt_fingerprint[:12]}"
 
 
 @dataclass(frozen=True)
@@ -111,10 +81,10 @@ class TracedLLMClient(LLMClient):
 
     async def _call_and_record(self, *, job: Job, operation: str, prompt: str) -> Draft:
         started_at = utc_now()
-        call_id = _llm_call_id(
+        call_id = llm_call_id(
             operation=operation,
             started_at=started_at,
-            prompt_fingerprint=_sha256_hex(prompt),
+            prompt_fingerprint=sha256_hex(prompt),
         )
         log_call_start(logger=logger, job_id=job.job_id, llm_call_id=call_id, operation=operation)
 
@@ -209,10 +179,10 @@ class TracedLLMClient(LLMClient):
                 "model": self._model,
                 "temperature": self._temperature,
                 "seed": seed,
-                "prompt_fingerprint": _sha256_hex(prompt),
-                "response_fingerprint": _sha256_hex(response),
-                "prompt_token_estimate": _estimate_tokens(prompt),
-                "response_token_estimate": _estimate_tokens(response),
+                "prompt_fingerprint": sha256_hex(prompt),
+                "response_fingerprint": sha256_hex(response),
+                "prompt_token_estimate": estimate_tokens(prompt),
+                "response_token_estimate": estimate_tokens(response),
                 "error_type": None if error is None else type(error).__name__,
                 "error_message": error_message,
                 "timeout_seconds": self._timeout_seconds,
@@ -234,11 +204,27 @@ class TracedLLMClient(LLMClient):
         prompt_rel = (rel_dir / "prompt.txt").as_posix()
         response_rel = (rel_dir / "response.txt").as_posix()
         meta_rel = (rel_dir / "meta.json").as_posix()
+        written: list[Path] = []
         try:
-            self._write_text(job_id=job_id, rel_path=prompt_rel, text=redact_text(prompt))
-            self._write_text(job_id=job_id, rel_path=response_rel, text=redact_text(response))
-            self._write_json(job_id=job_id, rel_path=meta_rel, payload=meta)
+            prompt_path = self._safe_artifact_path(job_id=job_id, rel_path=prompt_rel)
+            response_path = self._safe_artifact_path(job_id=job_id, rel_path=response_rel)
+            meta_path = self._safe_artifact_path(job_id=job_id, rel_path=meta_rel)
+
+            self._atomic_write_text(path=prompt_path, text=redact_text(prompt))
+            written.append(prompt_path)
+            self._atomic_write_text(path=response_path, text=redact_text(response))
+            written.append(response_path)
+            self._atomic_write_json(path=meta_path, payload=meta)
+            written.append(meta_path)
         except (OSError, ValueError) as e:
+            for path in written:
+                try:
+                    path.unlink(missing_ok=True)
+                except OSError:
+                    logger.warning(
+                        "SS_LLM_ARTIFACTS_CLEANUP_FAILED",
+                        extra={"job_id": job_id, "llm_call_id": call_id, "path": str(path)},
+                    )
             logger.warning(
                 "SS_LLM_ARTIFACTS_WRITE_FAILED",
                 extra={"job_id": job_id, "llm_call_id": call_id, "reason": str(e)},
@@ -250,16 +236,33 @@ class TracedLLMClient(LLMClient):
             meta_ref=ArtifactRef(kind=ArtifactKind.LLM_META, rel_path=meta_rel),
         )
 
-    def _write_text(self, *, job_id: str, rel_path: str, text: str) -> None:
-        path = self._safe_artifact_path(job_id=job_id, rel_path=rel_path)
+    def _atomic_write_text(self, *, path: Path, text: str) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text, encoding="utf-8")
+        tmp: Path | None = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                "w",
+                encoding="utf-8",
+                dir=str(path.parent),
+                delete=False,
+            ) as f:
+                tmp = Path(f.name)
+                f.write(text)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, path)
+        except OSError:
+            if tmp is not None:
+                try:
+                    tmp.unlink(missing_ok=True)
+                except OSError:
+                    logger.warning("SS_ATOMIC_WRITE_TMP_CLEANUP_FAILED", extra={"tmp": str(tmp)})
+            raise
 
-    def _write_json(self, *, job_id: str, rel_path: str, payload: JsonObject) -> None:
-        path = self._safe_artifact_path(job_id=job_id, rel_path=rel_path)
+    def _atomic_write_json(self, *, path: Path, payload: JsonObject) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
-        path.write_text(data, encoding="utf-8")
+        self._atomic_write_text(path=path, text=data)
 
     def _safe_artifact_path(self, *, job_id: str, rel_path: str) -> Path:
         if not is_safe_job_rel_path(rel_path):
