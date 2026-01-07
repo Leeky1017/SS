@@ -51,6 +51,11 @@
   - 在控制面执行：`scripts/agent_worktree_cleanup.sh "$N" "$SLUG"`
 - PR 需要通过 required checks：`ci` / `openspec-log-guard` / `merge-serial`。
 - PR 前（或启用 auto-merge 前）必须运行：`scripts/agent_pr_preflight.sh`（roadmap 依赖 + open PR 文件重叠预警）。
+- Task card 收口（强制，禁止“做完就不管”）：
+  - 如果该 Issue 有对应 task card（例如 `openspec/specs/**/task_cards/*.md` 中引用了 `Issue: #N`），PR 合并后必须回填：
+    - Acceptance checklist 全部打勾（`[x]`）
+    - 增加 `## Completion`：PR 链接 + 2-5 条精要完成情况 + `openspec/_ops/task_runs/ISSUE-N.md`
+  - 同步把 PR 链接回填到 run log：`openspec/_ops/task_runs/ISSUE-N.md` 的 `PR:` 字段
 
 ## 本地验证
 

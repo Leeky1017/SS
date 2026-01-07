@@ -28,7 +28,14 @@
 
 ## Acceptance checklist
 
-- [ ] 模板库被当作数据资产管理（不与 tasks 系统混淆）
-- [ ] 模板加载/缺失/占位符替换/输出声明一致性 有测试保护
-- [ ] end-to-end 最小闭环跑通（选模板→填参→生成→执行→归档）
-- [ ] `openspec/_ops/task_runs/ISSUE-36.md` 记录关键命令与输出
+- [x] 模板库被当作数据资产管理（不与 tasks 系统混淆）
+- [x] 模板加载/缺失/占位符替换/输出声明一致性 有测试保护
+- [x] end-to-end 最小闭环跑通（选模板→填参→生成→执行→归档）
+- [x] `openspec/_ops/task_runs/ISSUE-36.md` 记录关键命令与输出
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/60
+- Run log: `openspec/_ops/task_runs/ISSUE-36.md`
+- Summary: Do template repository port + filesystem adapter + minimal E2E with artifacts

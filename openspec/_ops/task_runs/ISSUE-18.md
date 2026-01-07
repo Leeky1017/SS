@@ -2,7 +2,7 @@
 
 - Issue: #18
 - Branch: task/18-arch-t021
-- PR: <fill>
+- PR: https://github.com/Leeky1017/SS/pull/49
 
 ## Plan
 - Add domain job summary query

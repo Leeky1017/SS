@@ -25,7 +25,14 @@
 
 ## Acceptance checklist
 
-- [ ] claim 原子化：不会双 worker 同时拿到同一 job
-- [ ] 过期/失败策略明确且可测试
-- [ ] 测试覆盖：并发 claim（多进程/线程或模拟）与幂等
-- [ ] `openspec/_ops/task_runs/ISSUE-22.md` 记录关键命令与输出
+- [x] claim 原子化：不会双 worker 同时拿到同一 job
+- [x] 过期/失败策略明确且可测试
+- [x] 测试覆盖：并发 claim（多进程/线程或模拟）与幂等
+- [x] `openspec/_ops/task_runs/ISSUE-22.md` 记录关键命令与输出
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/57
+- Run log: `openspec/_ops/task_runs/ISSUE-22.md`
+- Summary: file-based queue claim implementation + lease/expiry semantics + tests

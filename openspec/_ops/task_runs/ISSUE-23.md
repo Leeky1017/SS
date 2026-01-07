@@ -2,7 +2,7 @@
 
 - Issue: #23
 - Branch: task/23-arch-t042
-- PR: (fill)
+- PR: https://github.com/Leeky1017/SS/pull/59
 
 ## Plan
 - Add worker entrypoint + loop

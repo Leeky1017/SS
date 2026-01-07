@@ -26,7 +26,14 @@
 
 ## Acceptance checklist
 
-- [ ] LLMPlan schema 与 PlanService 行为清晰（冻结、可回放）
-- [ ] stub 不触网，可在 CI 稳定运行
-- [ ] 单元测试覆盖：plan 生成、冻结、重复生成幂等
-- [ ] `openspec/_ops/task_runs/ISSUE-20.md` 记录关键命令与输出
+- [x] LLMPlan schema 与 PlanService 行为清晰（冻结、可回放）
+- [x] stub 不触网，可在 CI 稳定运行
+- [x] 单元测试覆盖：plan 生成、冻结、重复生成幂等
+- [x] `openspec/_ops/task_runs/ISSUE-20.md` 记录关键命令与输出
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/53
+- Run log: `openspec/_ops/task_runs/ISSUE-20.md`
+- Summary: LLMPlan schema + deterministic PlanService stub + tests

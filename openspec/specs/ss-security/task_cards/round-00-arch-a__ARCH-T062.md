@@ -23,8 +23,15 @@
 
 ## Acceptance checklist
 
-- [ ] artifacts 下载与路径解析防 `..` 与符号链接逃逸
-- [ ] LLM artifacts 与日志脱敏（不落盘 key/token/隐私字段）
-- [ ] do-file 生成与 runner 执行限制工作目录与可写范围
-- [ ] 测试覆盖：典型攻击输入被拒绝
-- [ ] `openspec/_ops/task_runs/ISSUE-27.md` 记录关键命令与输出
+- [x] artifacts 下载与路径解析防 `..` 与符号链接逃逸
+- [x] LLM artifacts 与日志脱敏（不落盘 key/token/隐私字段）
+- [x] do-file 生成与 runner 执行限制工作目录与可写范围
+- [x] 测试覆盖：典型攻击输入被拒绝
+- [x] `openspec/_ops/task_runs/ISSUE-27.md` 记录关键命令与输出
+
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/64
+- Run log: `openspec/_ops/task_runs/ISSUE-27.md`
+- Summary: path traversal/escape defenses + LLM redaction + runner/do-file safety tests
