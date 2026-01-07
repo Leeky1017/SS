@@ -20,8 +20,11 @@ def test_resilience_page_reload_and_worker_shutdown_recovery_is_idempotent(
     journey_client: TestClient,
     journey_plan_service: PlanService,
     journey_worker_service: WorkerService,
+    journey_attach_sample_inputs,
 ) -> None:
     job_id = _create_and_preview(client=journey_client)
+
+    journey_attach_sample_inputs(job_id)
 
     journey_plan_service.freeze_plan(
         job_id=job_id,

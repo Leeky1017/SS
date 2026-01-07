@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -8,7 +9,7 @@ from fastapi.testclient import TestClient
 
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService, NoopJobScheduler
-from src.domain.models import JobConfirmation, JobStatus
+from src.domain.models import JobConfirmation, JobInputs, JobStatus
 from src.domain.plan_service import PlanService
 from src.domain.stata_runner import RunResult
 from src.domain.state_machine import JobStateMachine
@@ -18,6 +19,7 @@ from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store import JobStore
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.main import create_app
+from src.utils.job_workspace import resolve_job_dir
 
 
 def _prepare_queued_job(*, jobs_dir: Path, queue: FileWorkerQueue) -> str:
@@ -84,6 +86,7 @@ def test_worker_service_when_shutdown_requested_after_claim_releases_claim_and_s
     service = WorkerService(
         store=JobStore(jobs_dir=jobs_dir),
         queue=queue,
+        jobs_dir=jobs_dir,
         runner=_CapturingRunner(),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
@@ -118,12 +121,27 @@ def test_execute_plan_with_shutdown_deadline_caps_timeout_seconds(tmp_path: Path
 
     job = job_service.create_job(requirement="hello")
     job.status = JobStatus.DRAFT_READY
+    job.inputs = JobInputs(manifest_rel_path="inputs/manifest.json", fingerprint="fp-test")
     store.save(job)
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+    assert job_dir is not None
+    (job_dir / "inputs").mkdir(parents=True, exist_ok=True)
+    (job_dir / "inputs" / "primary.csv").write_text("id,y,x\n1,1,2\n", encoding="utf-8")
+    (job_dir / "inputs" / "manifest.json").write_text(
+        json.dumps(
+            {"primary_dataset": {"rel_path": "inputs/primary.csv"}},
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     plan_service.freeze_plan(job_id=job.job_id, confirmation=JobConfirmation(requirement="hello"))
     job = store.load(job.job_id)
     result = execute_plan(
         job=job,
         run_id="run-1",
+        jobs_dir=jobs_dir,
         runner=runner,
         shutdown_deadline=deadline,
         clock=lambda: now,

@@ -24,8 +24,11 @@ def test_duplicate_submission_confirm_is_idempotent_and_queues_once(
     journey_plan_service: PlanService,
     journey_worker_service: WorkerService,
     journey_queue_dir: Path,
+    journey_attach_sample_inputs,
 ) -> None:
     job_id = _create_job_ready_for_submit(client=journey_client)
+
+    journey_attach_sample_inputs(job_id)
 
     journey_plan_service.freeze_plan(
         job_id=job_id,

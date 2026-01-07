@@ -120,6 +120,7 @@ def stress_worker_factory(
         return WorkerService(
             store=stress_store,
             queue=stress_queue,
+            jobs_dir=stress_jobs_dir,
             runner=runner,
             state_machine=stress_state_machine,
             retry=WorkerRetryPolicy(
@@ -150,4 +151,3 @@ def stress_app(
 def stress_client(stress_app: FastAPI) -> Iterator[TestClient]:
     with TestClient(stress_app) as client:
         yield client
-
