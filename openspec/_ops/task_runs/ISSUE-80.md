@@ -2,7 +2,7 @@
 
 - Issue: #80
 - Branch: task/80-jobstore-race-protection
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/81
 
 ## Plan
 - Add persisted job `version` for optimistic concurrency
