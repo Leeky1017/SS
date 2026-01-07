@@ -2,7 +2,7 @@
 
 - Issue: #103
 - Branch: task/103-stress-tests
-- PR: https://github.com/Leeky1017/SS/pull/110
+- PR: https://github.com/Leeky1017/SS/pull/110, https://github.com/Leeky1017/SS/pull/112
 
 ## Plan
 - Implement `tests/stress/` scenarios 1/2/4
