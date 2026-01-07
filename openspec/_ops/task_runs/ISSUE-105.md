@@ -2,7 +2,7 @@
 
 - Issue: #105
 - Branch: task/105-audit-o002-health-check
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/109
 
 ## Plan
 - Add `/health/live` and `/health/ready` endpoints
@@ -49,3 +49,10 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-07 Open PR
+- Command:
+  - `git push -u origin HEAD`
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/109`
