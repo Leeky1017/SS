@@ -72,3 +72,9 @@
   - `gh pr create --base main --head task/96-job-store-sharding --title "[SS-AUDIT-SCALABILITY] Job store sharding strategy (#96)" --body "Closes #96 ..."`
 - Key output:
   - `PR: https://github.com/Leeky1017/SS/pull/101`
+
+### 2026-01-07 00:24 Enable auto-merge
+- Command:
+  - `gh pr merge --auto --squash 101`
+- Key output:
+  - `will be automatically merged via squash when all requirements are met`
