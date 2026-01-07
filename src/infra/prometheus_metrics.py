@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
-
 from prometheus_client import (
     CONTENT_TYPE_LATEST,
     CollectorRegistry,
@@ -12,22 +10,19 @@ from prometheus_client import (
     start_http_server,
 )
 
-
-def _default_duration_buckets() -> Iterable[float]:
-    return (
-        0.005,
-        0.01,
-        0.025,
-        0.05,
-        0.1,
-        0.25,
-        0.5,
-        1.0,
-        2.5,
-        5.0,
-        10.0,
-    )
-
+DEFAULT_DURATION_BUCKETS: tuple[float, ...] = (
+    0.005,
+    0.01,
+    0.025,
+    0.05,
+    0.1,
+    0.25,
+    0.5,
+    1.0,
+    2.5,
+    5.0,
+    10.0,
+)
 
 class PrometheusMetrics:
     def __init__(self) -> None:
@@ -61,7 +56,7 @@ class PrometheusMetrics:
             "ss_http_request_duration_seconds",
             "HTTP request latency in seconds",
             labelnames=("method", "route", "status_code"),
-            buckets=_default_duration_buckets(),
+            buckets=DEFAULT_DURATION_BUCKETS,
             registry=self._registry,
         )
 
@@ -105,4 +100,3 @@ class PrometheusMetrics:
         self._http_request_duration_seconds.labels(
             method=method, route=route, status_code=status
         ).observe(duration_seconds)
-
