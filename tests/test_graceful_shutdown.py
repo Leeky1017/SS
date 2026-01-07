@@ -58,7 +58,7 @@ def test_api_shutdown_gate_when_shutting_down_returns_503() -> None:
 
     with TestClient(app) as client:
         app.state.shutting_down = True
-        response = client.get("/jobs/job-any")
+        response = client.get("/v1/jobs/job-any")
 
     assert response.status_code == 503
     assert response.json()["error_code"] == "SERVICE_SHUTTING_DOWN"

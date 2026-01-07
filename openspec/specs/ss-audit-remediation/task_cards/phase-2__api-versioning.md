@@ -1,5 +1,11 @@
 # Phase 2: API versioning + deprecation policy
 
+## Metadata
+
+- Issue: #83 https://github.com/Leeky1017/SS/issues/83
+- Related specs:
+  - `openspec/specs/ss-api-surface/spec.md`
+
 ## Background
 
 The audit found that routes are not versioned and there is no deprecation policy, making it hard to introduce breaking changes safely while supporting existing clients.
@@ -11,6 +17,11 @@ Sources:
 ## Goal
 
 Introduce explicit API versioning (at least `/v1`) and define a deprecation mechanism (headers + schedule) so new versions can coexist without silent client breakage.
+
+## Deprecation schedule
+
+- Legacy unversioned routes (`/jobs/*`) are deprecated once `/v1` is available.
+- Sunset date (planned removal): `2026-06-01` (emitted via the `Sunset` response header).
 
 ## Dependencies & parallelism
 
@@ -28,4 +39,3 @@ Introduce explicit API versioning (at least `/v1`) and define a deprecation mech
 ## Estimate
 
 - 3-5h
-
