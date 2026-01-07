@@ -108,13 +108,13 @@
 
 1. **UX-B001：数据上传 + 数据预览缺失**
    - Issue: #126
-   - Task card: `openspec/specs/ss-api-surface/task_cards/round-01-ux-a__UX-B001.md`
+   - Task card: `openspec/specs/ss-ux-loop-closure/task_cards/round-01-ux-a__UX-B001.md`
 2. **UX-B002：Plan 冻结与预览未接入用户链路**
    - Issue: #127
-   - Task card: `openspec/specs/ss-llm-brain/task_cards/round-01-ux-a__UX-B002.md`
+   - Task card: `openspec/specs/ss-ux-loop-closure/task_cards/round-01-ux-a__UX-B002.md`
 3. **UX-B003：Worker 执行闭环未接入 DoFileGenerator/真实 Runner，缺少可用结果产物**
    - Issue: #128
-   - Task card: `openspec/specs/ss-stata-runner/task_cards/round-01-ux-a__UX-B003.md`
+   - Task card: `openspec/specs/ss-ux-loop-closure/task_cards/round-01-ux-a__UX-B003.md`
 
 ## Nice-to-have（非阻塞但高价值）
 
@@ -122,4 +122,3 @@
 - Draft “拒绝/驳回”显式状态（而非 confirmed=false noop）
 - 统一“失败摘要”呈现：在 `GET /v1/jobs/{job_id}` 里提供 latest_run 的 error 摘要（同时保留 artifacts 作为证据）
 - 对齐 `ss-testing-strategy` 场景 A 描述与当前 user journey tests 覆盖范围（当前测试未覆盖 upload/preview/mapping）
-

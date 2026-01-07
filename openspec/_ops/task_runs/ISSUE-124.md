@@ -60,9 +60,9 @@
   - `https://github.com/Leeky1017/SS/issues/128`
 - Evidence:
   - `Audit/04_Production_Readiness_UX_Audit.md`
-  - `openspec/specs/ss-api-surface/task_cards/round-01-ux-a__UX-B001.md`
-  - `openspec/specs/ss-llm-brain/task_cards/round-01-ux-a__UX-B002.md`
-  - `openspec/specs/ss-stata-runner/task_cards/round-01-ux-a__UX-B003.md`
+  - `openspec/specs/ss-ux-loop-closure/task_cards/round-01-ux-a__UX-B001.md`
+  - `openspec/specs/ss-ux-loop-closure/task_cards/round-01-ux-a__UX-B002.md`
+  - `openspec/specs/ss-ux-loop-closure/task_cards/round-01-ux-a__UX-B003.md`
 
 ### 2026-01-07 17:48 Deliver: preflight + PR
 - Command:
