@@ -26,3 +26,10 @@
 - Key output:
   - `All checks passed!`
   - `97 passed, 5 skipped in 3.86s`
+
+### 2026-01-07 pr-preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
