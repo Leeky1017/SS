@@ -2,7 +2,7 @@
 
 - Issue: #104
 - Branch: task/104-metrics-export
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/111
 
 ## Plan
 - Add Prometheus metrics registry + collectors
@@ -46,4 +46,3 @@
   - `.venv/bin/pytest -q`
 - Key output:
   - `78 passed in 2.64s`
-
