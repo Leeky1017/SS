@@ -9,6 +9,7 @@ from types import FrameType
 from opentelemetry.trace import get_tracer
 
 from src.config import load_config
+from src.domain.stata_runner import StataRunner
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.audit_logger import LoggingAuditLogger
@@ -68,6 +69,7 @@ def main() -> None:
         queue_dir=config.queue_dir,
         lease_ttl_seconds=config.queue_lease_ttl_seconds,
     )
+    runner: StataRunner
     if config.stata_cmd:
         runner = LocalStataRunner(jobs_dir=config.jobs_dir, stata_cmd=config.stata_cmd)
         logger.info(

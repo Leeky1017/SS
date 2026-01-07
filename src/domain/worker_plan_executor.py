@@ -20,7 +20,6 @@ from src.infra.stata_run_support import (
     resolve_run_dirs,
     write_run_artifacts,
 )
-from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
 
@@ -223,7 +222,7 @@ def _write_pre_run_error(*, dirs: RunDirs, job_id: str, run_id: str, error: RunE
             artifacts_dir=dirs.artifacts_dir,
             stdout_text=execution.stdout_text,
             stderr_text=execution.stderr_text,
-            meta=cast(JsonObject, meta),
+            meta=meta,
             error=error,
             exit_code=execution.exit_code,
             timed_out=execution.timed_out,

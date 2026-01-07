@@ -205,7 +205,7 @@ class WorkerService:
 
             if result.ok:
                 self._finish_job(job=job, status=JobStatus.SUCCEEDED, claim=claim)
-                self._ack(claim=claim)
+                self._ack(claim)
                 return
 
             if not self._should_retry(result=result):
@@ -218,12 +218,12 @@ class WorkerService:
                     },
                 )
                 self._finish_job(job=job, status=JobStatus.FAILED, claim=claim)
-                self._ack(claim=claim)
+                self._ack(claim)
                 return
 
             if attempt >= max_attempts:
                 self._finish_job(job=job, status=JobStatus.FAILED, claim=claim)
-                self._ack(claim=claim)
+                self._ack(claim)
                 return
 
             if stop_requested():
@@ -266,9 +266,9 @@ class WorkerService:
             event,
             extra={"job_id": claim.job_id, "claim_id": claim.claim_id},
         )
-        self._release(claim=claim)
+        self._release(claim)
 
-    def _ack(self, *, claim: QueueClaim) -> None:
+    def _ack(self, claim: QueueClaim) -> None:
         try:
             self._queue.ack(claim=claim)
         except QueueIOError as e:
@@ -282,7 +282,7 @@ class WorkerService:
             )
             raise
 
-    def _release(self, *, claim: QueueClaim) -> None:
+    def _release(self, claim: QueueClaim) -> None:
         try:
             self._queue.release(claim=claim)
         except QueueIOError as e:
