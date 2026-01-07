@@ -2,7 +2,7 @@
 
 - Issue: #133
 - Branch: task/133-do-lib-opt-p0
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/137
 
 ## Plan
 - Add meta schema + CI validation
