@@ -2,7 +2,7 @@
 
 - Issue: #202
 - Branch: task/202-stata-proxy-extension
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/205
 
 ## Plan
 - Publish proxy-layer extension OpenSpec
@@ -48,3 +48,10 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-08 13:07 PR
+- Command:
+  - `git push -u origin HEAD`
+  - `gh pr create --title "docs: backend stata proxy extension spec (#202)" --body "Closes #202 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/205`
