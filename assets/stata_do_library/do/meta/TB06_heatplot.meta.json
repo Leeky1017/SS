@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "heatplot",
-      "purpose": "heatmap visualization",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "correlate and graph export",
+      "source": "built-in"
     }
   ],
   "description": "Draw correlation matrix heatmap",

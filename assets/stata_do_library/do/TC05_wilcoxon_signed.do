@@ -10,8 +10,17 @@
 *   - stata source=built-in purpose="signrank command"
 * ==============================================================================
 
+* ============ BEST_PRACTICE_REVIEW (Phase 5.4) ============
+* - [x] Validate vars and types (校验变量存在与类型)
+* - [x] Missingness summary (缺失值摘要)
+* - [x] No SSC dependencies (无需 SSC)
+* - [x] Bilingual notes for key steps (关键步骤中英文注释)
+
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -42,11 +51,79 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
-signrank `var1' = `var2'
+* Validate variables / 校验变量
+capture confirm variable `var1'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `var1'|msg=var_not_found:var1|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm variable `var2'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `var2'|msg=var_not_found:var2|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `var1'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `var1'|msg=not_numeric:var1|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `var2'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `var2'|msg=not_numeric:var2|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+quietly count if missing(`var1') | missing(`var2')
+local n_missing_total = r(N)
+display "SS_METRIC|name=n_missing|value=`n_missing_total'"
+
+capture noisily signrank `var1' = `var2'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=signrank|msg=test_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 local z = r(z)
 local p = 2 * (1 - normal(abs(`z')))
 
@@ -86,7 +163,7 @@ timer off 1
 quietly timer list 1
 local elapsed = r(t1)
 display "SS_METRIC|name=n_obs|value=`n_output'"
-display "SS_METRIC|name=n_missing|value=0"
+display "SS_METRIC|name=n_missing|value=`n_missing_total'"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
 

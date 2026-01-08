@@ -14,8 +14,18 @@
 * Stata:        18.0+
 * ==============================================================================
 
+* ============ BEST_PRACTICE_REVIEW (Phase 5.4) ============
+* - [x] Validate vars and avoid hard-coded group values (避免把分组变量硬编码为 0/1)
+* - [x] Missingness summary (缺失值摘要)
+* - [x] No SSC dependencies (无需 SSC)
+* - [x] Bilingual notes for key steps (关键步骤中英文注释)
+* - 2026-01-08: Use `by()` faceting for arbitrary groups (支持任意分组水平)
+
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -46,14 +56,71 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
-twoway (kdensity `var' if `by_var' == 0, lcolor(navy)) ///
-       (kdensity `var' if `by_var' == 1, lcolor(red)), ///
-    title("分组核密度图: `var'") xtitle("`var'") ytitle("密度") ///
-    legend(order(1 "`by_var'=0" 2 "`by_var'=1"))
+* Validate variables / 校验变量
+capture confirm variable `var'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `var'|msg=var_not_found:var|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm variable `by_var'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `by_var'|msg=var_not_found:by_var|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `var'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `var'|msg=not_numeric:var|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+quietly count if missing(`var') | missing(`by_var')
+local n_missing_total = r(N)
+display "SS_METRIC|name=n_missing|value=`n_missing_total'"
+
+* Facet by group levels / 按分组水平分面
+capture noisily twoway (kdensity `var', lcolor(navy) lwidth(medium)), ///
+    by(`by_var', title("分组核密度图 / Kernel density: `var' by `by_var'") note("")) ///
+    xtitle("`var'") ytitle("Density")
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=twoway kdensity by(group)|msg=plot_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 graph export "fig_TB08_kdensity.png", replace width(1200)
 display "SS_OUTPUT_FILE|file=fig_TB08_kdensity.png|type=graph|desc=kdensity_plot"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
@@ -75,7 +142,7 @@ timer off 1
 quietly timer list 1
 local elapsed = r(t1)
 display "SS_METRIC|name=n_obs|value=`n_output'"
-display "SS_METRIC|name=n_missing|value=0"
+display "SS_METRIC|name=n_missing|value=`n_missing_total'"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
 

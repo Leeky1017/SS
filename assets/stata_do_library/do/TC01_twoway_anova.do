@@ -14,8 +14,18 @@
 * Stata:        18.0+
 * ==============================================================================
 
+* ============ BEST_PRACTICE_REVIEW (Phase 5.4) ============
+* - [x] Validate vars and types (校验变量存在与类型)
+* - [x] Missingness summary (缺失值摘要)
+* - [x] No SSC dependencies (无需 SSC)
+* - [x] Bilingual notes for key steps (关键步骤中英文注释)
+* - 2026-01-08: Export a minimal, machine-readable summary table (导出最小可解析汇总表)
+
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -47,11 +57,79 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC01|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
-anova `depvar' `factor1'##`factor2'
+* Validate variables / 校验变量
+capture confirm variable `depvar'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `depvar'|msg=var_not_found:depvar|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC01|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `depvar'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `depvar'|msg=not_numeric:depvar|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC01|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm variable `factor1'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `factor1'|msg=var_not_found:factor1|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC01|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm variable `factor2'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `factor2'|msg=var_not_found:factor2|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC01|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+quietly count if missing(`depvar') | missing(`factor1') | missing(`factor2')
+local n_missing_total = r(N)
+display "SS_METRIC|name=n_missing|value=`n_missing_total'"
+
+capture noisily anova `depvar' `factor1'##`factor2'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=anova|msg=fit_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC01|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 
 local f_stat = e(F)
 local p_value = Ftail(e(df_m), e(df_r), e(F))
@@ -70,13 +148,13 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 display "SS_STEP_BEGIN|step=S03_analysis"
 preserve
 clear
-set obs 3
-gen str20 effect = ""
-gen double f = .
-gen double p = .
-replace effect = "`factor1'" in 1
-replace effect = "`factor2'" in 2
-replace effect = "Interaction" in 3
+set obs 1
+gen str30 test = "Twoway ANOVA"
+gen double f_stat = `f_stat'
+gen double p_value = `p_value'
+gen double r2 = `r2'
+gen double df_m = e(df_m)
+gen double df_r = e(df_r)
 export delimited using "table_TC01_anova.csv", replace
 display "SS_OUTPUT_FILE|file=table_TC01_anova.csv|type=table|desc=anova_results"
 restore
@@ -97,7 +175,7 @@ timer off 1
 quietly timer list 1
 local elapsed = r(t1)
 display "SS_METRIC|name=n_obs|value=`n_output'"
-display "SS_METRIC|name=n_missing|value=0"
+display "SS_METRIC|name=n_missing|value=`n_missing_total'"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
 

@@ -80,9 +80,9 @@
     "TB06": {
       "dependencies": [
         {
-          "pkg": "heatplot",
-          "purpose": "heatmap visualization",
-          "source": "ssc"
+          "pkg": "stata",
+          "purpose": "correlate and graph export (heatplot optional)",
+          "source": "built-in"
         }
       ],
       "fixtures": [
@@ -98,9 +98,9 @@
     "TB07": {
       "dependencies": [
         {
-          "pkg": "vioplot",
-          "purpose": "violin plot visualization",
-          "source": "ssc"
+          "pkg": "stata",
+          "purpose": "graph box + export (vioplot optional)",
+          "source": "built-in"
         }
       ],
       "fixtures": [
@@ -136,9 +136,9 @@
     "TB09": {
       "dependencies": [
         {
-          "pkg": "spineplot",
-          "purpose": "spine plot visualization",
-          "source": "ssc"
+          "pkg": "stata",
+          "purpose": "contract + graph bar + export (spineplot optional)",
+          "source": "built-in"
         }
       ],
       "fixtures": [

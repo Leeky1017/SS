@@ -1,8 +1,7 @@
 * ==============================================================================
 * SS_TEMPLATE: id=TB04  level=L0  module=B  title="Trend Line"
 * INPUTS:
-*   - data.dta  role=main_dataset  required=yes
-*   - data.csv  role=main_dataset  required=no
+*   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - fig_TB04_trend.png type=graph desc="Trend line plot"
 *   - data_TB04_trend.dta type=data desc="Data file"
@@ -16,9 +15,19 @@
 * Stata:        18.0+ (official commands)
 * ==============================================================================
 
+* ============ BEST_PRACTICE_REVIEW (Phase 5.4) ============
+* - [x] Validate y/time vars (校验趋势变量与时间变量)
+* - [x] Missingness summary (缺失值摘要)
+* - [x] No SSC dependencies (无需 SSC)
+* - [x] Bilingual notes for key steps (关键步骤中英文注释)
+* - 2026-01-08: Avoid silent init failures; fail fast on missing/invalid vars (初始化告警；缺失/无效变量直接失败)
+
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -54,14 +63,82 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB04|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 * ============ 绑定图 ============
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* Validate variables / 校验变量
+capture confirm variable `yvar'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `yvar'|msg=var_not_found:yvar|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB04|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm variable `timevar'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `timevar'|msg=var_not_found:time_var|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB04|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `yvar'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `yvar'|msg=not_numeric:yvar|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB04|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `timevar'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `timevar'|msg=not_numeric:time_var|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB04|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+quietly count if missing(`yvar') | missing(`timevar')
+local n_missing_total = r(N)
+display "SS_METRIC|name=n_missing|value=`n_missing_total'"
+
 sort `timevar'
-twoway (line `yvar' `timevar', lcolor(navy) lwidth(medium)), ///
+capture noisily twoway (line `yvar' `timevar', lcolor(navy) lwidth(medium)), ///
     title("时间趋势图: `yvar'") xtitle("`timevar'") ytitle("`yvar'")
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=twoway line|msg=plot_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB04|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 graph export "fig_TB04_trend.png", replace width(1200)
 display "SS_OUTPUT_FILE|file=fig_TB04_trend.png|type=graph|desc=trend_line"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
@@ -86,7 +163,7 @@ timer off 1
 quietly timer list 1
 local elapsed = r(t1)
 display "SS_METRIC|name=n_obs|value=`n_output'"
-display "SS_METRIC|name=n_missing|value=0"
+display "SS_METRIC|name=n_missing|value=`n_missing_total'"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
 

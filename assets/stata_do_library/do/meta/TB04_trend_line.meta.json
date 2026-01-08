@@ -12,13 +12,8 @@
   "id": "TB04",
   "inputs": [
     {
-      "name": "data.dta",
-      "required": true,
-      "role": "main_dataset"
-    },
-    {
       "name": "data.csv",
-      "required": false,
+      "required": true,
       "role": "main_dataset"
     }
   ],

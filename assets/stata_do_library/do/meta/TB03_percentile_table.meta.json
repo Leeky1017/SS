@@ -3,7 +3,7 @@
   "dependencies": [
     {
       "pkg": "stata",
-      "purpose": "summarize detail",
+      "purpose": "centile percentiles and summarize detail",
       "source": "built-in"
     }
   ],
@@ -12,13 +12,8 @@
   "id": "TB03",
   "inputs": [
     {
-      "name": "data.dta",
-      "required": true,
-      "role": "main_dataset"
-    },
-    {
       "name": "data.csv",
-      "required": false,
+      "required": true,
       "role": "main_dataset"
     }
   ],
@@ -50,11 +45,7 @@
     }
   ],
   "slug": "percentile_table",
-  "tags": [
-    "percentile",
-    "quantile",
-    "distribution"
-  ],
+  "tags": ["percentile", "quantile", "distribution"],
   "title": "Percentile Table",
   "title_zh": "百分位数表",
   "version": "2.0.1"
