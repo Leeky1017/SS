@@ -38,8 +38,16 @@ sequential / merge-then-sequential / parallel-then-aggregate / conditional.
 
 ## Acceptance checklist
 
-- [ ] Executor validates plans and rejects unknown dataset refs / ambiguous products
-- [ ] Each supported composition mode has at least one end-to-end test scenario
-- [ ] Per-step evidence is archived and indexed
-- [ ] Pipeline-level summary artifact records bindings, products, and decisions (merge/aggregate/branch)
-- [ ] Simple sequential jobs remain minimal and auditable
+- [x] Executor validates plans and rejects unknown dataset refs / ambiguous products
+- [x] Each supported composition mode has at least one end-to-end test scenario
+- [x] Per-step evidence is archived and indexed
+- [x] Pipeline-level summary artifact records bindings, products, and decisions (merge/aggregate/branch)
+- [x] Simple sequential jobs remain minimal and auditable
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/177
+- Composition executor supports `merge_then_sequential`, `parallel_then_aggregate`, and `conditional` with deterministic input materialization.
+- Evidence chain includes per-step run dirs (inputs/work/artifacts) plus pipeline `composition_summary.json`.
+- End-to-end tests cover each mode + invalid `dataset_ref` rejection.
+- Run log: `openspec/_ops/task_runs/ISSUE-171.md`
