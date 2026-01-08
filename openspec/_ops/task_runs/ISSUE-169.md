@@ -43,6 +43,14 @@
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
 
+### 2026-01-08 pr preflight (post-commit)
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+  - `Note: initial git fetch failed with gnutls_handshake; retry succeeded`
+
 ### 2026-01-08 lint
 - Command:
   - `. .venv/bin/activate && ruff check .`
