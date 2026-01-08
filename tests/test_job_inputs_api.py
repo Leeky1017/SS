@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 
-from fastapi.testclient import TestClient
+import pytest
 
 from src.api import deps
 from src.domain.job_inputs_service import JobInputsService
@@ -11,6 +11,10 @@ from src.domain.models import ArtifactKind
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.main import create_app
 from src.utils.job_workspace import resolve_job_dir
+from tests.asgi_client import asgi_client
+from tests.async_overrides import async_override
+
+pytestmark = pytest.mark.anyio
 
 
 def _sha256_hex(data: bytes) -> str:
@@ -21,29 +25,32 @@ def _dataset_key(data: bytes) -> str:
     return f"ds_{_sha256_hex(data)[:16]}"
 
 
-def _client(*, svc: JobInputsService) -> TestClient:
+def _app(*, svc: JobInputsService):
     app = create_app()
-    app.dependency_overrides[deps.get_job_inputs_service] = lambda: svc
-    return TestClient(app)
+    app.dependency_overrides[deps.get_job_inputs_service] = async_override(svc)
+    return app
 
 
 def _svc(*, store, jobs_dir) -> JobInputsService:
     return JobInputsService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
 
 
-def test_upload_csv_and_preview_returns_columns_and_rows(job_service, store, jobs_dir) -> None:
+async def test_upload_csv_and_preview_returns_columns_and_rows(
+    job_service, store, jobs_dir
+) -> None:
     # Arrange
     job = job_service.create_job(requirement="hello")
     svc = _svc(store=store, jobs_dir=jobs_dir)
-    client = _client(svc=svc)
+    app = _app(svc=svc)
     csv_bytes = b"age,income\n30,1000\n40,2000\n"
 
     # Act
-    uploaded = client.post(
-        f"/v1/jobs/{job.job_id}/inputs/upload",
-        files={"file": ("data.csv", csv_bytes, "text/csv")},
-    )
-    preview = client.get(f"/v1/jobs/{job.job_id}/inputs/preview")
+    async with asgi_client(app=app) as client:
+        uploaded = await client.post(
+            f"/v1/jobs/{job.job_id}/inputs/upload",
+            files={"file": ("data.csv", csv_bytes, "text/csv")},
+        )
+        preview = await client.get(f"/v1/jobs/{job.job_id}/inputs/preview")
 
     # Assert
     assert uploaded.status_code == 200
@@ -164,76 +171,84 @@ def test_upload_two_csvs_with_roles_is_deterministic_across_order(
     )
 
 
-def test_upload_with_empty_file_returns_input_empty_file(job_service, store, jobs_dir) -> None:
-    client = _client(svc=_svc(store=store, jobs_dir=jobs_dir))
+async def test_upload_with_empty_file_returns_input_empty_file(
+    job_service, store, jobs_dir
+) -> None:
+    app = _app(svc=_svc(store=store, jobs_dir=jobs_dir))
     job = job_service.create_job(requirement="hello")
 
-    response = client.post(
-        f"/v1/jobs/{job.job_id}/inputs/upload",
-        files={"file": ("data.csv", b"", "text/csv")},
-    )
+    async with asgi_client(app=app) as client:
+        response = await client.post(
+            f"/v1/jobs/{job.job_id}/inputs/upload",
+            files={"file": ("data.csv", b"", "text/csv")},
+        )
 
     assert response.status_code == 400
     assert response.json()["error_code"] == "INPUT_EMPTY_FILE"
 
 
-def test_upload_with_unsupported_extension_returns_input_unsupported_format(
+async def test_upload_with_unsupported_extension_returns_input_unsupported_format(
     job_service, store, jobs_dir
 ) -> None:
-    client = _client(svc=_svc(store=store, jobs_dir=jobs_dir))
+    app = _app(svc=_svc(store=store, jobs_dir=jobs_dir))
     job = job_service.create_job(requirement="hello")
 
-    response = client.post(
-        f"/v1/jobs/{job.job_id}/inputs/upload",
-        files={"file": ("data.txt", b"hello", "text/plain")},
-    )
+    async with asgi_client(app=app) as client:
+        response = await client.post(
+            f"/v1/jobs/{job.job_id}/inputs/upload",
+            files={"file": ("data.txt", b"hello", "text/plain")},
+        )
 
     assert response.status_code == 400
     assert response.json()["error_code"] == "INPUT_UNSUPPORTED_FORMAT"
 
 
-def test_preview_with_malformed_csv_returns_input_parse_failed(
+async def test_preview_with_malformed_csv_returns_input_parse_failed(
     job_service, store, jobs_dir
 ) -> None:
-    client = _client(svc=_svc(store=store, jobs_dir=jobs_dir))
+    app = _app(svc=_svc(store=store, jobs_dir=jobs_dir))
     job = job_service.create_job(requirement="hello")
 
-    uploaded = client.post(
-        f"/v1/jobs/{job.job_id}/inputs/upload",
-        files={"file": ("data.csv", b"\xff\xfe\xff", "text/csv")},
-    )
+    async with asgi_client(app=app) as client:
+        uploaded = await client.post(
+            f"/v1/jobs/{job.job_id}/inputs/upload",
+            files={"file": ("data.csv", b"\xff\xfe\xff", "text/csv")},
+        )
     assert uploaded.status_code == 200
 
-    preview = client.get(f"/v1/jobs/{job.job_id}/inputs/preview")
+    async with asgi_client(app=app) as client:
+        preview = await client.get(f"/v1/jobs/{job.job_id}/inputs/preview")
 
     assert preview.status_code == 400
     assert preview.json()["error_code"] == "INPUT_PARSE_FAILED"
 
 
-def test_upload_with_path_traversal_filename_returns_input_filename_unsafe(
+async def test_upload_with_path_traversal_filename_returns_input_filename_unsafe(
     job_service, store, jobs_dir
 ) -> None:
-    client = _client(svc=_svc(store=store, jobs_dir=jobs_dir))
+    app = _app(svc=_svc(store=store, jobs_dir=jobs_dir))
     job = job_service.create_job(requirement="hello")
 
-    response = client.post(
-        f"/v1/jobs/{job.job_id}/inputs/upload",
-        files={"file": ("../evil.csv", b"a,b\n1,2\n", "text/csv")},
-    )
+    async with asgi_client(app=app) as client:
+        response = await client.post(
+            f"/v1/jobs/{job.job_id}/inputs/upload",
+            files={"file": ("../evil.csv", b"a,b\n1,2\n", "text/csv")},
+        )
 
     assert response.status_code == 400
     assert response.json()["error_code"] == "INPUT_FILENAME_UNSAFE"
 
 
-def test_upload_when_cross_tenant_access_returns_404(job_service, store, jobs_dir) -> None:
-    client = _client(svc=_svc(store=store, jobs_dir=jobs_dir))
+async def test_upload_when_cross_tenant_access_returns_404(job_service, store, jobs_dir) -> None:
+    app = _app(svc=_svc(store=store, jobs_dir=jobs_dir))
     job = job_service.create_job(tenant_id="tenant-a", requirement="hello")
 
-    response = client.post(
-        f"/v1/jobs/{job.job_id}/inputs/upload",
-        files={"file": ("data.csv", b"a,b\n1,2\n", "text/csv")},
-        headers={"X-SS-Tenant-ID": "tenant-b"},
-    )
+    async with asgi_client(app=app) as client:
+        response = await client.post(
+            f"/v1/jobs/{job.job_id}/inputs/upload",
+            files={"file": ("data.csv", b"a,b\n1,2\n", "text/csv")},
+            headers={"X-SS-Tenant-ID": "tenant-b"},
+        )
 
     assert response.status_code == 404
     assert response.json()["error_code"] == "JOB_NOT_FOUND"

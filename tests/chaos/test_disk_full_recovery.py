@@ -39,7 +39,8 @@ def test_job_store_save_when_disk_full_does_not_corrupt_and_allows_retry(
     assert persisted.requirement == "update"
 
 
-def test_draft_preview_when_llm_artifact_write_hits_disk_full_returns_clear_error(
+@pytest.mark.anyio
+async def test_draft_preview_when_llm_artifact_write_hits_disk_full_returns_clear_error(
     client,
     store,
     job_service,
@@ -50,7 +51,7 @@ def test_draft_preview_when_llm_artifact_write_hits_disk_full_returns_clear_erro
     job_dir = job_dir_for(job.job_id)
 
     with patch("src.infra.llm_tracing.os.replace", side_effect=enospc_error):
-        response = client.get(f"/v1/jobs/{job.job_id}/draft/preview")
+        response = await client.get(f"/v1/jobs/{job.job_id}/draft/preview")
 
     assert response.status_code == 500
     payload = response.json()

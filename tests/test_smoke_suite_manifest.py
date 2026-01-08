@@ -12,43 +12,52 @@ def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _manifest_paths(*, repo_root: Path) -> list[Path]:
+    smoke_suite_dir = repo_root / "assets/stata_do_library/smoke_suite"
+    return sorted(smoke_suite_dir.glob("manifest*.json"))
+
+
 def test_smoke_suite_manifest_when_validated_against_schema_has_no_errors() -> None:
     repo_root = _repo_root()
-    manifest_path = repo_root / "assets/stata_do_library/smoke_suite/manifest.1.0.json"
     schema_path = repo_root / "assets/stata_do_library/schemas/smoke_suite/1.0.schema.json"
 
     schema = _load_json(schema_path)
-    manifest = _load_json(manifest_path)
-
     validator = jsonschema.Draft202012Validator(schema)
-    errors = sorted(validator.iter_errors(manifest), key=lambda err: err.json_path)
-    messages = [f"{e.json_path or '$'}: {e.message}" for e in errors]
-    assert not messages, "smoke suite manifest schema violations:\n" + "\n".join(messages)
+    for manifest_path in _manifest_paths(repo_root=repo_root):
+        manifest = _load_json(manifest_path)
+        errors = sorted(validator.iter_errors(manifest), key=lambda err: err.json_path)
+        messages = [f"{e.json_path or '$'}: {e.message}" for e in errors]
+        assert not messages, (
+            f"smoke suite manifest schema violations ({manifest_path}):\n" + "\n".join(messages)
+        )
 
 
 def test_smoke_suite_manifest_when_loaded_references_existing_templates_and_fixtures() -> None:
     repo_root = _repo_root()
     library_dir = repo_root / "assets/stata_do_library"
-    manifest = _load_json(library_dir / "smoke_suite/manifest.1.0.json")
     index = _load_json(library_dir / "DO_LIBRARY_INDEX.json")
 
     tasks = index.get("tasks")
     assert isinstance(tasks, dict)
 
-    templates = manifest.get("templates")
-    assert isinstance(templates, dict)
+    for manifest_path in _manifest_paths(repo_root=repo_root):
+        manifest = _load_json(manifest_path)
+        templates = manifest.get("templates")
+        assert isinstance(templates, dict)
 
-    for template_id, entry in templates.items():
-        assert isinstance(template_id, str) and template_id in tasks
-        assert isinstance(entry, dict)
-        _validate_fixtures(template_id=template_id, entry=entry, library_dir=library_dir)
-        _validate_params(template_id=template_id, entry=entry, tasks=tasks, library_dir=library_dir)
-        _validate_dependencies(
-            template_id=template_id,
-            entry=entry,
-            tasks=tasks,
-            library_dir=library_dir,
-        )
+        for template_id, entry in templates.items():
+            assert isinstance(template_id, str) and template_id in tasks
+            assert isinstance(entry, dict)
+            _validate_fixtures(template_id=template_id, entry=entry, library_dir=library_dir)
+            _validate_params(
+                template_id=template_id, entry=entry, tasks=tasks, library_dir=library_dir
+            )
+            _validate_dependencies(
+                template_id=template_id,
+                entry=entry,
+                tasks=tasks,
+                library_dir=library_dir,
+            )
 
 
 def _meta_path(*, library_dir: Path, do_file: str) -> Path:

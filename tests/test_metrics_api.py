@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi.testclient import TestClient
+import pytest
 
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService, NoopJobScheduler
@@ -10,13 +10,15 @@ from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.job_store import JobStore
 from src.infra.prometheus_metrics import PrometheusMetrics
 from src.main import create_app
+from tests.asgi_client import asgi_client
 
 
-def test_metrics_endpoint_exists_and_exports_expected_metric_names() -> None:
+@pytest.mark.anyio
+async def test_metrics_endpoint_exists_and_exports_expected_metric_names() -> None:
     app = create_app()
-    client = TestClient(app)
 
-    response = client.get("/metrics")
+    async with asgi_client(app=app) as client:
+        response = await client.get("/metrics")
 
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/plain")

@@ -64,7 +64,16 @@ class PrometheusMetrics:
     def content_type_latest(self) -> str:
         return CONTENT_TYPE_LATEST
 
+    def _prime_http_metric_series(self) -> None:
+        self._http_requests_total.labels(method="GET", route="/metrics", status_code="200")
+        self._http_request_duration_seconds.labels(
+            method="GET",
+            route="/metrics",
+            status_code="200",
+        )
+
     def render_latest(self) -> bytes:
+        self._prime_http_metric_series()
         return generate_latest(self._registry)
 
     def start_http_server(self, *, port: int, addr: str = "0.0.0.0") -> None:

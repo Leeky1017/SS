@@ -13,7 +13,8 @@ from src.utils.job_workspace import shard_for_job_id
 from src.utils.time import utc_now
 
 
-def test_draft_preview_when_artifacts_dir_not_writable_returns_clear_error(
+@pytest.mark.anyio
+async def test_draft_preview_when_artifacts_dir_not_writable_returns_clear_error(
     client, job_service, store, job_dir_for
 ) -> None:
     job = job_service.create_job(requirement="hello")
@@ -23,7 +24,7 @@ def test_draft_preview_when_artifacts_dir_not_writable_returns_clear_error(
 
     try:
         artifacts_root.chmod(0o500)
-        response = client.get(f"/v1/jobs/{job.job_id}/draft/preview")
+        response = await client.get(f"/v1/jobs/{job.job_id}/draft/preview")
     finally:
         artifacts_root.chmod(0o700)
 

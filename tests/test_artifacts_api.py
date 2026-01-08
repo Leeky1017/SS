@@ -1,25 +1,27 @@
 from __future__ import annotations
 
-import asyncio
 import os
 from urllib.parse import quote
 
-from fastapi.testclient import TestClient
+import pytest
 
 from src.api import deps
 from src.domain.artifacts_service import ArtifactsService
 from src.domain.models import ArtifactKind, ArtifactRef
 from src.main import create_app
 from src.utils.job_workspace import resolve_job_dir
+from tests.asgi_client import asgi_client
+from tests.async_overrides import async_override
+
+pytestmark = pytest.mark.anyio
 
 
-def test_get_job_artifacts_with_valid_job_returns_index(job_service, store, jobs_dir):
+async def test_get_job_artifacts_with_valid_job_returns_index(job_service, store, jobs_dir):
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_artifacts_service] = lambda: ArtifactsService(
-        store=store, jobs_dir=jobs_dir
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_artifacts_service] = async_override(
+        ArtifactsService(store=store, jobs_dir=jobs_dir)
     )
-    client = TestClient(app)
 
     job = job_service.create_job(requirement="hello")
 
@@ -34,7 +36,8 @@ def test_get_job_artifacts_with_valid_job_returns_index(job_service, store, jobs
     ]
     store.save(persisted)
 
-    response = client.get(f"/v1/jobs/{job.job_id}/artifacts")
+    async with asgi_client(app=app) as client:
+        response = await client.get(f"/v1/jobs/{job.job_id}/artifacts")
 
     assert response.status_code == 200
     payload = response.json()
@@ -49,46 +52,49 @@ def test_get_job_artifacts_with_valid_job_returns_index(job_service, store, jobs
     ]
 
 
-def test_download_job_artifact_with_missing_artifact_returns_404(job_service, store, jobs_dir):
+async def test_download_job_artifact_with_missing_artifact_returns_404(
+    job_service, store, jobs_dir
+):
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_artifacts_service] = lambda: ArtifactsService(
-        store=store, jobs_dir=jobs_dir
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_artifacts_service] = async_override(
+        ArtifactsService(store=store, jobs_dir=jobs_dir)
     )
-    client = TestClient(app)
 
     job = job_service.create_job(requirement="hello")
 
-    response = client.get(f"/v1/jobs/{job.job_id}/artifacts/artifacts/llm/missing.txt")
+    async with asgi_client(app=app) as client:
+        response = await client.get(
+            f"/v1/jobs/{job.job_id}/artifacts/artifacts/llm/missing.txt"
+        )
 
     assert response.status_code == 404
     assert response.json()["error_code"] == "ARTIFACT_NOT_FOUND"
 
 
-def test_download_job_artifact_with_unsafe_path_returns_400(job_service, store, jobs_dir):
+async def test_download_job_artifact_with_unsafe_path_returns_400(job_service, store, jobs_dir):
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_artifacts_service] = lambda: ArtifactsService(
-        store=store, jobs_dir=jobs_dir
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_artifacts_service] = async_override(
+        ArtifactsService(store=store, jobs_dir=jobs_dir)
     )
-    client = TestClient(app)
 
     job = job_service.create_job(requirement="hello")
 
     unsafe = quote("../job.json", safe="")
-    response = client.get(f"/v1/jobs/{job.job_id}/artifacts/{unsafe}")
+    async with asgi_client(app=app) as client:
+        response = await client.get(f"/v1/jobs/{job.job_id}/artifacts/{unsafe}")
 
     assert response.status_code == 400
     assert response.json()["error_code"] == "ARTIFACT_PATH_UNSAFE"
 
 
-def test_download_job_artifact_with_symlink_escape_returns_400(job_service, store, jobs_dir):
+async def test_download_job_artifact_with_symlink_escape_returns_400(job_service, store, jobs_dir):
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_artifacts_service] = lambda: ArtifactsService(
-        store=store, jobs_dir=jobs_dir
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_artifacts_service] = async_override(
+        ArtifactsService(store=store, jobs_dir=jobs_dir)
     )
-    client = TestClient(app)
 
     job = job_service.create_job(requirement="hello")
     outside = jobs_dir / "outside.txt"
@@ -106,22 +112,23 @@ def test_download_job_artifact_with_symlink_escape_returns_400(job_service, stor
     evil_path.parent.mkdir(parents=True, exist_ok=True)
     os.symlink(outside, evil_path)
 
-    response = client.get(f"/v1/jobs/{job.job_id}/artifacts/artifacts/evil.txt")
+    async with asgi_client(app=app) as client:
+        response = await client.get(f"/v1/jobs/{job.job_id}/artifacts/artifacts/evil.txt")
 
     assert response.status_code == 400
     assert response.json()["error_code"] == "ARTIFACT_PATH_UNSAFE"
 
 
-def test_run_job_when_called_twice_is_idempotent(job_service, store, draft_service):
+async def test_run_job_when_called_twice_is_idempotent(job_service, store, draft_service):
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    client = TestClient(app)
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
 
     job = job_service.create_job(requirement=None)
-    asyncio.run(draft_service.preview(job_id=job.job_id))
+    await draft_service.preview(job_id=job.job_id)
 
-    first = client.post(f"/v1/jobs/{job.job_id}/run")
-    second = client.post(f"/v1/jobs/{job.job_id}/run")
+    async with asgi_client(app=app) as client:
+        first = await client.post(f"/v1/jobs/{job.job_id}/run")
+        second = await client.post(f"/v1/jobs/{job.job_id}/run")
 
     assert first.status_code == 200
     assert second.status_code == 200

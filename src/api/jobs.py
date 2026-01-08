@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from fastapi import APIRouter, Body, Depends, File, Form, Query, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import Response
 from opentelemetry.trace import get_tracer
 
 from src.api.deps import (
@@ -44,7 +44,7 @@ router = APIRouter(tags=["jobs"])
 
 
 @router.post("/jobs", response_model=CreateJobResponse)
-def create_job(
+async def create_job(
     payload: CreateJobRequest = Body(default_factory=CreateJobRequest),
     tenant_id: str = Depends(get_tenant_id),
     svc: JobService = Depends(get_job_service),
@@ -59,7 +59,7 @@ def create_job(
 
 
 @router.get("/jobs/{job_id}", response_model=GetJobResponse)
-def get_job(
+async def get_job(
     job_id: str,
     tenant_id: str = Depends(get_tenant_id),
     svc: JobQueryService = Depends(get_job_query_service),
@@ -108,7 +108,7 @@ async def upload_job_inputs(
 
 
 @router.get("/jobs/{job_id}/inputs/preview", response_model=InputsPreviewResponse)
-def preview_job_inputs(
+async def preview_job_inputs(
     job_id: str,
     rows: int = Query(default=20, ge=1, le=200),
     columns: int = Query(default=50, ge=1, le=200),
@@ -125,7 +125,7 @@ def preview_job_inputs(
 
 
 @router.get("/jobs/{job_id}/artifacts", response_model=ArtifactsIndexResponse)
-def get_job_artifacts(
+async def get_job_artifacts(
     job_id: str,
     tenant_id: str = Depends(get_tenant_id),
     svc: ArtifactsService = Depends(get_artifacts_service),
@@ -136,19 +136,23 @@ def get_job_artifacts(
 
 
 @router.get("/jobs/{job_id}/artifacts/{artifact_id:path}")
-def download_job_artifact(
+async def download_job_artifact(
     job_id: str,
     artifact_id: str,
     tenant_id: str = Depends(get_tenant_id),
     svc: ArtifactsService = Depends(get_artifacts_service),
-) -> FileResponse:
+) -> Response:
     path = svc.resolve_download_path(tenant_id=tenant_id, job_id=job_id, rel_path=artifact_id)
     filename = artifact_id.rsplit("/", 1)[-1]
-    return FileResponse(path=path, filename=filename)
+    return Response(
+        content=path.read_bytes(),
+        media_type="application/octet-stream",
+        headers={"Content-Disposition": f'attachment; filename=\"{filename}\"'},
+    )
 
 
 @router.post("/jobs/{job_id}/run", response_model=RunJobResponse)
-def run_job(
+async def run_job(
     job_id: str,
     tenant_id: str = Depends(get_tenant_id),
     svc: JobService = Depends(get_job_service),
@@ -158,7 +162,7 @@ def run_job(
 
 
 @router.post("/jobs/{job_id}/confirm", response_model=ConfirmJobResponse)
-def confirm_job(
+async def confirm_job(
     job_id: str,
     payload: ConfirmJobRequest = Body(default_factory=ConfirmJobRequest),
     tenant_id: str = Depends(get_tenant_id),
@@ -178,7 +182,7 @@ def confirm_job(
 
 
 @router.post("/jobs/{job_id}/plan/freeze", response_model=FreezePlanResponse)
-def freeze_plan(
+async def freeze_plan(
     job_id: str,
     payload: FreezePlanRequest = Body(default_factory=FreezePlanRequest),
     tenant_id: str = Depends(get_tenant_id),
@@ -196,7 +200,7 @@ def freeze_plan(
 
 
 @router.get("/jobs/{job_id}/plan", response_model=GetPlanResponse)
-def get_plan(
+async def get_plan(
     job_id: str,
     tenant_id: str = Depends(get_tenant_id),
     svc: PlanService = Depends(get_plan_service),

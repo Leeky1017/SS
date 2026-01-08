@@ -1,18 +1,23 @@
 from __future__ import annotations
 
-from fastapi.testclient import TestClient
+import pytest
 
 from src.api import deps
 from src.domain.job_query_service import JobQueryService
 from src.domain.models import ArtifactKind, ArtifactRef, Draft, RunAttempt
 from src.main import create_app
+from tests.asgi_client import asgi_client
+from tests.async_overrides import async_override
+
+pytestmark = pytest.mark.anyio
 
 
-def test_get_job_with_valid_job_returns_summary(job_service, store):
+async def test_get_job_with_valid_job_returns_summary(job_service, store):
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
-    client = TestClient(app)
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_job_query_service] = async_override(
+        JobQueryService(store=store)
+    )
 
     job = job_service.create_job(requirement="hello")
 
@@ -40,7 +45,8 @@ def test_get_job_with_valid_job_returns_summary(job_service, store):
     ]
     store.save(persisted)
 
-    response = client.get(f"/v1/jobs/{job.job_id}")
+    async with asgi_client(app=app) as client:
+        response = await client.get(f"/v1/jobs/{job.job_id}")
 
     assert response.status_code == 200
     payload = response.json()
@@ -60,96 +66,109 @@ def test_get_job_with_valid_job_returns_summary(job_service, store):
     assert payload["latest_run"]["artifacts_count"] == 1
 
 
-def test_get_job_with_missing_job_returns_404(job_service, store):
+async def test_get_job_with_missing_job_returns_404(job_service, store):
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
-    client = TestClient(app)
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_job_query_service] = async_override(
+        JobQueryService(store=store)
+    )
 
-    response = client.get("/v1/jobs/job_missing")
+    async with asgi_client(app=app) as client:
+        response = await client.get("/v1/jobs/job_missing")
 
     assert response.status_code == 404
     assert response.json()["error_code"] == "JOB_NOT_FOUND"
 
 
-def test_get_job_when_cross_tenant_access_returns_404(job_service, store) -> None:
+async def test_get_job_when_cross_tenant_access_returns_404(job_service, store) -> None:
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
-    client = TestClient(app)
-
-    created = client.post(
-        "/v1/jobs",
-        json={"requirement": "hello"},
-        headers={"X-SS-Tenant-ID": "tenant-a"},
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_job_query_service] = async_override(
+        JobQueryService(store=store)
     )
+
+    async with asgi_client(app=app) as client:
+        created = await client.post(
+            "/v1/jobs",
+            json={"requirement": "hello"},
+            headers={"X-SS-Tenant-ID": "tenant-a"},
+        )
     assert created.status_code == 200
     job_id = created.json()["job_id"]
 
-    response = client.get(
-        f"/v1/jobs/{job_id}",
-        headers={"X-SS-Tenant-ID": "tenant-b"},
-    )
+    async with asgi_client(app=app) as client:
+        response = await client.get(
+            f"/v1/jobs/{job_id}",
+            headers={"X-SS-Tenant-ID": "tenant-b"},
+        )
 
     assert response.status_code == 404
     assert response.json()["error_code"] == "JOB_NOT_FOUND"
 
 
-def test_get_job_with_corrupted_job_json_returns_500(job_service, store, jobs_dir):
+async def test_get_job_with_corrupted_job_json_returns_500(job_service, store, jobs_dir):
     job_id = "job_corrupt_json"
     job_dir = jobs_dir / job_id
     job_dir.mkdir(parents=True, exist_ok=True)
     (job_dir / "job.json").write_text("{", encoding="utf-8")
 
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
-    client = TestClient(app)
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_job_query_service] = async_override(
+        JobQueryService(store=store)
+    )
 
-    response = client.get(f"/v1/jobs/{job_id}")
+    async with asgi_client(app=app) as client:
+        response = await client.get(f"/v1/jobs/{job_id}")
 
     assert response.status_code == 500
     assert response.json()["error_code"] == "JOB_DATA_CORRUPTED"
 
 
-def test_get_job_with_legacy_route_sets_deprecation_headers(job_service, store):
+async def test_get_job_with_legacy_route_sets_deprecation_headers(job_service, store):
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
-    client = TestClient(app)
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_job_query_service] = async_override(
+        JobQueryService(store=store)
+    )
 
     job = job_service.create_job(requirement="hello")
 
-    response = client.get(f"/jobs/{job.job_id}")
+    async with asgi_client(app=app) as client:
+        response = await client.get(f"/jobs/{job.job_id}")
 
     assert response.status_code == 200
     assert response.headers["Deprecation"] == "true"
     assert response.headers["Sunset"] == "2026-06-01"
 
 
-def test_get_job_includes_request_id_header(job_service, store) -> None:
+async def test_get_job_includes_request_id_header(job_service, store) -> None:
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
-    client = TestClient(app)
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_job_query_service] = async_override(
+        JobQueryService(store=store)
+    )
 
     job = job_service.create_job(requirement="hello")
 
-    response = client.get(f"/v1/jobs/{job.job_id}")
+    async with asgi_client(app=app) as client:
+        response = await client.get(f"/v1/jobs/{job.job_id}")
 
     assert response.status_code == 200
     assert response.headers.get("X-SS-Request-Id")
 
 
-def test_get_job_request_id_header_honors_incoming_x_request_id(job_service, store) -> None:
+async def test_get_job_request_id_header_honors_incoming_x_request_id(job_service, store) -> None:
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
-    client = TestClient(app)
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_job_query_service] = async_override(
+        JobQueryService(store=store)
+    )
 
     job = job_service.create_job(requirement="hello")
 
-    response = client.get(f"/v1/jobs/{job.job_id}", headers={"X-Request-Id": "req-123"})
+    async with asgi_client(app=app) as client:
+        response = await client.get(f"/v1/jobs/{job.job_id}", headers={"X-Request-Id": "req-123"})
 
     assert response.status_code == 200
     assert response.headers["X-SS-Request-Id"] == "req-123"
