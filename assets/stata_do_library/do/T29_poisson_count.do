@@ -22,10 +22,17 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Validate count outcome (nonnegative integer) and default to robust SE; keep `nbreg` as overdispersion alternative (验证计数因变量并默认稳健标准误；保留负二项备选).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -57,7 +64,7 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T29|level=L0|title=Count_Models"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -120,6 +127,22 @@ capture confirm variable `dep_var'
 if _rc {
     display as error "ERROR: Dependent variable `dep_var' not found"
     ss_fail_T29 111 "confirm variable" "dep_var_not_found"
+}
+
+capture confirm numeric variable `dep_var'
+if _rc {
+    display as error "ERROR: Count outcome `dep_var' must be numeric"
+    ss_fail_T29 121 "confirm numeric" "dep_var_not_numeric"
+}
+capture assert `dep_var' >= 0 if !missing(`dep_var')
+if _rc {
+    display as error "ERROR: Count outcome `dep_var' must be nonnegative"
+    ss_fail_T29 121 "assert nonnegative" "dep_var_negative_values"
+}
+capture assert `dep_var' == floor(`dep_var') if !missing(`dep_var')
+if _rc {
+    display as error "ERROR: Count outcome `dep_var' must be integer-coded"
+    ss_fail_T29 121 "assert integer" "dep_var_not_integer"
 }
 
 display ""
@@ -185,7 +208,7 @@ display ">>> 模型: E[Y|X] = exp(X'β)"
 display ">>> 假设: Var[Y|X] = E[Y|X]（等分散）"
 display "-------------------------------------------------------------------------------"
 
-poisson `dep_var' `indep_vars'
+poisson `dep_var' `indep_vars', vce(robust)
 
 estimates store poisson_model
 local ll_pois = e(ll)
@@ -208,7 +231,7 @@ display ">>> IRR > 1: 计数增加 (IRR-1)*100%"
 display ">>> IRR < 1: 计数减少 (1-IRR)*100%"
 display "-------------------------------------------------------------------------------"
 
-poisson `dep_var' `indep_vars', irr
+poisson `dep_var' `indep_vars', irr vce(robust)
 
 * ==============================================================================
 * SECTION 4: 过度分散检验
@@ -223,7 +246,7 @@ display ">>> Poisson拟合优度检验"
 display ">>> H0: 数据服从Poisson分布（无过度分散）"
 display "-------------------------------------------------------------------------------"
 
-quietly poisson `dep_var' `indep_vars'
+quietly poisson `dep_var' `indep_vars', vce(robust)
 estat gof
 
 local gof_chi2 = r(chi2_d)
@@ -252,7 +275,7 @@ display ">>> 假设: Var[Y|X] = E[Y|X] + α·E[Y|X]²"
 display ">>> α = 0 时退化为Poisson"
 display "-------------------------------------------------------------------------------"
 
-nbreg `dep_var' `indep_vars'
+nbreg `dep_var' `indep_vars', vce(robust)
 
 estimates store nbreg_model
 local ll_nb = e(ll)
@@ -274,7 +297,7 @@ display "SECTION 6: 发生率比（IRR）- 负二项"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 display ""
-nbreg `dep_var' `indep_vars', irr
+nbreg `dep_var' `indep_vars', irr vce(robust)
 
 * ==============================================================================
 * SECTION 7: 模型比较
@@ -324,7 +347,7 @@ display ""
 display ">>> 边际效应: 自变量变化1单位，计数的平均变化"
 display "-------------------------------------------------------------------------------"
 
-quietly nbreg `dep_var' `indep_vars'
+quietly nbreg `dep_var' `indep_vars', vce(robust)
 margins, dydx(*)
 
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"

@@ -5,11 +5,10 @@
 *   - data.csv  role=main_dataset  required=no
 * OUTPUTS:
 *   - table_T24_model_comparison.csv type=table desc="Model comparison metrics"
-*   - table_T24_paper.rtf type=table desc="Publication-quality table"
+*   - table_T24_paper.docx type=report desc="Publication-style table (docx)"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - stata source=built-in purpose="core commands"
-*   - estout source=ssc purpose="publication-quality tables (optional)" purpose="core regression commands"
 * ==============================================================================
 * Task ID:      T24_ols_model_comparison
 * Task Name:    多模型对比
@@ -25,10 +24,18 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Keep nested-model comparison via AIC/BIC and LR test where applicable (保留 AIC/BIC + 嵌套模型 LR 检验).
+* - 2026-01-08: Replace optional SSC `estout/esttab` with Stata 18 native `putdocx` report (移除 SSC 依赖，使用原生 docx 输出).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -60,22 +67,10 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T24|level=L0|title=Model_Comparison"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
-
-* 检查 esttab (可选依赖，用于论文级表格)
-local has_esttab = 0
-capture which esttab
-if _rc {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=missing"
-    display ">>> estout 未安装，将使用基础 CSV 导出"
-} 
-else {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=ok"
-    local has_esttab = 1
-}
 
 display ""
 display "╔══════════════════════════════════════════════════════════════════════════════╗"
@@ -328,30 +323,20 @@ quietly replace bic = `bic_2' in 2
 export delimited using "table_T24_model_comparison.csv", replace
 display "SS_OUTPUT_FILE|file=table_T24_model_comparison.csv|type=table|desc=model_comparison"
 display ">>> 模型比较指标已导出"
+
+display ""
+display ">>> 导出论文级表格: table_T24_paper.docx"
+putdocx clear
+putdocx begin
+putdocx paragraph, style(Heading1)
+putdocx text ("T24: Model Comparison / 多模型对比")
+putdocx paragraph
+putdocx text ("Metrics: N, k, R2, Adj R2, RMSE, AIC, BIC.")
+putdocx table t1 = data(model n k r2 r2_adj rmse aic bic), varnames
+putdocx save "table_T24_paper.docx", replace
+display "SS_OUTPUT_FILE|file=table_T24_paper.docx|type=report|desc=publication_table_docx"
+display ">>> 论文级表格已导出 ✓"
 restore
-
-* ============ 论文级表格输出 (esttab) ============
-if `has_esttab' {
-    display ""
-    display ">>> 导出论文级表格: table_T24_paper.rtf"
-    
-    esttab using "table_T24_paper.rtf", replace ///
-        cells(b(star fmt(3)) se(par fmt(3))) ///
-        stats(N r2 r2_a, fmt(%9.0fc %9.3f %9.3f) ///
-              labels("Observations" "R²" "Adj. R²")) ///
-        title("Regression Results") ///
-        star(* 0.10 ** 0.05 *** 0.01) ///
-        note("Standard errors in parentheses. * p<0.10, ** p<0.05, *** p<0.01")
-    
-    display "SS_OUTPUT_FILE|file=table_T24_paper.rtf|type=table|desc=publication_table"
-    display ">>> 论文级表格已导出 ✓"
-}
-else {
-    display ""
-    display ">>> 跳过论文级表格 (estout 未安装)"
-}
-
-
 * ==============================================================================
 * SECTION 8: 任务完成摘要
 * ==============================================================================
@@ -376,6 +361,7 @@ display "  - p 值:               " %10.4f `lr_p'
 display ""
 display "输出文件:"
 display "  - table_T24_model_comparison.csv   模型比较指标表"
+display "  - table_T24_paper.docx             论文级表格（docx）"
 display ""
 display "任务完成时间: $S_DATE $S_TIME"
 display ""

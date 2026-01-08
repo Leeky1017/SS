@@ -23,10 +23,17 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Validate multinomial outcome (numeric, integer-coded, ≥3 categories) and use robust variance estimator (验证多分类因变量并使用稳健方差估计).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -58,7 +65,7 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T28|level=L0|title=Multinomial_Logit_Model"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -118,6 +125,17 @@ if _rc {
     ss_fail_T28 111 "confirm variable" "dep_var_not_found"
 }
 
+capture confirm numeric variable `dep_var'
+if _rc {
+    display as error "ERROR: Dependent variable `dep_var' must be numeric for multinomial logit"
+    ss_fail_T28 121 "confirm numeric" "dep_var_not_numeric"
+}
+capture assert `dep_var' == floor(`dep_var') if !missing(`dep_var')
+if _rc {
+    display as error "ERROR: Dependent variable `dep_var' must be integer-coded categories"
+    ss_fail_T28 121 "assert integer" "dep_var_not_integer"
+}
+
 display ""
 display ">>> 因变量:          `dep_var' (无序多分类)"
 display ">>> 自变量:          `indep_vars'"
@@ -137,7 +155,8 @@ display "基准类别:            " %10.0f `base_cat'
 display "{hline 50}"
 
 if `n_levels' < 3 {
-    display as error "WARNING: 因变量仅有 `n_levels' 个类别，建议使用二元Logit"
+    display as error "ERROR: Multinomial logit requires at least 3 outcome categories; found `n_levels'"
+    ss_fail_T28 121 "levelsof" "dep_var_too_few_categories"
 }
 
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
@@ -157,7 +176,7 @@ display ">>> 系数解释: 相对于基准类别的对数几率变化"
 display ">>> 基准类别: `base_cat'"
 display "-------------------------------------------------------------------------------"
 
-mlogit `dep_var' `indep_vars', baseoutcome(`base_cat')
+mlogit `dep_var' `indep_vars', baseoutcome(`base_cat') vce(robust)
 
 estimates store mlogit_model
 local ll = e(ll)
@@ -181,7 +200,7 @@ display ">>> RRR > 1: 更倾向于选择类别j"
 display ">>> RRR < 1: 更倾向于选择基准类别"
 display "-------------------------------------------------------------------------------"
 
-mlogit `dep_var' `indep_vars', baseoutcome(`base_cat') rrr
+mlogit `dep_var' `indep_vars', baseoutcome(`base_cat') rrr vce(robust)
 
 * ==============================================================================
 * SECTION 4: 各类别边际效应
@@ -196,7 +215,7 @@ display ">>> 边际效应: 自变量变化1单位，各类别选择概率的变�
 display ">>> 注意: 各类别边际效应之和为0"
 display "-------------------------------------------------------------------------------"
 
-quietly mlogit `dep_var' `indep_vars', baseoutcome(`base_cat')
+quietly mlogit `dep_var' `indep_vars', baseoutcome(`base_cat') vce(robust)
 
 * 计算各类别边际效应
 local cat_count = 0
@@ -225,7 +244,7 @@ display "═══════════════════════�
 display ""
 display ">>> 各类别的平均预测概率："
 
-quietly mlogit `dep_var' `indep_vars', baseoutcome(`base_cat')
+quietly mlogit `dep_var' `indep_vars', baseoutcome(`base_cat') vce(robust)
 
 foreach lev of local levels {
     quietly margins, predict(outcome(`lev'))

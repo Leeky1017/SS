@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #178
 - Parent: #125
 - Superphase: Phase 5 (content enhancement)
 - Templates: `T21`–`T50` (30 templates, current inventory)
@@ -36,4 +36,3 @@ Upgrade templates in scope from “can run” to **production-grade analysis**: 
 - [ ] Error handling is stronger with explicit `warn/fail` and `SS_RC` context
 - [ ] Key steps have bilingual comments (中英文注释)
 - [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
-

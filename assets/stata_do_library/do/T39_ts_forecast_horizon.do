@@ -27,10 +27,17 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Keep explicit train/test split by time and report forecast error metrics (保留按时间划分训练/测试并报告预测误差).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -62,7 +69,7 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T39|level=L0|title=Time_Series_Forecasting"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"

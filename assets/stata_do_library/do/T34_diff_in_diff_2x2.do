@@ -6,11 +6,10 @@
 * OUTPUTS:
 *   - table_T34_did_coef.csv type=table desc="DID regression coefficients"
 *   - fig_T34_did_trend.png type=graph desc="Trend comparison"
-*   - table_T34_paper.rtf type=table desc="Publication-quality table"
+*   - table_T34_paper.docx type=report desc="Publication-style table (docx)"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - stata source=built-in purpose="core commands"
-*   - estout source=ssc purpose="publication-quality tables (optional)" purpose="regression commands"
 * ==============================================================================
 * Task ID:      T34_diff_in_diff_2x2
 * Task Name:    经典2×2双重差分
@@ -27,10 +26,18 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Keep canonical 2x2 DID spec `treat##post` and emphasize parallel-trends check (保留经典 DID 设定，并强调趋势检验).
+* - 2026-01-08: Replace optional SSC `estout/esttab` with Stata 18 native `putdocx` report (移除 SSC 依赖，使用原生 docx 输出).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -62,22 +69,10 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T34|level=L0|title=Difference_in_Differences_2x2"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
-
-* 检查 esttab (可选依赖，用于论文级表格)
-local has_esttab = 0
-capture which esttab
-if _rc {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=missing"
-    display ">>> estout 未安装，将使用基础 CSV 导出"
-} 
-else {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=ok"
-    local has_esttab = 1
-}
 
 display ""
 display "╔══════════════════════════════════════════════════════════════════════════════╗"
@@ -318,30 +313,20 @@ generate double y00 = `y00'
 export delimited using "table_T34_did_coef.csv", replace
 display "SS_OUTPUT_FILE|file=table_T34_did_coef.csv|type=table|desc=did_coefficients"
 display ">>> DID系数已导出"
+
+display ""
+display ">>> 导出论文级表格: table_T34_paper.docx"
+putdocx clear
+putdocx begin
+putdocx paragraph, style(Heading1)
+putdocx text ("T34: DID 2x2 / 经典 2×2 双重差分")
+putdocx paragraph
+putdocx text ("Specification: Y = a + b1*treat + b2*post + b3*(treat×post) + controls + e")
+putdocx table t1 = data(did_estimate did_se did_t did_p r2 n y11 y10 y01 y00), varnames
+putdocx save "table_T34_paper.docx", replace
+display "SS_OUTPUT_FILE|file=table_T34_paper.docx|type=report|desc=publication_table_docx"
+display ">>> 论文级表格已导出 ✓"
 restore
-
-* ============ 论文级表格输出 (esttab) ============
-if `has_esttab' {
-    display ""
-    display ">>> 导出论文级表格: table_T34_paper.rtf"
-    
-    esttab using "table_T34_paper.rtf", replace ///
-        cells(b(star fmt(3)) se(par fmt(3))) ///
-        stats(N r2 r2_a, fmt(%9.0fc %9.3f %9.3f) ///
-              labels("Observations" "R²" "Adj. R²")) ///
-        title("Regression Results") ///
-        star(* 0.10 ** 0.05 *** 0.01) ///
-        note("Standard errors in parentheses. * p<0.10, ** p<0.05, *** p<0.01")
-    
-    display "SS_OUTPUT_FILE|file=table_T34_paper.rtf|type=table|desc=publication_table"
-    display ">>> 论文级表格已导出 ✓"
-}
-else {
-    display ""
-    display ">>> 跳过论文级表格 (estout 未安装)"
-}
-
-
 drop did
 
 * ==============================================================================
@@ -371,6 +356,7 @@ display ""
 display "输出文件:"
 display "  - table_T34_did_coef.csv    DID估计结果"
 display "  - fig_T34_did_trend.png     趋势对比图"
+display "  - table_T34_paper.docx       论文级表格（docx）"
 display ""
 display "任务完成时间: $S_DATE $S_TIME"
 display ""

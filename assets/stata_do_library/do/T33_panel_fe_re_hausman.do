@@ -6,11 +6,10 @@
 * OUTPUTS:
 *   - table_T33_hausman.csv type=table desc="Hausman test results"
 *   - table_T33_comparison.csv type=table desc="FE/RE coefficient comparison"
-*   - table_T33_paper.rtf type=table desc="Publication-quality table"
+*   - table_T33_paper.docx type=report desc="Publication-style table (docx)"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - stata source=built-in purpose="core commands"
-*   - estout source=ssc purpose="publication-quality tables (optional)" purpose="panel regression commands"
 * ==============================================================================
 * Task ID:      T33_panel_fe_re_hausman
 * Task Name:    FE/RE比较与Hausman检验
@@ -27,10 +26,18 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Keep Hausman test as the explicit FE vs RE decision point (保留 Hausman 检验作为 FE/RE 选择依据).
+* - 2026-01-08: Replace optional SSC `estout/esttab` with Stata 18 native `putdocx` report (移除 SSC 依赖，使用原生 docx 输出).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -62,22 +69,10 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T33|level=L0|title=Hausman_Specification_Test"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
-
-* 检查 esttab (可选依赖，用于论文级表格)
-local has_esttab = 0
-capture which esttab
-if _rc {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=missing"
-    display ">>> estout 未安装，将使用基础 CSV 导出"
-} 
-else {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=ok"
-    local has_esttab = 1
-}
 
 display ""
 display "╔══════════════════════════════════════════════════════════════════════════════╗"
@@ -316,29 +311,6 @@ export delimited using "table_T33_hausman.csv", replace
 display "SS_OUTPUT_FILE|file=table_T33_hausman.csv|type=table|desc=hausman_test_results"
 display ">>> Hausman检验结果已导出"
 restore
-
-* ============ 论文级表格输出 (esttab) ============
-if `has_esttab' {
-    display ""
-    display ">>> 导出论文级表格: table_T33_paper.rtf"
-    
-    esttab using "table_T33_paper.rtf", replace ///
-        cells(b(star fmt(3)) se(par fmt(3))) ///
-        stats(N r2 r2_a, fmt(%9.0fc %9.3f %9.3f) ///
-              labels("Observations" "R²" "Adj. R²")) ///
-        title("Regression Results") ///
-        star(* 0.10 ** 0.05 *** 0.01) ///
-        note("Standard errors in parentheses. * p<0.10, ** p<0.05, *** p<0.01")
-    
-    display "SS_OUTPUT_FILE|file=table_T33_paper.rtf|type=table|desc=publication_table"
-    display ">>> 论文级表格已导出 ✓"
-}
-else {
-    display ""
-    display ">>> 跳过论文级表格 (estout 未安装)"
-}
-
-
 * 导出FE/RE系数对比表
 display ""
 display ">>> 导出FE/RE系数对比表: table_T33_comparison.csv"
@@ -371,6 +343,24 @@ foreach var of local varlist {
 export delimited using "table_T33_comparison.csv", replace
 display "SS_OUTPUT_FILE|file=table_T33_comparison.csv|type=table|desc=fe_re_comparison"
 display ">>> FE/RE系数对比表已导出"
+
+display ""
+display ">>> 导出论文级表格: table_T33_paper.docx"
+putdocx clear
+putdocx begin
+putdocx paragraph, style(Heading1)
+putdocx text ("T33: Hausman Test / FE-RE 选择")
+local __hchi2_s : display %6.3f `h_chi2'
+local __hdf_s : display %3.0f `h_df'
+local __hp_s : display %6.4f `h_p'
+putdocx paragraph
+putdocx text ("Hausman: chi2=`__hchi2_s', df=`__hdf_s', p=`__hp_s'")
+putdocx paragraph
+putdocx text ("Recommended: `recommended'")
+putdocx table t1 = data(variable coef_fe se_fe coef_re se_re), varnames
+putdocx save "table_T33_paper.docx", replace
+display "SS_OUTPUT_FILE|file=table_T33_paper.docx|type=report|desc=publication_table_docx"
+display ">>> 论文级表格已导出 ✓"
 restore
 
 * ==============================================================================
@@ -403,6 +393,7 @@ display ""
 display "输出文件:"
 display "  - table_T33_hausman.csv       Hausman检验结果"
 display "  - table_T33_comparison.csv    FE/RE系数对比表"
+display "  - table_T33_paper.docx         论文级表格（docx）"
 display ""
 display "任务完成时间: $S_DATE $S_TIME"
 display ""

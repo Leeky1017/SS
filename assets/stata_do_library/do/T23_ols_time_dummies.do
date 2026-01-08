@@ -6,11 +6,10 @@
 * OUTPUTS:
 *   - table_T23_reg_timefe.csv type=table desc="Time fixed effects regression"
 *   - fig_T23_time_effects.png type=graph desc="Time effects plot"
-*   - table_T23_paper.rtf type=table desc="Publication-quality table"
+*   - table_T23_paper.docx type=report desc="Publication-style table (docx)"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - stata source=built-in purpose="core commands"
-*   - estout source=ssc purpose="publication-quality tables (optional)" purpose="core regression commands"
 * ==============================================================================
 * Task ID:      T23_ols_time_dummies
 * Task Name:    时间固定效应
@@ -26,10 +25,18 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Keep time fixed effects via `i.__TIME_VAR__` and robust SE where used (保留时间固定效应 + 稳健标准误).
+* - 2026-01-08: Replace optional SSC `estout/esttab` with Stata 18 native `putdocx` report (移除 SSC 依赖，使用原生 docx 输出).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -61,22 +68,10 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T23|level=L0|title=Time_Fixed_Effects"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
-
-* 检查 esttab (可选依赖，用于论文级表格)
-local has_esttab = 0
-capture which esttab
-if _rc {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=missing"
-    display ">>> estout 未安装，将使用基础 CSV 导出"
-} 
-else {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=ok"
-    local has_esttab = 1
-}
 
 display ""
 display "╔══════════════════════════════════════════════════════════════════════════════╗"
@@ -312,30 +307,20 @@ foreach var of local varlist {
 export delimited using "table_T23_reg_timefe.csv", replace
 display "SS_OUTPUT_FILE|file=table_T23_reg_timefe.csv|type=table|desc=time_fixed_effects"
 display ">>> 时间固定效应回归结果已导出"
+
+display ""
+display ">>> 导出论文级表格: table_T23_paper.docx"
+putdocx clear
+putdocx begin
+putdocx paragraph, style(Heading1)
+putdocx text ("T23: Time Fixed Effects / 时间固定效应")
+putdocx paragraph
+putdocx text ("Regression with time dummies; SE uses robust where specified in the model.")
+putdocx table t1 = data(variable coef robust_se t p sig), varnames
+putdocx save "table_T23_paper.docx", replace
+display "SS_OUTPUT_FILE|file=table_T23_paper.docx|type=report|desc=publication_table_docx"
+display ">>> 论文级表格已导出 ✓"
 restore
-
-* ============ 论文级表格输出 (esttab) ============
-if `has_esttab' {
-    display ""
-    display ">>> 导出论文级表格: table_T23_paper.rtf"
-    
-    esttab using "table_T23_paper.rtf", replace ///
-        cells(b(star fmt(3)) se(par fmt(3))) ///
-        stats(N r2 r2_a, fmt(%9.0fc %9.3f %9.3f) ///
-              labels("Observations" "R²" "Adj. R²")) ///
-        title("Regression Results") ///
-        star(* 0.10 ** 0.05 *** 0.01) ///
-        note("Standard errors in parentheses. * p<0.10, ** p<0.05, *** p<0.01")
-    
-    display "SS_OUTPUT_FILE|file=table_T23_paper.rtf|type=table|desc=publication_table"
-    display ">>> 论文级表格已导出 ✓"
-}
-else {
-    display ""
-    display ">>> 跳过论文级表格 (estout 未安装)"
-}
-
-
 * ==============================================================================
 * SECTION 8: 任务完成摘要
 * ==============================================================================
@@ -359,6 +344,7 @@ display ""
 display "输出文件:"
 display "  - table_T23_reg_timefe.csv     时间固定效应回归结果"
 display "  - fig_T23_time_effects.png     时间效应图"
+display "  - table_T23_paper.docx         论文级表格（docx）"
 display ""
 display "任务完成时间: $S_DATE $S_TIME"
 display ""

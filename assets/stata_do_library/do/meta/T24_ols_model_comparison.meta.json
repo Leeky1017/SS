@@ -37,7 +37,7 @@
     },
     {
       "description": "Auto-synced from SS_OUTPUT_FILE anchors",
-      "file": "table_T24_paper.rtf",
+      "file": "table_T24_paper.docx",
       "type": "report"
     }
   ],
@@ -72,5 +72,5 @@
   ],
   "title": "Model Comparison",
   "title_zh": "多模型对比",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

@@ -37,7 +37,7 @@
     },
     {
       "description": "Auto-synced from SS_OUTPUT_FILE anchors",
-      "file": "table_T21_paper.rtf",
+      "file": "table_T21_paper.docx",
       "type": "report"
     },
     {
@@ -82,5 +82,5 @@
   ],
   "title": "OLS with Interaction Terms",
   "title_zh": "含交互项的回归",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

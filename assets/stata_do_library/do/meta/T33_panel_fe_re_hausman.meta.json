@@ -42,7 +42,7 @@
     },
     {
       "description": "Auto-synced from SS_OUTPUT_FILE anchors",
-      "file": "table_T33_paper.rtf",
+      "file": "table_T33_paper.docx",
       "type": "report"
     }
   ],
@@ -82,5 +82,5 @@
   ],
   "title": "Hausman Specification Test",
   "title_zh": "FE/RE比较与Hausman检验",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

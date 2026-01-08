@@ -20,10 +20,17 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Keep deterministic bundling + manifest; avoid silent directory creation failures (保留打包与清单输出，并避免目录创建静默失败).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -55,7 +62,7 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T50|level=L0|title=Export_Outputs_Bundle"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -82,7 +89,14 @@ display "═══════════════════════�
 display ""
 display ">>> 创建 outputs/ 目录"
 capture mkdir "outputs"
-if _rc != 0 { }
+local __mkdir_rc = _rc
+if `__mkdir_rc' != 0 {
+    capture confirm dir "outputs"
+    if _rc != 0 {
+        ss_fail_T50 693 "mkdir outputs" "cannot_create_outputs_dir"
+    }
+    display "SS_RC|code=`__mkdir_rc'|cmd=mkdir outputs|msg=outputs_dir_exists|severity=warn"
+}
 display ">>> outputs/ 目录已准备就绪"
 display "SS_STEP_END|step=S01_prepare|status=ok|elapsed_sec=0"
 
