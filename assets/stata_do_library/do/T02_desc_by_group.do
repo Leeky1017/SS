@@ -46,6 +46,14 @@ log using "result.log", text replace
 display "SS_TASK_BEGIN|id=T02|level=L0|title=Descriptive_Statistics_by_Group"
 display "SS_TASK_VERSION|version=2.0.1"
 
+* ==============================================================================
+* PHASE 5.1 REVIEW (Issue #193) / 最佳实践审查（阶段 5.1）
+* - SSC deps: none (built-in only) / SSC 依赖：无（仅官方命令）
+* - Output: CSV tables + PNG graph via built-in / 输出：CSV 表格 + PNG 图（官方命令）
+* - Error policy: fail on missing group var; warn on partial missing numeric vars / 错误策略：分组变量缺失→fail；数值变量部分缺失→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=193|template_id=T02|ssc=none|output=csv_png|policy=warn_fail"
+
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
@@ -60,6 +68,8 @@ display "任务开始时间: $S_DATE $S_TIME"
 display ""
 
 * ---------- 标准化数据加载逻辑开始 ----------
+* [ZH] S01 加载数据（标准化 data.dta / data.csv）
+* [EN] S01 Load data (standardized data.dta / data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 local datafile "data.dta"
 
@@ -95,6 +105,8 @@ display ">>> 数据加载成功: `import_obs' 条观测"
 * ==============================================================================
 * SECTION 1: 变量存在性检查
 * ==============================================================================
+* [ZH] S02 校验输入变量（分组变量必需；数值变量允许部分缺失）
+* [EN] S02 Validate inputs (group var required; numeric vars may be partial)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -216,6 +228,8 @@ if `small_groups' == 0 {
 * ==============================================================================
 * SECTION 3: 分组描述统计
 * ==============================================================================
+* [ZH] S03 分组统计与可视化输出（表格 + 图形）
+* [EN] S03 Grouped stats + outputs (tables + graph)
 display "SS_STEP_BEGIN|step=S03_analysis"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"

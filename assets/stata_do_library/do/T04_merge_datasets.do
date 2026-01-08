@@ -46,6 +46,14 @@ log using "result.log", text replace
 display "SS_TASK_BEGIN|id=T04|level=L1|title=Merge_Datasets_Horizontal"
 display "SS_TASK_VERSION|version=2.0.1"
 
+* ==============================================================================
+* PHASE 5.1 REVIEW (Issue #193) / 最佳实践审查（阶段 5.1）
+* - SSC deps: none (built-in only) / SSC 依赖：无（仅官方命令）
+* - Output: merged dataset + merge summary tables / 输出：合并后数据集 + 合并汇总表
+* - Error policy: fail on missing merge keys or invalid merge results / 错误策略：合并键缺失或合并结果异常→fail
+* ==============================================================================
+display "SS_BP_REVIEW|issue=193|template_id=T04|ssc=none|output=dta_csv|policy=warn_fail"
+
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
@@ -61,6 +69,8 @@ display ""
 * ==============================================================================
 * SECTION 1: 导入并检查辅助数据集（Using）
 * ==============================================================================
+* [ZH] S01 加载辅助数据集（using 数据）并做基本检查
+* [EN] S01 Load auxiliary dataset (using) and do basic checks
 display "SS_STEP_BEGIN|step=S01_load_data"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -166,6 +176,8 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 2: 导入并检查主数据集（Master）
 * ==============================================================================
+* [ZH] S02 校验合并键与主数据（变量存在性/唯一性）
+* [EN] S02 Validate merge keys and main dataset (existence/uniqueness)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -283,6 +295,8 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 4: 执行合并
 * ==============================================================================
+* [ZH] S03 执行合并并输出合并结果摘要
+* [EN] S03 Run merge and emit outcome summary
 display "SS_STEP_BEGIN|step=S03_analysis"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"

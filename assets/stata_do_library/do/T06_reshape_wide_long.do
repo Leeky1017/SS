@@ -47,6 +47,14 @@ log using "result.log", text replace
 display "SS_TASK_BEGIN|id=T06|level=L1|title=Reshape_Wide_Long"
 display "SS_TASK_VERSION|version=2.0.1"
 
+* ==============================================================================
+* PHASE 5.1 REVIEW (Issue #193) / 最佳实践审查（阶段 5.1）
+* - SSC deps: none (built-in only) / SSC 依赖：无（仅官方命令）
+* - Output: reshaped dataset + reshape summary / 输出：reshape 后数据集 + 汇总表
+* - Error policy: fail on invalid reshape identifiers/j variables / 错误策略：reshape 关键变量不合法→fail
+* ==============================================================================
+display "SS_BP_REVIEW|issue=193|template_id=T06|ssc=none|output=dta_csv|policy=warn_fail"
+
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
@@ -61,6 +69,8 @@ display "任务开始时间: $S_DATE $S_TIME"
 display ""
 
 * ---------- 标准化数据加载逻辑开始 ----------
+* [ZH] S01 加载数据并准备 reshape 所需结构
+* [EN] S01 Load data and prepare reshape structure
 display "SS_STEP_BEGIN|step=S01_load_data"
 local datafile "data.dta"
 
@@ -97,6 +107,8 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 1: 原始数据概况
 * ==============================================================================
+* [ZH] S02 校验 reshape 参数与变量（i/j/varlist）
+* [EN] S02 Validate reshape parameters and variables (i/j/varlist)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -207,6 +219,8 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 3: 执行 reshape
 * ==============================================================================
+* [ZH] S03 执行 reshape 并输出结果摘要
+* [EN] S03 Run reshape and emit summary
 display "SS_STEP_BEGIN|step=S03_analysis"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"

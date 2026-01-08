@@ -50,6 +50,14 @@ log using "result.log", text replace
 display "SS_TASK_BEGIN|id=T03|level=L0|title=Data_Filtering_and_Sampling"
 display "SS_TASK_VERSION|version=2.0.1"
 
+* ==============================================================================
+* PHASE 5.1 REVIEW (Issue #193) / 最佳实践审查（阶段 5.1）
+* - SSC deps: none (built-in only) / SSC 依赖：无（仅官方命令）
+* - Output: filtered dataset + CSV summaries / 输出：筛选后数据集 + CSV 汇总
+* - Error policy: fail on empty sample after filters / 错误策略：筛选后样本为空→fail
+* ==============================================================================
+display "SS_BP_REVIEW|issue=193|template_id=T03|ssc=none|output=dta_csv|policy=warn_fail"
+
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
@@ -64,6 +72,8 @@ display "任务开始时间: $S_DATE $S_TIME"
 display ""
 
 * ---------- 标准化数据加载逻辑开始 ----------
+* [ZH] S01 加载数据（标准化 data.dta / data.csv）
+* [EN] S01 Load data (standardized data.dta / data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 local datafile "data.dta"
 
@@ -104,6 +114,8 @@ local filter_cond "__FILTER_CONDITION__"
 * ==============================================================================
 * SECTION 1: 原始数据概况
 * ==============================================================================
+* [ZH] S02 校验输入参数与关键变量（表达式/比例/变量存在性）
+* [EN] S02 Validate parameters and key vars (condition/fraction/var existence)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -151,6 +163,8 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 2: 条件筛选
 * ==============================================================================
+* [ZH] S03 执行筛选与抽样，并导出结果
+* [EN] S03 Apply filters + sampling and export outputs
 display "SS_STEP_BEGIN|step=S03_analysis"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"

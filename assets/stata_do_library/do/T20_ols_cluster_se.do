@@ -6,11 +6,11 @@
 * OUTPUTS:
 *   - table_T20_reg_cluster.csv type=table desc="Cluster regression results"
 *   - table_T20_se_comparison.csv type=table desc="SE comparison table"
-*   - table_T20_paper.rtf type=table desc="Publication-quality table"
+*   - table_T20_paper.docx type=report desc="Publication table (docx via putdocx)"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - stata source=built-in purpose="core commands"
-*   - estout source=ssc purpose="publication-quality regression tables"
+*   - putdocx source=built-in purpose="DOCX export for publication table"
 * ==============================================================================
 * Task ID:      T20_ols_cluster_se
 * Task Name:    聚类稳健标准误OLS
@@ -22,7 +22,7 @@
 *               __CLUSTER_VAR__  - 聚类变量
 *
 * Author:       Stata Task Template System
-* Stata:        18.0+ (official + community commands)
+* Stata:        18.0+ (official commands only, no SSC packages)
 * ==============================================================================
 
 * ==============================================================================
@@ -47,27 +47,17 @@ log using "result.log", text replace
 display "SS_TASK_BEGIN|id=T20|level=L0|title=OLS_with_Cluster_SE"
 display "SS_TASK_VERSION|version=2.0.1"
 
+* ==============================================================================
+* PHASE 5.1 REVIEW (Issue #193) / 最佳实践审查（阶段 5.1）
+* - SSC deps: removed (`estout/esttab` → native `putdocx`) / SSC 依赖：已移除（用 putdocx 替代）
+* - Output: CSV tables + DOCX paper table / 输出：CSV 表格 + DOCX 论文表
+* - Error policy: fail on missing vars or invalid clustering var / 错误策略：关键变量缺失或聚类变量不合法→fail
+* ==============================================================================
+display "SS_BP_REVIEW|issue=193|template_id=T20|ssc=removed|output=csv_docx|policy=warn_fail"
+
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
-
-* 检查 esttab（SSC: estout；缺失则快速失败）
-local has_esttab = 0
-capture which esttab
-if _rc {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=missing"
-    display "SS_DEP_MISSING|pkg=estout"
-    display "SS_RC|code=199|cmd=which esttab|msg=dependency_missing|severity=fail"
-    timer off 1
-    quietly timer list 1
-    local elapsed = r(t1)
-    display "SS_METRIC|name=task_success|value=0"
-    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
-    display "SS_TASK_END|id=T20|status=fail|elapsed_sec=`elapsed'"
-    log close
-    exit 199
-}
-display "SS_DEP_CHECK|pkg=estout|source=ssc|status=ok"
-local has_esttab = 1
+display "SS_DEP_CHECK|pkg=putdocx|source=built-in|status=ok"
 
 display ""
 display "╔══════════════════════════════════════════════════════════════════════════════╗"
@@ -79,6 +69,8 @@ display "任务开始时间: $S_DATE $S_TIME"
 display ""
 
 * ---------- 标准化数据加载逻辑开始 ----------
+* [ZH] S01 加载数据（标准化 data.dta / data.csv）
+* [EN] S01 Load data (standardized data.dta / data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 local datafile "data.dta"
 
@@ -115,6 +107,8 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 1: 变量检查与准备
 * ==============================================================================
+* [ZH] S02 校验因变量/自变量/聚类变量（变量存在性/组数量）
+* [EN] S02 Validate dep/indep/cluster vars (existence/#clusters)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -204,6 +198,8 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 2: 普通 OLS 回归（对比基准）
 * ==============================================================================
+* [ZH] S03 估计聚类稳健标准误 OLS，并输出对比表
+* [EN] S03 Estimate cluster-robust OLS and export comparison tables
 display "SS_STEP_BEGIN|step=S03_analysis"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -383,28 +379,21 @@ foreach var of local varlist {
 export delimited using "table_T20_reg_cluster.csv", replace
 display "SS_OUTPUT_FILE|file=table_T20_reg_cluster.csv|type=table|desc=cluster_regression_results"
 display ">>> 聚类回归结果已导出"
-restore
 
-* ============ 论文级表格输出 (esttab) ============
-if `has_esttab' {
-    display ""
-    display ">>> 导出论文级表格: table_T20_paper.rtf"
-    
-    esttab using "table_T20_paper.rtf", replace ///
-        cells(b(star fmt(3)) se(par fmt(3))) ///
-        stats(N r2 r2_a, fmt(%9.0fc %9.3f %9.3f) ///
-              labels("Observations" "R²" "Adj. R²")) ///
-        title("Regression Results") ///
-        star(* 0.10 ** 0.05 *** 0.01) ///
-        note("Standard errors in parentheses. * p<0.10, ** p<0.05, *** p<0.01")
-    
-    display "SS_OUTPUT_FILE|file=table_T20_paper.rtf|type=table|desc=publication_table"
-    display ">>> 论文级表格已导出 ✓"
-}
-else {
-    display ""
-    display ">>> 跳过论文级表格 (estout 未安装)"
-}
+* ============ 论文级表格输出 (putdocx, Stata 18 native) ============
+display ""
+display ">>> 导出论文表（docx）: table_T20_paper.docx"
+putdocx clear
+putdocx begin
+putdocx paragraph, style(Heading1)
+putdocx text ("T20: OLS with Cluster SE / 聚类稳健标准误 OLS")
+putdocx paragraph
+putdocx text ("Model: regress `dep_var' `indep_vars', vce(cluster `cluster_var')")
+putdocx table t1 = data(variable coef cluster_se t p sig), varnames
+putdocx save "table_T20_paper.docx", replace
+display "SS_OUTPUT_FILE|file=table_T20_paper.docx|type=report|desc=publication_table_docx"
+display ">>> 论文表（docx）已导出: table_T20_paper.docx"
+restore
 
 
 * ==============================================================================
@@ -426,6 +415,7 @@ display ""
 display "输出文件:"
 display "  - table_T20_reg_cluster.csv    聚类回归系数表"
 display "  - table_T20_se_comparison.csv  三种SE对比表"
+display "  - table_T20_paper.docx         论文表（putdocx 导出）"
 display ""
 display "任务完成时间: $S_DATE $S_TIME"
 display ""
