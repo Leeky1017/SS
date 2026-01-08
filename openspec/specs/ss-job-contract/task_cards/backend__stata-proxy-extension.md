@@ -36,11 +36,11 @@
 
 ## Acceptance checklist
 
-- [ ] `openspec/backend-stata-proxy-extension/spec.md` 覆盖：变量纠偏、结构化草案预览、契约冻结校验三大目标，并包含 schema/service/endpoint/dataflow/acceptance
-- [ ] `rulebook/tasks/issue-203-backend-stata-proxy-extension/proposal.md` 与 `rulebook/tasks/issue-203-backend-stata-proxy-extension/tasks.md` 填写完整
-- [ ] `openspec/_ops/task_runs/ISSUE-203.md` 记录关键命令与输出（Issue/worktree/validate/preflight/PR）
-- [ ] 通过本地 gates 并在 run log 留证：`openspec validate --specs --strict --no-interactive`、`ruff check .`、`pytest -q`
-- [ ] PR 满足交付门禁：branch `task/203-backend-stata-proxy-extension`、commit message 包含 `(#203)`、PR body 包含 `Closes #203`、required checks 全绿并启用 auto-merge
+- [x] `openspec/backend-stata-proxy-extension/spec.md` 覆盖：变量纠偏、结构化草案预览、契约冻结校验三大目标，并包含 schema/service/endpoint/dataflow/acceptance
+- [x] `rulebook/tasks/issue-203-backend-stata-proxy-extension/proposal.md` 与 `rulebook/tasks/issue-203-backend-stata-proxy-extension/tasks.md` 填写完整
+- [x] `openspec/_ops/task_runs/ISSUE-203.md` 记录关键命令与输出（Issue/worktree/validate/preflight/PR）
+- [x] 通过本地 gates 并在 run log 留证：`openspec validate --specs --strict --no-interactive`、`ruff check .`、`pytest -q`
+- [x] PR 满足交付门禁：branch `task/203-backend-stata-proxy-extension`、commit message 包含 `(#203)`、PR body 包含 `Closes #203`、required checks 全绿并启用 auto-merge
 
 ## Evidence
 
@@ -49,3 +49,12 @@
   - `openspec validate --specs --strict --no-interactive`
   - `ruff check .`
   - `pytest -q`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/204
+- Run log: `openspec/_ops/task_runs/ISSUE-203.md`
+- Summary:
+  - Added OpenSpec for backend proxy extension (goals, schema/service deltas, endpoint contracts, dataflow, acceptance tests)
+  - Added task card under `ss-job-contract` for tracking and closeout
+  - Added Issue run log with validation + preflight evidence and auto-merge metadata
