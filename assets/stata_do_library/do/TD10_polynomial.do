@@ -4,7 +4,7 @@
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TD10_poly.csv type=table desc="Polynomial results"
-*   - fig_TD10_poly.png type=figure desc="Polynomial plot"
+*   - fig_TD10_poly.png type=graph desc="Polynomial plot"
 *   - data_TD10_poly.dta type=data desc="Data file"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
@@ -23,7 +23,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TD10|level=L0|title=Polynomial"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 local depvar = "__DEPVAR__"
@@ -34,27 +34,47 @@ if `degree' < 2 | `degree' > 5 { local degree = 2 }
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm file data.csv|msg=file_not_found:data.csv|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TD10|status=fail|elapsed_sec=`elapsed'"
     log close
-    exit 601
+    exit `rc'
 }
 import delimited "data.csv", clear
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 forvalues i = 2/`degree' {
     generate `indepvar'_`i' = `indepvar'^`i'
 }
-
-local poly_vars "`indepvar'"
 forvalues i = 2/`degree' {
     local poly_vars "`poly_vars' `indepvar'_`i'"
 }
 
-regress `depvar' `poly_vars'
+if _rc {
+
+    local rc = _rc
+
+    display "SS_RC|code=`rc'|cmd=regress|msg=fit_failed|severity=fail"
+
+    timer off 1
+
+    quietly timer list 1
+
+    local elapsed = r(t1)
+
+    display "SS_TASK_END|id=TD10|status=fail|elapsed_sec=`elapsed'"
+
+    log close
+
+    exit `rc'
+
+}
 local r2 = e(r2)
 display "SS_METRIC|name=r2|value=`r2'"
 display "SS_METRIC|name=degree|value=`degree'"
@@ -66,7 +86,7 @@ twoway (scatter `depvar' `indepvar', mcolor(navy%30)) ///
        (line yhat `indepvar', sort lcolor(red)), ///
     title("多项式回归 (degree=`degree')") legend(order(1 "Data" 2 "Fitted"))
 graph export "fig_TD10_poly.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TD10_poly.png|type=figure|desc=poly_plot"
+display "SS_OUTPUT_FILE|file=fig_TD10_poly.png|type=graph|desc=poly_plot"
 
 preserve
 clear

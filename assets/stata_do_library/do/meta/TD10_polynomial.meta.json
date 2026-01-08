@@ -28,7 +28,7 @@
     {
       "description": "Polynomial plot",
       "file": "fig_TD10_poly.png",
-      "type": "figure"
+      "type": "graph"
     },
     {
       "description": "Data file",

@@ -28,7 +28,7 @@
     {
       "description": "Trend line plot",
       "file": "fig_TB04_trend.png",
-      "type": "figure"
+      "type": "graph"
     },
     {
       "description": "Data file",

@@ -22,7 +22,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TC09|level=L0|title=Normality_Comprehensive"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 local vars = "__VARS__"
@@ -30,14 +30,18 @@ local vars = "__VARS__"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm file data.csv|msg=file_not_found:data.csv|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TC09|status=fail|elapsed_sec=`elapsed'"
     log close
-    exit 601
+    exit `rc'
 }
 import delimited "data.csv", clear
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"

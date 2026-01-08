@@ -23,7 +23,7 @@
     {
       "description": "Correlation heatplot",
       "file": "fig_TB06_heatplot.png",
-      "type": "figure"
+      "type": "graph"
     },
     {
       "description": "Correlation matrix",
