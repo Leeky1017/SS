@@ -44,6 +44,14 @@ log using "result.log", text replace
 display "SS_TASK_BEGIN|id=T13|level=L0|title=Two_Sample_Independent_T_Test"
 display "SS_TASK_VERSION|version=2.0.1"
 
+* ==============================================================================
+* PHASE 5.1 REVIEW (Issue #193) / 最佳实践审查（阶段 5.1）
+* - SSC deps: none (built-in only) / SSC 依赖：无（仅官方命令）
+* - Output: two-sample t-test result table (CSV) / 输出：双样本 t 检验结果表（CSV）
+* - Error policy: fail on missing group var; warn on unequal variances / 错误策略：分组变量缺失→fail；方差不齐提示→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=193|template_id=T13|ssc=none|output=csv|policy=warn_fail"
+
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
@@ -58,6 +66,8 @@ display "任务开始时间: $S_DATE $S_TIME"
 display ""
 
 * ---------- 标准化数据加载逻辑开始 ----------
+* [ZH] S01 加载数据（标准化 data.dta / data.csv）
+* [EN] S01 Load data (standardized data.dta / data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 local datafile "data.dta"
 
@@ -94,6 +104,8 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 1: 变量检查与准备
 * ==============================================================================
+* [ZH] S02 校验检验变量与分组变量（组别/样本量）
+* [EN] S02 Validate test var and group var (groups/sample sizes)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -178,6 +190,8 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 2: 分组描述统计
 * ==============================================================================
+* [ZH] S03 进行双样本 t 检验并导出结果
+* [EN] S03 Run two-sample t-test and export results
 display "SS_STEP_BEGIN|step=S03_analysis"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"

@@ -45,6 +45,14 @@ log using "result.log", text replace
 display "SS_TASK_BEGIN|id=T15|level=L0|title=One_way_ANOVA"
 display "SS_TASK_VERSION|version=2.0.1"
 
+* ==============================================================================
+* PHASE 5.1 REVIEW (Issue #193) / 最佳实践审查（阶段 5.1）
+* - SSC deps: none (built-in only) / SSC 依赖：无（仅官方命令）
+* - Output: ANOVA table + post-hoc summaries (CSV) / 输出：方差分析表 + 事后比较（CSV）
+* - Error policy: fail on missing group var; warn on small groups / 错误策略：分组变量缺失→fail；小组样本提示→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=193|template_id=T15|ssc=none|output=csv|policy=warn_fail"
+
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
@@ -59,6 +67,8 @@ display "任务开始时间: $S_DATE $S_TIME"
 display ""
 
 * ---------- 标准化数据加载逻辑开始 ----------
+* [ZH] S01 加载数据（标准化 data.dta / data.csv）
+* [EN] S01 Load data (standardized data.dta / data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 local datafile "data.dta"
 
@@ -95,6 +105,8 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 1: 变量检查与准备
 * ==============================================================================
+* [ZH] S02 校验因变量与分组变量（组别与样本量）
+* [EN] S02 Validate outcome and group vars (groups/sample sizes)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -176,6 +188,8 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 2: 分组描述统计
 * ==============================================================================
+* [ZH] S03 进行单因素 ANOVA 并导出结果
+* [EN] S03 Run one-way ANOVA and export results
 display "SS_STEP_BEGIN|step=S03_analysis"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"

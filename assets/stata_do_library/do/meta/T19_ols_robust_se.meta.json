@@ -7,9 +7,9 @@
       "source": "built-in"
     },
     {
-      "pkg": "estout",
-      "purpose": "Publication-quality regression tables (esttab/estout)",
-      "source": "ssc"
+      "pkg": "putdocx",
+      "purpose": "DOCX export for publication table",
+      "source": "built-in"
     }
   ],
   "description": "OLS regression with heteroscedasticity-robust standard errors (Huber-White), comparing OLS vs robust SE with diagnostic tests",
@@ -42,7 +42,7 @@
     },
     {
       "description": "Auto-synced from SS_OUTPUT_FILE anchors",
-      "file": "table_T19_paper.rtf",
+      "file": "table_T19_paper.docx",
       "type": "report"
     },
     {

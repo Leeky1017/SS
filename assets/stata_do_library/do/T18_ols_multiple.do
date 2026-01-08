@@ -46,6 +46,14 @@ log using "result.log", text replace
 display "SS_TASK_BEGIN|id=T18|level=L0|title=Multiple_OLS_Regression"
 display "SS_TASK_VERSION|version=2.0.1"
 
+* ==============================================================================
+* PHASE 5.1 REVIEW (Issue #193) / 最佳实践审查（阶段 5.1）
+* - SSC deps: none (built-in only) / SSC 依赖：无（仅官方命令）
+* - Output: regression results + diagnostics (CSV/PNG) / 输出：回归结果与诊断（CSV/PNG）
+* - Error policy: fail on missing vars; warn on multicollinearity / 错误策略：变量缺失→fail；多重共线性提示→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=193|template_id=T18|ssc=none|output=csv_png|policy=warn_fail"
+
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
@@ -60,6 +68,8 @@ display "任务开始时间: $S_DATE $S_TIME"
 display ""
 
 * ---------- 标准化数据加载逻辑开始 ----------
+* [ZH] S01 加载数据（标准化 data.dta / data.csv）
+* [EN] S01 Load data (standardized data.dta / data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 local datafile "data.dta"
 
@@ -96,6 +106,8 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 1: 变量检查与准备
 * ==============================================================================
+* [ZH] S02 校验因变量与自变量列表（变量存在性/样本量）
+* [EN] S02 Validate dep var and indep varlist (existence/sample size)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -144,6 +156,8 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 2: 变量描述统计
 * ==============================================================================
+* [ZH] S03 估计多元 OLS 并输出诊断与结果表
+* [EN] S03 Estimate multiple OLS and export diagnostics/results
 display "SS_STEP_BEGIN|step=S03_analysis"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"

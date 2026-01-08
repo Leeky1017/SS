@@ -47,6 +47,14 @@ log using "result.log", text replace
 display "SS_TASK_BEGIN|id=T10|level=L0|title=Distribution_Plots"
 display "SS_TASK_VERSION|version=2.0.1"
 
+* ==============================================================================
+* PHASE 5.1 REVIEW (Issue #193) / 最佳实践审查（阶段 5.1）
+* - SSC deps: none (built-in only) / SSC 依赖：无（仅官方命令）
+* - Output: distribution plots (PNG) + summary tables / 输出：分布图（PNG）+ 汇总表
+* - Error policy: warn on extreme skew/outliers; fail if var not found / 错误策略：偏态/离群提示→warn；变量缺失→fail
+* ==============================================================================
+display "SS_BP_REVIEW|issue=193|template_id=T10|ssc=none|output=png_csv|policy=warn_fail"
+
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
@@ -61,6 +69,8 @@ display "任务开始时间: $S_DATE $S_TIME"
 display ""
 
 * ---------- 标准化数据加载逻辑开始 ----------
+* [ZH] S01 加载数据（标准化 data.dta / data.csv）
+* [EN] S01 Load data (standardized data.dta / data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 local datafile "data.dta"
 
@@ -97,6 +107,8 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 1: 变量检查与准备
 * ==============================================================================
+* [ZH] S02 校验变量列表与绘图参数
+* [EN] S02 Validate varlist and plotting parameters
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -156,6 +168,8 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 2: 分布统计摘要
 * ==============================================================================
+* [ZH] S03 绘制分布图并导出
+* [EN] S03 Plot distributions and export outputs
 display "SS_STEP_BEGIN|step=S03_analysis"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"

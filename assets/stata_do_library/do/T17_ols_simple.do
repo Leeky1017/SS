@@ -47,6 +47,14 @@ log using "result.log", text replace
 display "SS_TASK_BEGIN|id=T17|level=L1|title=Simple_Linear_Regression_OLS"
 display "SS_TASK_VERSION|version=2.0.1"
 
+* ==============================================================================
+* PHASE 5.1 REVIEW (Issue #193) / 最佳实践审查（阶段 5.1）
+* - SSC deps: none (built-in only) / SSC 依赖：无（仅官方命令）
+* - Output: regression result tables (CSV) + diagnostics plot / 输出：回归表（CSV）+ 诊断图
+* - Error policy: fail on missing dep/indep vars; warn on small N / 错误策略：变量缺失→fail；小样本提示→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=193|template_id=T17|ssc=none|output=csv_png|policy=warn_fail"
+
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
@@ -61,6 +69,8 @@ display ""
 
 
 * ---------- 标准化数据加载逻辑开始 ----------
+* [ZH] S01 加载数据（标准化 data.dta / data.csv）
+* [EN] S01 Load data (standardized data.dta / data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 local datafile "data.dta"
 
@@ -96,6 +106,8 @@ display ">>> 数据加载成功: `n_total' 条观测"
 * ==============================================================================
 * SECTION 1: 变量检查
 * ==============================================================================
+* [ZH] S02 校验因变量与自变量（变量存在性/样本量）
+* [EN] S02 Validate dep/indep vars (existence/sample size)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -178,6 +190,8 @@ display ">>> Pearson 相关系数: `: display %6.4f `corr_coef''"
 * ==============================================================================
 * SECTION 4: 简单线性回归
 * ==============================================================================
+* [ZH] S03 估计简单 OLS 并做基础诊断
+* [EN] S03 Estimate simple OLS and run basic diagnostics
 display "SS_STEP_BEGIN|step=S03_analysis"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -358,6 +372,8 @@ display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 7: 可视化
 * ==============================================================================
+* [ZH] S04 导出回归表与图形输出
+* [EN] S04 Export regression tables and plots
 display "SS_STEP_BEGIN|step=S04_export"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"

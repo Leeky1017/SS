@@ -47,6 +47,14 @@ log using "result.log", text replace
 display "SS_TASK_BEGIN|id=T05|level=L1|title=Append_Datasets_Vertical"
 display "SS_TASK_VERSION|version=2.0.1"
 
+* ==============================================================================
+* PHASE 5.1 REVIEW (Issue #193) / 最佳实践审查（阶段 5.1）
+* - SSC deps: none (built-in only) / SSC 依赖：无（仅官方命令）
+* - Output: appended dataset + append summary tables / 输出：追加后数据集 + 追加汇总表
+* - Error policy: fail on schema incompatibility beyond allowed policy / 错误策略：结构不兼容且无法修复→fail
+* ==============================================================================
+display "SS_BP_REVIEW|issue=193|template_id=T05|ssc=none|output=dta_csv|policy=warn_fail"
+
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
@@ -62,6 +70,8 @@ display ""
 * ==============================================================================
 * SECTION 1: 导入并检查追加数据集
 * ==============================================================================
+* [ZH] S01 加载主数据与待追加数据（append 数据）
+* [EN] S01 Load main + append datasets (vertical append)
 display "SS_STEP_BEGIN|step=S01_load_data"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -137,6 +147,8 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 2: 导入主数据集
 * ==============================================================================
+* [ZH] S02 校验变量一致性与关键字段（类型/缺失处理策略）
+* [EN] S02 Validate variable alignment and key fields (type/missing policy)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
@@ -279,6 +291,8 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 * ==============================================================================
 * SECTION 4: 执行纵向合并
 * ==============================================================================
+* [ZH] S03 执行追加并输出结果摘要
+* [EN] S03 Run append and emit outcome summary
 display "SS_STEP_BEGIN|step=S03_analysis"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
