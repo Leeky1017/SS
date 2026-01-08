@@ -2,7 +2,7 @@
 
 - Issue: #161
 - Branch: task/161-multi-dataset-inputs-roles
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/166
 
 ## Goal
 - Support uploading 2+ dataset files per job with explicit roles and a deterministic inputs fingerprint.
@@ -80,3 +80,13 @@
   - `.venv/bin/mypy`
 - Key output:
   - `Success: no issues found in 95 source files`
+
+### 2026-01-08 02:13 Deliver: preflight + push + PR
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `git push -u origin HEAD`
+  - `gh pr create --title "[PHASE-03.1] Multi-dataset inputs + roles (#161)" --body "Closes #161 ..."`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+  - `https://github.com/Leeky1017/SS/pull/166`
