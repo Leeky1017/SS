@@ -41,10 +41,13 @@ def _extract_generate_step(plan: LLMPlan) -> PlanStep:
 
 
 def _extract_template(step: PlanStep) -> str:
-    template = step.params.get("template", "")
-    if not isinstance(template, str) or template.strip() == "":
-        raise DoFilePlanInvalidError(reason="missing_template")
-    return template
+    template_id = step.params.get("template_id", "")
+    if isinstance(template_id, str) and template_id.strip() != "":
+        return template_id
+    legacy_template = step.params.get("template", "")
+    if isinstance(legacy_template, str) and legacy_template.strip() != "":
+        return legacy_template
+    raise DoFilePlanInvalidError(reason="missing_template_id")
 
 
 def _extract_primary_dataset_rel_path(inputs_manifest: Mapping[str, object]) -> str:

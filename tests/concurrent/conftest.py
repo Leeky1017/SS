@@ -11,6 +11,7 @@ from src.domain.job_service import JobService
 from src.domain.models import JobConfirmation, JobInputs, JobStatus
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store import JobStore
 from src.infra.queue_job_scheduler import QueueJobScheduler
@@ -60,8 +61,8 @@ def job_service(
 
 
 @pytest.fixture
-def plan_service(store: JobStore) -> PlanService:
-    return PlanService(store=store)
+def plan_service(store: JobStore, jobs_dir: Path) -> PlanService:
+    return PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
 
 
 @pytest.fixture

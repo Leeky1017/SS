@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from src.domain.models import ArtifactKind, JobConfirmation
+from src.domain.models import ArtifactKind, JobConfirmation, JobInputs
 from src.infra.exceptions import PlanAlreadyFrozenError, PlanFreezeNotAllowedError
 from src.utils.job_workspace import resolve_job_dir
 
@@ -84,3 +84,67 @@ def test_freeze_plan_when_confirmation_changes_raises_plan_already_frozen_error(
     # Act / Assert
     with pytest.raises(PlanAlreadyFrozenError):
         plan_service.freeze_plan(job_id=job.job_id, confirmation=JobConfirmation(notes="v2"))
+
+
+def test_freeze_plan_for_single_file_job_builds_simple_sequential_plan(
+    job_service,
+    draft_service,
+    plan_service,
+) -> None:
+    # Arrange
+    job = job_service.create_job(requirement="need a descriptive analysis")
+    asyncio.run(draft_service.preview(job_id=job.job_id))
+
+    # Act
+    plan = plan_service.freeze_plan(job_id=job.job_id, confirmation=JobConfirmation())
+
+    # Assert
+    assert len(plan.steps) == 2
+    generate = next(step for step in plan.steps if step.step_id == "generate_do")
+    run = next(step for step in plan.steps if step.step_id == "run_stata")
+    assert generate.params.get("composition_mode") == "sequential"
+    assert run.params.get("composition_mode") == "sequential"
+    assert generate.params.get("template_id") == "stub_descriptive_v1"
+    bindings = generate.params.get("input_bindings")
+    assert isinstance(bindings, dict)
+    assert bindings.get("primary_dataset") == "input:primary"
+
+
+def test_freeze_plan_with_multi_inputs_and_parallel_requirement_uses_parallel_then_aggregate(
+    job_service,
+    draft_service,
+    plan_service,
+    store,
+    jobs_dir,
+) -> None:
+    # Arrange
+    job = job_service.create_job(requirement="analyze each dataset separately")
+    asyncio.run(draft_service.preview(job_id=job.job_id))
+
+    loaded = store.load(job.job_id)
+    loaded.inputs = JobInputs(manifest_rel_path="inputs/manifest.json", fingerprint="fp-test")
+    store.save(loaded)
+
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+    assert job_dir is not None
+    inputs_dir = job_dir / "inputs"
+    inputs_dir.mkdir(parents=True, exist_ok=True)
+    (inputs_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "datasets": [{"dataset_key": "b"}, {"dataset_key": "a"}],
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    # Act
+    plan = plan_service.freeze_plan(job_id=job.job_id, confirmation=JobConfirmation())
+
+    # Assert
+    run = next(step for step in plan.steps if step.step_id == "run_stata")
+    assert run.params.get("composition_mode") == "parallel_then_aggregate"

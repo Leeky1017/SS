@@ -6,6 +6,7 @@ from src.api import deps
 from src.domain.artifacts_service import ArtifactsService
 from src.domain.job_query_service import JobQueryService
 from src.domain.plan_service import PlanService
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.main import create_app
 
 
@@ -17,7 +18,9 @@ def _test_client(*, job_service, draft_service, store, jobs_dir) -> TestClient: 
     app.dependency_overrides[deps.get_artifacts_service] = lambda: ArtifactsService(
         store=store, jobs_dir=jobs_dir
     )
-    app.dependency_overrides[deps.get_plan_service] = lambda: PlanService(store=store)
+    app.dependency_overrides[deps.get_plan_service] = lambda: PlanService(
+        store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir)
+    )
     return TestClient(app)
 
 

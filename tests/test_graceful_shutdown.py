@@ -15,6 +15,7 @@ from src.domain.stata_runner import RunResult
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_plan_executor import execute_plan
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store import JobStore
 from src.infra.queue_job_scheduler import QueueJobScheduler
@@ -26,7 +27,7 @@ def _prepare_queued_job(*, jobs_dir: Path, queue: FileWorkerQueue) -> str:
     store = JobStore(jobs_dir=jobs_dir)
     state_machine = JobStateMachine()
     scheduler = QueueJobScheduler(queue=queue)
-    plan_service = PlanService(store=store)
+    plan_service = PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
     job_service = JobService(
         store=store,
         scheduler=scheduler,
@@ -112,7 +113,7 @@ def test_execute_plan_with_shutdown_deadline_caps_timeout_seconds(tmp_path: Path
     runner = _CapturingRunner()
     jobs_dir = tmp_path / "jobs"
     store = JobStore(jobs_dir=jobs_dir)
-    plan_service = PlanService(store=store)
+    plan_service = PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
     job_service = JobService(
         store=store,
         scheduler=NoopJobScheduler(),

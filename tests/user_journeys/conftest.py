@@ -20,6 +20,7 @@ from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.fake_stata_runner import FakeStataRunner
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
@@ -64,9 +65,13 @@ def journey_job_service(
     journey_state_machine: JobStateMachine,
     journey_idempotency: JobIdempotency,
     journey_queue: FileWorkerQueue,
+    journey_jobs_dir: Path,
 ) -> JobService:
     scheduler = QueueJobScheduler(queue=journey_queue)
-    plan_service = PlanService(store=journey_store)
+    plan_service = PlanService(
+        store=journey_store,
+        workspace=FileJobWorkspaceStore(jobs_dir=journey_jobs_dir),
+    )
     return JobService(
         store=journey_store,
         scheduler=scheduler,
@@ -121,8 +126,11 @@ def journey_worker_service(
 
 
 @pytest.fixture
-def journey_plan_service(journey_store: JobStore) -> PlanService:
-    return PlanService(store=journey_store)
+def journey_plan_service(journey_store: JobStore, journey_jobs_dir: Path) -> PlanService:
+    return PlanService(
+        store=journey_store,
+        workspace=FileJobWorkspaceStore(jobs_dir=journey_jobs_dir),
+    )
 
 
 @pytest.fixture

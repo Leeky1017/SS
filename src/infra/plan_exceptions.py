@@ -38,3 +38,29 @@ class PlanArtifactsWriteError(SSError):
             status_code=500,
         )
 
+
+class PlanCompositionInvalidError(SSError):
+    def __init__(
+        self,
+        *,
+        reason: str,
+        step_id: str | None = None,
+        dataset_ref: str | None = None,
+        product_id: str | None = None,
+    ):
+        ctx_parts: list[str] = []
+        if step_id is not None:
+            ctx_parts.append(f"step_id={step_id}")
+        if dataset_ref is not None:
+            ctx_parts.append(f"dataset_ref={dataset_ref}")
+        if product_id is not None:
+            ctx_parts.append(f"product_id={product_id}")
+
+        ctx = ""
+        if len(ctx_parts) > 0:
+            ctx = " (" + ", ".join(ctx_parts) + ")"
+        super().__init__(
+            error_code="PLAN_COMPOSITION_INVALID",
+            message=f"plan composition invalid: {reason}{ctx}",
+            status_code=400,
+        )

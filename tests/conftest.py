@@ -10,6 +10,7 @@ from src.domain.job_service import JobService, NoopJobScheduler
 from src.domain.llm_client import StubLLMClient
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
 
@@ -67,5 +68,5 @@ def draft_service(store: JobStore, state_machine: JobStateMachine, jobs_dir: Pat
 
 
 @pytest.fixture
-def plan_service(store: JobStore) -> PlanService:
-    return PlanService(store=store)
+def plan_service(store: JobStore, jobs_dir: Path) -> PlanService:
+    return PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))

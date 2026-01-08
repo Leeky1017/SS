@@ -10,6 +10,7 @@ from src.domain.job_service import JobService, NoopJobScheduler
 from src.domain.job_store import JobStore
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store_factory import build_job_store
 from src.infra.local_stata_runner import LocalStataRunner
@@ -19,7 +20,10 @@ from src.utils.json_types import JsonObject
 def create_job_services(*, config: Config) -> tuple[JobStore, JobStateMachine, JobService]:
     store = build_job_store(config=config)
     state_machine = JobStateMachine()
-    plan_service = PlanService(store=store)
+    plan_service = PlanService(
+        store=store,
+        workspace=FileJobWorkspaceStore(jobs_dir=config.jobs_dir),
+    )
     job_service = JobService(
         store=store,
         scheduler=NoopJobScheduler(),
@@ -53,4 +57,3 @@ def write_json_report(*, path: Path, payload: JsonObject) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
     path.write_text(data + "\n", encoding="utf-8")
-

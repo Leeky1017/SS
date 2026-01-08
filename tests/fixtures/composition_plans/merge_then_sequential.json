@@ -1,0 +1,44 @@
+{
+  "plan_version": 1,
+  "plan_id": "fixture-merge-then-sequential",
+  "rel_path": "artifacts/plan.json",
+  "steps": [
+    {
+      "step_id": "merge_controls_generate",
+      "type": "generate_stata_do",
+      "params": {
+        "composition_mode": "merge_then_sequential",
+        "template_id": "TA_merge_v1",
+        "input_bindings": {
+          "primary_dataset": "input:main",
+          "secondary_dataset": "input:controls"
+        },
+        "products": [
+          {
+            "product_id": "merged",
+            "kind": "dataset",
+            "role": "primary_dataset"
+          }
+        ]
+      },
+      "depends_on": [],
+      "produces": []
+    },
+    {
+      "step_id": "analysis_generate",
+      "type": "generate_stata_do",
+      "params": {
+        "composition_mode": "merge_then_sequential",
+        "template_id": "T01",
+        "input_bindings": {
+          "primary_dataset": "prod:merge_controls_generate:merged"
+        },
+        "products": []
+      },
+      "depends_on": [
+        "merge_controls_generate"
+      ],
+      "produces": []
+    }
+  ]
+}

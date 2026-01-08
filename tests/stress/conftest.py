@@ -19,6 +19,7 @@ from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.fake_stata_runner import FakeStataRunner
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
@@ -75,12 +76,16 @@ def stress_job_service(
     stress_state_machine: JobStateMachine,
     stress_idempotency: JobIdempotency,
     stress_queue: FileWorkerQueue,
+    stress_jobs_dir: Path,
 ) -> JobService:
     scheduler = QueueJobScheduler(queue=stress_queue)
     return JobService(
         store=stress_store,
         scheduler=scheduler,
-        plan_service=PlanService(store=stress_store),
+        plan_service=PlanService(
+            store=stress_store,
+            workspace=FileJobWorkspaceStore(jobs_dir=stress_jobs_dir),
+        ),
         state_machine=stress_state_machine,
         idempotency=stress_idempotency,
     )
@@ -143,6 +148,7 @@ def stress_app(
     stress_draft_service: DraftService,
     stress_artifacts_service: ArtifactsService,
     stress_store: JobStore,
+    stress_jobs_dir: Path,
 ) -> Iterator[FastAPI]:
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = lambda: stress_job_service
@@ -151,7 +157,10 @@ def stress_app(
     )
     app.dependency_overrides[deps.get_draft_service] = lambda: stress_draft_service
     app.dependency_overrides[deps.get_artifacts_service] = lambda: stress_artifacts_service
-    app.dependency_overrides[deps.get_plan_service] = lambda: PlanService(store=stress_store)
+    app.dependency_overrides[deps.get_plan_service] = lambda: PlanService(
+        store=stress_store,
+        workspace=FileJobWorkspaceStore(jobs_dir=stress_jobs_dir),
+    )
     yield app
 
 
