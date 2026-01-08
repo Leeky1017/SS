@@ -31,8 +31,17 @@ Upgrade templates in scope from “can run” to **production-grade analysis**: 
 
 ## Acceptance checklist
 
-- [ ] Each template has a best-practice review record (what changed + why)
-- [ ] SSC deps are removed/replaced where feasible (exceptions justified)
-- [ ] Error handling is stronger with explicit `warn/fail` and `SS_RC` context
-- [ ] Key steps have bilingual comments (中英文注释)
-- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Each template has a best-practice review record (what changed + why)
+- [x] SSC deps are removed/replaced where feasible (exceptions justified)
+- [x] Error handling is stronger with explicit `warn/fail` and `SS_RC` context
+- [x] Key steps have bilingual comments (中英文注释)
+- [x] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/196
+- Summary:
+  - Added per-template Phase 5.1 best-practice review records + bilingual step comments for T01–T20.
+  - Removed SSC dependency `estout/esttab` from core (T19/T20) by switching to Stata 18 native `putdocx`.
+  - Updated meta + smoke-suite manifest dependency declarations to keep validation/tests consistent.
+- Run log: `openspec/_ops/task_runs/ISSUE-193.md`
