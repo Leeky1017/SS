@@ -2,21 +2,22 @@
 
 - Issue: #192
 - Branch: task/192-p5-5-regression-td-te
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/199
 
 ## Goal
 - Enhance TD01-TD06, TD10, TD12 + TE01-TE10 templates with regression best practices/diagnostics, fewer SSC dependencies where feasible, stronger error handling, and bilingual comments.
 
 ## Status
-- CURRENT: Implement template/meta upgrades; run `ruff` + `pytest`; open PR with auto-merge.
+- CURRENT: PR opened; enable auto-merge; wait for required checks to pass and merge.
 
 ## Next Actions
-- [ ] Update task card metadata (Issue field)
-- [ ] Remove/reduce SSC deps where feasible (TD01/TD02/TE05) and justify remaining (TE08)
-- [ ] Add best-practice review record + bilingual notes across TD/TE templates
-- [ ] Strengthen validation + error handling for common regression failures
-- [ ] Run `ruff check .` + `pytest -q`; record evidence
-- [ ] Run `scripts/agent_pr_preflight.sh`; open PR; enable auto-merge; update `PR:` link
+- [x] Update task card metadata (Issue field)
+- [x] Remove/reduce SSC deps where feasible (TD01/TD02/TE05) and justify remaining (TE08)
+- [x] Add best-practice review record + bilingual notes across TD/TE templates
+- [x] Strengthen validation + error handling for common regression failures
+- [x] Run `ruff check .` + `pytest -q`; record evidence
+- [x] Run `scripts/agent_pr_preflight.sh`; open PR; enable auto-merge; update `PR:` link
+- [ ] Wait for checks; merge PR
 
 ## Decisions Made
 - 2026-01-08 Replace SSC table export (`estout/esttab`) with matrix-based CSV export; keep SSC model commands only when no base-Stata equivalent exists.
@@ -60,3 +61,12 @@
   - `pytest: 136 passed, 5 skipped`
 - Evidence:
   - `assets/stata_do_library/smoke_suite/manifest.issue-172.tb-tc-td-te.1.0.json`
+
+### 2026-01-08 rebase + preflight + PR
+- Command:
+  - `git fetch origin && git rebase origin/main`
+  - `scripts/agent_pr_preflight.sh`
+  - `git push -u origin HEAD`
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/199`
