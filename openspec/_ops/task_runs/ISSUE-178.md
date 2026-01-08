@@ -1,7 +1,7 @@
 # ISSUE-178
 - Issue: #178
 - Branch: task/178-p52-core-t21-t50
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/184
 
 ## Goal
 - Enhance core templates `T21`–`T50` per Phase 5.2: best-practice upgrades + decision record, replace SSC deps with Stata 18 native where feasible, stronger error handling (warn/fail + `SS_RC`), bilingual comments, output upgrades.
