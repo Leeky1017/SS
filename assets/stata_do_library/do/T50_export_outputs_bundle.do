@@ -35,9 +35,27 @@ timer on 1
 * ---------- 日志文件初始化 ----------
 log using "result.log", text replace
 
+program define ss_fail_T50
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T50|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        * No log to close - expected
+    }
+    exit `code'
+end
+
+
+
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T50|level=L0|title=Export_Outputs_Bundle"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
