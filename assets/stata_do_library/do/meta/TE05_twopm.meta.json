@@ -2,12 +2,12 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "twopm",
-      "purpose": "two-part model",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "logit + glm (gamma log-link) two-part model",
+      "source": "built-in"
     }
   ],
-  "description": "Two-part model for semi-continuous data",
+  "description": "Two-part model for semi-continuous outcomes (occurrence + intensity) using built-in commands",
   "family": "limited_dependent",
   "id": "TE05",
   "inputs": [
@@ -51,11 +51,7 @@
     }
   ],
   "slug": "twopm",
-  "tags": [
-    "two-part",
-    "semi-continuous",
-    "hurdle"
-  ],
+  "tags": ["two-part", "semi-continuous", "hurdle", "logit", "glm"],
   "title": "Two-Part",
   "title_zh": "双栏模型",
   "version": "2.0.1"

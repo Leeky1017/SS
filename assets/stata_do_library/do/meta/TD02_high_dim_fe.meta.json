@@ -5,14 +5,9 @@
       "pkg": "reghdfe",
       "purpose": "high-dimensional fixed effects",
       "source": "ssc"
-    },
-    {
-      "pkg": "estout",
-      "purpose": "table export",
-      "source": "ssc"
     }
   ],
-  "description": "High-dimensional fixed effects regression",
+  "description": "High-dimensional fixed effects regression (table export via built-in matrix extraction)",
   "family": "linear_regression",
   "id": "TD02",
   "inputs": [
@@ -62,11 +57,7 @@
     }
   ],
   "slug": "high_dim_fe",
-  "tags": [
-    "fixed-effects",
-    "high-dimensional",
-    "reghdfe"
-  ],
+  "tags": ["fixed-effects", "high-dimensional", "reghdfe"],
   "title": "High Dim FE",
   "title_zh": "高维固定效应",
   "version": "2.0.1"

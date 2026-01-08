@@ -10,8 +10,16 @@
 *   - stata source=built-in purpose="heckman command"
 * ==============================================================================
 
+* ============ BEST_PRACTICE_REVIEW (Phase 5.5) ============
+* - [x] Selection model needs exclusion restriction (Heckman 需要合理的排除变量/识别条件)
+* - [x] Validate required inputs and fail fast (关键输入校验；错误显式退出)
+* - [x] Bilingual notes (关键步骤中英文注释)
+
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -44,6 +52,15 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TE04|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
