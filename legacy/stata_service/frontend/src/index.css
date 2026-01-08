@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* --- G3 Professional Palette (Deep Navy / Cool Slate) --- */
+
+    /* Primary Brand: Trustworthy Deep Blue (replaces standard blue) */
+    --primary: 215 90% 35%;
+    /* Deep professional blue */
+    --primary-foreground: 210 40% 98%;
+
+    /* Secondary / Accents */
+    --secondary: 210 20% 96%;
+    /* Very subtle cool gray */
+    --secondary-foreground: 222 47% 11%;
+
+    /* Backgrounds */
+    --background: 210 20% 98%;
+    /* Off-white cool gray background */
+    --foreground: 222 47% 11%;
+    /* Deep navy text */
+
+    --card: 0 0% 100%;
+    /* Pure white cards */
+    --card-foreground: 222 47% 11%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --border: 214 32% 90%;
+    --input: 214 32% 90%;
+    --ring: 215 90% 35%;
+    /* Matches primary */
+
+    --radius: 0.5rem;
+
+    /* --- Gradient Map Overrides (for Hero) --- */
+    /* Map 'slate-50' to a subtle cool gradient stop 1 */
+    --g3-hero-start: 210 30% 98%;
+    /* Map 'blue-50' to a subtle cool gradient stop 2 */
+    --g3-hero-end: 215 50% 95%;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 224 37% 14%;
+    /* Dark slate card */
+    --card-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47.4% 11.2%;
+
+    --secondary: 217 19% 30%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 19% 30%;
+    --muted-foreground: 215 20% 65%;
+
+    --border: 217 19% 30%;
+    --input: 217 19% 30%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Global Glass Effect for Cards (Optional Enhancement) */
+  .bg-card {
+    background-color: hsla(var(--card), 0.8) !important;
+    backdrop-filter: blur(8px);
+    border: 1px solid hsla(var(--border), 0.6);
+  }
+}
