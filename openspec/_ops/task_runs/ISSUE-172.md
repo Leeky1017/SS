@@ -19,3 +19,14 @@
 - Command: `. .venv/bin/activate && python -m src.cli run-smoke-suite --manifest assets/stata_do_library/smoke_suite/manifest.issue-172.tb-tc-td-te.1.0.json --report-path /tmp/ss-issue-172-report2.json --timeout-seconds 300`
 - Key output: `summary {'passed': 37}`
 - Evidence: `assets/stata_do_library/smoke_suite/manifest.issue-172.tb-tc-td-te.1.0.json`, `/tmp/ss-issue-172-report2.json`
+
+### 2026-01-08 lint + tests + openspec validate
+- Command:
+  - `. .venv/bin/activate && ruff check .`
+  - `. .venv/bin/activate && pytest -q`
+  - `. .venv/bin/activate && openspec validate --specs --strict --no-interactive`
+- Key output:
+  - `ruff`: `All checks passed!`
+  - `pytest`: `131 passed, 5 skipped`
+  - `openspec`: `Totals: 20 passed, 0 failed`
+- Evidence: CI-safe local verification (see command outputs above)
