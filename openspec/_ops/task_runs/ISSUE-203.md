@@ -1,18 +1,18 @@
 # ISSUE-203
 - Issue: #203
 - Branch: task/203-backend-stata-proxy-extension
-- PR:
+- PR: https://github.com/Leeky1017/SS/pull/204
 
 ## Goal
 - Spec-first: port legacy `stata_service` proxy-layer semantics into SS backend via an explicit OpenSpec (variable corrections, structured draft preview response, contract freeze column validation).
 
 ## Status
-- CURRENT: Draft spec + delivery artifacts (rulebook task, task card, run log), then open PR + enable auto-merge.
+- CURRENT: Done (merged).
 
 ## Next Actions
 - [x] Run `openspec validate --specs --strict --no-interactive`, `ruff check .`, `pytest -q` and record outputs here
 - [x] Run `scripts/agent_pr_preflight.sh` and record output here
-- [ ] Open PR with `Closes #203`, enable auto-merge, backfill PR link above
+- [x] Open PR with `Closes #203`, enable auto-merge, backfill PR link above
 
 ## Decisions Made
 - 2026-01-08: Keep this Issue spec-only (no `src/**/*.py` edits); define implementation acceptance tests in the spec for follow-up Issues.
@@ -58,3 +58,12 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-08 Closeout: task card + rulebook archive
+- Command:
+  - `rulebook task archive issue-203-backend-stata-proxy-extension`
+- Key output:
+  - `Task issue-203-backend-stata-proxy-extension archived successfully`
+- Evidence:
+  - `openspec/specs/ss-job-contract/task_cards/backend__stata-proxy-extension.md`
+  - `rulebook/tasks/archive/2026-01-08-issue-203-backend-stata-proxy-extension/`
