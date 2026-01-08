@@ -1,7 +1,7 @@
 # ISSUE-194
 - Issue: #194
 - Branch: task/194-legacy-frontend-reference
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/195
 
 ## Plan
 - Copy legacy `stata_service` frontend as reference folder (exclude `node_modules`/build outputs)
