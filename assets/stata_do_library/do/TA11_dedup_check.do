@@ -10,7 +10,7 @@
 *   - data_TA11_deduped.csv type=data desc="Deduplicated CSV"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - distinct source=ssc purpose="count distinct values"
+*   - stata source=built-in purpose="duplicates + tag-based distinct counts"
 * ==============================================================================
 * Task ID:      TA11_dedup_check
 * Task Name:    数据去重与唯一性检查
@@ -23,8 +23,12 @@
 *               __SORT_ORDER__     - 排序顺序
 *
 * Author:       Stata Task Template System
-* Stata:        18.0+ (official + community commands)
+* Stata:        18.0+ (official commands only)
 * ==============================================================================
+
+* ============ BEST_PRACTICE_REVIEW (Phase 5.3) ============
+* - 2026-01-08: Replace SSC `distinct` with built-in tag/count for distinct key combinations (用原生命令替代 distinct).
+* - 2026-01-08: Keep deterministic dedup actions and export summary + details (保留确定性去重策略并导出证据).
 
 * ============ 初始化 ============
 capture log close _all
@@ -44,25 +48,10 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA11|level=L1|title=Dedup_Check"
-display "SS_METRIC|name=task_version|value=2.0.1"
+display "SS_METRIC|name=task_version|value=2.1.0"
 
 * ============ 依赖检测 ============
-local required_deps "distinct"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-        display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-        display "SS_DEP_MISSING|pkg=`dep'"
-        display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-        timer off 1
-        quietly timer list 1
-        local elapsed = round(r(t1))
-        display "SS_TASK_END|id=TA11|status=fail|elapsed_sec=`elapsed'"
-        log close
-        exit 199
-    }
-    display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=ok"
-}
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local key_vars "__KEY_VARS__"
@@ -144,12 +133,15 @@ display "═══════════════════════�
 display "SECTION 1: 唯一性检查"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 使用distinct命令检查唯一值
+* Built-in distinct count via `egen tag()` (replaces SSC `distinct`)
 display ""
 display ">>> 主键变量: `valid_keys'"
-distinct `valid_keys'
-local n_distinct = r(ndistinct)
-local n_total = r(N)
+local n_total = _N
+tempvar __tag_distinct
+quietly egen byte `__tag_distinct' = tag(`valid_keys')
+quietly count if `__tag_distinct' == 1
+local n_distinct = r(N)
+drop `__tag_distinct'
 
 display ""
 display "  总观测数:        " %10.0fc `n_total'
@@ -340,7 +332,10 @@ display "SS_OUTPUT_FILE|file=data_TA11_deduped.csv|type=data|desc=deduped_csv"
 
 * 清理临时文件
 capture erase "temp_dup_summary.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 & `rc' != 601 {
+    display "SS_RC|code=`rc'|cmd=erase temp_dup_summary.dta|msg=tempfile_erase_failed|severity=warn"
+}
 
 * ============ 任务完成摘要 ============
 display ""

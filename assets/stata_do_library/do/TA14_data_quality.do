@@ -10,7 +10,7 @@
 *   - fig_TA14_quality_heatmap.png type=figure desc="Quality heatmap"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - mdesc source=ssc purpose="missing data description"
+*   - stata source=built-in purpose="missingness + diagnostics (misstable/count/tag)"
 * ==============================================================================
 * Task ID:      TA14_data_quality
 * Task Name:    数据质量诊断报告
@@ -22,8 +22,12 @@
 *               __QUALITY_THRESHOLD__ - 质量阈值
 *
 * Author:       Stata Task Template System
-* Stata:        18.0+ (official + community commands)
+* Stata:        18.0+ (official commands only)
 * ==============================================================================
+
+* ============ BEST_PRACTICE_REVIEW (Phase 5.3) ============
+* - 2026-01-08: Replace SSC `mdesc` with built-in `misstable` + explicit missing counts (用原生命令替代 mdesc).
+* - 2026-01-08: Replace `levelsof`-based unique counting with tag/count to avoid long-category failures (用 tag/count 统计唯一值).
 
 * ============ 初始化 ============
 capture log close _all
@@ -43,25 +47,10 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA14|level=L1|title=Data_Quality"
-display "SS_METRIC|name=task_version|value=2.0.1"
+display "SS_METRIC|name=task_version|value=2.1.0"
 
 * ============ 依赖检测 ============
-local required_deps "mdesc"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-        display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-        display "SS_DEP_MISSING|pkg=`dep'"
-        display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-        timer off 1
-        quietly timer list 1
-        local elapsed = round(r(t1))
-        display "SS_TASK_END|id=TA14|status=fail|elapsed_sec=`elapsed'"
-        log close
-        exit 199
-    }
-    display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=ok"
-}
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local check_vars "__CHECK_VARS__"
@@ -118,8 +107,8 @@ display "═══════════════════════�
 display "SECTION 1: 缺失值分析"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 使用mdesc进行缺失值分析
-mdesc `check_vars'
+* Built-in missingness overview (replaces SSC `mdesc`)
+misstable summarize `check_vars'
 
 * 创建变量诊断存储
 tempname vardiag
@@ -150,9 +139,12 @@ foreach var of local check_vars {
     local pct_missing = (`n_missing' / `n_input') * 100
     local total_missing = `total_missing' + `n_missing'
     
-    * 唯一值统计
-    quietly levelsof `var', local(levels)
-    local n_unique : word count `levels'
+    * 唯一值统计（更稳健：避免 levelsof 在高基数变量上失败）
+    tempvar __tag_unique
+    quietly egen byte `__tag_unique' = tag(`var')
+    quietly count if `__tag_unique' == 1
+    local n_unique = r(N)
+    drop `__tag_unique'
     
     * 计算完整度得分
     local completeness = 1 - (`n_missing' / `n_input')
@@ -340,9 +332,15 @@ restore
 
 * 清理临时文件
 capture erase "temp_var_diagnostics.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 & `rc' != 601 {
+    display "SS_RC|code=`rc'|cmd=erase temp_var_diagnostics.dta|msg=tempfile_erase_failed|severity=warn"
+}
 capture erase "temp_issues.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 & `rc' != 601 {
+    display "SS_RC|code=`rc'|cmd=erase temp_issues.dta|msg=tempfile_erase_failed|severity=warn"
+}
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"

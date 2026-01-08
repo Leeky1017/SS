@@ -26,6 +26,9 @@
 * Stata:        18.0+ (official commands only)
 * ==============================================================================
 
+* ============ BEST_PRACTICE_REVIEW (Phase 5.3) ============
+* - 2026-01-08: Validate panel keys (`__ID_VAR__`, `__TIME_VAR__`) and log any dedup/xtset issues before balancing (平衡化前先验证面板键，并对去重/xtset 异常做结构化记录).
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -44,7 +47,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA06|level=L0|title=Panel_Balance"
-display "SS_METRIC|name=task_version|value=2.0.1"
+display "SS_METRIC|name=task_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"

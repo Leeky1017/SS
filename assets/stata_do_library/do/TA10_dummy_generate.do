@@ -26,6 +26,9 @@
 * Stata:        18.0+ (official commands only)
 * ==============================================================================
 
+* ============ BEST_PRACTICE_REVIEW (Phase 5.3) ============
+* - 2026-01-08: Guard against dummy/interaction name collisions (32-char limit) and log skipped interactions (防止变量名碰撞并记录被跳过的交互项).
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -44,7 +47,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA10|level=L0|title=Dummy_Generate"
-display "SS_METRIC|name=task_version|value=2.0.1"
+display "SS_METRIC|name=task_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -246,14 +249,24 @@ if "`interaction'" != "" {
                         if strpos("`d2'", "`var2'") > 0 {
                             local int_name = "`d1'_X_`d2'"
                             * 截断过长的变量名
-                            if strlen("`int_name'") > 32 {
+                             if strlen("`int_name'") > 32 {
                                 local int_name = substr("`int_name'", 1, 32)
-                            }
+                             }
                             
-                            capture generate byte `int_name' = `d1' * `d2'
+                            capture confirm variable `int_name'
                             if !_rc {
-                                local n_dummies = `n_dummies' + 1
-                                display "    生成: `int_name'"
+                                display "SS_RC|code=110|cmd=confirm variable `int_name'|msg=interaction_name_collision_skipped|severity=warn"
+                            }
+                            else {
+                                capture generate byte `int_name' = `d1' * `d2'
+                                local rc = _rc
+                                if `rc' == 0 {
+                                    local n_dummies = `n_dummies' + 1
+                                    display "    生成: `int_name'"
+                                }
+                                else {
+                                    display "SS_RC|code=`rc'|cmd=generate `int_name'|msg=interaction_generate_failed|severity=warn"
+                                }
                             }
                         }
                     }
@@ -295,7 +308,10 @@ display "SS_OUTPUT_FILE|file=data_TA10_with_dummies.csv|type=data|desc=data_csv_
 
 * 清理临时文件
 capture erase "temp_dummy_codebook.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 & `rc' != 601 {
+    display "SS_RC|code=`rc'|cmd=erase temp_dummy_codebook.dta|msg=tempfile_erase_failed|severity=warn"
+}
 
 * ============ 任务完成摘要 ============
 display ""

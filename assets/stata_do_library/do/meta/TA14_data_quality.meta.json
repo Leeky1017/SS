@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "mdesc",
-      "purpose": "Missing data description",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "Missingness + quality diagnostics",
+      "source": "built-in"
     }
   ],
   "description": "Comprehensive data quality assessment with missing values, outliers, and consistency checks",
@@ -80,5 +80,5 @@
   ],
   "title": "Data Quality",
   "title_zh": "数据质量诊断报告",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }
