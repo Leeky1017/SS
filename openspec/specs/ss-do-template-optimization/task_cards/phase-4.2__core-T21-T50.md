@@ -31,7 +31,16 @@ Make every template in scope run on **Stata 18** with fixtures, emit **contract-
 
 ## Acceptance checklist
 
-- [ ] Stata 18 baseline run: 0 `fail` across all templates in scope (fixtures)
-- [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
-- [ ] Code style is normalized across the scope (headers/steps/naming/seeds)
-- [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Stata 18 baseline run: 0 `fail` across all templates in scope (fixtures)
+- [x] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
+- [x] Code style is normalized across the scope (headers/steps/naming/seeds)
+- [x] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-164.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/173
+- Run log: `openspec/_ops/task_runs/ISSUE-164.md`
+- Results:
+  - Stata 18 smoke-suite for `T21`–`T50`: 30/30 passed (fixtures).
+  - Normalized anchors to `SS_EVENT|k=v` format across the scope; removed legacy `SS_*:` variants.
+  - Improved runner support for nested outputs and graph artifacts; added regression test.

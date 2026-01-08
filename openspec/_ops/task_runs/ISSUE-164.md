@@ -9,14 +9,11 @@
 - Phase 4.2: Make templates `T21`–`T50` run on Stata 18 with fixtures, emit contract-compliant anchors, and follow unified style.
 
 ## Status
-- CURRENT: Worktree ready; preparing Phase 4.2 harness manifest and first Stata 18 run.
+- CURRENT: PR #173 merged; performing post-merge closeout (task card + worktree cleanup).
 
 ## Next Actions
-- [ ] Create a Phase 4.2 smoke-suite manifest for `T21`–`T50`.
-- [ ] Run Stata 18 batch harness and save a structured report.
-- [ ] Fix runtime failures and iterate until 0 `fail`.
-- [ ] Remove legacy `SS_*:` anchors; keep only `SS_EVENT|k=v` format.
-- [ ] Run `ruff check .` + `pytest -q`, then open PR with auto-merge.
+- [ ] Fill Phase 4.2 task card Acceptance + Completion.
+- [ ] Sync controlplane `main` to `origin/main`, then cleanup worktree.
 
 ## Runs
 ### 2026-01-08 issue + worktree
@@ -77,3 +74,16 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-08 pr merged
+- Command:
+  - `gh pr view 173 --json state,mergedAt,url`
+- Key output:
+  - `state=MERGED`
+  - `url=https://github.com/Leeky1017/SS/pull/173`
+
+### 2026-01-08 post-merge closeout (reopen issue)
+- Command:
+  - `gh issue reopen 164`
+- Key output:
+  - `Reopened issue https://github.com/Leeky1017/SS/issues/164`
