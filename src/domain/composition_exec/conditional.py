@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from typing import cast
 
 from src.domain.models import PlanStep
 from src.infra.plan_exceptions import PlanCompositionInvalidError
+from src.utils.json_types import JsonObject, JsonValue
 
 
-def conditional_decision_or_none(*, step: PlanStep) -> dict[str, object] | None:
+def conditional_decision_or_none(*, step: PlanStep) -> JsonObject | None:
     raw = step.params.get("condition")
     if not isinstance(raw, Mapping):
         return None
@@ -28,15 +30,19 @@ def conditional_decision_or_none(*, step: PlanStep) -> dict[str, object] | None:
         "predicate": {"op": op},
         "result": truthy,
         "selected_branch": "true" if truthy else "false",
-        "true_steps": [s for s in true_steps if isinstance(s, str) and s.strip() != ""],
-        "false_steps": [s for s in false_steps if isinstance(s, str) and s.strip() != ""],
+        "true_steps": [
+            cast(JsonValue, s) for s in true_steps if isinstance(s, str) and s.strip() != ""
+        ],
+        "false_steps": [
+            cast(JsonValue, s) for s in false_steps if isinstance(s, str) and s.strip() != ""
+        ],
     }
 
 
 def apply_conditional_skip(
     *,
     step: PlanStep,
-    decision: Mapping[str, object],
+    decision: Mapping[str, JsonValue],
     steps_by_id: Mapping[str, PlanStep],
 ) -> dict[str, str]:
     selected_branch = decision.get("selected_branch")

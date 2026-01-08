@@ -4,6 +4,7 @@ import logging
 import shutil
 from collections.abc import Mapping
 from pathlib import Path
+from typing import cast
 
 from src.domain.composition_exec.refs import (
     ensure_safe_product_ref,
@@ -18,7 +19,7 @@ from src.domain.composition_exec.types import (
 from src.domain.models import PlanStep
 from src.infra.plan_exceptions import PlanCompositionInvalidError
 from src.infra.stata_run_support import RunDirs, write_json
-from src.utils.json_types import JsonObject
+from src.utils.json_types import JsonObject, JsonValue
 
 logger = logging.getLogger(__name__)
 
@@ -53,14 +54,17 @@ def materialize_step_inputs(
         )
         resolved_bindings.append(resolved.binding)
         datasets.append(
-            {
-                "dataset_key": resolved.binding.dataset_key,
-                "role": resolved.binding.role,
-                "rel_path": f"inputs/{resolved.binding.dest_filename}",
-            }
+            cast(
+                JsonObject,
+                {
+                    "dataset_key": resolved.binding.dataset_key,
+                    "role": resolved.binding.role,
+                    "rel_path": f"inputs/{resolved.binding.dest_filename}",
+                },
+            )
         )
 
-    manifest: JsonObject = {"schema_version": 2, "datasets": datasets}
+    manifest: JsonObject = {"schema_version": 2, "datasets": cast(JsonValue, datasets)}
     write_json(inputs_dir / "manifest.json", manifest)
     return MaterializedStepInputs(
         inputs_dir=inputs_dir,

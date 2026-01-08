@@ -4,6 +4,7 @@ import shutil
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 from pydantic import ValidationError
 
@@ -16,7 +17,7 @@ from src.domain.models import ArtifactKind, ArtifactRef, PlanStep
 from src.infra.plan_exceptions import PlanCompositionInvalidError
 from src.infra.stata_run_support import RunDirs, job_rel_path, write_text
 from src.utils.job_workspace import is_safe_path_segment
-from src.utils.json_types import JsonObject
+from src.utils.json_types import JsonObject, JsonValue
 
 
 def create_products_and_decisions(
@@ -155,7 +156,7 @@ def _write_dataset_product(
     return {
         "type": merge.operation,
         "step_id": step.step_id,
-        "keys": list(merge.keys),
+        "keys": [cast(JsonValue, k) for k in merge.keys],
         "stats": stats,
     }
 

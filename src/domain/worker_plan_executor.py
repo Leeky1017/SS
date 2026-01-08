@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import Mapping
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, cast
@@ -21,6 +22,7 @@ from src.infra.stata_run_support import (
     resolve_run_dirs,
     write_run_artifacts,
 )
+from src.utils.json_types import JsonValue
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +136,7 @@ def _find_run_step(*, job: Job) -> PlanStep | None:
     return None
 
 
-def _inputs_manifest_or_error(*, job: Job, job_dir: Path) -> dict[str, object] | RunError:
+def _inputs_manifest_or_error(*, job: Job, job_dir: Path) -> dict[str, JsonValue] | RunError:
     if job.inputs is None:
         return RunError(error_code="INPUTS_MANIFEST_MISSING", message="job missing inputs")
     manifest_rel_path = job.inputs.manifest_rel_path
@@ -175,7 +177,7 @@ def _inputs_manifest_or_error(*, job: Job, job_dir: Path) -> dict[str, object] |
             error_code="INPUTS_MANIFEST_INVALID",
             message="inputs manifest must be a JSON object",
         )
-    return cast(dict[str, object], raw)
+    return cast(dict[str, JsonValue], raw)
 
 
 def _do_file_or_error(
@@ -183,7 +185,7 @@ def _do_file_or_error(
     generator: DoFileGenerator,
     job: Job,
     run_id: str,
-    inputs_manifest: dict[str, object],
+    inputs_manifest: Mapping[str, object],
 ) -> str | RunError:
     if job.llm_plan is None:
         return RunError(error_code="PLAN_MISSING", message="job missing llm_plan")

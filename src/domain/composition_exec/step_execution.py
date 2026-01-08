@@ -23,6 +23,7 @@ from src.domain.models import ArtifactKind, ArtifactRef, Job, LLMPlan, PlanStep
 from src.domain.stata_runner import RunError, RunResult, StataRunner
 from src.infra.plan_exceptions import PlanCompositionInvalidError
 from src.infra.stata_run_support import RunDirs, job_rel_path, resolve_run_dirs
+from src.utils.json_types import JsonValue
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,7 @@ class _StepPhaseContext:
     pipeline_dirs: RunDirs
     pipeline_run_id: str
     jobs_dir: Path
-    inputs_manifest: Mapping[str, object]
+    inputs_manifest: Mapping[str, JsonValue]
     composition_mode: str
     manifest_by_key: Mapping[str, str]
     runner: StataRunner
@@ -62,7 +63,7 @@ def process_step(
     pipeline_dirs: RunDirs,
     pipeline_run_id: str,
     jobs_dir: Path,
-    inputs_manifest: Mapping[str, object],
+    inputs_manifest: Mapping[str, JsonValue],
     composition_mode: str,
     manifest_by_key: Mapping[str, str],
     runner: StataRunner,

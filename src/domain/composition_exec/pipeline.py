@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from pathlib import Path
+from typing import cast
 
 from src.domain.composition_exec.summary import write_pipeline_error, write_pipeline_summary
 from src.domain.models import Job
 from src.domain.stata_runner import RunError, RunResult
 from src.infra.stata_run_support import RunDirs, resolve_run_dirs
+from src.utils.json_types import JsonObject, JsonValue
 
 
 def pipeline_dirs_or_error(*, job: Job, run_id: str, jobs_dir: Path) -> RunDirs | RunResult:
@@ -33,10 +35,10 @@ def fail_pipeline(
     job: Job,
     pipeline_dirs: RunDirs,
     pipeline_run_id: str,
-    inputs_manifest: Mapping[str, object],
+    inputs_manifest: Mapping[str, JsonValue],
     composition_mode: str,
-    steps: list[object],
-    decisions: list[object],
+    steps: list[JsonObject],
+    decisions: list[JsonObject],
     error: RunError,
 ) -> RunResult:
     summary_ref = write_pipeline_summary(
@@ -46,9 +48,15 @@ def fail_pipeline(
         artifacts_dir=pipeline_dirs.artifacts_dir,
         composition_mode=composition_mode,
         inputs_manifest=inputs_manifest,
-        steps=list(steps),
-        decisions=list(decisions),
-        error={"error_code": error.error_code, "message": error.message},
+        steps=steps,
+        decisions=decisions,
+        error=cast(
+            JsonObject,
+            {
+                "error_code": error.error_code,
+                "message": error.message,
+            },
+        ),
     )
     result = write_pipeline_error(
         pipeline_dirs=pipeline_dirs,
@@ -77,4 +85,3 @@ def _result_error(*, job_id: str, run_id: str, error_code: str, message: str) ->
         artifacts=tuple(),
         error=RunError(error_code=error_code, message=message),
     )
-

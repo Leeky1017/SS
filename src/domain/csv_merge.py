@@ -4,6 +4,9 @@ import csv
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
+from typing import cast
+
+from src.utils.json_types import JsonObject, JsonValue
 
 
 @dataclass(frozen=True)
@@ -11,13 +14,13 @@ class CSVJoinError(Exception):
     reason: str
 
 
-def append_csv(*, primary_path: Path, secondary_path: Path) -> tuple[str, dict[str, object]]:
+def append_csv(*, primary_path: Path, secondary_path: Path) -> tuple[str, JsonObject]:
     primary_fields, primary_rows = _read_csv(primary_path)
     secondary_fields, secondary_rows = _read_csv(secondary_path)
     if primary_fields != secondary_fields:
         raise CSVJoinError("append_header_mismatch")
     output = _write_csv_rows(fieldnames=primary_fields, rows=[*primary_rows, *secondary_rows])
-    stats: dict[str, object] = {
+    stats: JsonObject = {
         "operation": "append",
         "primary_rows": len(primary_rows),
         "secondary_rows": len(secondary_rows),
@@ -27,7 +30,7 @@ def append_csv(*, primary_path: Path, secondary_path: Path) -> tuple[str, dict[s
 
 def merge_csv(
     *, primary_path: Path, secondary_path: Path, keys: tuple[str, ...]
-) -> tuple[str, dict[str, object]]:
+) -> tuple[str, JsonObject]:
     primary_fields, primary_rows = _read_csv(primary_path)
     secondary_fields, secondary_rows = _read_csv(secondary_path)
     for key in keys:
@@ -64,9 +67,9 @@ def merge_csv(
         keys=keys,
     )
     output = _write_csv_rows(fieldnames=fieldnames, rows=merged_rows)
-    stats: dict[str, object] = {
+    stats: JsonObject = {
         "operation": "merge",
-        "keys": list(keys),
+        "keys": [cast(JsonValue, k) for k in keys],
         "primary_rows": len(primary_rows),
         "secondary_rows": len(secondary_rows),
         "matched_rows": matches,

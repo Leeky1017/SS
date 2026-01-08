@@ -15,9 +15,10 @@ from src.domain.models import Job, LLMPlan
 from src.domain.plan_routing import extract_input_dataset_keys
 from src.domain.stata_runner import RunResult, StataRunner
 from src.infra.stata_run_support import RunDirs
+from src.utils.json_types import JsonValue
 
 
-def validate_mode(*, plan: LLMPlan, inputs_manifest: Mapping[str, object]) -> CompositionMode:
+def validate_mode(*, plan: LLMPlan, inputs_manifest: Mapping[str, JsonValue]) -> CompositionMode:
     known = extract_input_dataset_keys(manifest=inputs_manifest)
     return validate_composition_plan(plan=plan, known_input_keys=known)
 
@@ -29,7 +30,7 @@ def execute_steps(
     pipeline_dirs: RunDirs,
     pipeline_run_id: str,
     jobs_dir: Path,
-    inputs_manifest: Mapping[str, object],
+    inputs_manifest: Mapping[str, JsonValue],
     composition_mode: str,
     runner: StataRunner,
     generator: DoFileGenerator,

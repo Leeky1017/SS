@@ -3,12 +3,13 @@ from __future__ import annotations
 import logging
 from collections.abc import Mapping
 from pathlib import Path
+from typing import cast
 
 from src.domain.composition_exec.types import ResolvedBinding, ResolvedProduct
 from src.domain.models import ArtifactKind, ArtifactRef, Job, PlanStep
 from src.domain.stata_runner import RunError, RunResult
 from src.infra.stata_run_support import RunDirs, job_rel_path, write_json
-from src.utils.json_types import JsonObject
+from src.utils.json_types import JsonObject, JsonValue
 
 logger = logging.getLogger(__name__)
 
@@ -67,10 +68,10 @@ def write_pipeline_summary(
     pipeline_run_id: str,
     artifacts_dir: Path,
     composition_mode: str,
-    inputs_manifest: Mapping[str, object],
+    inputs_manifest: Mapping[str, JsonValue],
     steps: list[JsonObject],
     decisions: list[JsonObject],
-    error: Mapping[str, object] | None = None,
+    error: Mapping[str, JsonValue] | None = None,
 ) -> ArtifactRef:
     path = artifacts_dir / "composition_summary.json"
     payload: JsonObject = {
@@ -78,12 +79,12 @@ def write_pipeline_summary(
         "job_id": job.job_id,
         "pipeline_run_id": pipeline_run_id,
         "composition_mode": composition_mode,
-        "inputs_manifest": dict(inputs_manifest),
-        "steps": steps,
-        "decisions": decisions,
+        "inputs_manifest": cast(JsonValue, dict(inputs_manifest)),
+        "steps": cast(JsonValue, steps),
+        "decisions": cast(JsonValue, decisions),
     }
     if error is not None:
-        payload["error"] = dict(error)
+        payload["error"] = cast(JsonValue, dict(error))
     write_json(path, payload)
     return ArtifactRef(
         kind=ArtifactKind.COMPOSITION_SUMMARY_JSON,

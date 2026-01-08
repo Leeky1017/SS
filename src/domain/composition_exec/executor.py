@@ -10,11 +10,13 @@ from src.domain.composition_exec.ordering import validate_step_ids
 from src.domain.composition_exec.pipeline import fail_pipeline, pipeline_dirs_or_error
 from src.domain.composition_exec.plan_execution import execute_steps, validate_mode
 from src.domain.composition_exec.summary import write_pipeline_summary
+from src.domain.composition_exec.types import ExecutionState
 from src.domain.do_file_generator import DoFileGenerator
 from src.domain.models import Job, LLMPlan
 from src.domain.stata_runner import RunError, RunResult, StataRunner
 from src.infra.plan_exceptions import PlanCompositionInvalidError
 from src.infra.stata_run_support import RunDirs
+from src.utils.json_types import JsonValue
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +27,7 @@ def execute_composition_plan(
     run_id: str,
     jobs_dir: Path,
     runner: StataRunner,
-    inputs_manifest: Mapping[str, object],
+    inputs_manifest: Mapping[str, JsonValue],
     shutdown_deadline: datetime | None,
     clock: Callable[[], datetime],
     do_file_generator: DoFileGenerator | None = None,
@@ -61,7 +63,7 @@ def _execute_composition_plan_validated(
     pipeline_run_id: str,
     jobs_dir: Path,
     runner: StataRunner,
-    inputs_manifest: Mapping[str, object],
+    inputs_manifest: Mapping[str, JsonValue],
     generator: DoFileGenerator,
     shutdown_deadline: datetime | None,
     clock: Callable[[], datetime],
@@ -105,7 +107,7 @@ def _handle_plan_invalid(
     job: Job,
     pipeline_dirs: RunDirs,
     pipeline_run_id: str,
-    inputs_manifest: Mapping[str, object],
+    inputs_manifest: Mapping[str, JsonValue],
     error: PlanCompositionInvalidError,
 ) -> RunResult:
     logger.warning(
@@ -129,9 +131,9 @@ def _finalize_pipeline(
     job: Job,
     pipeline_dirs: RunDirs,
     pipeline_run_id: str,
-    inputs_manifest: Mapping[str, object],
+    inputs_manifest: Mapping[str, JsonValue],
     composition_mode: str,
-    state_or_result: object,
+    state_or_result: ExecutionState | RunResult,
 ) -> RunResult:
     if isinstance(state_or_result, RunResult):
         return state_or_result
