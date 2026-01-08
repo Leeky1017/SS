@@ -3,7 +3,7 @@
 - Issue: #164
 - Parent: #125
 - Branch: task/164-p4-2-core-t21-t50
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/173
 
 ## Goal
 - Phase 4.2: Make templates `T21`–`T50` run on Stata 18 with fixtures, emit contract-compliant anchors, and follow unified style.
