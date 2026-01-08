@@ -1,25 +1,28 @@
 # ISSUE-186
 - Issue: #186
 - Branch: task/186-p53-data-prep-ta
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/187
 
 ## Goal
 - Enhance data-prep templates `TA01`–`TA14`: best practices (missing/outlier/type checks), reduce SSC dependencies where feasible, stronger warn/fail error handling with `SS_RC`, bilingual comments, and evidence logging.
 
 ## Status
-- CURRENT: Completed `TA01`–`TA14` template + meta upgrades; ready to run repo checks and open PR.
+- CURRENT: Closeout: task card completion + rulebook archive (post-merge hygiene).
 
 ## Next Actions
 - [x] Create Rulebook task notes + checklist for Issue #186
 - [x] Update `assets/stata_do_library/do/TA01`–`TA14` (+ meta) with best-practice records and stronger input validation
-- [ ] Run `ruff check .` and `pytest -q`, then `scripts/agent_pr_preflight.sh`
-- [ ] Open PR with `Closes #186`, enable auto-merge, and backfill PR link here
+- [x] Run `ruff check .` and `pytest -q`, then `scripts/agent_pr_preflight.sh`
+- [x] Open PR with `Closes #186`, enable auto-merge, and backfill PR link here
+- [x] Merge PR + sync controlplane main + cleanup worktree
+- [x] Closeout: task card completion + rulebook archive
 
 ## Decisions Made
 - 2026-01-08: Prefer Stata 18 built-ins over SSC for data-prep templates; when `capture` is used for cleanup, log non-trivial failures via `SS_RC` instead of empty `{ }` blocks.
 
 ## Errors Encountered
 - 2026-01-08: Accidentally patched controlplane files first; immediately `git restore`d and re-applied changes inside the Issue #186 worktree.
+- 2026-01-08: `gh pr create` body quoting failed due to shell backticks; fixed via `gh pr edit --body-file`.
 
 ## Runs
 ### 2026-01-08 Setup: Issue + worktree
@@ -94,3 +97,15 @@
   - `== Changed Files ==` lists `TA01`–`TA14` do/meta + smoke suite manifest + run log + rulebook task
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-08 PR merged: checks + merge + post-merge hygiene
+- Command:
+  - `gh pr checks 187 --watch`
+  - `gh pr view 187 --json state,mergedAt`
+  - `scripts/agent_controlplane_sync.sh`
+  - `scripts/agent_worktree_cleanup.sh "186" "p53-data-prep-ta"`
+- Key output:
+  - `All checks were successful` (ci / openspec-log-guard / merge-serial)
+  - `state=MERGED` (see PR: https://github.com/Leeky1017/SS/pull/187)
+  - `Fast-forward` controlplane main to `origin/main`
+  - `OK: cleaned worktree .worktrees/issue-186-p53-data-prep-ta`
