@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "winsor2",
-      "purpose": "Winsorize command",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "Percentile-based winsor/trim",
+      "source": "built-in"
     }
   ],
   "description": "Winsorize numeric variables to replace extreme values with specified percentile values",
@@ -92,5 +92,5 @@
   ],
   "title": "Winsorize",
   "title_zh": "缩尾处理",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

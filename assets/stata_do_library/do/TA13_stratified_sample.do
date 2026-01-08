@@ -26,6 +26,9 @@
 * Stata:        18.0+ (official commands only)
 * ==============================================================================
 
+* ============ BEST_PRACTICE_REVIEW (Phase 5.3) ============
+* - 2026-01-08: Interpret `__SAMPLE_SIZE__` as proportion when in (0,1) and validate bounds; always record RNG seed (比例/数量分支显式处理，并记录随机种子便于复现).
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -44,7 +47,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA13|level=L0|title=Stratified_Sample"
-display "SS_METRIC|name=task_version|value=2.0.1"
+display "SS_METRIC|name=task_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -289,7 +292,10 @@ display "SS_OUTPUT_FILE|file=data_TA13_sampled.csv|type=data|desc=sampled_csv"
 
 * 清理临时文件
 capture erase "temp_strata_stats.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 & `rc' != 601 {
+    display "SS_RC|code=`rc'|cmd=erase temp_strata_stats.dta|msg=tempfile_erase_failed|severity=warn"
+}
 
 * ============ 任务完成摘要 ============
 display ""

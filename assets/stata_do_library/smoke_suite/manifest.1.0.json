@@ -24,9 +24,9 @@
     "TA01": {
       "dependencies": [
         {
-          "pkg": "winsor2",
-          "purpose": "Winsorize command",
-          "source": "ssc"
+          "pkg": "stata",
+          "purpose": "Percentile-based winsor/trim",
+          "source": "built-in"
         }
       ],
       "fixtures": [
@@ -244,9 +244,9 @@
     "TA11": {
       "dependencies": [
         {
-          "pkg": "distinct",
-          "purpose": "count distinct values",
-          "source": "ssc"
+          "pkg": "stata",
+          "purpose": "duplicates + tag-based distinct counts",
+          "source": "built-in"
         }
       ],
       "fixtures": [
@@ -307,9 +307,9 @@
     "TA14": {
       "dependencies": [
         {
-          "pkg": "mdesc",
-          "purpose": "missing data description",
-          "source": "ssc"
+          "pkg": "stata",
+          "purpose": "Missingness + quality diagnostics",
+          "source": "built-in"
         }
       ],
       "fixtures": [

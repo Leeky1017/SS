@@ -25,6 +25,9 @@
 * Stata:        18.0+ (official commands only)
 * ==============================================================================
 
+* ============ BEST_PRACTICE_REVIEW (Phase 5.3) ============
+* - 2026-01-08: Parse dates into new variables and keep originals; avoid silent overwrites when generating derived fields (解析到新变量并保留原变量，避免静默覆盖).
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -43,7 +46,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA08|level=L0|title=Datetime_Process"
-display "SS_METRIC|name=task_version|value=2.0.1"
+display "SS_METRIC|name=task_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -222,7 +225,10 @@ foreach var of local valid_vars {
             
             * 年
             capture drop `var'_year
-            if _rc != 0 { }
+            local rc = _rc
+            if `rc' != 0 & `rc' != 111 {
+                display "SS_RC|code=`rc'|cmd=drop `var'_year|msg=cleanup_drop_failed|severity=warn"
+            }
             generate int `var'_year = year(`datevar')
             local new_var_list "`new_var_list' `var'_year"
             local n_newvars = `n_newvars' + 1
@@ -230,7 +236,10 @@ foreach var of local valid_vars {
             
             * 月
             capture drop `var'_month
-            if _rc != 0 { }
+            local rc = _rc
+            if `rc' != 0 & `rc' != 111 {
+                display "SS_RC|code=`rc'|cmd=drop `var'_month|msg=cleanup_drop_failed|severity=warn"
+            }
             generate byte `var'_month = month(`datevar')
             local new_var_list "`new_var_list' `var'_month"
             local n_newvars = `n_newvars' + 1
@@ -238,7 +247,10 @@ foreach var of local valid_vars {
             
             * 日
             capture drop `var'_day
-            if _rc != 0 { }
+            local rc = _rc
+            if `rc' != 0 & `rc' != 111 {
+                display "SS_RC|code=`rc'|cmd=drop `var'_day|msg=cleanup_drop_failed|severity=warn"
+            }
             generate byte `var'_day = day(`datevar')
             local new_var_list "`new_var_list' `var'_day"
             local n_newvars = `n_newvars' + 1
@@ -246,7 +258,10 @@ foreach var of local valid_vars {
             
             * 季度
             capture drop `var'_quarter
-            if _rc != 0 { }
+            local rc = _rc
+            if `rc' != 0 & `rc' != 111 {
+                display "SS_RC|code=`rc'|cmd=drop `var'_quarter|msg=cleanup_drop_failed|severity=warn"
+            }
             generate byte `var'_quarter = quarter(`datevar')
             local new_var_list "`new_var_list' `var'_quarter"
             local n_newvars = `n_newvars' + 1
@@ -254,7 +269,10 @@ foreach var of local valid_vars {
             
             * 星期
             capture drop `var'_dow
-            if _rc != 0 { }
+            local rc = _rc
+            if `rc' != 0 & `rc' != 111 {
+                display "SS_RC|code=`rc'|cmd=drop `var'_dow|msg=cleanup_drop_failed|severity=warn"
+            }
             generate byte `var'_dow = dow(`datevar')
             label define dow_lbl 0 "Sun" 1 "Mon" 2 "Tue" 3 "Wed" 4 "Thu" 5 "Fri" 6 "Sat", replace
             label values `var'_dow dow_lbl
@@ -267,7 +285,10 @@ foreach var of local valid_vars {
             if "`reference_date'" != "" {
                 local ref_stata = date("`reference_date'", "YMD")
                 capture drop `var'_diff
-                if _rc != 0 { }
+                local rc = _rc
+                if `rc' != 0 & `rc' != 111 {
+                    display "SS_RC|code=`rc'|cmd=drop `var'_diff|msg=cleanup_drop_failed|severity=warn"
+                }
                 generate long `var'_diff = `datevar' - `ref_stata'
                 local new_var_list "`new_var_list' `var'_diff"
                 local n_newvars = `n_newvars' + 1
@@ -285,7 +306,10 @@ foreach var of local valid_vars {
             foreach y of local years {
                 if `y' != `base_year' {
                     capture drop `var'_y`y'
-                    if _rc != 0 { }
+                    local rc = _rc
+                    if `rc' != 0 & `rc' != 111 {
+                        display "SS_RC|code=`rc'|cmd=drop `var'_y`y'|msg=cleanup_drop_failed|severity=warn"
+                    }
                     generate byte `var'_y`y' = (`var'_year == `y') if !missing(`var'_year)
                     local new_var_list "`new_var_list' `var'_y`y'"
                     local n_newvars = `n_newvars' + 1
@@ -296,7 +320,10 @@ foreach var of local valid_vars {
             * 生成季度哑变量
             forvalues q = 2/4 {
                 capture drop `var'_q`q'
-                if _rc != 0 { }
+                local rc = _rc
+                if `rc' != 0 & `rc' != 111 {
+                    display "SS_RC|code=`rc'|cmd=drop `var'_q`q'|msg=cleanup_drop_failed|severity=warn"
+                }
                 generate byte `var'_q`q' = (`var'_quarter == `q') if !missing(`var'_quarter)
                 local new_var_list "`new_var_list' `var'_q`q'"
                 local n_newvars = `n_newvars' + 1

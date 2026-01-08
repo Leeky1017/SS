@@ -25,6 +25,9 @@
 * Stata:        18.0+ (official commands only)
 * ==============================================================================
 
+* ============ BEST_PRACTICE_REVIEW (Phase 5.3) ============
+* - 2026-01-08: Explicitly document standardization method choice and grouping semantics (明确标准化方法与分组口径).
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -43,7 +46,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA02|level=L0|title=Standardize"
-display "SS_METRIC|name=task_version|value=2.0.1"
+display "SS_METRIC|name=task_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"

@@ -9,7 +9,7 @@
 *   - table_TA01_winsorized.csv type=table desc="Winsorized data CSV"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - winsor2 source=ssc purpose="winsorize command"
+*   - stata source=built-in purpose="percentile-based winsor/trim (egen pctile)"
 * ==============================================================================
 * Task ID:      TA01_winsorize
 * Task Name:    缩尾处理
@@ -23,7 +23,13 @@
 *               __BY_VAR__          - 分组变量（可选）
 *
 * Author:       Stata Task Template System
-* Stata:        18.0+ (official + community commands allowed)
+* Stata:        18.0+ (official commands only)
+* ==============================================================================
+
+* ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.3)
+* - 2026-01-08: Replace SSC `winsor2` with built-in percentile cutpoints (egen pctile) for winsor/trim (用原生命令替代 winsor2).
+* - 2026-01-08: Use deterministic cutpoints and record modified counts (使用确定性分位点并记录处理数量).
 * ==============================================================================
 
 * ============ 初始化 ============
@@ -44,26 +50,10 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA01|level=L1|title=Winsorize"
-display "SS_METRIC|name=task_version|value=2.0.1"
+display "SS_METRIC|name=task_version|value=2.1.0"
 
 * ============ 依赖检测 ============
-local required_deps "winsor2"
-foreach dep of local required_deps {
-    capture which `dep'
-    local rc = _rc
-    if `rc' {
-        display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-        display "SS_DEP_MISSING|pkg=`dep'"
-        display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-        timer off 1
-        quietly timer list 1
-        local elapsed = round(r(t1))
-        display "SS_TASK_END|id=TA01|status=fail|elapsed_sec=`elapsed'"
-        log close
-        exit 199
-    }
-    display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=ok"
-}
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local winsor_vars = "__WINSOR_VARS__"
@@ -218,32 +208,39 @@ local n_winsorized = 0
 foreach var of local valid_vars {
     display ""
     display ">>> 处理变量: `var'"
-    
-    * 统计缩尾前的极端值数量
-    quietly summarize `var', detail
-    local p_lower = r(p`lower_pctl')
-    local p_upper = r(p`upper_pctl')
-    
-    quietly count if `var' < `p_lower' | `var' > `p_upper'
-    local n_extreme_before = r(N)
-    
-    * 执行缩尾
+
+    * Compute percentile cutpoints (supports arbitrary percentiles; summarize, detail does not)
     if "`by_var'" != "" {
-        * 分组缩尾
+        tempvar __lo __hi
+        bysort `by_var': egen double `__lo' = pctile(`var'), p(`lower_pctl')
+        bysort `by_var': egen double `__hi' = pctile(`var'), p(`upper_pctl')
+
+        quietly count if !missing(`var') & (`var' < `__lo' | `var' > `__hi')
+        local n_extreme_before = r(N)
+
         if "`method'" == "trim" {
-            winsor2 `var', cuts(`lower_pctl' `upper_pctl') trim by(`by_var') replace
+            replace `var' = . if !missing(`var') & (`var' < `__lo' | `var' > `__hi')
         }
         else {
-            winsor2 `var', cuts(`lower_pctl' `upper_pctl') by(`by_var') replace
+            replace `var' = `__lo' if !missing(`var') & `var' < `__lo'
+            replace `var' = `__hi' if !missing(`var') & `var' > `__hi'
         }
+        drop `__lo' `__hi'
     }
     else {
-        * 全样本缩尾
+        quietly _pctile `var' if !missing(`var'), p(`lower_pctl' `upper_pctl')
+        local p_lower = r(r1)
+        local p_upper = r(r2)
+
+        quietly count if !missing(`var') & (`var' < `p_lower' | `var' > `p_upper')
+        local n_extreme_before = r(N)
+
         if "`method'" == "trim" {
-            winsor2 `var', cuts(`lower_pctl' `upper_pctl') trim replace
+            replace `var' = . if !missing(`var') & (`var' < `p_lower' | `var' > `p_upper')
         }
         else {
-            winsor2 `var', cuts(`lower_pctl' `upper_pctl') replace
+            replace `var' = `p_lower' if !missing(`var') & `var' < `p_lower'
+            replace `var' = `p_upper' if !missing(`var') & `var' > `p_upper'
         }
     }
     
