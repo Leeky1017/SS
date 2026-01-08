@@ -26,7 +26,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=log_close_failed|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -39,15 +42,15 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA12|level=L0|title=Label_Manage"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_METRIC|name=task_version|value=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
-local operation = "__OPERATION__"
-local dict_file = "__DICT_FILE__"
-local target_vars = "__TARGET_VARS__"
+local operation "__OPERATION__"
+local dict_file "__DICT_FILE__"
+local target_vars "__TARGET_VARS__"
 
 * 参数默认值
 if "`operation'" == "" {
@@ -68,14 +71,17 @@ if "`target_vars'" != "" {
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA12|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 601
 }
-import delimited "data.csv", clear
+import delimited "data.csv", clear varnames(1) encoding(utf8)
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 
 * ============ 获取变量列表 ============
 if "`target_vars'" == "" {
@@ -134,7 +140,7 @@ if "`operation'" == "export" {
     
     display ""
     display ">>> 有标签的变量: `n_labeled' / `n_vars'"
-    display "SS_METRIC:n_labeled:`n_labeled'"
+    display "SS_METRIC|name=n_labeled|value=`n_labeled'"
     
     * 导出标签清单
     preserve
@@ -157,7 +163,7 @@ else if "`operation'" == "import" {
     
     capture confirm file "`dict_file'"
     if _rc {
-        display "SS_WARNING:DICT_NOT_FOUND:`dict_file' not found, creating template"
+        display "SS_RC|code=0|cmd=confirm file `dict_file'|msg=dict_not_found_template_created|severity=warn"
         
         * 创建模板字典文件
         preserve
@@ -185,8 +191,11 @@ else if "`operation'" == "import" {
         capture confirm variable variable
         capture confirm variable label
         if _rc {
-            display "SS_ERROR:DICT_FORMAT:Dictionary must have 'variable' and 'label' columns"
-            display "SS_ERR:DICT_FORMAT:Dictionary must have 'variable' and 'label' columns"
+            display "SS_RC|code=198|cmd=validate_dict_columns|msg=dict_missing_required_columns|severity=fail"
+            timer off 1
+            quietly timer list 1
+            local elapsed = round(r(t1))
+            display "SS_TASK_END|id=TA12|status=fail|elapsed_sec=`elapsed'"
             restore
             log close
             exit 198
@@ -215,7 +224,7 @@ else if "`operation'" == "import" {
         
         display ""
         display ">>> 已应用标签: `n_applied' 个变量"
-        display "SS_METRIC:n_applied:`n_applied'"
+        display "SS_METRIC|name=n_applied|value=`n_applied'"
     }
     
     * 导出结果
@@ -264,7 +273,7 @@ else if "`operation'" == "clean" {
     
     display ""
     display ">>> 清理标签数: `n_cleaned'"
-    display "SS_METRIC:n_cleaned:`n_cleaned'"
+    display "SS_METRIC|name=n_cleaned|value=`n_cleaned'"
     
     * 导出清理结果
     preserve
@@ -299,7 +308,7 @@ else if "`operation'" == "auto" {
     
     display ""
     display ">>> 自动生成标签数: `n_auto'"
-    display "SS_METRIC:n_auto:`n_auto'"
+    display "SS_METRIC|name=n_auto|value=`n_auto'"
     
     * 导出结果
     preserve

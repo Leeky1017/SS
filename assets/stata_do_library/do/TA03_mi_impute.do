@@ -28,7 +28,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=log_close_failed|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -41,7 +44,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA03|level=L1|title=MI_Impute"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_METRIC|name=task_version|value=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -75,14 +78,17 @@ if "`id_var'" != "" {
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA03|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 601
 }
 import delimited "data.csv", clear
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 
 * ============ 变量检查 ============
 local valid_impute_vars ""
@@ -93,7 +99,7 @@ foreach var of local impute_vars {
     capture confirm numeric variable `var'
     if _rc {
         display ">>> 警告: `var' 不存在或非数值，跳过"
-        display "SS_WARNING:VAR_INVALID:`var' is invalid for imputation"
+        display "SS_RC|code=0|cmd=confirm numeric variable `var'|msg=impute_var_invalid_skipped|severity=warn"
     }
     else {
         local valid_impute_vars "`valid_impute_vars' `var'"
@@ -101,8 +107,11 @@ foreach var of local impute_vars {
 }
 
 if "`valid_impute_vars'" == "" {
-    display "SS_ERROR:NO_VALID_VARS:No valid variables to impute"
-    display "SS_ERR:NO_VALID_VARS:No valid variables to impute"
+    display "SS_RC|code=200|cmd=validate_impute_vars|msg=no_valid_impute_vars|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA03|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 200
 }
@@ -150,7 +159,7 @@ postclose `misspattern'
 
 display ""
 display ">>> 总缺失值数量: `total_missing'"
-display "SS_METRIC:n_missing_total:`total_missing'"
+display "SS_METRIC|name=n_missing_total|value=`total_missing'"
 
 * 导出缺失模式
 preserve
@@ -207,10 +216,14 @@ foreach var of local valid_impute_vars {
 capture noisily mi impute chained `impute_cmd', add(`n_imputations') rseed(12345)
 
 if _rc {
-    display "SS_ERROR:MI_FAILED:Multiple imputation failed with error code " _rc
-    display "SS_ERR:MI_FAILED:Multiple imputation failed with error code " _rc
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=mi impute chained|msg=mi_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA03|status=fail|elapsed_sec=`elapsed'"
     log close
-    exit _rc
+    exit `rc'
 }
 
 display ""
@@ -272,9 +285,15 @@ display "SS_OUTPUT_FILE|file=data_TA03_imputed.dta|type=data|desc=imputed_data"
 
 * 清理临时文件
 capture erase "temp_missing_pattern.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 & `rc' != 601 {
+    display "SS_RC|code=`rc'|cmd=erase temp_missing_pattern.dta|msg=cleanup_failed|severity=warn"
+}
 capture erase "temp_impute_diag.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 & `rc' != 601 {
+    display "SS_RC|code=`rc'|cmd=erase temp_impute_diag.dta|msg=cleanup_failed|severity=warn"
+}
 
 * ============ 任务完成摘要 ============
 display ""

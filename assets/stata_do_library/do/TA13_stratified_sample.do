@@ -28,7 +28,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=log_close_failed|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -41,17 +44,17 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA13|level=L0|title=Stratified_Sample"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_METRIC|name=task_version|value=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
-local strata_var = "__STRATA_VAR__"
-local sample_size = __SAMPLE_SIZE__
-local method = "__METHOD__"
-local random_seed = __RANDOM_SEED__
-local with_replace = "__WITH_REPLACE__"
+local strata_var "__STRATA_VAR__"
+local sample_size __SAMPLE_SIZE__
+local method "__METHOD__"
+local random_seed __RANDOM_SEED__
+local with_replace "__WITH_REPLACE__"
 
 * 参数默认值
 if "`method'" == "" {
@@ -79,20 +82,26 @@ set seed `random_seed'
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA13|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 601
 }
-import delimited "data.csv", clear
+import delimited "data.csv", clear varnames(1) encoding(utf8)
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 
 * ============ 变量检查 ============
 capture confirm variable `strata_var'
 if _rc {
-    display "SS_ERROR:STRATA_VAR_NOT_FOUND:`strata_var' not found"
-    display "SS_ERR:STRATA_VAR_NOT_FOUND:`strata_var' not found"
+    display "SS_RC|code=200|cmd=confirm variable `strata_var'|msg=strata_var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA13|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 200
 }
@@ -132,7 +141,7 @@ foreach s of local strata_levels {
 display "─────────────────────────────"
 display %10s "Total" "  " %8.0fc `n_input' "  100.00%"
 
-display "SS_METRIC:n_strata:`n_strata'"
+display "SS_METRIC|name=n_strata|value=`n_strata'"
 
 * ============ 计算各层样本量 ============
 display ""
@@ -189,7 +198,7 @@ foreach s of local strata_levels {
     * 确保不超过层内样本量
     if `n_sample_s' > `n_stratum' {
         local n_sample_s = `n_stratum'
-        display "SS_WARNING:OVERSAMPLE:Stratum `s' sample size reduced to `n_stratum'"
+        display "SS_RC|code=0|cmd=validate_sample_size|msg=oversample_reduced_to_stratum_size|severity=warn"
     }
     
     display ">>> 层 `s': 抽取 `n_sample_s' / `n_stratum'"
@@ -220,7 +229,7 @@ postclose `stratastats'
 
 display ""
 display ">>> 实际抽样总量: `total_sampled'"
-display "SS_METRIC:n_sampled:`total_sampled'"
+display "SS_METRIC|name=n_sampled|value=`total_sampled'"
 
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 

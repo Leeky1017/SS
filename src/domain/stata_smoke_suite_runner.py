@@ -121,12 +121,16 @@ def _extract_missing_deps(*, artifacts_dir: Path) -> tuple[str, ...]:
             stripped = line.strip()
             m = _DEP_MISSING.match(stripped)
             if m is not None:
-                deps.append(m.group("pkg"))
+                pkg = m.group("pkg")
+                if isinstance(pkg, str):
+                    deps.append(pkg)
                 continue
             m = _DEP_CHECK_MISSING.match(stripped)
             if m is not None:
-                deps.append(m.group("pkg"))
-    return tuple(sorted(set(d for d in deps if d.strip() != "")))
+                pkg = m.group("pkg")
+                if isinstance(pkg, str):
+                    deps.append(pkg)
+    return tuple(sorted(set(d for d in deps if isinstance(d, str) and d.strip() != "")))
 
 
 def _case_result(

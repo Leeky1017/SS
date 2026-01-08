@@ -28,7 +28,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=log_close_failed|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -41,20 +44,26 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA01|level=L1|title=Winsorize"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_METRIC|name=task_version|value=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "winsor2"
 foreach dep of local required_deps {
     capture which `dep'
-    if _rc {
+    local rc = _rc
+    if `rc' {
         display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
+        display "SS_DEP_MISSING|pkg=`dep'"
+        display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = round(r(t1))
+        display "SS_TASK_END|id=TA01|status=fail|elapsed_sec=`elapsed'"
         log close
         exit 199
     }
+    display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=ok"
 }
-display "SS_DEP_CHECK|pkg=winsor2|source=ssc|status=ok"
 
 * ============ 参数设置 ============
 local winsor_vars = "__WINSOR_VARS__"
@@ -92,8 +101,11 @@ capture confirm file "`datafile'"
 if _rc {
     capture confirm file "data.csv"
     if _rc {
-        display "SS_ERROR:FILE_NOT_FOUND:No data.dta or data.csv found"
-        display "SS_ERR:FILE_NOT_FOUND:No data.dta or data.csv found"
+        display "SS_RC|code=601|cmd=confirm file data.dta/data.csv|msg=input_file_not_found|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = round(r(t1))
+        display "SS_TASK_END|id=TA01|status=fail|elapsed_sec=`elapsed'"
         log close
         exit 601
     }
@@ -107,7 +119,7 @@ else {
 }
 
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 
 * ============ 变量检查 ============
 local valid_vars ""
@@ -122,7 +134,7 @@ foreach var of local winsor_vars {
         capture confirm numeric variable `var'
         if _rc {
             display ">>> 警告: `var' 不是数值变量，跳过"
-            display "SS_WARNING:NOT_NUMERIC:`var' is not numeric, skipped"
+            display "SS_RC|code=0|cmd=confirm numeric variable `var'|msg=not_numeric_skipped|severity=warn"
         }
         else {
             local valid_vars "`valid_vars' `var'"
@@ -132,12 +144,15 @@ foreach var of local winsor_vars {
 
 if "`invalid_vars'" != "" {
     display ">>> 警告: 以下变量不存在: `invalid_vars'"
-    display "SS_WARNING:VAR_NOT_FOUND:Variables not found:`invalid_vars'"
+    display "SS_RC|code=0|cmd=confirm variable <list>|msg=var_not_found|severity=warn"
 }
 
 if "`valid_vars'" == "" {
-    display "SS_ERROR:NO_VALID_VARS:No valid numeric variables to winsorize"
-    display "SS_ERR:NO_VALID_VARS:No valid numeric variables to winsorize"
+    display "SS_RC|code=200|cmd=validate_vars|msg=no_valid_numeric_vars|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA01|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 200
 }
@@ -146,7 +161,7 @@ if "`valid_vars'" == "" {
 if "`by_var'" != "" {
     capture confirm variable `by_var'
     if _rc {
-        display "SS_WARNING:BY_VAR_NOT_FOUND:`by_var' not found, ignoring grouping"
+        display "SS_RC|code=0|cmd=confirm variable `by_var'|msg=by_var_not_found_ignored|severity=warn"
         local by_var ""
     }
 }
@@ -281,7 +296,10 @@ display "SS_OUTPUT_FILE|file=table_TA01_winsorized.csv|type=table|desc=winsorize
 
 * 清理临时文件
 capture erase "temp_winsor_stats.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 & `rc' != 601 {
+    display "SS_RC|code=`rc'|cmd=erase temp_winsor_stats.dta|msg=cleanup_failed|severity=warn"
+}
 
 * ============ 任务完成摘要 ============
 display ""

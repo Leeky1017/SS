@@ -43,6 +43,287 @@
         "__BY_VAR__": ""
       }
     },
+    "TA02": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "egen command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA02/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__TRANSFORM_VARS__": "y x",
+        "__METHOD__": "zscore",
+        "__BY_VAR__": "",
+        "__SUFFIX__": "_std"
+      }
+    },
+    "TA03": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "mi module",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA03/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__IMPUTE_VARS__": "y x",
+        "__PREDICTOR_VARS__": "year treat post cluster",
+        "__N_IMPUTATIONS__": "5",
+        "__METHOD__": "pmm",
+        "__ID_VAR__": "id"
+      }
+    },
+    "TA04": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "Analysis commands",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA04/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__CHECK_VARS__": "y x",
+        "__METHOD__": "iqr",
+        "__THRESHOLD__": "0",
+        "__ACTION__": "flag",
+        "__ID_VAR__": "id"
+      }
+    },
+    "TA05": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "Panel commands",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA05/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__SOURCE_VARS__": "y x",
+        "__ID_VAR__": "id",
+        "__TIME_VAR__": "year",
+        "__LAG_PERIODS__": "1",
+        "__DIFF_ORDER__": "1",
+        "__GROWTH_TYPE__": "pct"
+      }
+    },
+    "TA06": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "Panel commands",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA06/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__ID_VAR__": "id",
+        "__TIME_VAR__": "year",
+        "__METHOD__": "drop",
+        "__FILL_VALUE__": "missing",
+        "__MIN_PERIODS__": "0"
+      }
+    },
+    "TA07": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "String functions",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA07/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__STRING_VARS__": "province",
+        "__OPERATION__": "trim",
+        "__PATTERN__": "",
+        "__REPLACEMENT__": "",
+        "__NEW_SUFFIX__": "_clean"
+      }
+    },
+    "TA08": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "Date functions",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA08/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DATE_VARS__": "year",
+        "__INPUT_FORMAT__": "YMD",
+        "__OPERATIONS__": "extract",
+        "__REFERENCE_DATE__": ""
+      }
+    },
+    "TA09": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "xtile command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA09/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__SOURCE_VAR__": "y",
+        "__N_GROUPS__": "4",
+        "__METHOD__": "quantile",
+        "__CUTPOINTS__": "",
+        "__BY_VAR__": "",
+        "__NEW_VAR__": ""
+      }
+    },
+    "TA10": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "tabulate command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA10/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__CAT_VARS__": "province treat",
+        "__BASE_CATEGORY__": "",
+        "__PREFIX__": "d_",
+        "__DROP_FIRST__": "yes",
+        "__INTERACTION__": ""
+      }
+    },
+    "TA11": {
+      "dependencies": [
+        {
+          "pkg": "distinct",
+          "purpose": "count distinct values",
+          "source": "ssc"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA11/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__KEY_VARS__": "id year",
+        "__ACTION__": "check",
+        "__SORT_VAR__": "",
+        "__SORT_ORDER__": "desc"
+      }
+    },
+    "TA12": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "Label commands",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA12/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__OPERATION__": "export",
+        "__DICT_FILE__": "",
+        "__TARGET_VARS__": ""
+      }
+    },
+    "TA13": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "sample command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA13/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__STRATA_VAR__": "cluster",
+        "__SAMPLE_SIZE__": "0.5",
+        "__METHOD__": "proportional",
+        "__RANDOM_SEED__": "12345",
+        "__WITH_REPLACE__": "no"
+      }
+    },
+    "TA14": {
+      "dependencies": [
+        {
+          "pkg": "mdesc",
+          "purpose": "missing data description",
+          "source": "ssc"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TA14/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__CHECK_VARS__": "",
+        "__ID_VAR__": "",
+        "__QUALITY_THRESHOLD__": "0.8"
+      }
+    },
     "TD04": {
       "dependencies": [
         {
@@ -144,4 +425,3 @@
     }
   }
 }
-

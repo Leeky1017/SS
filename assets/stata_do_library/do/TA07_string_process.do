@@ -28,7 +28,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=log_close_failed|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -41,7 +44,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA07|level=L0|title=String_Process"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_METRIC|name=task_version|value=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -77,14 +80,17 @@ display "    新变量后缀: `new_suffix'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA07|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 601
 }
 import delimited "data.csv", clear stringcols(_all)
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 
 * ============ 变量检查 ============
 local valid_vars ""
@@ -94,7 +100,7 @@ foreach var of local string_vars {
         capture confirm variable `var'
         if _rc {
             display ">>> 警告: `var' 不存在，跳过"
-            display "SS_WARNING:VAR_NOT_FOUND:`var'"
+            display "SS_RC|code=0|cmd=confirm variable `var'|msg=var_not_found_skipped|severity=warn"
         }
         else {
             * 转换为字符串
@@ -108,8 +114,11 @@ foreach var of local string_vars {
 }
 
 if "`valid_vars'" == "" {
-    display "SS_ERROR:NO_VALID_VARS:No valid string variables to process"
-    display "SS_ERR:NO_VALID_VARS:No valid string variables to process"
+    display "SS_RC|code=200|cmd=validate_string_vars|msg=no_valid_string_vars|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA07|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 200
 }
@@ -196,7 +205,7 @@ foreach var of local valid_vars {
         }
         else {
             generate `newvar' = `var'
-            display "SS_WARNING:NO_PATTERN:No pattern provided for extract"
+            display "SS_RC|code=0|cmd=extract|msg=no_pattern_provided|severity=warn"
         }
     }
     else if "`operation'" == "replace" {
@@ -207,7 +216,7 @@ foreach var of local valid_vars {
         }
         else {
             generate `newvar' = `var'
-            display "SS_WARNING:NO_PATTERN:No pattern provided for replace"
+            display "SS_RC|code=0|cmd=replace|msg=no_pattern_provided|severity=warn"
         }
     }
     else if "`operation'" == "remove_special" {
@@ -250,7 +259,7 @@ postclose `stats'
 
 display ""
 display ">>> 总共处理变量: `n_processed' 个"
-display "SS_METRIC:n_processed:`n_processed'"
+display "SS_METRIC|name=n_processed|value=`n_processed'"
 
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
@@ -281,7 +290,10 @@ display "SS_OUTPUT_FILE|file=data_TA07_processed.csv|type=data|desc=processed_cs
 
 * 清理临时文件
 capture erase "temp_string_stats.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 & `rc' != 601 {
+    display "SS_RC|code=`rc'|cmd=erase temp_string_stats.dta|msg=cleanup_failed|severity=warn"
+}
 
 * ============ 任务完成摘要 ============
 display ""

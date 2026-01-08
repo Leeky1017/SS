@@ -29,7 +29,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=log_close_failed|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -42,7 +45,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA05|level=L0|title=Var_Generate"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_METRIC|name=task_version|value=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -76,14 +79,17 @@ display "    增长率类型: `growth_type'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA05|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 601
 }
 import delimited "data.csv", clear
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
@@ -92,8 +98,11 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 * 检查ID变量
 capture confirm variable `id_var'
 if _rc {
-    display "SS_ERROR:ID_VAR_NOT_FOUND:`id_var' not found"
-    display "SS_ERR:ID_VAR_NOT_FOUND:`id_var' not found"
+    display "SS_RC|code=200|cmd=confirm variable `id_var'|msg=id_var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA05|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 200
 }
@@ -101,8 +110,11 @@ if _rc {
 * 检查时间变量
 capture confirm variable `time_var'
 if _rc {
-    display "SS_ERROR:TIME_VAR_NOT_FOUND:`time_var' not found"
-    display "SS_ERR:TIME_VAR_NOT_FOUND:`time_var' not found"
+    display "SS_RC|code=200|cmd=confirm variable `time_var'|msg=time_var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA05|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 200
 }
@@ -113,7 +125,7 @@ foreach var of local source_vars {
     capture confirm numeric variable `var'
     if _rc {
         display ">>> 警告: `var' 不存在或非数值，跳过"
-        display "SS_WARNING:VAR_INVALID:`var'"
+        display "SS_RC|code=0|cmd=confirm numeric variable `var'|msg=source_var_invalid_skipped|severity=warn"
     }
     else {
         local valid_vars "`valid_vars' `var'"
@@ -121,8 +133,11 @@ foreach var of local source_vars {
 }
 
 if "`valid_vars'" == "" {
-    display "SS_ERROR:NO_VALID_VARS:No valid source variables"
-    display "SS_ERR:NO_VALID_VARS:No valid source variables"
+    display "SS_RC|code=200|cmd=validate_source_vars|msg=no_valid_source_vars|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA05|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 200
 }
@@ -138,13 +153,60 @@ display "═══════════════════════�
 
 * 排序并设置面板
 sort `id_var' `time_var'
-ss_smart_xtset `id_var' `time_var'
+capture confirm string variable `id_var'
+if !_rc {
+    capture drop _ss_panel_id
+    capture encode `id_var', generate(_ss_panel_id)
+    local rc = _rc
+    if `rc' != 0 {
+        display "SS_RC|code=`rc'|cmd=encode `id_var'|msg=id_encode_failed|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = round(r(t1))
+        display "SS_TASK_END|id=TA05|status=fail|elapsed_sec=`elapsed'"
+        log close
+        exit 200
+    }
+    local id_var "_ss_panel_id"
+}
+capture confirm string variable `time_var'
+if !_rc {
+    capture drop _ss_time_id
+    capture destring `time_var', generate(_ss_time_id) force
+    local rc = _rc
+    if `rc' != 0 {
+        display "SS_RC|code=`rc'|cmd=destring `time_var'|msg=time_destring_failed|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = round(r(t1))
+        display "SS_TASK_END|id=TA05|status=fail|elapsed_sec=`elapsed'"
+        log close
+        exit 200
+    }
+    local time_var "_ss_time_id"
+}
+capture duplicates drop `id_var' `time_var', force
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=duplicates drop `id_var' `time_var'|msg=dedup_failed|severity=warn"
+}
+capture xtset `id_var' `time_var'
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=xtset `id_var' `time_var'|msg=xtset_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 200
+}
 
 quietly xtdescribe
 local n_panels = r(n)
 local n_periods = r(max)
 display ">>> 面板结构: `n_panels' 个个体, 最大 `n_periods' 个时期"
-display "SS_METRIC:n_panels:`n_panels'"
+display "SS_METRIC|name=n_panels|value=`n_panels'"
 
 * ============ 生成滞后变量 ============
 display ""
@@ -270,7 +332,7 @@ postclose `newvars'
 
 display ""
 display ">>> 总共生成新变量: `n_newvars' 个"
-display "SS_METRIC:n_newvars:`n_newvars'"
+display "SS_METRIC|name=n_newvars|value=`n_newvars'"
 
 * ============ 输出结果 ============
 display ""
@@ -298,7 +360,10 @@ display "SS_OUTPUT_FILE|file=data_TA05_generated.csv|type=data|desc=generated_cs
 
 * 清理临时文件
 capture erase "temp_newvar_summary.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 & `rc' != 601 {
+    display "SS_RC|code=`rc'|cmd=erase temp_newvar_summary.dta|msg=cleanup_failed|severity=warn"
+}
 
 * ============ 任务完成摘要 ============
 display ""
