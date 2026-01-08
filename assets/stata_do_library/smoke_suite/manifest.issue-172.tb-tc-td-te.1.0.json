@@ -365,9 +365,9 @@
     "TD01": {
       "dependencies": [
         {
-          "pkg": "reghdfe",
-          "purpose": "high-dimensional fixed effects",
-          "source": "ssc"
+          "pkg": "stata",
+          "purpose": "xtreg fixed effects with time FE",
+          "source": "built-in"
         }
       ],
       "fixtures": [
@@ -388,11 +388,6 @@
         {
           "pkg": "reghdfe",
           "purpose": "high-dimensional fixed effects",
-          "source": "ssc"
-        },
-        {
-          "pkg": "estout",
-          "purpose": "table export",
           "source": "ssc"
         }
       ],
@@ -610,9 +605,9 @@
     "TE05": {
       "dependencies": [
         {
-          "pkg": "twopm",
-          "purpose": "two-part model",
-          "source": "ssc"
+          "pkg": "stata",
+          "purpose": "logit + glm (gamma log-link) two-part model",
+          "source": "built-in"
         }
       ],
       "fixtures": [

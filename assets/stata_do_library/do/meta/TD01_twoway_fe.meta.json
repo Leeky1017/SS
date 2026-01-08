@@ -2,12 +2,12 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "reghdfe",
-      "purpose": "high-dimensional fixed effects",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "xtreg fixed effects with time FE",
+      "source": "built-in"
     }
   ],
-  "description": "Two-way fixed effects regression (individual and time)",
+  "description": "Two-way fixed effects regression (unit FE via xtreg, time FE via factor variables)",
   "family": "linear_regression",
   "id": "TD01",
   "inputs": [
@@ -63,12 +63,7 @@
     }
   ],
   "slug": "twoway_fe",
-  "tags": [
-    "fixed-effects",
-    "twoway",
-    "panel",
-    "reghdfe"
-  ],
+  "tags": ["fixed-effects", "twoway", "panel", "xtreg"],
   "title": "Twoway FE",
   "title_zh": "双向固定效应",
   "version": "2.0.1"

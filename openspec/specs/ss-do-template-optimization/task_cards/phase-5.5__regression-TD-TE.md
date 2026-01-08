@@ -2,10 +2,10 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #192
 - Parent: #125
 - Superphase: Phase 5 (content enhancement)
-- Templates: `TD*` + `TE*` (~22 templates, current inventory)
+- Templates: `TD01`–`TD06`, `TD10`, `TD12` + `TE01`–`TE10` (18 templates, current inventory; `TD07/TD08/TD09/TD11` were removed in Phase 2 dedupe)
 - Depends on:
   - Phase 4.5 (runtime errors fixed; anchors/style standardized)
 - Related specs:
@@ -35,4 +35,3 @@ Enhance regression templates with best practices (最佳实践), Stata 18-native
 - [ ] Error handling and diagnostics are strengthened (no silent failure)
 - [ ] Key steps have bilingual comments (中英文注释)
 - [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
-
