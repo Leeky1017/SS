@@ -37,7 +37,10 @@ def find_unsafe_dofile_reason(do_file: str) -> str | None:
 
 
 def copy_job_inputs_dir(*, job_dir: Path, work_dir: Path) -> None:
-    source_dir = job_dir / "inputs"
+    copy_inputs_dir(source_dir=job_dir / "inputs", work_dir=work_dir)
+
+
+def copy_inputs_dir(*, source_dir: Path, work_dir: Path) -> None:
     if not source_dir.exists() or not source_dir.is_dir():
         return
     target_dir = work_dir / "inputs"

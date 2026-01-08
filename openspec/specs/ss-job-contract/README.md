@@ -120,6 +120,8 @@ Artifacts 的作用：
 建议 kinds（枚举化，不允许随意字符串）：
 - `llm.prompt` / `llm.response` / `llm.meta`
 - `plan.json`
+- `composition.summary.json`
+- `composition.product.dataset` / `composition.product.table`
 - `stata.do` / `stata.log`
 - `run.stdout` / `run.stderr`
 - `stata.export.table` / `stata.export.figure`

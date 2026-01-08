@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Callable, Sequence
 
 from src.domain.do_file_generator import DEFAULT_SUMMARY_TABLE_FILENAME
-from src.domain.models import ArtifactKind, ArtifactRef
+from src.domain.models import ArtifactKind, ArtifactRef, is_safe_job_rel_path
 from src.domain.stata_runner import RunError, RunResult
 from src.infra.stata_cmd import build_stata_batch_cmd
 from src.infra.stata_run_support import (
@@ -23,7 +23,7 @@ from src.infra.stata_run_support import (
     write_run_artifacts,
     write_text,
 )
-from src.infra.stata_safety import copy_job_inputs_dir, find_unsafe_dofile_reason
+from src.infra.stata_safety import copy_inputs_dir, find_unsafe_dofile_reason
 from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
@@ -63,6 +63,7 @@ def _prepare_workspace(
     job_id: str,
     run_id: str,
     do_file: str,
+    inputs_dir_rel: str | None,
 ) -> tuple[RunDirs, Path] | RunResult:
     dirs = resolve_run_dirs(jobs_dir=jobs_dir, tenant_id=tenant_id, job_id=job_id, run_id=run_id)
     if dirs is None:
@@ -80,7 +81,15 @@ def _prepare_workspace(
     dirs.work_dir.mkdir(parents=True, exist_ok=True)
     dirs.artifacts_dir.mkdir(parents=True, exist_ok=True)
     try:
-        copy_job_inputs_dir(job_dir=dirs.job_dir, work_dir=dirs.work_dir)
+        source_dir = _inputs_source_dir(job_dir=dirs.job_dir, inputs_dir_rel=inputs_dir_rel)
+        if source_dir is None:
+            return result_without_artifacts(
+                job_id=job_id,
+                run_id=run_id,
+                error_code="STATA_INPUTS_UNSAFE",
+                message="inputs_dir_rel unsafe",
+            )
+        copy_inputs_dir(source_dir=source_dir, work_dir=dirs.work_dir)
     except OSError as e:
         logger.warning(
             "SS_STATA_RUN_COPY_INPUTS_FAILED",
@@ -110,6 +119,18 @@ def _prepare_workspace(
             message=str(e),
         )
     return dirs, do_artifact_path
+
+
+def _inputs_source_dir(*, job_dir: Path, inputs_dir_rel: str | None) -> Path | None:
+    if inputs_dir_rel is None:
+        return job_dir / "inputs"
+    if inputs_dir_rel.strip() == "" or not is_safe_job_rel_path(inputs_dir_rel):
+        return None
+    base = job_dir.resolve(strict=False)
+    path = (job_dir / inputs_dir_rel).resolve(strict=False)
+    if not path.is_relative_to(base):
+        return None
+    return path
 
 
 def _log_completion(*, job_id: str, run_id: str, execution: Execution) -> None:
@@ -265,6 +286,7 @@ def run_local_stata_attempt(
     stata_cmd: Sequence[str],
     timeout_seconds: int | None,
     subprocess_runner: Callable[..., subprocess.CompletedProcess[str]] | None,
+    inputs_dir_rel: str | None = None,
 ) -> RunResult:
     prepared = _prepare_workspace(
         jobs_dir=jobs_dir,
@@ -272,6 +294,7 @@ def run_local_stata_attempt(
         job_id=job_id,
         run_id=run_id,
         do_file=do_file,
+        inputs_dir_rel=inputs_dir_rel,
     )
     if isinstance(prepared, RunResult):
         return prepared

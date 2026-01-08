@@ -33,4 +33,5 @@ class StataRunner(Protocol):
         run_id: str,
         do_file: str,
         timeout_seconds: int | None = None,
+        inputs_dir_rel: str | None = None,
     ) -> RunResult: ...

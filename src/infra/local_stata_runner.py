@@ -29,6 +29,7 @@ class LocalStataRunner(StataRunner):
         run_id: str,
         do_file: str,
         timeout_seconds: int | None = None,
+        inputs_dir_rel: str | None = None,
     ) -> RunResult:
         return run_local_stata_attempt(
             jobs_dir=self._jobs_dir,
@@ -39,4 +40,5 @@ class LocalStataRunner(StataRunner):
             stata_cmd=self._stata_cmd,
             timeout_seconds=timeout_seconds,
             subprocess_runner=self._subprocess_runner,
+            inputs_dir_rel=inputs_dir_rel,
         )
