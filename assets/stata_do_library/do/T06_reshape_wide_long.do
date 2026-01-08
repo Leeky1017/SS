@@ -29,7 +29,9 @@
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * No log to close - expected
+}
 clear all
 set more off
 version 18
@@ -43,7 +45,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T06|level=L1|title=Reshape_Wide_Long"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -65,17 +67,21 @@ local datafile "data.dta"
 capture confirm file "`datafile'"
 if _rc {
     capture confirm file "data.csv"
-    if _rc {
-        display as error "ERROR: No data.dta or data.csv found in job directory."
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
-    }
+	    if _rc {
+	        display as error "ERROR: No data.dta or data.csv found in job directory."
+	        display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
+	        timer off 1
+	        quietly timer list 1
+	        local elapsed = r(t1)
+	        display "SS_METRIC|name=task_success|value=0"
+	        display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+	        display "SS_TASK_END|id=T06|status=fail|elapsed_sec=`elapsed'"
+	        log close
+	        exit 601
+	    }
     import delimited "data.csv", clear varnames(1) encoding(utf8)
     save "`datafile'", replace
-display "SS_OUTPUT_FILE|file=`datafile'|type=table|desc=output"
+    display "SS_OUTPUT_FILE|file=`datafile'|type=data|desc=converted_from_csv"
     display ">>> 已从 data.csv 转换并保存为 data.dta"
 }
 else {
@@ -123,11 +129,15 @@ display "-----------------------------------------------------------------------
 capture confirm variable `id_var_check'
 if _rc {
     display as error "ERROR: ID variable `id_var_check' not found"
+    display "SS_RC|code=111|cmd=confirm variable|msg=id_var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T06|status=fail|elapsed_sec=`elapsed'"
     log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    exit 111
 }
 
 * 参数定义
@@ -218,10 +228,14 @@ if _rc {
     display as error "  2. ID+时间变量组合不唯一（对于 long->wide）"
     display as error "  3. stub 变量名不正确"
     display as error "  4. 时间变量j取值有问题"
+    display "SS_RC|code=`=_rc'|cmd=reshape|msg=reshape_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T06|status=fail|elapsed_sec=`elapsed'"
     log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
     exit 200
 }
 
@@ -261,12 +275,12 @@ display "{hline 50}"
 if "`direction'" == "long" {
     local expand_ratio = `n_reshaped' / `n_original'
     display ""
-    display "扩展比率: " %5.1f `expand_ratio' " (每行扩展为 " %0.0f `expand_ratio' " 行)"
+    display "扩展比率: " %5.1f `expand_ratio' " (每行扩展为 " %9.0f `expand_ratio' " 行)"
 }
 else {
     local compress_ratio = `n_original' / `n_reshaped'
     display ""
-    display "压缩比率: " %5.1f `compress_ratio' " (每 " %0.0f `compress_ratio' " 行压缩为 1 行)"
+    display "压缩比率: " %5.1f `compress_ratio' " (每 " %9.0f `compress_ratio' " 行压缩为 1 行)"
 }
 
 display ""

@@ -11,7 +11,7 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - stata source=built-in purpose="core commands"
-*   - estout source=ssc purpose="publication-quality tables (optional)" purpose="core regression commands"
+*   - estout source=ssc purpose="publication-quality regression tables"
 * ==============================================================================
 * Task ID:      T19_ols_robust_se
 * Task Name:    稳健标准误OLS
@@ -29,7 +29,9 @@
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * No log to close - expected
+}
 clear all
 set more off
 version 18
@@ -43,22 +45,29 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T19|level=L0|title=OLS_with_Robust_SE"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
-* 检查 esttab (可选依赖，用于论文级表格)
+* 检查 esttab（SSC: estout；缺失则快速失败）
 local has_esttab = 0
 capture which esttab
 if _rc {
     display "SS_DEP_CHECK|pkg=estout|source=ssc|status=missing"
-    display ">>> estout 未安装，将使用基础 CSV 导出"
-} 
-else {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=ok"
-    local has_esttab = 1
+    display "SS_DEP_MISSING|pkg=estout"
+    display "SS_RC|code=199|cmd=which esttab|msg=dependency_missing|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T19|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 199
 }
+display "SS_DEP_CHECK|pkg=estout|source=ssc|status=ok"
+local has_esttab = 1
 
 display ""
 display "╔══════════════════════════════════════════════════════════════════════════════╗"
@@ -78,15 +87,19 @@ if _rc {
     capture confirm file "data.csv"
     if _rc {
         display as error "ERROR: No data.dta or data.csv found in job directory."
+        display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = r(t1)
+        display "SS_METRIC|name=task_success|value=0"
+        display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+        display "SS_TASK_END|id=T19|status=fail|elapsed_sec=`elapsed'"
         log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
+        exit 601
     }
     import delimited "data.csv", clear varnames(1) encoding(utf8)
     save "`datafile'", replace
-display "SS_OUTPUT_FILE|file=`datafile'|type=table|desc=output"
+    display "SS_OUTPUT_FILE|file=`datafile'|type=data|desc=converted_from_csv"
     display ">>> 已从 data.csv 转换并保存为 data.dta"
 }
 else {
@@ -114,13 +127,32 @@ local indep_vars "__INDEPVARS__"
 capture confirm variable `dep_var'
 if _rc {
     display as error "ERROR: Dependent variable `dep_var' not found"
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable|msg=dep_var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T19|status=fail|elapsed_sec=`elapsed'"
     log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    exit `rc'
 }
 
+capture confirm numeric variable `dep_var'
+if _rc {
+    display as error "ERROR: Dependent variable `dep_var' is not numeric"
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric|msg=dep_var_not_numeric|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T19|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 display ""
 display ">>> 因变量 (Y):  `dep_var'"
 display ">>> 自变量 (X):  `indep_vars'"

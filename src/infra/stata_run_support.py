@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import time
 from dataclasses import dataclass
@@ -19,6 +20,8 @@ STDERR_FILENAME = "run.stderr"
 STATA_LOG_FILENAME = "stata.log"
 META_FILENAME = "run.meta.json"
 ERROR_FILENAME = "run.error.json"
+
+_STATA_RETURN_CODE_RE = re.compile(r"^\s*r\((?P<code>\d+)\);", re.MULTILINE)
 
 
 @dataclass(frozen=True)
@@ -100,6 +103,28 @@ def coerce_text(value: str | bytes | None) -> str:
     return value
 
 
+def _extract_stata_return_code_error(*, log_text: str) -> RunError | None:
+    last_match = None
+    for match in _STATA_RETURN_CODE_RE.finditer(log_text):
+        last_match = match
+    if last_match is None:
+        return None
+    code = int(last_match.group("code"))
+    if code == 0:
+        return None
+    return RunError("STATA_RETURN_CODE", f"stata log contains r({code});")
+
+
+def _read_stata_log_text(*, cwd: Path) -> str:
+    path = cwd / STATA_LOG_FILENAME
+    if not path.is_file():
+        return ""
+    try:
+        return path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
 def result_without_artifacts(
     *,
     job_id: str,
@@ -139,7 +164,8 @@ def execute(
         exit_code = int(completed.returncode)
         timed_out = False
         if exit_code == 0:
-            error = None
+            log_error = _extract_stata_return_code_error(log_text=_read_stata_log_text(cwd=cwd))
+            error = log_error
         else:
             error = RunError("STATA_NONZERO_EXIT", f"stata exited with code {exit_code}")
         stdout_text = coerce_text(completed.stdout)
@@ -216,10 +242,14 @@ def write_run_artifacts(
 
     write_text(stdout_path, stdout_text)
     write_text(stderr_path, stderr_text)
-    combined = stdout_text
-    if stderr_text != "":
-        combined = combined + "\n\n[stderr]\n" + stderr_text
-    write_text(log_path, combined)
+    work_log_text = _read_stata_log_text(cwd=artifacts_dir.parent / "work")
+    if work_log_text != "":
+        write_text(log_path, work_log_text)
+    else:
+        combined = stdout_text
+        if stderr_text != "":
+            combined = combined + "\n\n[stderr]\n" + stderr_text
+        write_text(log_path, combined)
     write_json(meta_path, meta)
     if error is not None:
         write_json(

@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "stata18_phase4_1_core_t01_t20",
+  "templates": {
+    "T01": {
+      "dependencies": [
+        { "pkg": "stata", "purpose": "Core statistical commands", "source": "built-in" }
+      ],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T01/sample_data.csv" }],
+      "params": { "__NUMERIC_VARS__": "revenue profit" }
+    },
+    "T02": {
+      "dependencies": [
+        { "pkg": "stata", "purpose": "Core descriptive commands", "source": "built-in" }
+      ],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T02/sample_data.csv" }],
+      "params": { "__NUMERIC_VARS__": "revenue profit", "__GROUP_VAR__": "group" }
+    },
+    "T03": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core data management", "source": "built-in" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T03/sample_data.csv" }],
+      "params": { "__FILTER_CONDITION__": "revenue > 0" }
+    },
+    "T04": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core merge commands", "source": "built-in" }],
+      "fixtures": [
+        { "dest": "data.csv", "source": "fixtures/T04/sample_data.csv" },
+        { "dest": "data_using.csv", "source": "fixtures/T04/sample_data.csv" }
+      ],
+      "params": { "__MERGE_KEYS__": "id year", "__MERGE_TYPE__": "1:1", "__KEEP_OPTION__": "all" }
+    },
+    "T05": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core append commands", "source": "built-in" }],
+      "fixtures": [
+        { "dest": "data.csv", "source": "fixtures/T05/sample_data.csv" },
+        { "dest": "data_append.csv", "source": "fixtures/T05/sample_data.csv" }
+      ],
+      "params": {}
+    },
+    "T06": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core reshape commands", "source": "built-in" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T06/sample_data.csv" }],
+      "params": {
+        "__RESHAPE_DIRECTION__": "wide",
+        "__STUB_VARS__": "revenue profit",
+        "__ID_VAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "T07": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core summary stats", "source": "built-in" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T07/sample_data.csv" }],
+      "params": { "__NUMERIC_VARS__": "revenue profit" }
+    },
+    "T08": {
+      "dependencies": [
+        { "pkg": "stata", "purpose": "Core frequency commands", "source": "built-in" }
+      ],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T08/sample_data.csv" }],
+      "params": { "__CATEGORICAL_VARS__": "group treatment post" }
+    },
+    "T09": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core correlation commands", "source": "built-in" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T09/sample_data.csv" }],
+      "params": { "__NUMERIC_VARS__": "revenue profit" }
+    },
+    "T10": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core graph commands", "source": "built-in" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T10/sample_data.csv" }],
+      "params": { "__NUMERIC_VAR__": "profit" }
+    },
+    "T11": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core graph commands", "source": "built-in" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T11/sample_data.csv" }],
+      "params": { "__NUMERIC_VARS__": "revenue profit", "__GROUP_VAR__": "group" }
+    },
+    "T12": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core ttest commands", "source": "built-in" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T12/sample_data.csv" }],
+      "params": { "__TEST_VAR__": "profit", "__NULL_VALUE__": "0" }
+    },
+    "T13": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core ttest commands", "source": "built-in" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T13/sample_data.csv" }],
+      "params": { "__TEST_VAR__": "profit", "__GROUP_VAR__": "treatment" }
+    },
+    "T14": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core ttest commands", "source": "built-in" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T14/sample_data.csv" }],
+      "params": { "__VAR_BEFORE__": "revenue", "__VAR_AFTER__": "profit" }
+    },
+    "T15": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core anova commands", "source": "built-in" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T15/sample_data.csv" }],
+      "params": { "__DEPVAR__": "profit", "__GROUP_VAR__": "group" }
+    },
+    "T16": {
+      "dependencies": [{ "pkg": "stata", "purpose": "Core tabulate commands", "source": "built-in" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T16/sample_data.csv" }],
+      "params": { "__ROW_VAR__": "treatment", "__COL_VAR__": "post" }
+    },
+    "T17": {
+      "dependencies": [
+        { "pkg": "stata", "purpose": "Core regression commands", "source": "built-in" }
+      ],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T17/sample_data.csv" }],
+      "params": { "__DEPVAR__": "profit", "__INDEP_VAR__": "revenue" }
+    },
+    "T18": {
+      "dependencies": [
+        { "pkg": "stata", "purpose": "Core regression commands", "source": "built-in" }
+      ],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T18/sample_data.csv" }],
+      "params": { "__DEPVAR__": "profit", "__INDEPVARS__": "revenue treatment post" }
+    },
+    "T19": {
+      "dependencies": [
+        { "pkg": "stata", "purpose": "Core regression commands", "source": "built-in" },
+        { "pkg": "estout", "purpose": "Publication-quality regression tables (esttab/estout)", "source": "ssc" }
+      ],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T19/sample_data.csv" }],
+      "params": { "__DEPVAR__": "profit", "__INDEPVARS__": "revenue treatment post" }
+    },
+    "T20": {
+      "dependencies": [
+        { "pkg": "stata", "purpose": "Core regression commands", "source": "built-in" },
+        { "pkg": "estout", "purpose": "Publication-quality regression tables (esttab/estout)", "source": "ssc" }
+      ],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/T20/sample_data.csv" }],
+      "params": {
+        "__DEPVAR__": "profit",
+        "__INDEPVARS__": "revenue treatment post",
+        "__CLUSTER_VAR__": "id"
+      }
+    }
+  }
+}

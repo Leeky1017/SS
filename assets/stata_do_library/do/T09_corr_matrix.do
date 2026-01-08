@@ -26,7 +26,9 @@
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * No log to close - expected
+}
 clear all
 set more off
 version 18
@@ -40,7 +42,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T09|level=L0|title=Correlation_Matrix"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -60,19 +62,23 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 local datafile "data.dta"
 
 capture confirm file "`datafile'"
-if _rc {
-    capture confirm file "data.csv"
-    if _rc {
-        display as error "ERROR: No data.dta or data.csv found in job directory."
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
-    }
+	if _rc {
+	    capture confirm file "data.csv"
+	    if _rc {
+	        display as error "ERROR: No data.dta or data.csv found in job directory."
+	        display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
+	        timer off 1
+	        quietly timer list 1
+	        local elapsed = r(t1)
+	        display "SS_METRIC|name=task_success|value=0"
+	        display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+	        display "SS_TASK_END|id=T09|status=fail|elapsed_sec=`elapsed'"
+	        log close
+	        exit 601
+	    }
     import delimited "data.csv", clear varnames(1) encoding(utf8)
     save "`datafile'", replace
-display "SS_OUTPUT_FILE|file=`datafile'|type=table|desc=output"
+    display "SS_OUTPUT_FILE|file=`datafile'|type=data|desc=converted_from_csv"
     display ">>> 已从 data.csv 转换并保存为 data.dta"
 }
 else {
@@ -115,11 +121,15 @@ foreach var of local required_vars {
 
 if "`valid_vars'" == "" {
     display as error "ERROR: No valid numeric variables found"
+    display "SS_RC|code=111|cmd=confirm variable|msg=no_valid_numeric_vars|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T09|status=fail|elapsed_sec=`elapsed'"
     log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    exit 111
 }
 
 local analysis_vars "`valid_vars'"
@@ -260,7 +270,6 @@ order variable
 
 export delimited using "table_T09_corr_pearson.csv", replace
 display "SS_OUTPUT_FILE|file=table_T09_corr_pearson.csv|type=table|desc=pearson_correlation_matrix"
-display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 display ">>> Pearson相关系数矩阵已导出"
 restore
 
@@ -268,8 +277,8 @@ restore
 display ""
 display ">>> 6.2 导出Spearman相关系数矩阵: table_T09_corr_spearman.csv"
 
-quietly spearman `analysis_vars', matrix(corr_spearman)
-matrix corr_sp = corr_spearman
+quietly spearman `analysis_vars', stats(rho)
+matrix corr_sp = r(rho)
 
 preserve
 clear
@@ -292,43 +301,36 @@ restore
 display ""
 display ">>> 6.3 导出两两相关详情: table_T09_corr_pairwise.csv"
 
-preserve
-clear
+tempfile pairwise_data
+tempname pairwise_post
+postfile `pairwise_post' str32 var1 str32 var2 double pearson_r double pearson_p long n_obs using `pairwise_data', replace
 
-* 计算变量对数
-local n_pairs = `n_vars' * (`n_vars' - 1) / 2
-set obs `n_pairs'
-
-generate str32 var1 = ""
-generate str32 var2 = ""
-generate double pearson_r = .
-generate double pearson_p = .
-generate long n_obs = .
-
-local row = 1
 foreach v1 of local analysis_vars {
     foreach v2 of local analysis_vars {
         if "`v1'" < "`v2'" {
-            quietly replace var1 = "`v1'" in `row'
-            quietly replace var2 = "`v2'" in `row'
-            
+            quietly count if !missing(`v1') & !missing(`v2')
+            local n_pair = r(N)
+
             quietly pwcorr `v1' `v2', sig
-            quietly replace pearson_r = r(rho) in `row'
-            quietly replace pearson_p = r(sig) in `row'
-            quietly replace n_obs = r(N) in `row'
-            
-            local row = `row' + 1
+            matrix _rho = r(rho)
+            matrix _sig = r(sig)
+            local r_val = _rho[1, 2]
+            local p_val = _sig[1, 2]
+
+            post `pairwise_post' ("`v1'") ("`v2'") (`r_val') (`p_val') (`n_pair')
         }
     }
 }
+postclose `pairwise_post'
 
-* 删除空行
-drop if var1 == ""
-
+preserve
+use `pairwise_data', clear
 export delimited using "table_T09_corr_pairwise.csv", replace
+restore
 display "SS_OUTPUT_FILE|file=table_T09_corr_pairwise.csv|type=table|desc=pairwise_correlation_details"
 display ">>> 两两相关详情已导出"
-restore
+
+display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 * ==============================================================================
 * SECTION 7: 任务完成摘要

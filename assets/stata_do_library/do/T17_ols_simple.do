@@ -5,13 +5,12 @@
 *   - data.csv  role=main_dataset  required=no
 * OUTPUTS:
 *   - table_T17_reg_result.csv type=table desc="Regression results table"
-*   - table_T17_paper.rtf type=table desc="Publication-quality regression table"
+*   - table_T17_paper.rtf type=report desc="Publication-ready regression table"
 *   - fig_T17_scatter_fit.png type=graph desc="Scatter plot with fitted line"
 *   - fig_T17_residuals.png type=graph desc="Residual diagnostics plot"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - stata source=built-in purpose="core regression and diagnostic commands"
-*   - estout source=ssc purpose="publication-quality tables (optional)"
 * ==============================================================================
 * Task ID:      T17_ols_simple
 * Task Name:    简单线性回归（一元OLS）
@@ -46,22 +45,10 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T17|level=L1|title=Simple_Linear_Regression_OLS"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
-
-* 检查 esttab (可选依赖，用于论文级表格)
-local has_esttab = 0
-capture which esttab
-if _rc {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=missing"
-    display ">>> estout 未安装，将使用基础 CSV 导出"
-} 
-else {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=ok"
-    local has_esttab = 1
-}
 
 display ""
 display "╔══════════════════════════════════════════════════════════════════════════════╗"
@@ -237,26 +224,51 @@ display ">>> 5.1 残差统计"
 display "-------------------------------------------------------------------------------"
 summarize _resid, detail
 
-* 异方差检验（Breusch-Pagan / White）
+* 异方差检验（Breusch-Pagan / White；残差方差为 0 时跳过）
 display ""
 display ">>> 5.2 异方差检验（Breusch-Pagan）"
 display "-------------------------------------------------------------------------------"
-quietly regress `dep_var' `indep_var'
-estat hettest
+local bp_chi2 = .
+local bp_p = .
+local white_chi2 = .
+local white_p = .
 
-quietly estat hettest
-local bp_chi2 = r(chi2)
-local bp_p = r(p)
+if missing(`rmse') | `rmse' == 0 {
+    display as error "WARNING: 残差方差为0，跳过异方差检验（完全拟合/无残差波动）"
+    display "SS_RC|code=0|cmd=estat hettest|msg=skipped_zero_residual_variance|severity=warn"
+    display "SS_RC|code=0|cmd=estat imtest,white|msg=skipped_zero_residual_variance|severity=warn"
+}
+else {
+    quietly regress `dep_var' `indep_var'
+    capture noisily estat hettest
+    if _rc {
+        display as error "WARNING: estat hettest 失败 (rc=`_rc')"
+        display "SS_RC|code=`=_rc'|cmd=estat hettest|msg=hettest_failed|severity=warn"
+    }
+    else {
+        local bp_chi2 = r(chi2)
+        local bp_p = r(p)
+    }
+}
 
 display ""
 display ">>> 5.3 异方差检验（White）"
 display "-------------------------------------------------------------------------------"
-quietly regress `dep_var' `indep_var'
-estat imtest, white
-
-quietly estat imtest, white
-local white_chi2 = r(chi2)
-local white_p = r(p)
+if missing(`rmse') | `rmse' == 0 {
+    * already handled above
+}
+else {
+    quietly regress `dep_var' `indep_var'
+    capture noisily estat imtest, white
+    if _rc {
+        display as error "WARNING: estat imtest, white 失败 (rc=`_rc')"
+        display "SS_RC|code=`=_rc'|cmd=estat imtest,white|msg=white_test_failed|severity=warn"
+    }
+    else {
+        local white_chi2 = r(chi2)
+        local white_p = r(p)
+    }
+}
 
 * 残差正态性检验
 display ""
@@ -265,16 +277,22 @@ display "-----------------------------------------------------------------------
 local sw_p = .
 quietly count if _resid != .
 if r(N) <= 2000 {
-    quietly swilk _resid
-    local sw_p = r(p)
-    display "Shapiro-Wilk W:  " %10.6f r(W)
-    display "p 值:            " %10.6f `sw_p'
+    capture noisily swilk _resid
+    if _rc {
+        display as error "WARNING: swilk 失败 (rc=`_rc')"
+        display "SS_RC|code=`=_rc'|cmd=swilk|msg=swilk_failed|severity=warn"
+    }
+    else {
+        local sw_p = r(p)
+        display "Shapiro-Wilk W:  " %10.6f r(W)
+        display "p 值:            " %10.6f `sw_p'
+    }
     
-    if `sw_p' < 0.05 {
+    if !missing(`sw_p') & `sw_p' < 0.05 {
         display ""
         display as error "WARNING: 残差偏离正态分布（p < 0.05），t/F检验可能不可靠"
     }
-    else {
+    else if !missing(`sw_p') {
         display ""
         display as result ">>> 残差分布不拒绝正态性假设 ✓"
     }
@@ -365,10 +383,18 @@ display ">>> 已导出: fig_T17_scatter_fit.png"
 display ""
 display ">>> 7.2 残差诊断图"
 
+quietly summarize _yhat
+local yhat_min = r(min)
+local yhat_max = r(max)
+if `yhat_min' == `yhat_max' {
+    local yhat_min = `yhat_min' - 1
+    local yhat_max = `yhat_max' + 1
+}
+
 quietly twoway (scatter _rstd _yhat, msize(small) mcolor(navy%50)) ///
-       (function y=0, range(_yhat) lcolor(red) lpattern(dash)) ///
-       (function y=2, range(_yhat) lcolor(gray) lpattern(dot)) ///
-       (function y=-2, range(_yhat) lcolor(gray) lpattern(dot)), ///
+       (function y=0, range(`yhat_min' `yhat_max') lcolor(red) lpattern(dash)) ///
+       (function y=2, range(`yhat_min' `yhat_max') lcolor(gray) lpattern(dot)) ///
+       (function y=-2, range(`yhat_min' `yhat_max') lcolor(gray) lpattern(dot)), ///
     title("标准化残差 vs 拟合值", size(medium)) ///
     xtitle("拟合值") ///
     ytitle("标准化残差") ///
@@ -420,30 +446,27 @@ display "SS_OUTPUT_FILE|file=table_T17_reg_result.csv|type=table|desc=regression
 display ">>> 回归结果已导出"
 restore
 
-* ============ 论文级表格输出 (esttab) ============
-if `has_esttab' {
-    display ""
-    display ">>> 导出论文级表格: table_T17_paper.rtf"
-    
-    quietly regress `dep_var' `indep_var'
-    estimates store ols_simple
-    
-    esttab ols_simple using "table_T17_paper.rtf", replace ///
-        cells(b(star fmt(3)) se(par fmt(3))) ///
-        stats(N r2 r2_a F, fmt(%9.0fc %9.3f %9.3f %9.2f) ///
-              labels("Observations" "R²" "Adj. R²" "F-statistic")) ///
-        title("Simple OLS Regression Results") ///
-        mtitles("OLS") ///
-        star(* 0.10 ** 0.05 *** 0.01) ///
-        note("Standard errors in parentheses. * p<0.10, ** p<0.05, *** p<0.01")
-    
-    display "SS_OUTPUT_FILE|file=table_T17_paper.rtf|type=table|desc=publication_table"
-    display ">>> 论文级表格已导出 ✓"
-}
-else {
-    display ""
-    display ">>> 跳过论文级表格 (estout 未安装)"
-}
+display ""
+display ">>> 导出论文表格: table_T17_paper.rtf"
+
+file open _rtf using "table_T17_paper.rtf", write replace
+file write _rtf "{\\rtf1\\ansi\\deff0" _n
+file write _rtf "{\\b Simple OLS Regression Results}\\par" _n
+file write _rtf "Dependent variable: `dep_var'\\par" _n
+file write _rtf "Independent variable: `indep_var'\\par" _n
+file write _rtf "Observations: `n_obs'\\par" _n
+file write _rtf "R-squared: `: display %9.4f `r2''\\par" _n
+file write _rtf "\\par" _n
+file write _rtf "Coef(`indep_var'): `: display %9.4f `b_x''\\par" _n
+file write _rtf "SE(`indep_var'): `: display %9.4f `se_x''\\par" _n
+file write _rtf "p-value: `: display %9.4f `p_x''\\par" _n
+file write _rtf "BP p-value: `: display %9.4f `bp_p''\\par" _n
+file write _rtf "White p-value: `: display %9.4f `white_p''\\par" _n
+file write _rtf "}" _n
+file close _rtf
+
+display "SS_OUTPUT_FILE|file=table_T17_paper.rtf|type=report|desc=publication_table"
+display ">>> 论文表格已导出 ✓"
 
 * 清理临时变量
 drop _yhat _resid _rstd

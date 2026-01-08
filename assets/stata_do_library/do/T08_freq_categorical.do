@@ -25,7 +25,9 @@
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * No log to close - expected
+}
 clear all
 set more off
 version 18
@@ -39,7 +41,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T08|level=L0|title=Categorical_Frequency_Tables"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -59,19 +61,23 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 local datafile "data.dta"
 
 capture confirm file "`datafile'"
-if _rc {
-    capture confirm file "data.csv"
-    if _rc {
-        display as error "ERROR: No data.dta or data.csv found in job directory."
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
-    }
+	if _rc {
+	    capture confirm file "data.csv"
+	    if _rc {
+	        display as error "ERROR: No data.dta or data.csv found in job directory."
+	        display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
+	        timer off 1
+	        quietly timer list 1
+	        local elapsed = r(t1)
+	        display "SS_METRIC|name=task_success|value=0"
+	        display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+	        display "SS_TASK_END|id=T08|status=fail|elapsed_sec=`elapsed'"
+	        log close
+	        exit 601
+	    }
     import delimited "data.csv", clear varnames(1) encoding(utf8)
     save "`datafile'", replace
-display "SS_OUTPUT_FILE|file=`datafile'|type=table|desc=output"
+    display "SS_OUTPUT_FILE|file=`datafile'|type=data|desc=converted_from_csv"
     display ">>> 已从 data.csv 转换并保存为 data.dta"
 }
 else {
@@ -108,11 +114,15 @@ foreach var of local required_vars {
 
 if "`valid_vars'" == "" {
     display as error "ERROR: No valid variables found"
+    display "SS_RC|code=111|cmd=confirm variable|msg=no_valid_categorical_vars|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T08|status=fail|elapsed_sec=`elapsed'"
     log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    exit 111
 }
 
 local analysis_vars "`valid_vars'"
@@ -289,7 +299,7 @@ save `result_data', replace
 
 * 对每个变量生成频数表并追加
 foreach var of local analysis_vars {
-    use "data.csv", clear
+	    use "data.dta", clear
     
     * 生成频数表
     contract `var', freq(frequency) percent(percent) cfreq(cum_freq) cpercent(cum_percent)

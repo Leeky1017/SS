@@ -44,7 +44,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T02|level=L0|title=Descriptive_Statistics_by_Group"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -314,10 +314,20 @@ display ""
 display ">>> 6.2 导出详细分组统计表: table_T02_group_stats.csv"
 
 preserve
+
+local mean_pairs ""
+local sd_pairs ""
+local median_pairs ""
+foreach v of local analysis_vars {
+    local mean_pairs "`mean_pairs' mean_`v'=`v'"
+    local sd_pairs "`sd_pairs' sd_`v'=`v'"
+    local median_pairs "`median_pairs' median_`v'=`v'"
+}
+
 collapse (count) n=`first_var' ///
-         (mean) mean_=`analysis_vars' ///
-         (sd) sd_=`analysis_vars' ///
-         (p50) median_=`analysis_vars', by(`group_var')
+         (mean) `mean_pairs' ///
+         (sd) `sd_pairs' ///
+         (p50) `median_pairs', by(`group_var')
 export delimited using "table_T02_group_stats.csv", replace
 display "SS_OUTPUT_FILE|file=table_T02_group_stats.csv|type=table|desc=grouped_descriptive_statistics"
 display ">>> 详细分组统计表已导出"

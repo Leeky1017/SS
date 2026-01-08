@@ -117,7 +117,7 @@ class DoLinter:
     HEADER_FIELDS = ['SS_TEMPLATE:', 'INPUTS:', 'OUTPUTS:', 'DEPENDENCIES:']
     
     # RULE-012: role 枚举值
-    VALID_ROLES = {'main_dataset', 'merge_table', 'lookup', 'appendix', 'other'}
+    VALID_ROLES = {'main_dataset', 'merge_table', 'append_table', 'config', 'output_files', 'lookup', 'appendix', 'other'}
     
     # RULE-013: type 枚举值
     VALID_TYPES = {'log', 'table', 'graph', 'model', 'report', 'data'}

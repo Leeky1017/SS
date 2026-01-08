@@ -18,9 +18,10 @@ from src.utils.tenancy import DEFAULT_TENANT_ID
 from src.utils.time import utc_now
 
 _DEP_CHECK_MISSING = re.compile(
-    r"^SS_DEP_CHECK\\|pkg=(?P<pkg>[^|]+)\\|.*\\|status=missing\\s*$"
+    r"^SS_DEP_CHECK\|pkg=(?P<pkg>[^|]+)\|.*\|status=missing\s*$"
 )
-_DEP_MISSING = re.compile(r"^SS_DEP_MISSING(?::|\\|pkg=)(?P<pkg>[A-Za-z0-9_]+)\\s*$")
+_DEP_MISSING_PIPE = re.compile(r"^SS_DEP_MISSING\|pkg=(?P<pkg>[^|]+)\s*$")
+_DEP_MISSING_COLON = re.compile(r"^SS_DEP_MISSING:(?P<pkg>[A-Za-z0-9_]+)\s*$")
 
 
 def _error_case(
@@ -119,7 +120,11 @@ def _extract_missing_deps(*, artifacts_dir: Path) -> tuple[str, ...]:
             continue
         for line in text.splitlines():
             stripped = line.strip()
-            m = _DEP_MISSING.match(stripped)
+            m = _DEP_MISSING_PIPE.match(stripped)
+            if m is not None:
+                deps.append(m.group("pkg"))
+                continue
+            m = _DEP_MISSING_COLON.match(stripped)
             if m is not None:
                 pkg = m.group("pkg")
                 if isinstance(pkg, str):

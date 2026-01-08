@@ -5,6 +5,11 @@
       "pkg": "stata",
       "purpose": "Core regression commands",
       "source": "built-in"
+    },
+    {
+      "pkg": "estout",
+      "purpose": "Publication-quality regression tables (esttab/estout)",
+      "source": "ssc"
     }
   ],
   "description": "OLS regression with cluster-robust standard errors for handling within-group correlation, comparing OLS, robust, and cluster SE",
