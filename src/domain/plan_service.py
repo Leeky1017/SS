@@ -4,9 +4,12 @@ import hashlib
 import json
 import logging
 import re
+from collections.abc import Mapping
 from typing import cast
 
+from src.domain.composition_plan import validate_composition_plan
 from src.domain.job_store import JobStore
+from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.models import (
     ArtifactKind,
     ArtifactRef,
@@ -17,7 +20,9 @@ from src.domain.models import (
     PlanStep,
     PlanStepType,
 )
+from src.domain.plan_routing import choose_composition_mode, extract_input_dataset_keys
 from src.infra.exceptions import JobStoreIOError
+from src.infra.input_exceptions import InputPathUnsafeError
 from src.infra.plan_exceptions import (
     PlanAlreadyFrozenError,
     PlanArtifactsWriteError,
@@ -61,8 +66,9 @@ def _plan_id(
 class PlanService:
     """Plan service: freeze a schema-bound plan and persist it as an artifact."""
 
-    def __init__(self, *, store: JobStore):
+    def __init__(self, *, store: JobStore, workspace: JobWorkspaceStore):
         self._store = store
+        self._workspace = workspace
 
     def freeze_plan(
         self,
@@ -150,16 +156,27 @@ class PlanService:
         )
 
     def _build_plan(self, *, job: Job, confirmation: JobConfirmation, plan_id: str) -> LLMPlan:
-        requirement = job.requirement if job.requirement is not None else ""
+        requirement = confirmation.requirement if confirmation.requirement is not None else ""
         requirement_norm = _normalize_whitespace(requirement)
         requirement_fingerprint = _sha256_hex(requirement_norm)
+        input_keys = self._known_input_keys(job=job)
+        primary_key = "primary"
+        if primary_key not in input_keys:
+            primary_key = sorted(input_keys)[0]
+        composition_mode = choose_composition_mode(
+            requirement=requirement_norm,
+            input_keys=input_keys,
+        )
         rel_path = "artifacts/plan.json"
         steps = [
             PlanStep(
                 step_id="generate_do",
                 type=PlanStepType.GENERATE_STATA_DO,
                 params={
-                    "template": "stub_descriptive_v1",
+                    "composition_mode": composition_mode.value,
+                    "template_id": "stub_descriptive_v1",
+                    "input_bindings": {"primary_dataset": f"input:{primary_key}"},
+                    "products": [],
                     "requirement_fingerprint": requirement_fingerprint,
                 },
                 depends_on=[],
@@ -168,7 +185,11 @@ class PlanService:
             PlanStep(
                 step_id="run_stata",
                 type=PlanStepType.RUN_STATA,
-                params={"timeout_seconds": 300},
+                params={
+                    "composition_mode": composition_mode.value,
+                    "timeout_seconds": 300,
+                    "products": [{"product_id": "summary_table", "kind": "table"}],
+                },
                 depends_on=["generate_do"],
                 produces=[
                     ArtifactKind.RUN_STDOUT,
@@ -180,7 +201,44 @@ class PlanService:
                 ],
             ),
         ]
-        return LLMPlan(plan_id=plan_id, rel_path=rel_path, steps=steps)
+        plan = LLMPlan(plan_id=plan_id, rel_path=rel_path, steps=steps)
+        validate_composition_plan(plan=plan, known_input_keys=input_keys)
+        return plan
+
+    def _known_input_keys(self, *, job: Job) -> set[str]:
+        default = {"primary"}
+        if job.inputs is None:
+            return default
+        rel_path = job.inputs.manifest_rel_path
+        if rel_path is None or rel_path.strip() == "":
+            return default
+
+        try:
+            path = self._workspace.resolve_for_read(
+                tenant_id=job.tenant_id,
+                job_id=job.job_id,
+                rel_path=rel_path,
+            )
+            raw = json.loads(path.read_text(encoding="utf-8"))
+        except (FileNotFoundError, OSError, json.JSONDecodeError, InputPathUnsafeError) as e:
+            logger.warning(
+                "SS_PLAN_INPUTS_MANIFEST_READ_FAILED",
+                extra={
+                    "tenant_id": job.tenant_id,
+                    "job_id": job.job_id,
+                    "rel_path": rel_path,
+                    "reason": str(e),
+                },
+            )
+            return default
+        if not isinstance(raw, Mapping):
+            logger.warning(
+                "SS_PLAN_INPUTS_MANIFEST_INVALID",
+                extra={"tenant_id": job.tenant_id, "job_id": job.job_id, "rel_path": rel_path},
+            )
+            return default
+        keys = extract_input_dataset_keys(manifest=raw)
+        return default if len(keys) == 0 else keys
 
     def _write_plan_artifact(self, *, tenant_id: str, job_id: str, plan: LLMPlan) -> None:
         try:

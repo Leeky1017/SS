@@ -6,6 +6,7 @@ from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService, NoopJobScheduler
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.job_store import JobStore
 from src.infra.prometheus_metrics import PrometheusMetrics
 from src.main import create_app
@@ -29,12 +30,13 @@ def test_job_service_create_job_records_job_created_metric(
     store: JobStore,
     state_machine: JobStateMachine,
     idempotency: JobIdempotency,
+    jobs_dir,
 ) -> None:
     metrics = PrometheusMetrics()
     svc = JobService(
         store=store,
         scheduler=NoopJobScheduler(),
-        plan_service=PlanService(store=store),
+        plan_service=PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir)),
         state_machine=state_machine,
         idempotency=idempotency,
         metrics=metrics,

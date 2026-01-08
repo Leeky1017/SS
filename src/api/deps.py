@@ -146,4 +146,4 @@ def get_job_query_service() -> JobQueryService:
 
 @lru_cache
 def get_plan_service() -> PlanService:
-    return PlanService(store=get_job_store())
+    return PlanService(store=get_job_store(), workspace=get_job_workspace_store())

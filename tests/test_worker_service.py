@@ -11,6 +11,7 @@ from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.fake_stata_runner import FakeStataRunner
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store import JobStore
 from src.infra.queue_job_scheduler import QueueJobScheduler
@@ -36,7 +37,7 @@ def _prepare_queued_job(*, jobs_dir: Path, queue: FileWorkerQueue) -> str:
     store = JobStore(jobs_dir=jobs_dir)
     state_machine = JobStateMachine()
     scheduler = QueueJobScheduler(queue=queue)
-    plan_service = PlanService(store=store)
+    plan_service = PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
     job_service = JobService(
         store=store,
         scheduler=scheduler,
@@ -200,7 +201,7 @@ def test_worker_service_when_plan_missing_persists_error_artifacts_and_marks_job
     queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
     store = JobStore(jobs_dir=jobs_dir)
     scheduler = QueueJobScheduler(queue=queue)
-    plan_service = PlanService(store=store)
+    plan_service = PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
     job_service = JobService(
         store=store,
         scheduler=scheduler,

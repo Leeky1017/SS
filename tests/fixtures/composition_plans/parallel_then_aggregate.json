@@ -1,0 +1,68 @@
+{
+  "plan_version": 1,
+  "plan_id": "fixture-parallel-then-aggregate",
+  "rel_path": "artifacts/plan.json",
+  "steps": [
+    {
+      "step_id": "analyze_a",
+      "type": "generate_stata_do",
+      "params": {
+        "composition_mode": "parallel_then_aggregate",
+        "template_id": "T01",
+        "input_bindings": {
+          "primary_dataset": "input:a"
+        },
+        "products": [
+          {
+            "product_id": "summary",
+            "kind": "table"
+          }
+        ]
+      },
+      "depends_on": [],
+      "produces": []
+    },
+    {
+      "step_id": "analyze_b",
+      "type": "generate_stata_do",
+      "params": {
+        "composition_mode": "parallel_then_aggregate",
+        "template_id": "T01",
+        "input_bindings": {
+          "primary_dataset": "input:b"
+        },
+        "products": [
+          {
+            "product_id": "summary",
+            "kind": "table"
+          }
+        ]
+      },
+      "depends_on": [],
+      "produces": []
+    },
+    {
+      "step_id": "aggregate",
+      "type": "generate_stata_do",
+      "params": {
+        "composition_mode": "parallel_then_aggregate",
+        "template_id": "TT_aggregate_tables_v1",
+        "input_bindings": {
+          "table_a": "prod:analyze_a:summary",
+          "table_b": "prod:analyze_b:summary"
+        },
+        "products": [
+          {
+            "product_id": "combined",
+            "kind": "table"
+          }
+        ]
+      },
+      "depends_on": [
+        "analyze_a",
+        "analyze_b"
+      ],
+      "produces": []
+    }
+  ]
+}
