@@ -1,105 +1,47 @@
 from __future__ import annotations
 
-import hashlib
-import json
 import logging
 import zipfile
+from collections.abc import Sequence
 from dataclasses import dataclass
-from pathlib import Path
 from typing import cast
 
 from src.domain.dataset_preview import dataset_preview
+from src.domain.inputs_manifest import (
+    MANIFEST_REL_PATH,
+    ROLE_PRIMARY_DATASET,
+    PreparedDataset,
+    inputs_fingerprint,
+    manifest_payload,
+    prepare_dataset,
+    primary_dataset_details,
+    read_manifest_json,
+)
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
-from src.domain.models import Job, JobInputs
+from src.domain.models import ArtifactKind, ArtifactRef, Job, JobInputs
 from src.infra.exceptions import JobStoreIOError
 from src.infra.input_exceptions import (
+    InputDatasetKeyConflictError,
     InputEmptyFileError,
-    InputFilenameUnsafeError,
     InputParseFailedError,
+    InputPrimaryDatasetMissingError,
+    InputPrimaryDatasetMultipleError,
     InputStorageFailedError,
-    InputUnsupportedFormatError,
 )
-from src.utils.job_workspace import is_safe_path_segment
 from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
 
-_INPUTS_DIR = "inputs"
-_MANIFEST_REL_PATH = f"{_INPUTS_DIR}/manifest.json"
-_MANIFEST_SCHEMA_VERSION = 1
-
-
 @dataclass(frozen=True)
-class _UploadMeta:
-    filename: str
-    fmt: str
-    stored_rel_path: str
-    sha256: str
-    fingerprint: str
-    size_bytes: int
-
-
-def _safe_filename(*, original_name: str | None, override_name: str | None) -> str:
-    candidate = override_name if override_name is not None else original_name
-    if candidate is None:
-        raise InputFilenameUnsafeError(filename="")
-    name = candidate.strip()
-    if name == "" or not is_safe_path_segment(name):
-        raise InputFilenameUnsafeError(filename=candidate)
-    return name
-
-
-def _format_from_filename(filename: str) -> tuple[str, str]:
-    ext = Path(filename).suffix.lower()
-    if ext == ".csv":
-        return "csv", ext
-    if ext in {".xls", ".xlsx"}:
-        return "excel", ext
-    if ext == ".dta":
-        return "dta", ext
-    raise InputUnsupportedFormatError(filename=filename)
-
-
-def _sha256_hex(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
-
-
-def _read_manifest_json(path: Path) -> JsonObject:
-    raw = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(raw, dict):
-        raise ValueError("manifest must be a JSON object")
-    return cast(JsonObject, raw)
-
-
-def _extract_primary_dataset_manifest(manifest: JsonObject) -> tuple[str, str, str]:
-    primary = manifest.get("primary_dataset")
-    if not isinstance(primary, dict):
-        raise ValueError("manifest missing primary_dataset")
-    rel_path = primary.get("rel_path")
-    if not isinstance(rel_path, str) or rel_path.strip() == "":
-        raise ValueError("manifest missing primary_dataset.rel_path")
-    fmt = primary.get("format")
-    if not isinstance(fmt, str) or fmt.strip() == "":
-        raise ValueError("manifest missing primary_dataset.format")
-    original_name = primary.get("original_name")
-    if not isinstance(original_name, str) or original_name.strip() == "":
-        original_name = rel_path
-    return rel_path, fmt, original_name
-
-
-def _upload_meta(*, filename: str, fmt: str, ext: str, data: bytes) -> _UploadMeta:
-    sha256 = _sha256_hex(data)
-    return _UploadMeta(
-        filename=filename,
-        fmt=fmt,
-        stored_rel_path=f"{_INPUTS_DIR}/primary{ext}",
-        sha256=sha256,
-        fingerprint=f"sha256:{sha256}",
-        size_bytes=len(data),
-    )
+class DatasetUpload:
+    role: str
+    data: bytes
+    original_name: str | None
+    filename_override: str | None
+    content_type: str | None
 
 
 class JobInputsService:
@@ -107,34 +49,12 @@ class JobInputsService:
         self._store = store
         self._workspace = workspace
 
-    def _write_manifest(
-        self,
-        *,
-        tenant_id: str,
-        job_id: str,
-        meta: _UploadMeta,
-        content_type: str | None,
-    ) -> None:
-        manifest: JsonObject = cast(
-            JsonObject,
-            {
-                "schema_version": _MANIFEST_SCHEMA_VERSION,
-                "primary_dataset": {
-                    "rel_path": meta.stored_rel_path,
-                    "original_name": meta.filename,
-                    "size_bytes": meta.size_bytes,
-                    "sha256": meta.sha256,
-                    "format": meta.fmt,
-                    "uploaded_at": utc_now().isoformat(),
-                    "content_type": content_type,
-                },
-            },
-        )
+    def _write_manifest(self, *, tenant_id: str, job_id: str, manifest: JsonObject) -> None:
         try:
             self._store.write_artifact_json(
                 tenant_id=tenant_id,
                 job_id=job_id,
-                rel_path=_MANIFEST_REL_PATH,
+                rel_path=MANIFEST_REL_PATH,
                 payload=manifest,
             )
         except JobStoreIOError as e:
@@ -143,17 +63,41 @@ class JobInputsService:
                 extra={
                     "tenant_id": tenant_id,
                     "job_id": job_id,
-                    "rel_path": _MANIFEST_REL_PATH,
+                    "rel_path": MANIFEST_REL_PATH,
                     "error_code": e.error_code,
                 },
             )
-            raise InputStorageFailedError(job_id=job_id, rel_path=_MANIFEST_REL_PATH) from e
+            raise InputStorageFailedError(job_id=job_id, rel_path=MANIFEST_REL_PATH) from e
 
-    def _save_job_inputs(self, *, tenant_id: str, job: Job, fingerprint: str) -> None:
+    def _index_input_artifacts(self, *, job: Job, datasets: Sequence[PreparedDataset]) -> None:
+        known = {(ref.kind, ref.rel_path) for ref in job.artifacts_index}
+        manifest_ref = ArtifactRef(
+            kind=ArtifactKind.INPUTS_MANIFEST,
+            rel_path=MANIFEST_REL_PATH,
+        )
+        key = (manifest_ref.kind, manifest_ref.rel_path)
+        if key not in known:
+            job.artifacts_index.append(manifest_ref)
+            known.add(key)
+        for dataset in datasets:
+            ref = ArtifactRef(
+                kind=ArtifactKind.INPUTS_DATASET,
+                rel_path=dataset.rel_path,
+            )
+            key = (ref.kind, ref.rel_path)
+            if key in known:
+                continue
+            job.artifacts_index.append(ref)
+            known.add(key)
+
+    def _save_job_inputs(
+        self, *, tenant_id: str, job: Job, fingerprint: str, datasets: Sequence[PreparedDataset]
+    ) -> None:
         if job.inputs is None:
             job.inputs = JobInputs()
-        job.inputs.manifest_rel_path = _MANIFEST_REL_PATH
+        job.inputs.manifest_rel_path = MANIFEST_REL_PATH
         job.inputs.fingerprint = fingerprint
+        self._index_input_artifacts(job=job, datasets=datasets)
         try:
             self._store.save(tenant_id=tenant_id, job=job)
         except JobStoreIOError as e:
@@ -162,6 +106,19 @@ class JobInputsService:
                 extra={"tenant_id": tenant_id, "job_id": job.job_id, "error_code": e.error_code},
             )
             raise InputStorageFailedError(job_id=job.job_id, rel_path="job.json") from e
+
+    def _validate_dataset_set(self, *, datasets: Sequence[PreparedDataset]) -> None:
+        keys: set[str] = set()
+        for dataset in datasets:
+            if dataset.dataset_key in keys:
+                raise InputDatasetKeyConflictError(dataset_key=dataset.dataset_key)
+            keys.add(dataset.dataset_key)
+
+        primary = [dataset for dataset in datasets if dataset.role == ROLE_PRIMARY_DATASET]
+        if len(primary) == 0:
+            raise InputPrimaryDatasetMissingError()
+        if len(primary) > 1:
+            raise InputPrimaryDatasetMultipleError(count=len(primary))
 
     def upload_primary_dataset(
         self,
@@ -173,58 +130,101 @@ class JobInputsService:
         filename_override: str | None,
         content_type: str | None,
     ) -> JsonObject:
-        filename = _safe_filename(original_name=original_name, override_name=filename_override)
-        fmt, ext = _format_from_filename(filename)
-        if len(data) == 0:
-            logger.warning(
-                "SS_INPUT_EMPTY_FILE",
-                extra={"tenant_id": tenant_id, "job_id": job_id, "input_filename": filename},
-            )
-            raise InputEmptyFileError()
-        meta = _upload_meta(filename=filename, fmt=fmt, ext=ext, data=data)
+        return self.upload_datasets(
+            tenant_id=tenant_id,
+            job_id=job_id,
+            uploads=[
+                DatasetUpload(
+                    role=ROLE_PRIMARY_DATASET,
+                    data=data,
+                    original_name=original_name,
+                    filename_override=filename_override,
+                    content_type=content_type,
+                )
+            ],
+        )
 
+    def _prepare_datasets(
+        self, *, tenant_id: str, job_id: str, uploads: Sequence[DatasetUpload]
+    ) -> list[PreparedDataset]:
+        prepared: list[PreparedDataset] = []
+        uploaded_at = utc_now().isoformat()
+        for upload in uploads:
+            if len(upload.data) == 0:
+                logger.warning(
+                    "SS_INPUT_EMPTY_FILE",
+                    extra={
+                        "tenant_id": tenant_id,
+                        "job_id": job_id,
+                        "input_filename": upload.original_name,
+                        "role": upload.role,
+                    },
+                )
+                raise InputEmptyFileError()
+            prepared.append(
+                prepare_dataset(
+                    data=upload.data,
+                    original_name=upload.original_name,
+                    filename_override=upload.filename_override,
+                    role=upload.role,
+                    content_type=upload.content_type,
+                    uploaded_at=uploaded_at,
+                )
+            )
+        return prepared
+
+    def _persist_datasets(
+        self, *, tenant_id: str, job_id: str, datasets: Sequence[PreparedDataset]
+    ) -> None:
+        for dataset in datasets:
+            self._workspace.write_bytes(
+                tenant_id=tenant_id,
+                job_id=job_id,
+                rel_path=dataset.rel_path,
+                data=dataset.data,
+            )
+        self._write_manifest(
+            tenant_id=tenant_id,
+            job_id=job_id,
+            manifest=manifest_payload(datasets=datasets),
+        )
+
+    def upload_datasets(
+        self, *, tenant_id: str = DEFAULT_TENANT_ID, job_id: str, uploads: Sequence[DatasetUpload]
+    ) -> JsonObject:
+        if len(uploads) == 0:
+            raise InputParseFailedError(filename=MANIFEST_REL_PATH, detail="no datasets uploaded")
+
+        prepared = self._prepare_datasets(tenant_id=tenant_id, job_id=job_id, uploads=uploads)
+        self._validate_dataset_set(datasets=prepared)
+        fingerprint = inputs_fingerprint(datasets=prepared)
         logger.info(
             "SS_INPUT_UPLOAD_START",
             extra={
                 "tenant_id": tenant_id,
                 "job_id": job_id,
-                "input_filename": filename,
-                "format": fmt,
-            },
-        )
-        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
-        self._workspace.write_bytes(
-            tenant_id=tenant_id,
-            job_id=job_id,
-            rel_path=meta.stored_rel_path,
-            data=data,
-        )
-        self._write_manifest(
-            tenant_id=tenant_id,
-            job_id=job_id,
-            meta=meta,
-            content_type=content_type,
-        )
-        self._save_job_inputs(tenant_id=tenant_id, job=job, fingerprint=meta.fingerprint)
-        logger.info(
-            "SS_INPUT_UPLOAD_DONE",
-            extra={"tenant_id": tenant_id, "job_id": job_id, "fingerprint": meta.fingerprint},
-        )
-        return cast(
-            JsonObject,
-            {
-                "job_id": job_id,
-                "manifest_rel_path": _MANIFEST_REL_PATH,
-                "fingerprint": meta.fingerprint,
+                "datasets": len(prepared),
+                "fingerprint": fingerprint,
             },
         )
 
+        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
+        self._persist_datasets(tenant_id=tenant_id, job_id=job_id, datasets=prepared)
+        self._save_job_inputs(
+            tenant_id=tenant_id,
+            job=job,
+            fingerprint=fingerprint,
+            datasets=prepared,
+        )
+        logger.info(
+            "SS_INPUT_UPLOAD_DONE",
+            extra={"tenant_id": tenant_id, "job_id": job_id, "datasets": len(prepared)},
+        )
+        payload = dict(job_id=job_id, manifest_rel_path=MANIFEST_REL_PATH, fingerprint=fingerprint)
+        return cast(JsonObject, payload)
+
     def _load_primary_manifest(
-        self,
-        *,
-        tenant_id: str,
-        job_id: str,
-        manifest_rel_path: str,
+        self, *, tenant_id: str, job_id: str, manifest_rel_path: str
     ) -> tuple[str, str, str]:
         try:
             manifest_path = self._workspace.resolve_for_read(
@@ -232,9 +232,9 @@ class JobInputsService:
                 job_id=job_id,
                 rel_path=manifest_rel_path,
             )
-            manifest = _read_manifest_json(manifest_path)
-            return _extract_primary_dataset_manifest(manifest)
-        except (FileNotFoundError, OSError, json.JSONDecodeError, ValueError) as e:
+            manifest = read_manifest_json(manifest_path)
+            return primary_dataset_details(manifest)
+        except (FileNotFoundError, OSError, ValueError) as e:
             logger.warning(
                 "SS_INPUT_MANIFEST_READ_FAILED",
                 extra={"tenant_id": tenant_id, "job_id": job_id, "rel_path": manifest_rel_path},
@@ -245,17 +245,12 @@ class JobInputsService:
             ) from e
 
     def preview_primary_dataset(
-        self,
-        *,
-        tenant_id: str = DEFAULT_TENANT_ID,
-        job_id: str,
-        rows: int,
-        columns: int,
+        self, *, tenant_id: str = DEFAULT_TENANT_ID, job_id: str, rows: int, columns: int
     ) -> JsonObject:
         job = self._store.load(tenant_id=tenant_id, job_id=job_id)
         manifest_rel_path = None if job.inputs is None else job.inputs.manifest_rel_path
         if manifest_rel_path is None:
-            raise InputParseFailedError(filename=_MANIFEST_REL_PATH, detail="manifest not set")
+            raise InputParseFailedError(filename=MANIFEST_REL_PATH, detail="manifest not set")
 
         dataset_rel_path, fmt, original_name = self._load_primary_manifest(
             tenant_id=tenant_id,
