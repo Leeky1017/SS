@@ -2,7 +2,7 @@
 
 - Issue: #172
 - Branch: task/172-p44-p45-tb-tc-td-te-audit
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/180
 
 ## Plan
 - Add TB/TC/TD/TE smoke-suite manifest (fixtures + params + deps).
