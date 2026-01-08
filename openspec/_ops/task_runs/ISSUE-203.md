@@ -37,8 +37,8 @@
 - Command:
   - `apply_patch (spec + task card + run log)`
 - Evidence:
-  - `openspec/backend-stata-proxy-extension/spec.md`
-  - `openspec/specs/ss-job-contract/task_cards/backend__stata-proxy-extension.md`
+  - `openspec/specs/backend-stata-proxy-extension/spec.md`
+  - `openspec/specs/backend-stata-proxy-extension/task_cards/backend__stata-proxy-extension.md`
   - `openspec/_ops/task_runs/ISSUE-203.md`
 
 ### 2026-01-08 Validate: openspec + ruff + pytest
@@ -65,5 +65,5 @@
 - Key output:
   - `Task issue-203-backend-stata-proxy-extension archived successfully`
 - Evidence:
-  - `openspec/specs/ss-job-contract/task_cards/backend__stata-proxy-extension.md`
+  - `openspec/specs/backend-stata-proxy-extension/task_cards/backend__stata-proxy-extension.md`
   - `rulebook/tasks/archive/2026-01-08-issue-203-backend-stata-proxy-extension/`

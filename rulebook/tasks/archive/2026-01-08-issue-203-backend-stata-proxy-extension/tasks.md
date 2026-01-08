@@ -1,8 +1,8 @@
 # Tasks: issue-203-backend-stata-proxy-extension
 
 ## 1. Spec-first deliverables
-- [ ] Write OpenSpec: `openspec/backend-stata-proxy-extension/spec.md`
-- [ ] Add OpenSpec task card: `openspec/specs/ss-job-contract/task_cards/backend__stata-proxy-extension.md`
+- [ ] Write OpenSpec: `openspec/specs/backend-stata-proxy-extension/spec.md`
+- [ ] Add OpenSpec task card: `openspec/specs/backend-stata-proxy-extension/task_cards/backend__stata-proxy-extension.md`
 - [ ] Create run log: `openspec/_ops/task_runs/ISSUE-203.md` (record key commands + outputs)
 
 ## 2. Local validation (spec-only)
