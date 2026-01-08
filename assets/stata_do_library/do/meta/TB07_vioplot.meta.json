@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "vioplot",
-      "purpose": "violin plot visualization",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "graph box (with optional vioplot fallback)",
+      "source": "built-in"
     }
   ],
   "description": "Draw violin plot to show data distribution",

@@ -2,10 +2,10 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #191
 - Parent: #125
 - Superphase: Phase 5 (content enhancement)
-- Templates: `TB*` + `TC*` (~20 templates, current inventory)
+- Templates: `TB02`–`TB10` + `TC01`–`TC10` (19 templates, current inventory; `TB01` was removed in Phase 2 dedupe)
 - Depends on:
   - Phase 4.4 (runtime errors fixed; anchors/style standardized)
 - Related specs:
@@ -35,4 +35,3 @@ Enhance descriptive-statistics templates with best practices (最佳实践), Sta
 - [ ] Error handling and diagnostics are strengthened (no silent failure)
 - [ ] Key steps have bilingual comments (中英文注释)
 - [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
-

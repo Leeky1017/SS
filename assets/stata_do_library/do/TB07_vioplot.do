@@ -1,22 +1,31 @@
 * ==============================================================================
 * SS_TEMPLATE: id=TB07  level=L1  module=B  title="Vioplot"
 * INPUTS:
-*   - data.dta  role=main_dataset  required=yes
-*   - data.csv  role=main_dataset  required=no
+*   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - fig_TB07_violin.png type=graph desc="Violin plot"
 *   - data_TB07_vio.dta type=data desc="Data file"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - vioplot source=ssc purpose="violin plot visualization"
+*   - stata source=built-in purpose="graph box + export (vioplot optional)"
 * ==============================================================================
 * Task ID:      TB07_vioplot
 * Placeholders: __VAR__, __BY_VAR__
 * Stata:        18.0+
 * ==============================================================================
 
+* ============ BEST_PRACTICE_REVIEW (Phase 5.4) ============
+* - [x] Validate vars (校验变量存在与类型)
+* - [x] Missingness summary (缺失值摘要)
+* - [x] Remove hard SSC dep (移除对 vioplot 的硬依赖；缺失时降级到 graph box)
+* - [x] Bilingual notes for key steps (关键步骤中英文注释)
+* - 2026-01-08: `vioplot` missing → warn + fallback `graph box` (缺少 vioplot 时使用箱线图替代)
+
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -28,20 +37,7 @@ log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TB07|level=L1|title=Vioplot"
 display "SS_TASK_VERSION|version=2.0.1"
-
-capture which vioplot
-if _rc {
-    display "SS_DEP_CHECK|pkg=vioplot|source=ssc|status=missing"
-    display "SS_DEP_MISSING|pkg=vioplot"
-    display "SS_RC|code=199|cmd=which vioplot|msg=dependency_missing|severity=fail"
-    timer off 1
-    quietly timer list 1
-    local elapsed = r(t1)
-    display "SS_TASK_END|id=TB07|status=fail|elapsed_sec=`elapsed'"
-    log close
-    exit 199
-}
-display "SS_DEP_CHECK|pkg=vioplot|source=ssc|status=ok"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 local var = "__VAR__"
 local by_var = "__BY_VAR__"
 
@@ -59,11 +55,68 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB07|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
-vioplot `var', over(`by_var') title("小提琴图: `var'") ytitle("`var'")
+* Validate variables / 校验变量
+capture confirm variable `var'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `var'|msg=var_not_found:var|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB07|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm variable `by_var'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `by_var'|msg=var_not_found:by_var|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB07|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `var'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `var'|msg=not_numeric:var|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB07|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+quietly count if missing(`var') | missing(`by_var')
+local n_missing_total = r(N)
+display "SS_METRIC|name=n_missing|value=`n_missing_total'"
+
+capture which vioplot
+if _rc == 0 {
+    display "SS_DEP_CHECK|pkg=vioplot|source=ssc|status=ok"
+    vioplot `var', over(`by_var') title("小提琴图 / Violin: `var'") ytitle("`var'")
+}
+else {
+    local rc = _rc
+    display "SS_DEP_CHECK|pkg=vioplot|source=ssc|status=missing"
+    display "SS_RC|code=`rc'|cmd=which vioplot|msg=dependency_missing_fallback_graph_box|severity=warn"
+    graph box `var', over(`by_var') title("箱线图（替代） / Box plot (fallback)") ytitle("`var'")
+}
 graph export "fig_TB07_violin.png", replace width(1200)
 display "SS_OUTPUT_FILE|file=fig_TB07_violin.png|type=graph|desc=violin_plot"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
@@ -85,7 +138,7 @@ timer off 1
 quietly timer list 1
 local elapsed = r(t1)
 display "SS_METRIC|name=n_obs|value=`n_output'"
-display "SS_METRIC|name=n_missing|value=0"
+display "SS_METRIC|name=n_missing|value=`n_missing_total'"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
 

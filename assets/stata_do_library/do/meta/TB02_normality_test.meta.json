@@ -3,22 +3,17 @@
   "dependencies": [
     {
       "pkg": "stata",
-      "purpose": "swilk command",
+      "purpose": "sktest/swilk/sfrancia normality tests",
       "source": "built-in"
     }
   ],
-  "description": "Calculate skewness/kurtosis and perform Shapiro-Wilk normality tests",
+  "description": "Calculate skewness/kurtosis and perform normality tests (sktest, Shapiro-Wilk, Shapiro-Francia)",
   "family": "descriptive_statistics",
   "id": "TB02",
   "inputs": [
     {
-      "name": "data.dta",
-      "required": true,
-      "role": "main_dataset"
-    },
-    {
       "name": "data.csv",
-      "required": false,
+      "required": true,
       "role": "main_dataset"
     }
   ],
@@ -50,12 +45,7 @@
     }
   ],
   "slug": "normality_test",
-  "tags": [
-    "normality",
-    "skewness",
-    "kurtosis",
-    "shapiro-wilk"
-  ],
+  "tags": ["normality", "skewness", "kurtosis", "shapiro-wilk", "shapiro-francia"],
   "title": "Normality Test",
   "title_zh": "正态性检验",
   "version": "2.0.1"
