@@ -70,3 +70,10 @@
 - Key output:
   - `ruff`: `All checks passed!`
   - `pytest`: `124 passed, 5 skipped`
+
+### 2026-01-08 pr preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
