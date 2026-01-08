@@ -30,3 +30,8 @@
   - `pytest`: `131 passed, 5 skipped`
   - `openspec`: `Totals: 20 passed, 0 failed`
 - Evidence: CI-safe local verification (see command outputs above)
+
+### 2026-01-08 PR preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+- Evidence: preflight output in terminal
