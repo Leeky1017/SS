@@ -1,7 +1,7 @@
 # ISSUE-186
 - Issue: #186
 - Branch: task/186-p53-data-prep-ta
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/187
 
 ## Goal
 - Enhance data-prep templates `TA01`–`TA14`: best practices (missing/outlier/type checks), reduce SSC dependencies where feasible, stronger warn/fail error handling with `SS_RC`, bilingual comments, and evidence logging.
@@ -94,3 +94,12 @@
   - `== Changed Files ==` lists `TA01`–`TA14` do/meta + smoke suite manifest + run log + rulebook task
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-08 PR: open + enable auto-merge
+- Command:
+  - `gh pr create ...`
+  - `gh pr edit 187 --body-file /tmp/pr_body_186.md`
+  - `gh pr merge 187 --auto --squash`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/187`
+  - `will be automatically merged via squash when all requirements are met`
