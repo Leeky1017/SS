@@ -1,7 +1,7 @@
 # ISSUE-207
 - Issue: #207
 - Branch: task/207-backend-proxy-specs
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/208
 
 ## Plan
 - Relocate backend proxy spec/task card into `openspec/specs/`
