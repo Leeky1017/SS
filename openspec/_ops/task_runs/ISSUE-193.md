@@ -7,12 +7,13 @@
 - Phase 5.1 core T01–T20: content enhancement (best practices + SSC→Stata18 native + stronger error handling + bilingual comments).
 
 ## Status
-- CURRENT: Bootstrapped worktree + run log; next implement template upgrades.
+- CURRENT: PR #196 merged; running post-merge closeout (task card completion + Rulebook archive).
 
 ## Next Actions
-- [ ] Update T01–T20 with best-practice review record + bilingual step comments.
-- [ ] Replace `estout/esttab` usage in T19/T20 with Stata 18 native `putdocx` (and update meta outputs/deps).
-- [ ] Run `ruff check .` + `pytest -q` and record outputs here.
+- [x] Update T01–T20 with best-practice review record + bilingual step comments.
+- [x] Replace `estout/esttab` usage in T19/T20 with Stata 18 native `putdocx` (and update meta outputs/deps).
+- [x] Run `ruff check .` + `pytest -q` and record outputs here.
+- [x] Fill task card `## Completion` and archive Rulebook task.
 
 ## Decisions Made
 - 2026-01-08: Prefer Stata 18 native `putdocx` for “paper” regression table export to remove `estout` SSC dependency in core templates.
@@ -66,3 +67,13 @@
 - Command: `gh pr create ...`
 - Key output: `https://github.com/Leeky1017/SS/pull/196`
 - Evidence: PR #196
+
+### 2026-01-08 17:44 merge
+- Command: `gh pr merge --auto --squash 196`
+- Key output: `mergedAt=2026-01-08T09:44:14Z`
+- Evidence: `https://github.com/Leeky1017/SS/pull/196`
+
+### 2026-01-08 17:46 rulebook-archive
+- Command: `rulebook task archive issue-193-p5-1-core-t01-t20`
+- Key output: `Task issue-193-p5-1-core-t01-t20 archived successfully`
+- Evidence: `rulebook/tasks/archive/2026-01-08-issue-193-p5-1-core-t01-t20/`
