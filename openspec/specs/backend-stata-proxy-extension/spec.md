@@ -134,7 +134,7 @@ Variable corrections MUST be applied to keep UI/plan/do-file consistent:
 
 ### Requirement: Contract freeze validates variable names against uploaded dataset columns
 
-Plan freeze is treated as contract freeze: once frozen, the job is runnable and must be reproducible.
+Plan freeze is treated as contract freeze: once frozen, the job is runnable and MUST be reproducible.
 
 #### Validation rules
 
@@ -159,7 +159,7 @@ The frozen `plan_id` MUST change when confirmation payload changes. Specifically
 
 ### Requirement: Service-layer change list is explicit
 
-本节描述未来实现中 `DraftService` / `PlanService` / `JobService` 的改动要点。
+未来实现 MUST 满足本节列出的 `DraftService` / `PlanService` / `JobService` 变更要点。
 
 #### DraftService (`src/domain/draft_service.py`)
 
@@ -183,6 +183,8 @@ The frozen `plan_id` MUST change when confirmation payload changes. Specifically
 - **THEN** `src/domain/` does not import FastAPI; API layer only performs request/response shaping
 
 ### Requirement: API endpoint contracts are explicit (Request/Response JSON)
+
+Clients MUST receive the exact Request/Response JSON shapes defined in this section.
 
 #### Endpoint: `GET /v1/jobs/{job_id}/draft/preview`
 
@@ -300,6 +302,8 @@ Success response (HTTP 200, shape unchanged from current SS):
 - **THEN** they receive the exact JSON shapes defined here
 
 ### Requirement: Dataflow from confirm to StataRunner (Mermaid)
+
+The system MUST follow the dataflow below from `POST /v1/jobs/{job_id}/confirm` until `StataRunner` execution is scheduled, including corrections application, freeze validation, and plan persistence.
 
 ```mermaid
 sequenceDiagram

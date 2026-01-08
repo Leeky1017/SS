@@ -1,5 +1,5 @@
 ## 1. Spec (this issue)
-- [x] 1.1 Write OpenSpec: `openspec/backend-stata-proxy-extension/spec.md`
+- [x] 1.1 Write OpenSpec: `openspec/specs/backend-stata-proxy-extension/spec.md`
 - [x] 1.2 Specify schema deltas (`src/domain/models.py`, `src/api/schemas.py`)
 - [x] 1.3 Specify service deltas (DraftService/PlanService/JobService)
 - [x] 1.4 Specify full API request/response JSON + dataflow mermaid
@@ -21,4 +21,3 @@
 - [ ] 3.1 Update `openspec/_ops/task_runs/ISSUE-202.md` with key commands + outputs
 - [ ] 3.2 Run `scripts/agent_pr_preflight.sh`
 - [ ] 3.3 Open PR with `Closes #202` and enable auto-merge
-

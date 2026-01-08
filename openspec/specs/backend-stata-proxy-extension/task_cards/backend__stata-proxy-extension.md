@@ -4,7 +4,7 @@
 
 - Issue: #203 https://github.com/Leeky1017/SS/issues/203
 - Related specs:
-  - `openspec/backend-stata-proxy-extension/spec.md`
+  - `openspec/specs/backend-stata-proxy-extension/spec.md`
   - `openspec/specs/ss-job-contract/spec.md`
   - `openspec/specs/ss-api-surface/spec.md`
   - `openspec/specs/ss-delivery-workflow/spec.md`
@@ -15,7 +15,7 @@
 
 ## In scope
 
-- OpenSpec：`openspec/backend-stata-proxy-extension/spec.md`
+- OpenSpec：`openspec/specs/backend-stata-proxy-extension/spec.md`
   - 功能目标、Schema 变更清单、Service 变更清单
   - API 端点 Request/Response JSON 契约
   - confirm→StataRunner 前的数据流图（Mermaid）
@@ -36,7 +36,7 @@
 
 ## Acceptance checklist
 
-- [x] `openspec/backend-stata-proxy-extension/spec.md` 覆盖：变量纠偏、结构化草案预览、契约冻结校验三大目标，并包含 schema/service/endpoint/dataflow/acceptance
+- [x] `openspec/specs/backend-stata-proxy-extension/spec.md` 覆盖：变量纠偏、结构化草案预览、契约冻结校验三大目标，并包含 schema/service/endpoint/dataflow/acceptance
 - [x] `rulebook/tasks/issue-203-backend-stata-proxy-extension/proposal.md` 与 `rulebook/tasks/issue-203-backend-stata-proxy-extension/tasks.md` 填写完整
 - [x] `openspec/_ops/task_runs/ISSUE-203.md` 记录关键命令与输出（Issue/worktree/validate/preflight/PR）
 - [x] 通过本地 gates 并在 run log 留证：`openspec validate --specs --strict --no-interactive`、`ruff check .`、`pytest -q`
@@ -56,5 +56,5 @@
 - Run log: `openspec/_ops/task_runs/ISSUE-203.md`
 - Summary:
   - Added OpenSpec for backend proxy extension (goals, schema/service deltas, endpoint contracts, dataflow, acceptance tests)
-  - Added task card under `ss-job-contract` for tracking and closeout
+  - Added task card under `backend-stata-proxy-extension` spec for tracking and closeout
   - Added Issue run log with validation + preflight evidence and auto-merge metadata

@@ -11,7 +11,7 @@ SS 新版后端在 Execution Engine 层（`src/domain/composition_exec/` 等）�
 
 ## What Changes
 
-- 新增 OpenSpec：`openspec/backend-stata-proxy-extension/spec.md`
+- 新增 OpenSpec：`openspec/specs/backend-stata-proxy-extension/spec.md`
   - Variable Corrections：token-boundary 替换规则与覆盖范围
   - Structured Draft Preview：`/draft/preview` 的结构化 response 字段
   - Contract Freeze：冻结前列名交叉验证与幂等/冲突语义
@@ -30,4 +30,3 @@ SS 新版后端在 Execution Engine 层（`src/domain/composition_exec/` 等）�
   - 用户可提交变量纠偏并保证后续 Do-file/计划/展示一致
   - 草案预览可直接驱动 UI（变量映射 + 列候选 + 类型信息）
   - 冻结阶段阻断不存在的列名，降低执行失败与错误结论风险
-
