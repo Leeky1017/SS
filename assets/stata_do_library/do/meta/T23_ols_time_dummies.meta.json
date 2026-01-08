@@ -37,7 +37,7 @@
     },
     {
       "description": "Auto-synced from SS_OUTPUT_FILE anchors",
-      "file": "table_T23_paper.rtf",
+      "file": "table_T23_paper.docx",
       "type": "report"
     },
     {
@@ -76,5 +76,5 @@
   ],
   "title": "Time Fixed Effects",
   "title_zh": "时间固定效应",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

@@ -32,7 +32,7 @@
     },
     {
       "description": "Auto-synced from SS_OUTPUT_FILE anchors",
-      "file": "table_T32_paper.rtf",
+      "file": "table_T32_paper.docx",
       "type": "report"
     },
     {
@@ -82,5 +82,5 @@
   ],
   "title": "Panel Random Effects",
   "title_zh": "面板随机效应回归",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

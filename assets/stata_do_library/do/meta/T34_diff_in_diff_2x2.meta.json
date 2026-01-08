@@ -42,7 +42,7 @@
     },
     {
       "description": "Auto-synced from SS_OUTPUT_FILE anchors",
-      "file": "table_T34_paper.rtf",
+      "file": "table_T34_paper.docx",
       "type": "report"
     }
   ],
@@ -81,5 +81,5 @@
   ],
   "title": "Difference-in-Differences 2x2",
   "title_zh": "经典2×2双重差分",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

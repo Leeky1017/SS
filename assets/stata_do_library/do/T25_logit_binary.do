@@ -24,10 +24,18 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Confirm dependent variable is binary (0/1) before estimation (确认因变量为二元 0/1).
+* - 2026-01-08: Prefer robust variance estimator for model diagnostics stability (优先使用稳健方差估计以增强稳健性).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -59,7 +67,7 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T25|level=L0|title=Binary_Logit_Model"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -118,6 +126,13 @@ if _rc {
     ss_fail_T25 111 "confirm variable" "dep_var_not_found"
 }
 
+* Best practice: enforce binary 0/1 coding for logit
+capture assert inlist(`dep_var', 0, 1) if !missing(`dep_var')
+if _rc {
+    display as error "ERROR: Dependent variable `dep_var' must be coded as 0/1 for binary logit"
+    ss_fail_T25 121 "assert inlist" "dep_var_not_binary_01"
+}
+
 display ""
 display ">>> 因变量:          `dep_var' (应为0/1)"
 display ">>> 自变量:          `indep_vars'"
@@ -173,7 +188,7 @@ display ">>> 模型: logit(`dep_var') = β₀ + β'X"
 display ">>> 系数解释: 对数几率 ln(p/(1-p)) 的变化"
 display "-------------------------------------------------------------------------------"
 
-logit `dep_var' `indep_vars'
+logit `dep_var' `indep_vars', vce(robust)
 
 estimates store logit_model
 local ll = e(ll)
@@ -198,7 +213,7 @@ display "    OR < 1: 该变量增加1单位，事件发生几率减少 (1-OR)*10
 display "    OR = 1: 无影响"
 display "-------------------------------------------------------------------------------"
 
-logit `dep_var' `indep_vars', or
+logit `dep_var' `indep_vars', or vce(robust)
 
 * ==============================================================================
 * SECTION 5: 边际效应（Average Marginal Effects）
@@ -213,7 +228,7 @@ display ">>> 边际效应解释: 自变量变化1单位，概率P(Y=1)的平均�
 display ">>> 这是最直观的效应解释方式"
 display "-------------------------------------------------------------------------------"
 
-quietly logit `dep_var' `indep_vars'
+quietly logit `dep_var' `indep_vars', vce(robust)
 margins, dydx(*) post
 
 * 保存边际效应
@@ -227,7 +242,7 @@ display "═══════════════════════�
 display "SECTION 6: 模型拟合优度"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-quietly logit `dep_var' `indep_vars'
+quietly logit `dep_var' `indep_vars', vce(robust)
 
 display ""
 display "{hline 60}"
@@ -261,7 +276,7 @@ display ">>> ROC曲线衡量模型的区分能力"
 display ">>> AUC = 0.5: 无区分能力；AUC = 1.0: 完美区分"
 display "-------------------------------------------------------------------------------"
 
-quietly logit `dep_var' `indep_vars'
+quietly logit `dep_var' `indep_vars', vce(robust)
 lroc, title("ROC Curve - Logit Model") note("T25: Binary Logit")
 local auc = r(area)
 
@@ -303,7 +318,7 @@ display "═══════════════════════�
 display ""
 display ">>> 导出系数与比值比: table_T25_logit_coef.csv"
 
-quietly logit `dep_var' `indep_vars', or
+quietly logit `dep_var' `indep_vars', or vce(robust)
 
 preserve
 clear

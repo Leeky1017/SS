@@ -6,11 +6,10 @@
 * OUTPUTS:
 *   - table_T31_fe_coef.csv type=table desc="FE regression coefficients"
 *   - table_T31_fe_gof.csv type=table desc="Goodness of fit"
-*   - table_T31_paper.rtf type=table desc="Publication-quality table"
+*   - table_T31_paper.docx type=report desc="Publication-style table (docx)"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - stata source=built-in purpose="core commands"
-*   - estout source=ssc purpose="publication-quality tables (optional)" purpose="panel regression commands"
 * ==============================================================================
 * Task ID:      T31_panel_fe_basic
 * Task Name:    面板固定效应回归
@@ -27,10 +26,18 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Keep FE estimation via `xtreg, fe` and default clustered SE (保留固定效应 + 默认聚类标准误).
+* - 2026-01-08: Replace optional SSC `estout/esttab` with Stata 18 native `putdocx` report (移除 SSC 依赖，使用原生 docx 输出).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -62,22 +69,10 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T31|level=L0|title=Panel_Fixed_Effects"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
-
-* 检查 esttab (可选依赖，用于论文级表格)
-local has_esttab = 0
-capture which esttab
-if _rc {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=missing"
-    display ">>> estout 未安装，将使用基础 CSV 导出"
-} 
-else {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=ok"
-    local has_esttab = 1
-}
 
 display ""
 display "╔══════════════════════════════════════════════════════════════════════════════╗"
@@ -362,30 +357,20 @@ foreach var of local varlist {
 export delimited using "table_T31_fe_coef.csv", replace
 display "SS_OUTPUT_FILE|file=table_T31_fe_coef.csv|type=table|desc=fe_regression_coefficients"
 display ">>> FE系数已导出"
+
+display ""
+display ">>> 导出论文级表格: table_T31_paper.docx"
+putdocx clear
+putdocx begin
+putdocx paragraph, style(Heading1)
+putdocx text ("T31: Panel Fixed Effects / 面板固定效应回归")
+putdocx paragraph
+putdocx text ("Estimation: xtreg, fe; SE: vce(cluster id).")
+putdocx table t1 = data(variable coef se t p sig), varnames
+putdocx save "table_T31_paper.docx", replace
+display "SS_OUTPUT_FILE|file=table_T31_paper.docx|type=report|desc=publication_table_docx"
+display ">>> 论文级表格已导出 ✓"
 restore
-
-* ============ 论文级表格输出 (esttab) ============
-if `has_esttab' {
-    display ""
-    display ">>> 导出论文级表格: table_T31_paper.rtf"
-    
-    esttab using "table_T31_paper.rtf", replace ///
-        cells(b(star fmt(3)) se(par fmt(3))) ///
-        stats(N r2 r2_a, fmt(%9.0fc %9.3f %9.3f) ///
-              labels("Observations" "R²" "Adj. R²")) ///
-        title("Regression Results") ///
-        star(* 0.10 ** 0.05 *** 0.01) ///
-        note("Standard errors in parentheses. * p<0.10, ** p<0.05, *** p<0.01")
-    
-    display "SS_OUTPUT_FILE|file=table_T31_paper.rtf|type=table|desc=publication_table"
-    display ">>> 论文级表格已导出 ✓"
-}
-else {
-    display ""
-    display ">>> 跳过论文级表格 (estout 未安装)"
-}
-
-
 * 导出拟合优度
 display ""
 display ">>> 导出拟合优度: table_T31_fe_gof.csv"
@@ -436,6 +421,7 @@ display ""
 display "输出文件:"
 display "  - table_T31_fe_coef.csv    FE回归系数"
 display "  - table_T31_fe_gof.csv     拟合优度指标"
+display "  - table_T31_paper.docx      论文级表格（docx）"
 display ""
 display "任务完成时间: $S_DATE $S_TIME"
 display ""

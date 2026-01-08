@@ -23,10 +23,17 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Validate ordered dependent variable (numeric, integer, ≥3 categories) and use robust variance estimator (验证有序因变量并使用稳健方差估计).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -58,7 +65,7 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T27|level=L0|title=Ordered_Logit_Model"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -117,6 +124,18 @@ if _rc {
     ss_fail_T27 111 "confirm variable" "dep_var_not_found"
 }
 
+* Best practice: ordered logit requires an ordered, numeric categorical outcome
+capture confirm numeric variable `dep_var'
+if _rc {
+    display as error "ERROR: Dependent variable `dep_var' must be numeric for ordered logit"
+    ss_fail_T27 121 "confirm numeric" "dep_var_not_numeric"
+}
+capture assert `dep_var' == floor(`dep_var') if !missing(`dep_var')
+if _rc {
+    display as error "ERROR: Dependent variable `dep_var' must be integer-coded (1,2,3,...)"
+    ss_fail_T27 121 "assert integer" "dep_var_not_integer"
+}
+
 display ""
 display ">>> 因变量:          `dep_var' (应为有序分类: 1,2,3,...)"
 display ">>> 自变量:          `indep_vars'"
@@ -128,6 +147,10 @@ tabulate `dep_var'
 
 quietly levelsof `dep_var', local(levels)
 local n_levels: word count `levels'
+if `n_levels' < 3 {
+    display as error "ERROR: Ordered logit requires at least 3 outcome categories; found `n_levels'"
+    ss_fail_T27 121 "levelsof" "dep_var_too_few_categories"
+}
 display ""
 display "{hline 50}"
 display "类别数量:            " %10.0f `n_levels'
@@ -153,7 +176,7 @@ display ">>> 模型: P(Y ≤ j | X) = Λ(αⱼ - X'β)"
 display ">>> 累积Logit模型，假设各类别间系数相同（平行线假设）"
 display "-------------------------------------------------------------------------------"
 
-ologit `dep_var' `indep_vars'
+ologit `dep_var' `indep_vars', vce(robust)
 
 estimates store ologit_model
 local ll = e(ll)
@@ -177,7 +200,7 @@ display ">>> OR > 1: 倾向于选择更高类别"
 display ">>> OR < 1: 倾向于选择更低类别"
 display "-------------------------------------------------------------------------------"
 
-ologit `dep_var' `indep_vars', or
+ologit `dep_var' `indep_vars', or vce(robust)
 
 * ==============================================================================
 * SECTION 4: 各类别边际效应
@@ -192,7 +215,7 @@ display ">>> 边际效应: 自变量变化1单位，各类别概率的变化"
 display ">>> 注意: 各类别边际效应之和为0"
 display "-------------------------------------------------------------------------------"
 
-quietly ologit `dep_var' `indep_vars'
+quietly ologit `dep_var' `indep_vars', vce(robust)
 
 * 获取类别数量并计算边际效应
 local cat_count = 0
@@ -221,7 +244,7 @@ display "═══════════════════════�
 display ""
 display ">>> 各类别的平均预测概率："
 
-quietly ologit `dep_var' `indep_vars'
+quietly ologit `dep_var' `indep_vars', vce(robust)
 
 local prob_display = ""
 local cat_count = 0
@@ -267,7 +290,7 @@ display ">>> 如果拒绝H0，考虑使用广义有序Logit"
 display "-------------------------------------------------------------------------------"
 
 * 使用omodel命令（Stata内置）进行近似LR检验
-quietly ologit `dep_var' `indep_vars'
+quietly ologit `dep_var' `indep_vars', vce(robust)
 
 display ""
 display ">>> 提示: 正式的Brant检验需通过对比各类别模型进行"
@@ -288,7 +311,7 @@ display "═══════════════════════�
 display ""
 display ">>> 导出系数与比值比: table_T27_ologit_coef.csv"
 
-quietly ologit `dep_var' `indep_vars', or
+quietly ologit `dep_var' `indep_vars', or vce(robust)
 
 preserve
 clear

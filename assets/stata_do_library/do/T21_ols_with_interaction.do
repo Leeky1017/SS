@@ -6,11 +6,10 @@
 * OUTPUTS:
 *   - table_T21_reg_interaction.csv type=table desc="Interaction regression results"
 *   - fig_T21_margins.png type=graph desc="Marginal effects plot"
-*   - table_T21_paper.rtf type=table desc="Publication-quality table"
+*   - table_T21_paper.docx type=report desc="Publication-style table (docx)"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - stata source=built-in purpose="core commands"
-*   - estout source=ssc purpose="publication-quality tables (optional)" purpose="core regression commands"
 * ==============================================================================
 * Task ID:      T21_ols_with_interaction
 * Task Name:    含交互项的回归（调节效应分析）
@@ -27,10 +26,19 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Use factor-variable interaction `c.var1##c.var2` so `margins` computes correct simple slopes (使用因子变量交互项语法，确保边际效应计算正确).
+* - 2026-01-08: Default to robust standard errors via `vce(robust)` (默认使用稳健标准误).
+* - 2026-01-08: Replace optional SSC `estout/esttab` output with Stata 18 native `putdocx` (移除 SSC 依赖，使用 Stata 原生 docx 输出).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -62,22 +70,10 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T21|level=L0|title=OLS_with_Interaction_Terms"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
-
-* 检查 esttab (可选依赖，用于论文级表格)
-local has_esttab = 0
-capture which esttab
-if _rc {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=missing"
-    display ">>> estout 未安装，将使用基础 CSV 导出"
-} 
-else {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=ok"
-    local has_esttab = 1
-}
 
 display ""
 display "╔══════════════════════════════════════════════════════════════════════════════╗"
@@ -186,7 +182,7 @@ display "SECTION 3: 基准模型（无交互项）"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 display ""
-regress `dep_var' `indep_vars' `var1' `var2'
+regress `dep_var' `indep_vars' c.`var1' c.`var2', vce(robust)
 
 estimates store base_model
 local r2_base = e(r2)
@@ -205,25 +201,20 @@ display ">>> 回归模型"
 display "-------------------------------------------------------------------------------"
 display "`dep_var' = β₀ + β₁`var1' + β₂`var2' + β₃(`var1' × `var2') + Controls + ε"
 display ""
-
-* 创建交互项
-quietly generate _interact = `var1' * `var2'
-label variable _interact "`var1' × `var2'"
-
-regress `dep_var' `indep_vars' `var1' `var2' _interact
+regress `dep_var' `indep_vars' c.`var1'##c.`var2', vce(robust)
 
 estimates store inter_model
 local r2_inter = e(r2)
 local r2_adj = e(r2_a)
 
 * 保存交互项结果
-local b_int = _b[_interact]
-local se_int = _se[_interact]
+local b_int = _b[c.`var1'#c.`var2']
+local se_int = _se[c.`var1'#c.`var2']
 local t_int = `b_int' / `se_int'
 local p_int = 2 * ttail(e(df_r), abs(`t_int'))
 
-local b_var1 = _b[`var1']
-local b_var2 = _b[`var2']
+local b_var1 = _b[c.`var1']
+local b_var2 = _b[c.`var2']
 
 * ==============================================================================
 * SECTION 5: 交互效应解读
@@ -288,10 +279,8 @@ display ""
 display ">>> `var1' 的边际效应（在 `var2' 不同水平下）"
 display "-------------------------------------------------------------------------------"
 
-* 使用因子变量语法重新估计
-quietly regress `dep_var' `indep_vars' c.`var1'##c.`var2'
-
 * 在调节变量的关键水平计算边际效应
+estimates restore inter_model
 margins, dydx(`var1') at(`var2'=(`m_p10' `m_p25' `m_p50' `m_p75' `m_p90'))
 
 * ==============================================================================
@@ -320,7 +309,7 @@ display "═══════════════════════�
 display ""
 display ">>> 生成边际效应图"
 
-quietly regress `dep_var' `indep_vars' c.`var1'##c.`var2'
+estimates restore inter_model
 quietly margins, dydx(`var1') at(`var2'=(`m_p10' `m_p25' `m_p50' `m_p75' `m_p90'))
 
 quietly marginsplot, ///
@@ -331,7 +320,10 @@ quietly marginsplot, ///
     note("交互项系数 = `: display %6.4f `b_int'' `sig_int'") ///
     scheme(s2color)
 
-quietly graph export "fig_T21_margins.png", replace width(800) height(600)
+capture noisily graph export "fig_T21_margins.png", replace width(800) height(600)
+if _rc {
+    ss_fail_T21 430 "graph export" "graph_export_failed"
+}
 display "SS_OUTPUT_FILE|file=fig_T21_margins.png|type=graph|desc=marginal_effects_plot"
 display ">>> 已导出: fig_T21_margins.png"
 
@@ -350,7 +342,7 @@ display ">>> 导出回归结果: table_T21_reg_interaction.csv"
 
 preserve
 clear
-set obs 4
+set obs 3
 
 generate str32 variable = ""
 generate double coef = .
@@ -375,32 +367,20 @@ quietly replace sig = "`sig_int'" in 3
 export delimited using "table_T21_reg_interaction.csv", replace
 display "SS_OUTPUT_FILE|file=table_T21_reg_interaction.csv|type=table|desc=interaction_regression"
 display ">>> 回归结果已导出"
+
+display ""
+display ">>> 导出论文级表格: table_T21_paper.docx"
+putdocx clear
+putdocx begin
+putdocx paragraph, style(Heading1)
+putdocx text ("T21: OLS with Interaction Terms / 含交互项的回归")
+putdocx paragraph
+putdocx text ("Robust SE (vce(robust)); interaction estimated via factor variables.")
+putdocx table t1 = data(variable coef se t p sig), varnames
+putdocx save "table_T21_paper.docx", replace
+display "SS_OUTPUT_FILE|file=table_T21_paper.docx|type=report|desc=publication_table_docx"
+display ">>> 论文级表格已导出 ✓"
 restore
-
-* ============ 论文级表格输出 (esttab) ============
-if `has_esttab' {
-    display ""
-    display ">>> 导出论文级表格: table_T21_paper.rtf"
-    
-    esttab using "table_T21_paper.rtf", replace ///
-        cells(b(star fmt(3)) se(par fmt(3))) ///
-        stats(N r2 r2_a, fmt(%9.0fc %9.3f %9.3f) ///
-              labels("Observations" "R²" "Adj. R²")) ///
-        title("Regression Results") ///
-        star(* 0.10 ** 0.05 *** 0.01) ///
-        note("Standard errors in parentheses. * p<0.10, ** p<0.05, *** p<0.01")
-    
-    display "SS_OUTPUT_FILE|file=table_T21_paper.rtf|type=table|desc=publication_table"
-    display ">>> 论文级表格已导出 ✓"
-}
-else {
-    display ""
-    display ">>> 跳过论文级表格 (estout 未安装)"
-}
-
-
-* 清理
-drop _interact
 
 * ==============================================================================
 * SECTION 10: 任务完成摘要
@@ -424,6 +404,7 @@ display ""
 display "输出文件:"
 display "  - table_T21_reg_interaction.csv  回归结果"
 display "  - fig_T21_margins.png            边际效应图"
+display "  - table_T21_paper.docx           论文级表格（docx）"
 display ""
 display "任务完成时间: $S_DATE $S_TIME"
 display ""

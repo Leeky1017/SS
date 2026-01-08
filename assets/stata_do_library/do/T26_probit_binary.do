@@ -23,10 +23,17 @@
 * ==============================================================================
 
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.2)
+* - 2026-01-08: Enforce binary 0/1 coding for probit and use robust variance estimator (确认 0/1 编码，并使用稳健方差估计).
+* ==============================================================================
+
+* ==============================================================================
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    display "SS_RC|code=`=_rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -58,7 +65,7 @@ end
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T26|level=L0|title=Binary_Probit_Model"
-display "SS_SUMMARY|key=template_version|value=2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.1.0"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -117,6 +124,12 @@ if _rc {
     ss_fail_T26 111 "confirm variable" "dep_var_not_found"
 }
 
+capture assert inlist(`dep_var', 0, 1) if !missing(`dep_var')
+if _rc {
+    display as error "ERROR: Dependent variable `dep_var' must be coded as 0/1 for binary probit"
+    ss_fail_T26 121 "assert inlist" "dep_var_not_binary_01"
+}
+
 display ""
 display ">>> 因变量:          `dep_var' (应为0/1)"
 display ">>> 自变量:          `indep_vars'"
@@ -148,7 +161,7 @@ display ">>> 模型: P(Y=1|X) = Φ(X'β)"
 display ">>> Φ(·) 是标准正态累积分布函数"
 display "-------------------------------------------------------------------------------"
 
-probit `dep_var' `indep_vars'
+probit `dep_var' `indep_vars', vce(robust)
 
 estimates store probit_model
 local ll_probit = e(ll)
@@ -170,7 +183,7 @@ display ">>> 边际效应: 自变量变化1单位，P(Y=1)的平均变化"
 display ">>> 与Logit的边际效应通常非常接近"
 display "-------------------------------------------------------------------------------"
 
-quietly probit `dep_var' `indep_vars'
+quietly probit `dep_var' `indep_vars', vce(robust)
 margins, dydx(*) post
 
 * ==============================================================================
@@ -181,7 +194,7 @@ display "═══════════════════════�
 display "SECTION 4: 模型拟合优度"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-quietly probit `dep_var' `indep_vars'
+quietly probit `dep_var' `indep_vars', vce(robust)
 
 display ""
 display "{hline 60}"
@@ -206,7 +219,7 @@ display "SECTION 5: ROC曲线与AUC"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 display ""
-quietly probit `dep_var' `indep_vars'
+quietly probit `dep_var' `indep_vars', vce(robust)
 lroc, title("ROC Curve - Probit Model") note("T26: Binary Probit")
 local auc = r(area)
 
@@ -257,7 +270,7 @@ display "═══════════════════════�
 display ""
 display ">>> 导出Probit系数: table_T26_probit_coef.csv"
 
-quietly probit `dep_var' `indep_vars'
+quietly probit `dep_var' `indep_vars', vce(robust)
 
 preserve
 clear

@@ -42,7 +42,7 @@
     },
     {
       "description": "Auto-synced from SS_OUTPUT_FILE anchors",
-      "file": "table_T35_paper.rtf",
+      "file": "table_T35_paper.docx",
       "type": "report"
     }
   ],
@@ -87,5 +87,5 @@
   ],
   "title": "Event Study DID",
   "title_zh": "事件研究法DID",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }
