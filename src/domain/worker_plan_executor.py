@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, cast
 
+from src.domain.composition_executor import execute_composition_plan as execute_composition_plan
 from src.domain.do_file_generator import DoFileGenerator
 from src.domain.models import ArtifactKind, ArtifactRef, Job, PlanStep, PlanStepType
 from src.domain.stata_runner import RunError, RunResult, StataRunner
@@ -66,21 +67,24 @@ def execute_plan(
         )
 
     generator = DoFileGenerator() if do_file_generator is None else do_file_generator
+    run_step = _find_run_step(job=job)
+    if run_step is None:
+        return execute_composition_plan(
+            job=job,
+            run_id=run_id,
+            jobs_dir=Path(jobs_dir),
+            runner=runner,
+            inputs_manifest=inputs_manifest,
+            shutdown_deadline=shutdown_deadline,
+            clock=clock,
+            do_file_generator=generator,
+        )
+
     do_file = _do_file_or_error(
         generator=generator, job=job, run_id=run_id, inputs_manifest=inputs_manifest
     )
     if isinstance(do_file, RunError):
         return _write_pre_run_error(dirs=dirs, job_id=job.job_id, run_id=run_id, error=do_file)
-
-    run_step = _find_run_step(job=job)
-    if run_step is None:
-        logger.warning("SS_WORKER_PLAN_NO_RUN_STEP", extra={"job_id": job.job_id, "run_id": run_id})
-        return _write_pre_run_error(
-            dirs=dirs,
-            job_id=job.job_id,
-            run_id=run_id,
-            error=RunError(error_code="PLAN_INVALID", message="plan missing RUN_STATA step"),
-        )
 
     timeout_seconds = _timeout_seconds(step=run_step)
     effective_timeout_seconds = _cap_timeout_seconds(

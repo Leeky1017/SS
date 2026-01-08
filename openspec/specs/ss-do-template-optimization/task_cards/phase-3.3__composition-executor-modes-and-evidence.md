@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #171
 - Parent: #125
 - Superphase: Phase 3 (adaptive composition)
 - Depends on:

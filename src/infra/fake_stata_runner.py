@@ -6,6 +6,7 @@ from typing import Sequence
 
 from opentelemetry.trace import get_tracer
 
+from src.domain.models import is_safe_job_rel_path
 from src.domain.stata_runner import RunError, RunResult, StataRunner
 from src.infra.fake_stata_outputs import export_table_ref
 from src.infra.stata_run_support import (
@@ -20,7 +21,7 @@ from src.infra.stata_run_support import (
     write_run_artifacts,
     write_text,
 )
-from src.infra.stata_safety import copy_job_inputs_dir
+from src.infra.stata_safety import copy_inputs_dir
 from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID
 
@@ -46,6 +47,7 @@ class FakeStataRunner(StataRunner):
         run_id: str,
         do_file: str,
         timeout_seconds: int | None = None,
+        inputs_dir_rel: str | None = None,
     ) -> RunResult:
         tracer = get_tracer(__name__)
         with tracer.start_as_current_span("ss.stata.run") as span:
@@ -60,6 +62,7 @@ class FakeStataRunner(StataRunner):
                 run_id=run_id,
                 do_file=do_file,
                 timeout_seconds=timeout_seconds,
+                inputs_dir_rel=inputs_dir_rel,
             )
             span.set_attribute("ss.ok", result.ok)
             if result.exit_code is not None:
@@ -74,6 +77,7 @@ class FakeStataRunner(StataRunner):
         run_id: str,
         do_file: str,
         timeout_seconds: int | None,
+        inputs_dir_rel: str | None,
     ) -> RunResult:
         resolved = self._resolve_dirs(tenant_id=tenant_id, job_id=job_id, run_id=run_id)
         if isinstance(resolved, RunResult):
@@ -87,6 +91,7 @@ class FakeStataRunner(StataRunner):
             job_id=job_id,
             run_id=run_id,
             do_file=do_file,
+            inputs_dir_rel=inputs_dir_rel,
         )
         if isinstance(do_artifact_path, RunResult):
             return do_artifact_path
@@ -212,11 +217,23 @@ class FakeStataRunner(StataRunner):
         job_id: str,
         run_id: str,
         do_file: str,
+        inputs_dir_rel: str | None,
     ) -> Path | RunResult:
         dirs.work_dir.mkdir(parents=True, exist_ok=True)
         dirs.artifacts_dir.mkdir(parents=True, exist_ok=True)
         try:
-            copy_job_inputs_dir(job_dir=dirs.job_dir, work_dir=dirs.work_dir)
+            source_dir = self._inputs_source_dir(
+                job_dir=dirs.job_dir,
+                inputs_dir_rel=inputs_dir_rel,
+            )
+            if source_dir is None:
+                return result_without_artifacts(
+                    job_id=job_id,
+                    run_id=run_id,
+                    error_code="STATA_INPUTS_UNSAFE",
+                    message="inputs_dir_rel unsafe",
+                )
+            copy_inputs_dir(source_dir=source_dir, work_dir=dirs.work_dir)
         except OSError as e:
             logger.warning(
                 "SS_FAKE_STATA_COPY_INPUTS_FAILED",
@@ -245,6 +262,17 @@ class FakeStataRunner(StataRunner):
                 message=str(e),
             )
         return do_artifact_path
+
+    def _inputs_source_dir(self, *, job_dir: Path, inputs_dir_rel: str | None) -> Path | None:
+        if inputs_dir_rel is None:
+            return job_dir / "inputs"
+        if inputs_dir_rel.strip() == "" or not is_safe_job_rel_path(inputs_dir_rel):
+            return None
+        base = job_dir.resolve(strict=False)
+        path = (job_dir / inputs_dir_rel).resolve(strict=False)
+        if not path.is_relative_to(base):
+            return None
+        return path
 
     def _meta_for(
         self,
