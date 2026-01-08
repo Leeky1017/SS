@@ -57,3 +57,12 @@
   - `OK: no hard dependencies found in execution plan`
 - Evidence:
   - `openspec/_ops/task_runs/ISSUE-178.md`
+
+### 2026-01-08 Preflight (post-commit)
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - `openspec/_ops/task_runs/ISSUE-178.md`
