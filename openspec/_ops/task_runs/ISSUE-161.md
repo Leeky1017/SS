@@ -8,14 +8,15 @@
 - Support uploading 2+ dataset files per job with explicit roles and a deterministic inputs fingerprint.
 
 ## Status
-- CURRENT: Multi-dataset upload implemented + tests green; preparing PR.
+- CURRENT: PR merged; closing out task card + post-merge hygiene next.
 
 ## Next Actions
 - [x] Extend inputs upload API to accept 2+ files and per-file roles
 - [x] Persist `inputs/manifest.json` with `dataset_key` + `role` + `rel_path` + `fingerprint`
 - [x] Make `job.json.inputs.fingerprint` deterministic across ordering
 - [x] Add/adjust tests for multi-file + backward-compatible single-file path
-- [ ] Run `scripts/agent_pr_preflight.sh`, open PR, enable auto-merge
+- [x] Run `scripts/agent_pr_preflight.sh`, open PR, enable auto-merge
+- [ ] Sync controlplane `main` and cleanup worktree (after merge)
 
 ## Decisions Made
 - 2026-01-08: Prefer manifest `datasets[]` as the canonical multi-input record; keep reads compatible with existing single-file manifest shape.
@@ -90,3 +91,11 @@
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
   - `https://github.com/Leeky1017/SS/pull/166`
+
+### 2026-01-08 02:19 Merge: PR merged
+- Command:
+  - `gh pr view 166 --json state,mergedAt,url`
+- Key output:
+  - `state: MERGED`
+  - `mergedAt: 2026-01-08T02:19:15Z`
+  - `url: https://github.com/Leeky1017/SS/pull/166`

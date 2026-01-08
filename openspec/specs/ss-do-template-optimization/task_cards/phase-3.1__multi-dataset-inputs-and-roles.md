@@ -35,8 +35,16 @@ Support uploading **2+ dataset files** per job, persist them as first-class job 
 
 ## Acceptance checklist
 
-- [ ] A job can be created with >= 2 uploaded dataset files
-- [ ] Inputs manifest is written and referenced from `job.json.inputs.manifest_rel_path`
-- [ ] Each dataset has an explicit role and stable key, and is indexed as an artifact
-- [ ] Input fingerprint covers all datasets deterministically
-- [ ] Tests cover multi-file upload + manifest validation + backward-compat single-file path
+- [x] A job can be created with >= 2 uploaded dataset files
+- [x] Inputs manifest is written and referenced from `job.json.inputs.manifest_rel_path`
+- [x] Each dataset has an explicit role and stable key, and is indexed as an artifact
+- [x] Input fingerprint covers all datasets deterministically
+- [x] Tests cover multi-file upload + manifest validation + backward-compat single-file path
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/166
+- Implemented multi-file inputs upload with explicit roles + deterministic fingerprint
+- Persisted `inputs/manifest.json` as `datasets[]` with stable `dataset_key` + `rel_path` + `fingerprint`
+- Added tests for multi-file upload + backward-compatible single-file path
+- Run log: `openspec/_ops/task_runs/ISSUE-161.md`
