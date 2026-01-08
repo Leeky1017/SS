@@ -31,6 +31,7 @@ if _rc != 0 { }
 clear all
 set more off
 version 18
+set seed 12345
 
 * ============ 计时器初始化 ============
 timer clear 1
@@ -39,9 +40,27 @@ timer on 1
 * ---------- 日志文件初始化 ----------
 log using "result.log", text replace
 
+program define ss_fail_T47
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T47|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        * No log to close - expected
+    }
+    exit `code'
+end
+
+
+
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T47|level=L0|title=Kmeans_Clustering"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -65,15 +84,11 @@ if _rc {
     capture confirm file "data.csv"
     if _rc {
         display as error "ERROR: No data.dta or data.csv found in job directory."
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
+        ss_fail_T47 601 "confirm file" "data_file_not_found"
     }
     import delimited "data.csv", clear varnames(1) encoding(utf8)
     save "`datafile'", replace
-display "SS_OUTPUT_FILE|file=`datafile'|type=table|desc=output"
+display "SS_OUTPUT_FILE|file=`datafile'|type=data|desc=converted_from_csv"
     display ">>> 已从 data.csv 转换并保存为 data.dta"
 }
 else {
@@ -109,11 +124,7 @@ foreach v of varlist `numeric_vars' {
     capture confirm variable `v'
     if _rc {
         display as error "ERROR: Variable `v' not found（变量不存在）."
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
+        ss_fail_T47 200 "runtime" "task_failed"
     }
 }
 
@@ -134,11 +145,7 @@ foreach v of varlist `numeric_vars' {
 
 if "`kept_vars'" == "" {
     display as error "ERROR: No usable variables left after dropping all-missing/constant ones（无有效变量可用于聚类）."
-    log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    ss_fail_T47 200 "runtime" "task_failed"
 }
 
 * 3. 检查样本量 >= 聚类数
@@ -148,11 +155,7 @@ local n_obs = r(N)
 
 if `n_obs' < `n_clusters' {
     display as error "ERROR: Number of observations (`n_obs') is smaller than number of clusters (`n_clusters')（样本量小于聚类数）."
-    log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    ss_fail_T47 200 "runtime" "task_failed"
 }
 
 * 4. 把 kept_vars 缓存到一个局部宏，后续聚类代码统一用它
@@ -339,6 +342,7 @@ display "SS_SUMMARY|key=n_clusters|value=`n_clusters'"
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=seed|value=12345"
 display "SS_METRIC|name=n_obs|value=`n_total'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"

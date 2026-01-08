@@ -40,9 +40,27 @@ timer on 1
 * ---------- 日志文件初始化 ----------
 log using "result.log", text replace
 
+program define ss_fail_T43
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T43|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        * No log to close - expected
+    }
+    exit `code'
+end
+
+
+
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T43|level=L0|title=Cox_Proportional_Hazards"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_SUMMARY|key=template_version|value=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -66,15 +84,11 @@ if _rc {
     capture confirm file "data.csv"
     if _rc {
         display as error "ERROR: No data.dta or data.csv found in job directory."
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
+        ss_fail_T43 601 "confirm file" "data_file_not_found"
     }
     import delimited "data.csv", clear varnames(1) encoding(utf8)
     save "`datafile'", replace
-display "SS_OUTPUT_FILE|file=`datafile'|type=table|desc=output"
+display "SS_OUTPUT_FILE|file=`datafile'|type=data|desc=converted_from_csv"
     display ">>> 已从 data.csv 转换并保存为 data.dta"
 }
 else {
@@ -110,51 +124,31 @@ display "-----------------------------------------------------------------------
 capture confirm variable `time_var'
 if _rc {
     display as error "ERROR: Time variable `time_var' not found（时间变量不存在）."
-    log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    ss_fail_T43 111 "confirm variable" "time_var_not_found"
 }
 
 capture confirm variable `event_var'
 if _rc {
     display as error "ERROR: Event variable `event_var' not found（事件变量不存在）."
-    log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    ss_fail_T43 111 "confirm variable" "event_var_not_found"
 }
 
 quietly count if `time_var' < 0 & !missing(`time_var')
 if r(N) > 0 {
     display as error "ERROR: Survival time `time_var' contains negative values（生存时间存在负值）."
-    log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    ss_fail_T43 200 "runtime" "task_failed"
 }
 
 quietly count if `event_var' != 0 & `event_var' != 1 & !missing(`event_var')
 if r(N) > 0 {
     display as error "ERROR: Event variable `event_var' must be coded as 0/1（事件变量必须为0/1编码）."
-    log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    ss_fail_T43 111 "confirm variable" "event_var_not_found"
 }
 
 quietly count if `event_var' == 1 & !missing(`event_var')
 if r(N) == 0 {
     display as error "ERROR: No events (=1) found in `event_var'（无事件发生，无法进行生存分析）."
-    log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    ss_fail_T43 200 "runtime" "task_failed"
 }
 display ">>> 生存数据检查通过"
 * ---------- Survival pre-checks end ----------

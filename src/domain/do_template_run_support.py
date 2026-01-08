@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import shutil
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from src.domain.models import ArtifactKind, ArtifactRef, Job, JobStatus
 from src.domain.state_machine import JobStateMachine
@@ -16,20 +16,30 @@ logger = logging.getLogger(__name__)
 def safe_output_filename(value: str) -> bool:
     if value == "":
         return False
-    if "/" in value or "\\" in value:
+    if "\\" in value:
         return False
     if value.startswith("~"):
         return False
-    if value in {".", ".."}:
+    path = PurePosixPath(value)
+    if path.is_absolute():
         return False
-    return ".." not in Path(value).parts
+    parts = path.parts
+    if not parts:
+        return False
+    if ".." in parts:
+        return False
+    if any(part in {"", ".", ".."} for part in parts):
+        return False
+    if any(part.startswith("~") for part in parts):
+        return False
+    return True
 
 
 def output_kind(output: JsonObject) -> ArtifactKind:
     output_type = output.get("type", "")
     if output_type == "table":
         return ArtifactKind.STATA_EXPORT_TABLE
-    if output_type == "figure":
+    if output_type in {"figure", "graph"}:
         return ArtifactKind.STATA_EXPORT_FIGURE
     if output_type == "log":
         return ArtifactKind.STATA_RESULT_LOG
@@ -123,6 +133,7 @@ def artifact_ref(*, job_dir: Path, kind: ArtifactKind, path: Path) -> ArtifactRe
 
 def copy_output_or_skip(*, src: Path, dst: Path) -> bool:
     try:
+        dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, dst)
     except FileNotFoundError:
         return False

@@ -20,7 +20,7 @@ from src.utils.time import utc_now
 _DEP_CHECK_MISSING = re.compile(
     r"^SS_DEP_CHECK\\|pkg=(?P<pkg>[^|]+)\\|.*\\|status=missing\\s*$"
 )
-_DEP_MISSING = re.compile(r"^SS_DEP_MISSING:(?P<pkg>[A-Za-z0-9_]+)\\s*$")
+_DEP_MISSING = re.compile(r"^SS_DEP_MISSING(?::|\\|pkg=)(?P<pkg>[A-Za-z0-9_]+)\\s*$")
 
 
 def _error_case(
