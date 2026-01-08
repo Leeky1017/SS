@@ -27,7 +27,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=log_close_failed|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -40,26 +43,30 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA14|level=L1|title=Data_Quality"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_METRIC|name=task_version|value=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "mdesc"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+        display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+        display "SS_DEP_MISSING|pkg=`dep'"
+        display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = round(r(t1))
+        display "SS_TASK_END|id=TA14|status=fail|elapsed_sec=`elapsed'"
         log close
         exit 199
     }
+    display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=ok"
 }
-display "SS_DEP_CHECK|pkg=mdesc|source=ssc|status=ok"
 
 * ============ 参数设置 ============
-local check_vars = "__CHECK_VARS__"
-local id_var = "__ID_VAR__"
-local quality_threshold = __QUALITY_THRESHOLD__
+local check_vars "__CHECK_VARS__"
+local id_var "__ID_VAR__"
+local quality_threshold __QUALITY_THRESHOLD__
 
 * 参数默认值
 if `quality_threshold' <= 0 | `quality_threshold' > 1 {
@@ -83,14 +90,17 @@ display "    质量阈值: `quality_threshold'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA14|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 601
 }
-import delimited "data.csv", clear
+import delimited "data.csv", clear varnames(1) encoding(utf8)
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 
 * 获取变量列表
 if "`check_vars'" == "" {
@@ -194,8 +204,8 @@ display "───────────────────────�
 display ">>> 总缺失值数: `total_missing'"
 display ">>> 检测到问题数: `total_issues'"
 
-display "SS_METRIC:n_missing_total:`total_missing'"
-display "SS_METRIC:n_issues:`total_issues'"
+display "SS_METRIC|name=n_missing_total|value=`total_missing'"
+display "SS_METRIC|name=n_issues|value=`total_issues'"
 
 * ============ 主键唯一性检查 ============
 if "`id_var'" != "" {
@@ -212,13 +222,13 @@ if "`id_var'" != "" {
         
         if `is_unique' {
             display ">>> 主键 `id_var' 唯一性检查: 通过"
-            display "SS_METRIC:id_unique:1"
+            display "SS_METRIC|name=id_unique|value=1"
         }
         else {
             display ">>> 主键 `id_var' 唯一性检查: 失败"
             display ">>> 唯一值: `n_dup', 总观测: `n_input'"
-            display "SS_WARNING:ID_NOT_UNIQUE:Primary key has duplicates"
-            display "SS_METRIC:id_unique:0"
+            display "SS_RC|code=0|cmd=duplicates report `id_var'|msg=id_not_unique|severity=warn"
+            display "SS_METRIC|name=id_unique|value=0"
         }
     }
 }
@@ -259,10 +269,10 @@ if `overall_score' >= `quality_threshold' {
 else {
     display ""
     display ">>> 质量评估: 未通过 (< `quality_threshold')"
-    display "SS_WARNING:LOW_QUALITY:Overall quality score below threshold"
+    display "SS_RC|code=0|cmd=validate_quality_threshold|msg=low_quality_below_threshold|severity=warn"
 }
 
-display "SS_METRIC:quality_score:`overall_score'"
+display "SS_METRIC|name=quality_score|value=`overall_score'"
 
 * ============ 生成质量摘要 ============
 preserve

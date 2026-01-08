@@ -28,7 +28,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=log_close_failed|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -41,27 +44,31 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA11|level=L1|title=Dedup_Check"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_METRIC|name=task_version|value=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "distinct"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+        display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+        display "SS_DEP_MISSING|pkg=`dep'"
+        display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = round(r(t1))
+        display "SS_TASK_END|id=TA11|status=fail|elapsed_sec=`elapsed'"
         log close
         exit 199
     }
+    display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=ok"
 }
-display "SS_DEP_CHECK|pkg=distinct|source=ssc|status=ok"
 
 * ============ 参数设置 ============
-local key_vars = "__KEY_VARS__"
-local action = "__ACTION__"
-local sort_var = "__SORT_VAR__"
-local sort_order = "__SORT_ORDER__"
+local key_vars "__KEY_VARS__"
+local action "__ACTION__"
+local sort_var "__SORT_VAR__"
+local sort_order "__SORT_ORDER__"
 
 * 参数默认值
 if "`action'" == "" | ("`action'" != "check" & "`action'" != "keep_first" & "`action'" != "keep_last" & "`action'" != "drop_all") {
@@ -84,14 +91,17 @@ if "`sort_var'" != "" {
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA11|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 601
 }
-import delimited "data.csv", clear
+import delimited "data.csv", clear varnames(1) encoding(utf8)
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 
 * 生成行号
 generate long _row_id = _n
@@ -102,7 +112,7 @@ foreach var of local key_vars {
     capture confirm variable `var'
     if _rc {
         display ">>> 警告: `var' 不存在，跳过"
-        display "SS_WARNING:VAR_NOT_FOUND:`var'"
+        display "SS_RC|code=0|cmd=confirm variable `var'|msg=key_var_not_found_skipped|severity=warn"
     }
     else {
         local valid_keys "`valid_keys' `var'"
@@ -110,8 +120,11 @@ foreach var of local key_vars {
 }
 
 if "`valid_keys'" == "" {
-    display "SS_ERROR:NO_VALID_KEYS:No valid key variables"
-    display "SS_ERR:NO_VALID_KEYS:No valid key variables"
+    display "SS_RC|code=200|cmd=validate_key_vars|msg=no_valid_key_vars|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA11|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 200
 }
@@ -120,7 +133,7 @@ if "`valid_keys'" == "" {
 if "`sort_var'" != "" {
     capture confirm variable `sort_var'
     if _rc {
-        display "SS_WARNING:SORT_VAR_NOT_FOUND:`sort_var' not found"
+        display "SS_RC|code=0|cmd=confirm variable `sort_var'|msg=sort_var_not_found_ignored|severity=warn"
         local sort_var ""
     }
 }
@@ -144,8 +157,8 @@ display "  唯一键值组合数:  " %10.0fc `n_distinct'
 display "  重复组数:        " %10.0fc `=`n_total' - `n_distinct''
 
 local n_dup_groups = `n_total' - `n_distinct'
-display "SS_METRIC:n_distinct:`n_distinct'"
-display "SS_METRIC:n_dup_groups:`n_dup_groups'"
+display "SS_METRIC|name=n_distinct|value=`n_distinct'"
+display "SS_METRIC|name=n_dup_groups|value=`n_dup_groups'"
 
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
@@ -169,7 +182,7 @@ quietly count if _is_dup == 1
 local n_dup_obs = r(N)
 display ""
 display ">>> 重复记录数: `n_dup_obs'"
-display "SS_METRIC:n_dup_obs:`n_dup_obs'"
+display "SS_METRIC|name=n_dup_obs|value=`n_dup_obs'"
 
 * 创建统计摘要
 tempname summary

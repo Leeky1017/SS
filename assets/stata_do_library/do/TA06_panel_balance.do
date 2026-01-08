@@ -28,7 +28,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=log_close_failed|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -41,7 +44,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA06|level=L0|title=Panel_Balance"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_METRIC|name=task_version|value=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -80,28 +83,37 @@ if `min_periods' > 0 {
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA06|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 601
 }
 import delimited "data.csv", clear
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 
 * ============ 变量检查 ============
 capture confirm variable `id_var'
 if _rc {
-    display "SS_ERROR:ID_VAR_NOT_FOUND:`id_var' not found"
-    display "SS_ERR:ID_VAR_NOT_FOUND:`id_var' not found"
+    display "SS_RC|code=200|cmd=confirm variable `id_var'|msg=id_var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA06|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 200
 }
 
 capture confirm variable `time_var'
 if _rc {
-    display "SS_ERROR:TIME_VAR_NOT_FOUND:`time_var' not found"
-    display "SS_ERR:TIME_VAR_NOT_FOUND:`time_var' not found"
+    display "SS_RC|code=200|cmd=confirm variable `time_var'|msg=time_var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA06|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 200
 }
@@ -117,7 +129,54 @@ display "═══════════════════════�
 
 * 设置面板
 sort `id_var' `time_var'
-ss_smart_xtset `id_var' `time_var'
+capture confirm string variable `id_var'
+if !_rc {
+    capture drop _ss_panel_id
+    capture encode `id_var', generate(_ss_panel_id)
+    local rc = _rc
+    if `rc' != 0 {
+        display "SS_RC|code=`rc'|cmd=encode `id_var'|msg=id_encode_failed|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = round(r(t1))
+        display "SS_TASK_END|id=TA06|status=fail|elapsed_sec=`elapsed'"
+        log close
+        exit 200
+    }
+    local id_var "_ss_panel_id"
+}
+capture confirm string variable `time_var'
+if !_rc {
+    capture drop _ss_time_id
+    capture destring `time_var', generate(_ss_time_id) force
+    local rc = _rc
+    if `rc' != 0 {
+        display "SS_RC|code=`rc'|cmd=destring `time_var'|msg=time_destring_failed|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = round(r(t1))
+        display "SS_TASK_END|id=TA06|status=fail|elapsed_sec=`elapsed'"
+        log close
+        exit 200
+    }
+    local time_var "_ss_time_id"
+}
+capture duplicates drop `id_var' `time_var', force
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=duplicates drop `id_var' `time_var'|msg=dedup_failed|severity=warn"
+}
+capture xtset `id_var' `time_var'
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=xtset `id_var' `time_var'|msg=xtset_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA06|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 200
+}
 
 quietly xtdescribe
 local n_panels_before = r(n)
@@ -145,10 +204,10 @@ local is_balanced = (`min_t_before' == `max_t_before')
 if `is_balanced' {
     display ""
     display ">>> 面板已经是平衡面板，无需处理"
-    display "SS_WARNING:ALREADY_BALANCED:Panel is already balanced"
+    display "SS_RC|code=0|cmd=check_balance|msg=already_balanced|severity=warn"
 }
 
-display "SS_METRIC:n_panels_before:`n_panels_before'"
+display "SS_METRIC|name=n_panels_before|value=`n_panels_before'"
 
 * 统计每个个体的观测数
 tempvar n_obs_by_id
@@ -248,8 +307,8 @@ else {
     }
 }
 
-display "SS_METRIC:n_filled:`n_filled_obs'"
-display "SS_METRIC:n_dropped_panels:`n_dropped_panels'"
+display "SS_METRIC|name=n_filled|value=`n_filled_obs'"
+display "SS_METRIC|name=n_dropped_panels|value=`n_dropped_panels'"
 
 * ============ 平衡后面板结构分析 ============
 display ""
@@ -259,7 +318,22 @@ display "═══════════════════════�
 
 * 重新设置面板
 sort `id_var' `time_var'
-ss_smart_xtset `id_var' `time_var'
+capture duplicates drop `id_var' `time_var', force
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=duplicates drop `id_var' `time_var'|msg=dedup_failed|severity=warn"
+}
+capture xtset `id_var' `time_var'
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=xtset `id_var' `time_var'|msg=xtset_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA06|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 200
+}
 
 quietly xtdescribe
 local n_panels_after = r(n)
@@ -282,7 +356,7 @@ if `is_balanced_after' {
 else {
     display ""
     display ">>> 注意: 面板仍非完全平衡"
-    display "SS_WARNING:NOT_FULLY_BALANCED:Panel is not fully balanced after processing"
+    display "SS_RC|code=0|cmd=check_balance_after|msg=not_fully_balanced|severity=warn"
 }
 
 display "SS_METRIC|name=n_panels_after|value=`n_panels_after'"
@@ -327,7 +401,7 @@ restore
 * 导出数据
 drop `n_obs_by_id'
 local n_output = _N
-display "SS_METRIC:n_output:`n_output'"
+display "SS_METRIC|name=n_output|value=`n_output'"
 
 save "data_TA06_balanced.dta", replace
 display "SS_OUTPUT_FILE|file=data_TA06_balanced.dta|type=data|desc=balanced_data"

@@ -29,7 +29,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=log_close_failed|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -42,18 +45,18 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA09|level=L0|title=Quantile_Groups"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_METRIC|name=task_version|value=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
-local source_var = "__SOURCE_VAR__"
-local n_groups = __N_GROUPS__
-local method = "__METHOD__"
-local cutpoints = "__CUTPOINTS__"
-local by_var = "__BY_VAR__"
-local new_var = "__NEW_VAR__"
+local source_var "__SOURCE_VAR__"
+local n_groups __N_GROUPS__
+local method "__METHOD__"
+local cutpoints "__CUTPOINTS__"
+local by_var "__BY_VAR__"
+local new_var "__NEW_VAR__"
 
 * 参数默认值
 if `n_groups' <= 1 | `n_groups' > 100 {
@@ -83,20 +86,26 @@ display "    新变量: `new_var'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA09|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 601
 }
-import delimited "data.csv", clear
+import delimited "data.csv", clear varnames(1) encoding(utf8)
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 
 * ============ 变量检查 ============
 capture confirm numeric variable `source_var'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`source_var' not found or not numeric"
-    display "SS_ERR:VAR_NOT_FOUND:`source_var' not found or not numeric"
+    display "SS_RC|code=200|cmd=confirm numeric variable `source_var'|msg=source_var_not_numeric_or_missing|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA09|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 200
 }
@@ -104,7 +113,7 @@ if _rc {
 if "`by_var'" != "" {
     capture confirm variable `by_var'
     if _rc {
-        display "SS_WARNING:BY_VAR_NOT_FOUND:`by_var' not found, ignoring"
+        display "SS_RC|code=0|cmd=confirm variable `by_var'|msg=by_var_not_found_ignored|severity=warn"
         local by_var ""
     }
 }
@@ -183,8 +192,11 @@ else if "`method'" == "custom" {
     display ">>> 方法: 自定义断点分组"
     
     if "`cutpoints'" == "" {
-        display "SS_ERROR:NO_CUTPOINTS:No cutpoints provided for custom method"
-        display "SS_ERR:NO_CUTPOINTS:No cutpoints provided for custom method"
+        display "SS_RC|code=198|cmd=validate_cutpoints|msg=no_cutpoints_for_custom_method|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = round(r(t1))
+        display "SS_TASK_END|id=TA09|status=fail|elapsed_sec=`elapsed'"
         log close
         exit 198
     }
@@ -217,7 +229,7 @@ else if "`method'" == "custom" {
 
 display ""
 display ">>> 生成分组变量: `new_var'"
-display "SS_METRIC:n_groups:`n_groups'"
+display "SS_METRIC|name=n_groups|value=`n_groups'"
 
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 

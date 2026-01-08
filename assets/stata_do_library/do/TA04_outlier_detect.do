@@ -29,7 +29,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=log_close_failed|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -42,7 +45,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TA04|level=L0|title=Outlier_Detect"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_METRIC|name=task_version|value=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -84,14 +87,17 @@ display "    处理方式: `action'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA04|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 601
 }
 import delimited "data.csv", clear
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 
 * 生成行号用于追踪
 generate long _row_id = _n
@@ -103,7 +109,7 @@ foreach var of local check_vars {
     capture confirm numeric variable `var'
     if _rc {
         display ">>> 警告: `var' 不存在或非数值，跳过"
-        display "SS_WARNING:VAR_INVALID:`var' is not valid"
+        display "SS_RC|code=0|cmd=confirm numeric variable `var'|msg=check_var_invalid_skipped|severity=warn"
     }
     else {
         local valid_vars "`valid_vars' `var'"
@@ -111,8 +117,11 @@ foreach var of local check_vars {
 }
 
 if "`valid_vars'" == "" {
-    display "SS_ERROR:NO_VALID_VARS:No valid numeric variables to check"
-    display "SS_ERR:NO_VALID_VARS:No valid numeric variables to check"
+    display "SS_RC|code=200|cmd=validate_check_vars|msg=no_valid_numeric_vars|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = round(r(t1))
+    display "SS_TASK_END|id=TA04|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 200
 }
@@ -121,7 +130,7 @@ if "`valid_vars'" == "" {
 if "`id_var'" != "" {
     capture confirm variable `id_var'
     if _rc {
-        display "SS_WARNING:ID_VAR_NOT_FOUND:`id_var' not found, using row_id"
+        display "SS_RC|code=0|cmd=confirm variable `id_var'|msg=id_var_not_found_using_row_id|severity=warn"
         local id_var "_row_id"
     }
 }
@@ -239,7 +248,7 @@ postclose `details'
 
 display ""
 display ">>> 总异常值数量: `total_outliers'"
-display "SS_METRIC:n_outliers:`total_outliers'"
+display "SS_METRIC|name=n_outliers|value=`total_outliers'"
 
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
@@ -308,7 +317,7 @@ else if "`action'" == "replace" {
     display ">>> 总替换数: `n_replaced'"
 }
 
-display "SS_METRIC:n_dropped:`n_dropped'"
+display "SS_METRIC|name=n_dropped|value=`n_dropped'"
 
 * ============ 输出结果 ============
 display ""
@@ -344,9 +353,15 @@ display "SS_OUTPUT_FILE|file=data_TA04_cleaned.csv|type=data|desc=cleaned_csv"
 
 * 清理临时文件
 capture erase "temp_outlier_summary.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 & `rc' != 601 {
+    display "SS_RC|code=`rc'|cmd=erase temp_outlier_summary.dta|msg=cleanup_failed|severity=warn"
+}
 capture erase "temp_outlier_details.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 & `rc' != 601 {
+    display "SS_RC|code=`rc'|cmd=erase temp_outlier_details.dta|msg=cleanup_failed|severity=warn"
+}
 
 * ============ 任务完成摘要 ============
 display ""
