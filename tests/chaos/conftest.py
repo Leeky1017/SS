@@ -4,13 +4,15 @@ import errno
 from collections.abc import Callable
 from pathlib import Path
 
+import httpx
 import pytest
-from fastapi.testclient import TestClient
 
 from src.api import deps
 from src.domain.job_query_service import JobQueryService
 from src.main import create_app
 from src.utils.job_workspace import resolve_job_dir
+from tests.asgi_client import asgi_client
+from tests.async_overrides import async_override
 
 
 @pytest.fixture
@@ -31,12 +33,15 @@ def job_dir_for(jobs_dir: Path) -> Callable[[str], Path]:
 @pytest.fixture
 def app(job_service, draft_service, store):
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(store=store)
-    app.dependency_overrides[deps.get_draft_service] = lambda: draft_service
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_job_query_service] = async_override(
+        JobQueryService(store=store)
+    )
+    app.dependency_overrides[deps.get_draft_service] = async_override(draft_service)
     return app
 
 
 @pytest.fixture
-def client(app) -> TestClient:
-    return TestClient(app)
+async def client(app) -> httpx.AsyncClient:
+    async with asgi_client(app=app) as client:
+        yield client

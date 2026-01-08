@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi.testclient import TestClient
+import pytest
 
 from src.api import deps
 from src.config import Config
 from src.domain.llm_client import StubLLMClient
 from src.main import create_app
+from tests.asgi_client import asgi_client
+from tests.async_overrides import async_override
 
 
 def _test_config(*, jobs_dir: Path, queue_dir: Path) -> Config:
@@ -34,11 +36,12 @@ def _test_config(*, jobs_dir: Path, queue_dir: Path) -> Config:
     )
 
 
-def test_health_live_always_ok_returns_200():
+@pytest.mark.anyio
+async def test_health_live_always_ok_returns_200():
     app = create_app()
-    client = TestClient(app)
 
-    response = client.get("/health/live")
+    async with asgi_client(app=app) as client:
+        response = await client.get("/health/live")
 
     assert response.status_code == 200
     payload = response.json()
@@ -46,18 +49,19 @@ def test_health_live_always_ok_returns_200():
     assert payload["checks"]["process"]["ok"] is True
 
 
-def test_health_ready_with_writable_dirs_returns_200(tmp_path: Path):
+@pytest.mark.anyio
+async def test_health_ready_with_writable_dirs_returns_200(tmp_path: Path):
     jobs_dir = tmp_path / "jobs"
     queue_dir = tmp_path / "queue"
 
     app = create_app()
-    app.dependency_overrides[deps.get_config] = lambda: _test_config(
-        jobs_dir=jobs_dir, queue_dir=queue_dir
+    app.dependency_overrides[deps.get_config] = async_override(
+        _test_config(jobs_dir=jobs_dir, queue_dir=queue_dir)
     )
-    app.dependency_overrides[deps.get_llm_client] = lambda: StubLLMClient()
-    client = TestClient(app)
+    app.dependency_overrides[deps.get_llm_client] = async_override(StubLLMClient())
 
-    response = client.get("/health/ready")
+    async with asgi_client(app=app) as client:
+        response = await client.get("/health/ready")
 
     assert response.status_code == 200
     payload = response.json()
@@ -66,19 +70,20 @@ def test_health_ready_with_writable_dirs_returns_200(tmp_path: Path):
     assert payload["checks"]["queue_dir"]["ok"] is True
 
 
-def test_health_ready_with_unwritable_jobs_dir_returns_503(tmp_path: Path):
+@pytest.mark.anyio
+async def test_health_ready_with_unwritable_jobs_dir_returns_503(tmp_path: Path):
     jobs_dir = tmp_path / "jobs_file"
     jobs_dir.write_text("not a directory", encoding="utf-8")
     queue_dir = tmp_path / "queue"
 
     app = create_app()
-    app.dependency_overrides[deps.get_config] = lambda: _test_config(
-        jobs_dir=jobs_dir, queue_dir=queue_dir
+    app.dependency_overrides[deps.get_config] = async_override(
+        _test_config(jobs_dir=jobs_dir, queue_dir=queue_dir)
     )
-    app.dependency_overrides[deps.get_llm_client] = lambda: StubLLMClient()
-    client = TestClient(app)
+    app.dependency_overrides[deps.get_llm_client] = async_override(StubLLMClient())
 
-    response = client.get("/health/ready")
+    async with asgi_client(app=app) as client:
+        response = await client.get("/health/ready")
 
     assert response.status_code == 503
     payload = response.json()

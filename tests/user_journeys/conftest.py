@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Callable, Iterator
+from collections.abc import AsyncIterator, Callable, Iterator
 from pathlib import Path
 
+import httpx
 import pytest
 from fastapi import FastAPI
-from fastapi.testclient import TestClient
 
 from src.api import deps
 from src.domain.artifacts_service import ArtifactsService
@@ -27,6 +27,8 @@ from src.infra.llm_tracing import TracedLLMClient
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.main import create_app
 from src.utils.job_workspace import resolve_job_dir
+from tests.asgi_client import asgi_client
+from tests.async_overrides import async_override
 
 
 @pytest.fixture
@@ -175,15 +177,15 @@ def journey_app(
     journey_job_query_service: JobQueryService,
 ) -> Iterator[FastAPI]:
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: journey_job_service
-    app.dependency_overrides[deps.get_job_query_service] = lambda: journey_job_query_service
-    app.dependency_overrides[deps.get_draft_service] = lambda: journey_draft_service
-    app.dependency_overrides[deps.get_artifacts_service] = lambda: journey_artifacts_service
-    app.dependency_overrides[deps.get_plan_service] = lambda: journey_plan_service
+    app.dependency_overrides[deps.get_job_service] = async_override(journey_job_service)
+    app.dependency_overrides[deps.get_job_query_service] = async_override(journey_job_query_service)
+    app.dependency_overrides[deps.get_draft_service] = async_override(journey_draft_service)
+    app.dependency_overrides[deps.get_artifacts_service] = async_override(journey_artifacts_service)
+    app.dependency_overrides[deps.get_plan_service] = async_override(journey_plan_service)
     yield app
 
 
 @pytest.fixture
-def journey_client(journey_app: FastAPI) -> Iterator[TestClient]:
-    with TestClient(journey_app) as client:
+async def journey_client(journey_app: FastAPI) -> AsyncIterator[httpx.AsyncClient]:
+    async with asgi_client(app=journey_app) as client:
         yield client

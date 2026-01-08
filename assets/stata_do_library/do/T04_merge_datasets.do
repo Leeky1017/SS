@@ -28,7 +28,9 @@
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * No log to close - expected
+}
 clear all
 set more off
 version 18
@@ -42,7 +44,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T04|level=L1|title=Merge_Datasets_Horizontal"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -71,14 +73,18 @@ local using_file "data_using.dta"
 capture confirm file "`using_file'"
 if _rc {
     capture confirm file "data_using.csv"
-    if _rc {
-        display as error "ERROR: No data_using.dta or data_using.csv found in job directory."
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
-    }
+	    if _rc {
+	        display as error "ERROR: No data_using.dta or data_using.csv found in job directory."
+	        display "SS_RC|code=200|cmd=confirm file|msg=using_data_not_found|severity=fail"
+	        timer off 1
+	        quietly timer list 1
+	        local elapsed = r(t1)
+	        display "SS_METRIC|name=task_success|value=0"
+	        display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+	        display "SS_TASK_END|id=T04|status=fail|elapsed_sec=`elapsed'"
+	        log close
+	        exit 200
+	    }
     import delimited "data_using.csv", clear varnames(1) encoding(utf8)
     save "`using_file'", replace
     display "SS_OUTPUT_FILE|file=`using_file'|type=data|desc=converted_from_csv"
@@ -104,14 +110,18 @@ display "-----------------------------------------------------------------------
 
 foreach key of local merge_keys {
     capture confirm variable `key'
-    if _rc {
-        display as error "ERROR: Merge key `key' not found in using dataset"
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
-    }
+	    if _rc {
+	        display as error "ERROR: Merge key `key' not found in using dataset"
+	        display "SS_RC|code=111|cmd=confirm variable|msg=merge_key_missing_in_using|severity=fail"
+	        timer off 1
+	        quietly timer list 1
+	        local elapsed = r(t1)
+	        display "SS_METRIC|name=task_success|value=0"
+	        display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+	        display "SS_TASK_END|id=T04|status=fail|elapsed_sec=`elapsed'"
+	        log close
+	        exit 111
+	    }
 }
 display ">>> 合并键存在 ✓"
 
@@ -168,14 +178,18 @@ local datafile "data.dta"
 capture confirm file "`datafile'"
 if _rc {
     capture confirm file "data.csv"
-    if _rc {
-        display as error "ERROR: No data.dta or data.csv found in job directory."
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
-    }
+	if _rc {
+	    display as error "ERROR: No data.dta or data.csv found in job directory."
+	    display "SS_RC|code=601|cmd=confirm file|msg=master_data_not_found|severity=fail"
+	    timer off 1
+	    quietly timer list 1
+	    local elapsed = r(t1)
+	    display "SS_METRIC|name=task_success|value=0"
+	    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+	    display "SS_TASK_END|id=T04|status=fail|elapsed_sec=`elapsed'"
+	    log close
+	    exit 601
+	}
     import delimited "data.csv", clear varnames(1) encoding(utf8)
     save "`datafile'", replace
     display "SS_OUTPUT_FILE|file=`datafile'|type=data|desc=converted_from_csv"
@@ -200,14 +214,18 @@ display "-----------------------------------------------------------------------
 
 foreach key of local merge_keys {
     capture confirm variable `key'
-    if _rc {
-        display as error "ERROR: Merge key `key' not found in master dataset"
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
-    }
+	if _rc {
+	    display as error "ERROR: Merge key `key' not found in master dataset"
+	    display "SS_RC|code=111|cmd=confirm variable|msg=merge_key_missing_in_master|severity=fail"
+	    timer off 1
+	    quietly timer list 1
+	    local elapsed = r(t1)
+	    display "SS_METRIC|name=task_success|value=0"
+	    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+	    display "SS_TASK_END|id=T04|status=fail|elapsed_sec=`elapsed'"
+	    log close
+	    exit 111
+	}
 }
 display ">>> 合并键存在 ✓"
 
@@ -332,8 +350,8 @@ display "{hline 60}"
 display ""
 display ">>> 5.3 匹配率分析"
 display "-------------------------------------------------------------------------------"
-display "主数据集匹配率:     " %6.1f `match_rate_master' "% (" %0.0fc `n_matched' "/" %0.0fc `n_master' ")"
-display "辅助数据集匹配率:   " %6.1f `match_rate_using' "% (" %0.0fc `n_matched' "/" %0.0fc `n_using' ")"
+display "主数据集匹配率:     " %6.1f `match_rate_master' "% (" %10.0fc `n_matched' "/" %10.0fc `n_master' ")"
+display "辅助数据集匹配率:   " %6.1f `match_rate_using' "% (" %10.0fc `n_matched' "/" %10.0fc `n_using' ")"
 
 * 匹配率警告
 if `match_rate_master' < 80 {
@@ -395,7 +413,7 @@ local n_after_keep = _N
 local n_dropped_keep = `n_before_keep' - `n_after_keep'
 
 if `n_dropped_keep' > 0 {
-    display ">>> 根据保留策略剔除: " %0.0fc `n_dropped_keep' " 条"
+    display ">>> 根据保留策略剔除: " %10.0fc `n_dropped_keep' " 条"
 }
 
 * 生成合并来源标记（可选保留）

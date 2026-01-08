@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from fastapi.testclient import TestClient
+import pytest
 
 from src.api import deps
 from src.domain.draft_service import DraftService
@@ -14,9 +14,12 @@ from src.infra.job_store import JobStore
 from src.infra.llm_failover import FailoverLLMClient
 from src.infra.llm_tracing import TracedLLMClient
 from src.main import create_app
+from tests.asgi_client import asgi_client
+from tests.async_overrides import async_override
 
 
-def test_draft_preview_when_llm_times_out_uses_fallback(
+@pytest.mark.anyio
+async def test_draft_preview_when_llm_times_out_uses_fallback(
     job_service,
     store: JobStore,
     jobs_dir,
@@ -46,14 +49,14 @@ def test_draft_preview_when_llm_times_out_uses_fallback(
     draft_service = DraftService(store=store, llm=llm, state_machine=state_machine)
 
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = lambda: job_service
-    app.dependency_overrides[deps.get_draft_service] = lambda: draft_service
-    client = TestClient(app)
+    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
+    app.dependency_overrides[deps.get_draft_service] = async_override(draft_service)
 
     job = job_service.create_job(requirement="hello")
 
     with caplog.at_level(logging.INFO):
-        response = client.get(f"/v1/jobs/{job.job_id}/draft/preview")
+        async with asgi_client(app=app) as client:
+            response = await client.get(f"/v1/jobs/{job.job_id}/draft/preview")
 
     assert response.status_code == 200
     assert response.json()["draft_text"].startswith("[stub-draft:")
@@ -61,4 +64,3 @@ def test_draft_preview_when_llm_times_out_uses_fallback(
     failover_records = [r for r in caplog.records if r.msg == "SS_LLM_FAILOVER_USED"]
     assert len(failover_records) == 1
     assert failover_records[0].job_id == job.job_id
-

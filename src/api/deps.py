@@ -30,11 +30,17 @@ from src.utils.tenancy import DEFAULT_TENANT_ID, is_safe_tenant_id
 
 
 @lru_cache
-def get_config() -> Config:
+def _config_cached() -> Config:
     return load_config()
 
 
-def get_tenant_id(x_ss_tenant_id: str | None = Header(default=None, alias="X-SS-Tenant-ID")) -> str:
+async def get_config() -> Config:
+    return _config_cached()
+
+
+async def get_tenant_id(
+    x_ss_tenant_id: str | None = Header(default=None, alias="X-SS-Tenant-ID"),
+) -> str:
     if x_ss_tenant_id is None:
         return DEFAULT_TENANT_ID
     tenant_id = x_ss_tenant_id.strip()
@@ -46,13 +52,17 @@ def get_tenant_id(x_ss_tenant_id: str | None = Header(default=None, alias="X-SS-
 
 
 @lru_cache
-def get_job_store() -> JobStore:
-    return build_job_store(config=get_config())
+def _job_store_cached() -> JobStore:
+    return build_job_store(config=_config_cached())
+
+
+async def get_job_store() -> JobStore:
+    return _job_store_cached()
 
 
 @lru_cache
-def get_worker_queue() -> FileWorkerQueue:
-    config = get_config()
+def _worker_queue_cached() -> FileWorkerQueue:
+    config = _config_cached()
     return FileWorkerQueue(
         queue_dir=config.queue_dir,
         lease_ttl_seconds=config.queue_lease_ttl_seconds,
@@ -60,8 +70,8 @@ def get_worker_queue() -> FileWorkerQueue:
 
 
 @lru_cache
-def get_llm_client() -> LLMClient:
-    config = get_config()
+def _llm_client_cached() -> LLMClient:
+    config = _config_cached()
     return TracedLLMClient(
         inner=StubLLMClient(),
         jobs_dir=config.jobs_dir,
@@ -76,74 +86,145 @@ def get_llm_client() -> LLMClient:
 
 
 @lru_cache
-def get_job_state_machine() -> JobStateMachine:
+def _job_state_machine_cached() -> JobStateMachine:
     return JobStateMachine()
 
 
 @lru_cache
-def get_job_idempotency() -> JobIdempotency:
+def _job_idempotency_cached() -> JobIdempotency:
     return JobIdempotency()
 
 
 @lru_cache
-def get_metrics() -> PrometheusMetrics:
+def _metrics_cached() -> PrometheusMetrics:
     return PrometheusMetrics()
 
 
-def get_runtime_metrics() -> RuntimeMetrics:
-    return get_metrics()
+def get_metrics_sync() -> PrometheusMetrics:
+    return _metrics_cached()
 
 
 @lru_cache
-def get_audit_logger() -> AuditLogger:
+def _audit_logger_cached() -> AuditLogger:
     return LoggingAuditLogger()
 
 
-def get_job_scheduler() -> JobScheduler:
-    return QueueJobScheduler(queue=get_worker_queue())
+@lru_cache
+def _job_scheduler_cached() -> JobScheduler:
+    return QueueJobScheduler(queue=_worker_queue_cached())
 
 
-def get_job_service(audit_ctx: AuditContext = Depends(get_audit_context)) -> JobService:
+async def get_worker_queue() -> FileWorkerQueue:
+    return _worker_queue_cached()
+
+
+async def get_llm_client() -> LLMClient:
+    return _llm_client_cached()
+
+
+async def get_job_state_machine() -> JobStateMachine:
+    return _job_state_machine_cached()
+
+
+async def get_job_idempotency() -> JobIdempotency:
+    return _job_idempotency_cached()
+
+
+async def get_metrics() -> PrometheusMetrics:
+    return _metrics_cached()
+
+
+async def get_runtime_metrics() -> RuntimeMetrics:
+    return _metrics_cached()
+
+
+async def get_audit_logger() -> AuditLogger:
+    return _audit_logger_cached()
+
+
+async def get_job_scheduler() -> JobScheduler:
+    return _job_scheduler_cached()
+
+
+async def get_job_service(audit_ctx: AuditContext = Depends(get_audit_context)) -> JobService:
     return JobService(
-        store=get_job_store(),
-        scheduler=get_job_scheduler(),
-        plan_service=get_plan_service(),
-        state_machine=get_job_state_machine(),
-        idempotency=get_job_idempotency(),
-        metrics=get_runtime_metrics(),
-        audit=get_audit_logger(),
+        store=_job_store_cached(),
+        scheduler=_job_scheduler_cached(),
+        plan_service=_plan_service_cached(),
+        state_machine=_job_state_machine_cached(),
+        idempotency=_job_idempotency_cached(),
+        metrics=_metrics_cached(),
+        audit=_audit_logger_cached(),
         audit_context=audit_ctx,
     )
 
 
 @lru_cache
-def get_artifacts_service() -> ArtifactsService:
-    return ArtifactsService(store=get_job_store(), jobs_dir=get_config().jobs_dir)
+def _artifacts_service_cached() -> ArtifactsService:
+    config = _config_cached()
+    return ArtifactsService(store=_job_store_cached(), jobs_dir=config.jobs_dir)
 
 
-def get_draft_service() -> DraftService:
+async def get_artifacts_service() -> ArtifactsService:
+    return _artifacts_service_cached()
+
+
+async def get_draft_service() -> DraftService:
     return DraftService(
-        store=get_job_store(),
-        llm=get_llm_client(),
-        state_machine=get_job_state_machine(),
+        store=_job_store_cached(),
+        llm=_llm_client_cached(),
+        state_machine=_job_state_machine_cached(),
     )
 
 
 @lru_cache
-def get_job_workspace_store() -> JobWorkspaceStore:
-    return FileJobWorkspaceStore(jobs_dir=get_config().jobs_dir)
+def _job_workspace_store_cached() -> JobWorkspaceStore:
+    return FileJobWorkspaceStore(jobs_dir=_config_cached().jobs_dir)
 
 
 @lru_cache
-def get_job_inputs_service() -> JobInputsService:
-    return JobInputsService(store=get_job_store(), workspace=get_job_workspace_store())
+def _job_inputs_service_cached() -> JobInputsService:
+    return JobInputsService(store=_job_store_cached(), workspace=_job_workspace_store_cached())
 
 
 @lru_cache
-def get_job_query_service() -> JobQueryService:
-    return JobQueryService(store=get_job_store())
+def _job_query_service_cached() -> JobQueryService:
+    return JobQueryService(store=_job_store_cached())
 
 
 @lru_cache
-def get_plan_service() -> PlanService:
-    return PlanService(store=get_job_store(), workspace=get_job_workspace_store())
+def _plan_service_cached() -> PlanService:
+    return PlanService(store=_job_store_cached(), workspace=_job_workspace_store_cached())
+
+
+async def get_job_workspace_store() -> JobWorkspaceStore:
+    return _job_workspace_store_cached()
+
+
+async def get_job_inputs_service() -> JobInputsService:
+    return _job_inputs_service_cached()
+
+
+async def get_job_query_service() -> JobQueryService:
+    return _job_query_service_cached()
+
+
+async def get_plan_service() -> PlanService:
+    return _plan_service_cached()
+
+
+def clear_dependency_caches() -> None:
+    _config_cached.cache_clear()
+    _job_store_cached.cache_clear()
+    _worker_queue_cached.cache_clear()
+    _llm_client_cached.cache_clear()
+    _job_state_machine_cached.cache_clear()
+    _job_idempotency_cached.cache_clear()
+    _metrics_cached.cache_clear()
+    _audit_logger_cached.cache_clear()
+    _job_scheduler_cached.cache_clear()
+    _artifacts_service_cached.cache_clear()
+    _job_workspace_store_cached.cache_clear()
+    _job_inputs_service_cached.cache_clear()
+    _job_query_service_cached.cache_clear()
+    _plan_service_cached.cache_clear()

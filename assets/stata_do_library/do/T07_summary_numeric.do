@@ -25,7 +25,9 @@
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * No log to close - expected
+}
 clear all
 set more off
 version 18
@@ -39,7 +41,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T07|level=L0|title=Numeric_Summary_Statistics"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -59,19 +61,23 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 local datafile "data.dta"
 
 capture confirm file "`datafile'"
-if _rc {
-    capture confirm file "data.csv"
-    if _rc {
-        display as error "ERROR: No data.dta or data.csv found in job directory."
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
-    }
-    import delimited "data.csv", clear varnames(1) encoding(utf8)
+	if _rc {
+	    capture confirm file "data.csv"
+	    if _rc {
+	        display as error "ERROR: No data.dta or data.csv found in job directory."
+	        display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
+	        timer off 1
+	        quietly timer list 1
+	        local elapsed = r(t1)
+	        display "SS_METRIC|name=task_success|value=0"
+	        display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+	        display "SS_TASK_END|id=T07|status=fail|elapsed_sec=`elapsed'"
+	        log close
+	        exit 601
+	    }
+	    import delimited "data.csv", clear varnames(1) encoding(utf8)
     save "`datafile'", replace
-display "SS_OUTPUT_FILE|file=`datafile'|type=table|desc=output"
+    display "SS_OUTPUT_FILE|file=`datafile'|type=data|desc=converted_from_csv"
     display ">>> 已从 data.csv 转换并保存为 data.dta"
 }
 else {
@@ -117,11 +123,15 @@ foreach var of local required_vars {
 
 if "`valid_vars'" == "" {
     display as error "ERROR: No valid numeric variables found"
+    display "SS_RC|code=111|cmd=confirm variable|msg=no_valid_numeric_vars|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T07|status=fail|elapsed_sec=`elapsed'"
     log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    exit 111
 }
 
 local analysis_vars "`valid_vars'"
@@ -263,105 +273,45 @@ display "═══════════════════════�
 display ""
 display ">>> 6.1 导出标准描述统计表: table_T07_desc_stats.csv"
 
-preserve
-clear
-
-* 计算变量数
 local n_vars: word count `analysis_vars'
-set obs `n_vars'
 
-* 创建变量
-generate str32 variable = ""
-generate long n = .
-generate double mean = .
-generate double sd = .
-generate double min = .
-generate double p25 = .
-generate double p50 = .
-generate double p75 = .
-generate double max = .
-
-* 填充数据
-local i = 1
+tempfile table1_data
+tempname table1_post
+postfile `table1_post' str32 variable long n double mean sd min p25 p50 p75 max using `table1_data', replace
 foreach var of local analysis_vars {
-    quietly replace variable = "`var'" in `i'
-    
-    * 获取统计量
     quietly summarize `var', detail
-    quietly replace n = r(N) in `i'
-    quietly replace mean = r(mean) in `i'
-    quietly replace sd = r(sd) in `i'
-    quietly replace min = r(min) in `i'
-    quietly replace p25 = r(p25) in `i'
-    quietly replace p50 = r(p50) in `i'
-    quietly replace p75 = r(p75) in `i'
-    quietly replace max = r(max) in `i'
-    
-    local i = `i' + 1
+    post `table1_post' ("`var'") (r(N)) (r(mean)) (r(sd)) (r(min)) (r(p25)) (r(p50)) (r(p75)) (r(max))
 }
+postclose `table1_post'
 
+preserve
+use `table1_data', clear
 export delimited using "table_T07_desc_stats.csv", replace
-display "SS_OUTPUT_FILE|file=table_T07_desc_stats.csv|type=table|desc=descriptive_statistics_table1"
-display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
-display ">>> 标准描述统计表已导出"
 restore
+display "SS_OUTPUT_FILE|file=table_T07_desc_stats.csv|type=table|desc=descriptive_statistics_table1"
+display ">>> 标准描述统计表已导出"
 
 * 6.2 导出扩展统计表
 display ""
 display ">>> 6.2 导出扩展统计表: table_T07_desc_extended.csv"
 
-preserve
-clear
-
-set obs `n_vars'
-
-generate str32 variable = ""
-generate long n = .
-generate double mean = .
-generate double sd = .
-generate double min = .
-generate double p1 = .
-generate double p5 = .
-generate double p10 = .
-generate double p25 = .
-generate double p50 = .
-generate double p75 = .
-generate double p90 = .
-generate double p95 = .
-generate double p99 = .
-generate double max = .
-generate double skewness = .
-generate double kurtosis = .
-
-local i = 1
+tempfile extended_data
+tempname extended_post
+postfile `extended_post' str32 variable long n double mean sd min p1 p5 p10 p25 p50 p75 p90 p95 p99 max skewness kurtosis using `extended_data', replace
 foreach var of local analysis_vars {
-    quietly replace variable = "`var'" in `i'
-    
     quietly summarize `var', detail
-    quietly replace n = r(N) in `i'
-    quietly replace mean = r(mean) in `i'
-    quietly replace sd = r(sd) in `i'
-    quietly replace min = r(min) in `i'
-    quietly replace p1 = r(p1) in `i'
-    quietly replace p5 = r(p5) in `i'
-    quietly replace p10 = r(p10) in `i'
-    quietly replace p25 = r(p25) in `i'
-    quietly replace p50 = r(p50) in `i'
-    quietly replace p75 = r(p75) in `i'
-    quietly replace p90 = r(p90) in `i'
-    quietly replace p95 = r(p95) in `i'
-    quietly replace p99 = r(p99) in `i'
-    quietly replace max = r(max) in `i'
-    quietly replace skewness = r(skewness) in `i'
-    quietly replace kurtosis = r(kurtosis) in `i'
-    
-    local i = `i' + 1
+    post `extended_post' ("`var'") (r(N)) (r(mean)) (r(sd)) (r(min)) (r(p1)) (r(p5)) (r(p10)) (r(p25)) (r(p50)) (r(p75)) (r(p90)) (r(p95)) (r(p99)) (r(max)) (r(skewness)) (r(kurtosis))
 }
+postclose `extended_post'
 
+preserve
+use `extended_data', clear
 export delimited using "table_T07_desc_extended.csv", replace
+restore
 display "SS_OUTPUT_FILE|file=table_T07_desc_extended.csv|type=table|desc=extended_statistics"
 display ">>> 扩展统计表已导出"
-restore
+
+display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 * ==============================================================================
 * SECTION 7: 任务完成摘要

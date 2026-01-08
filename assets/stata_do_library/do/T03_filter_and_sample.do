@@ -32,7 +32,9 @@
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * No log to close - expected
+}
 clear all
 set more off
 version 18
@@ -46,7 +48,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T03|level=L0|title=Data_Filtering_and_Sampling"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -82,7 +84,7 @@ if _rc {
     }
     import delimited "data.csv", clear varnames(1) encoding(utf8)
     save "`datafile'", replace
-display "SS_OUTPUT_FILE|file=`datafile'|type=table|desc=output"
+    display "SS_OUTPUT_FILE|file=`datafile'|type=data|desc=converted_from_csv"
     display ">>> 已从 data.csv 转换并保存为 data.dta"
 }
 else {
@@ -166,10 +168,14 @@ if _rc {
     display as error "ERROR: 筛选条件无效或涉及不存在的变量"
     display as error "条件: `filter_cond'"
     display as error "请检查变量名和条件语法"
+    display "SS_RC|code=200|cmd=count if|msg=filter_condition_invalid|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T03|status=fail|elapsed_sec=`elapsed'"
     log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
     exit 200
 }
 
@@ -198,10 +204,14 @@ if `n_match' < 100 {
 if `n_match' == 0 {
     display ""
     display as error "ERROR: 筛选后样本量为0，请检查筛选条件"
+    display "SS_RC|code=200|cmd=keep if|msg=filter_no_rows_retained|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T03|status=fail|elapsed_sec=`elapsed'"
     log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
     exit 200
 }
 
@@ -337,19 +347,28 @@ display "═══════════════════════�
 display "SECTION 6: 随机抽样"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 设置随机种子以保证可重复性
-local seed_val = __RANDOM_SEED__
-if `seed_val' > 0 {
-    set seed `seed_val'
-    display ">>> 随机种子: `seed_val'"
+* 设置随机种子以保证可重复性（可选参数，缺省为 12345）
+local seed_token "__RANDOM_SEED__"
+local seed_val 12345
+if "`seed_token'" != "" {
+    capture confirm number `seed_token'
+    if _rc == 0 {
+        local seed_val `seed_token'
+    }
 }
-else {
-    set seed 12345
-    display ">>> 使用默认随机种子: 12345"
-}
+set seed `seed_val'
+display ">>> 随机种子: `seed_val'"
+display "SS_METRIC|name=seed|value=`seed_val'"
 
-* 抽样参数
-local sample_param = __SAMPLE_FRACTION__
+* 抽样参数（可选，缺省为 0=不抽样）
+local sample_token "__SAMPLE_FRACTION__"
+local sample_param 0
+if "`sample_token'" != "" {
+    capture confirm number `sample_token'
+    if _rc == 0 {
+        local sample_param `sample_token'
+    }
+}
 local n_before_sample = _N
 
 if `sample_param' > 0 & `sample_param' < 1 {

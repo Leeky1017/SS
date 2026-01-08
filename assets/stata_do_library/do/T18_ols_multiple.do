@@ -7,11 +7,10 @@
 *   - table_T18_reg_result.csv type=table desc="Regression results summary"
 *   - table_T18_vif.csv type=table desc="VIF multicollinearity test"
 *   - fig_T18_residuals.png type=graph desc="Residual diagnostics plot"
-*   - table_T18_paper.rtf type=table desc="Publication-quality table"
+*   - table_T18_paper.rtf type=report desc="Publication-ready regression table"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - stata source=built-in purpose="core regression commands"
-*   - estout source=ssc purpose="publication-quality tables (optional)"
 * ==============================================================================
 * Task ID:      T18_ols_multiple
 * Task Name:    多元线性回归（Multiple OLS）
@@ -29,7 +28,9 @@
 * SECTION 0: 环境初始化与标准化数据加载
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * No log to close - expected
+}
 clear all
 set more off
 version 18
@@ -43,22 +44,10 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=T18|level=L0|title=Multiple_OLS_Regression"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
-
-* 检查 esttab (可选依赖，用于论文级表格)
-local has_esttab = 0
-capture which esttab
-if _rc {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=missing"
-    display ">>> estout 未安装，将使用基础 CSV 导出"
-} 
-else {
-    display "SS_DEP_CHECK|pkg=estout|source=ssc|status=ok"
-    local has_esttab = 1
-}
 
 
 display ""
@@ -77,17 +66,21 @@ local datafile "data.dta"
 capture confirm file "`datafile'"
 if _rc {
     capture confirm file "data.csv"
-    if _rc {
-        display as error "ERROR: No data.dta or data.csv found in job directory."
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
-    }
+	    if _rc {
+	        display as error "ERROR: No data.dta or data.csv found in job directory."
+	        display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
+	        timer off 1
+	        quietly timer list 1
+	        local elapsed = r(t1)
+	        display "SS_METRIC|name=task_success|value=0"
+	        display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+	        display "SS_TASK_END|id=T18|status=fail|elapsed_sec=`elapsed'"
+	        log close
+	        exit 601
+	    }
     import delimited "data.csv", clear varnames(1) encoding(utf8)
     save "`datafile'", replace
-display "SS_OUTPUT_FILE|file=`datafile'|type=table|desc=output"
+    display "SS_OUTPUT_FILE|file=`datafile'|type=data|desc=converted_from_csv"
     display ">>> 已从 data.csv 转换并保存为 data.dta"
 }
 else {
@@ -115,24 +108,32 @@ local indep_vars "__INDEPVARS__"
 capture confirm variable `dep_var'
 if _rc {
     display as error "ERROR: Dependent variable `dep_var' not found"
+    display "SS_RC|code=111|cmd=confirm variable|msg=dep_var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=T18|status=fail|elapsed_sec=`elapsed'"
     log close
-    display "SS_ERROR:200:Task failed with error code 200"
-    display "SS_ERR:200:Task failed with error code 200"
-
-    exit 200
+    exit 111
 }
 
 foreach var of varlist `indep_vars' {
     capture confirm variable `var'
-    if _rc {
-        display as error "ERROR: Independent variable `var' not found"
-        log close
-        display "SS_ERROR:200:Task failed with error code 200"
-        display "SS_ERR:200:Task failed with error code 200"
-
-        exit 200
-    }
-}
+	    if _rc {
+	        display as error "ERROR: Independent variable `var' not found"
+	        display "SS_RC|code=111|cmd=confirm variable|msg=indep_var_not_found|severity=fail"
+	        timer off 1
+	        quietly timer list 1
+	        local elapsed = r(t1)
+	        display "SS_METRIC|name=task_success|value=0"
+	        display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+	        display "SS_TASK_END|id=T18|status=fail|elapsed_sec=`elapsed'"
+	        log close
+	        exit 111
+	    }
+	}
 
 display ""
 display ">>> 因变量 (Y):  `dep_var'"
@@ -212,21 +213,28 @@ display "═══════════════════════�
 
 display ""
 quietly regress `dep_var' `indep_vars'
-estat vif
-
-* 保存VIF结果
-matrix vif_mat = r(vif)
-local mean_vif = 0
-local max_vif = 0
-local n_vars = rowsof(vif_mat)
-forvalues i = 1/`n_vars' {
-    local v = vif_mat[`i', 1]
-    local mean_vif = `mean_vif' + `v'
-    if `v' > `max_vif' {
-        local max_vif = `v'
-    }
+local mean_vif = .
+local max_vif = .
+capture noisily estat vif
+if _rc {
+    display as error "WARNING: estat vif 失败 (rc=`_rc')"
+    display "SS_RC|code=`=_rc'|cmd=estat vif|msg=vif_failed|severity=warn"
 }
-local mean_vif = `mean_vif' / `n_vars'
+else {
+    * 保存VIF结果
+    matrix vif_mat = r(vif)
+    local mean_vif = 0
+    local max_vif = 0
+    local n_vars = rowsof(vif_mat)
+    forvalues i = 1/`n_vars' {
+        local v = vif_mat[`i', 1]
+        local mean_vif = `mean_vif' + `v'
+        if `v' > `max_vif' {
+            local max_vif = `v'
+        }
+    }
+    local mean_vif = `mean_vif' / `n_vars'
+}
 
 display ""
 display ">>> VIF 汇总"
@@ -238,17 +246,23 @@ display "  VIF < 5:    无严重共线性 ✓"
 display "  5 ≤ VIF < 10: 中度共线性，需关注"
 display "  VIF ≥ 10:   严重共线性，需处理"
 
-if `max_vif' >= 10 {
-    display ""
-    display as error "WARNING: 存在严重多重共线性（VIF ≥ 10）"
-}
-else if `max_vif' >= 5 {
-    display ""
-    display as error "WARNING: 存在中度多重共线性（5 ≤ VIF < 10）"
+if !missing(`max_vif') {
+    if `max_vif' >= 10 {
+        display ""
+        display as error "WARNING: 存在严重多重共线性（VIF ≥ 10）"
+    }
+    else if `max_vif' >= 5 {
+        display ""
+        display as error "WARNING: 存在中度多重共线性（5 ≤ VIF < 10）"
+    }
+    else {
+        display ""
+        display as result ">>> 无严重多重共线性 ✓"
+    }
 }
 else {
     display ""
-    display as result ">>> 无严重多重共线性 ✓"
+    display as error "WARNING: VIF 结果不可用，跳过共线性阈值判断"
 }
 
 * ==============================================================================
@@ -275,41 +289,81 @@ summarize _resid, detail
 display ""
 display ">>> 7.2 异方差检验（Breusch-Pagan）"
 display "-------------------------------------------------------------------------------"
-quietly regress `dep_var' `indep_vars'
-estat hettest
+local bp_chi2 = .
+local bp_p = .
+local white_chi2 = .
+local white_p = .
+local reset_f = .
+local reset_p = .
 
-quietly estat hettest
-local bp_chi2 = r(chi2)
-local bp_p = r(p)
+if missing(`rmse') | `rmse' == 0 {
+    display as error "WARNING: 残差方差为0，跳过回归诊断检验（完全拟合/无残差波动）"
+    display "SS_RC|code=0|cmd=estat hettest|msg=skipped_zero_residual_variance|severity=warn"
+    display "SS_RC|code=0|cmd=estat imtest,white|msg=skipped_zero_residual_variance|severity=warn"
+    display "SS_RC|code=0|cmd=estat ovtest|msg=skipped_zero_residual_variance|severity=warn"
+}
+else {
+    quietly regress `dep_var' `indep_vars'
+    capture noisily estat hettest
+    if _rc {
+        display as error "WARNING: estat hettest 失败 (rc=`_rc')"
+        display "SS_RC|code=`=_rc'|cmd=estat hettest|msg=hettest_failed|severity=warn"
+    }
+    else {
+        local bp_chi2 = r(chi2)
+        local bp_p = r(p)
+    }
+}
 
 * 异方差检验（White）
 display ""
 display ">>> 7.3 异方差检验（White）"
 display "-------------------------------------------------------------------------------"
-quietly regress `dep_var' `indep_vars'
-estat imtest, white
-
-quietly estat imtest, white
-local white_chi2 = r(chi2)
-local white_p = r(p)
+if missing(`rmse') | `rmse' == 0 {
+    * already handled above
+}
+else {
+    quietly regress `dep_var' `indep_vars'
+    capture noisily estat imtest, white
+    if _rc {
+        display as error "WARNING: estat imtest, white 失败 (rc=`_rc')"
+        display "SS_RC|code=`=_rc'|cmd=estat imtest,white|msg=white_test_failed|severity=warn"
+    }
+    else {
+        local white_chi2 = r(chi2)
+        local white_p = r(p)
+    }
+}
 
 * 模型设定检验（Ramsey RESET）
 display ""
 display ">>> 7.4 模型设定检验（Ramsey RESET）"
 display "-------------------------------------------------------------------------------"
-quietly regress `dep_var' `indep_vars'
-estat ovtest
-
-quietly estat ovtest
-local reset_f = r(F)
-local reset_p = r(p)
-
-display ""
-if `reset_p' < 0.05 {
-    display as error "WARNING: RESET检验显著（p < 0.05），可能存在遗漏变量或函数形式错误"
+if missing(`rmse') | `rmse' == 0 {
+    * already handled above
 }
 else {
+    quietly regress `dep_var' `indep_vars'
+    capture noisily estat ovtest
+    if _rc {
+        display as error "WARNING: estat ovtest 失败 (rc=`_rc')"
+        display "SS_RC|code=`=_rc'|cmd=estat ovtest|msg=reset_failed|severity=warn"
+    }
+    else {
+        local reset_f = r(F)
+        local reset_p = r(p)
+    }
+}
+
+display ""
+if !missing(`reset_p') & `reset_p' < 0.05 {
+    display as error "WARNING: RESET检验显著（p < 0.05），可能存在遗漏变量或函数形式错误"
+}
+else if !missing(`reset_p') {
     display as result ">>> RESET检验不显著，模型设定较为合理 ✓"
+}
+else {
+    display as error "WARNING: RESET检验不可用，跳过模型设定判断"
 }
 
 * ==============================================================================
@@ -356,10 +410,18 @@ display "═══════════════════════�
 display ""
 display ">>> 生成残差诊断图"
 
+quietly summarize _yhat
+local yhat_min = r(min)
+local yhat_max = r(max)
+if `yhat_min' == `yhat_max' {
+    local yhat_min = `yhat_min' - 1
+    local yhat_max = `yhat_max' + 1
+}
+
 quietly twoway (scatter _rstd _yhat, msize(small) mcolor(navy%50)) ///
-       (function y=0, range(_yhat) lcolor(red) lpattern(dash)) ///
-       (function y=2, range(_yhat) lcolor(gray) lpattern(dot)) ///
-       (function y=-2, range(_yhat) lcolor(gray) lpattern(dot)), ///
+       (function y=0, range(`yhat_min' `yhat_max') lcolor(red) lpattern(dash)) ///
+       (function y=2, range(`yhat_min' `yhat_max') lcolor(gray) lpattern(dot)) ///
+       (function y=-2, range(`yhat_min' `yhat_max') lcolor(gray) lpattern(dot)), ///
     title("标准化残差 vs 拟合值", size(medium)) ///
     subtitle("R² = `: display %5.3f `r2''", size(small)) ///
     xtitle("拟合值") ///
@@ -430,26 +492,29 @@ display "SS_OUTPUT_FILE|file=table_T18_reg_result.csv|type=table|desc=regression
 display ">>> 回归结果已导出"
 restore
 
-* ============ 论文级表格输出 (esttab) ============
-if `has_esttab' {
-    display ""
-    display ">>> 导出论文级表格: table_T18_paper.rtf"
-    
-    esttab using "table_T18_paper.rtf", replace ///
-        cells(b(star fmt(3)) se(par fmt(3))) ///
-        stats(N r2 r2_a, fmt(%9.0fc %9.3f %9.3f) ///
-              labels("Observations" "R²" "Adj. R²")) ///
-        title("Regression Results") ///
-        star(* 0.10 ** 0.05 *** 0.01) ///
-        note("Standard errors in parentheses. * p<0.10, ** p<0.05, *** p<0.01")
-    
-    display "SS_OUTPUT_FILE|file=table_T18_paper.rtf|type=table|desc=publication_table"
-    display ">>> 论文级表格已导出 ✓"
-}
-else {
-    display ""
-    display ">>> 跳过论文级表格 (estout 未安装)"
-}
+display ""
+display ">>> 导出论文表格: table_T18_paper.rtf"
+
+file open _rtf using "table_T18_paper.rtf", write replace
+file write _rtf "{\\rtf1\\ansi\\deff0" _n
+file write _rtf "{\\b Regression Results}\\par" _n
+file write _rtf "Dependent variable: `dep_var'\\par" _n
+file write _rtf "Independent variables: `indep_vars'\\par" _n
+file write _rtf "Observations: `n_obs'\\par" _n
+file write _rtf "R-squared: `: display %9.4f `r2''\\par" _n
+file write _rtf "Adj. R-squared: `: display %9.4f `r2_adj''\\par" _n
+file write _rtf "F-statistic: `: display %9.4f `F_stat''\\par" _n
+file write _rtf "Prob > F: `: display %9.4f `F_p''\\par" _n
+file write _rtf "\\par" _n
+file write _rtf "Mean VIF: `: display %9.2f `mean_vif''\\par" _n
+file write _rtf "BP p-value: `: display %9.4f `bp_p''\\par" _n
+file write _rtf "White p-value: `: display %9.4f `white_p''\\par" _n
+file write _rtf "RESET p-value: `: display %9.4f `reset_p''\\par" _n
+file write _rtf "}" _n
+file close _rtf
+
+display "SS_OUTPUT_FILE|file=table_T18_paper.rtf|type=report|desc=publication_table"
+display ">>> 论文表格已导出 ✓"
 
 
 * 导出VIF结果

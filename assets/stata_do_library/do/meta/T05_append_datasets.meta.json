@@ -17,8 +17,18 @@
       "role": "main_dataset"
     },
     {
+      "name": "data.csv",
+      "required": false,
+      "role": "main_dataset"
+    },
+    {
       "name": "data_append.dta",
       "required": true,
+      "role": "append_table"
+    },
+    {
+      "name": "data_append.csv",
+      "required": false,
       "role": "append_table"
     }
   ],

@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 @router.get("/health/live", response_model=HealthResponse)
-def health_live() -> HealthResponse:
+async def health_live() -> HealthResponse:
     return HealthResponse(
         status="ok",
         checks={"process": HealthCheck(ok=True)},
@@ -27,7 +27,7 @@ def health_live() -> HealthResponse:
     response_model=HealthResponse,
     responses={503: {"model": HealthResponse}},
 )
-def health_ready(
+async def health_ready(
     request: Request,
     config: Config = Depends(get_config),
     llm: LLMClient = Depends(get_llm_client),

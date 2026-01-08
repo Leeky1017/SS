@@ -27,19 +27,7 @@ logger = logging.getLogger(__name__)
 def _clear_dependency_caches() -> None:
     from src.api import deps
 
-    deps.get_config.cache_clear()
-    deps.get_job_store.cache_clear()
-    deps.get_worker_queue.cache_clear()
-    deps.get_llm_client.cache_clear()
-    deps.get_job_state_machine.cache_clear()
-    deps.get_job_idempotency.cache_clear()
-    deps.get_metrics.cache_clear()
-    deps.get_audit_logger.cache_clear()
-    deps.get_artifacts_service.cache_clear()
-    deps.get_job_workspace_store.cache_clear()
-    deps.get_job_inputs_service.cache_clear()
-    deps.get_job_query_service.cache_clear()
-    deps.get_plan_service.cache_clear()
+    deps.clear_dependency_caches()
 
 
 @asynccontextmanager
@@ -63,9 +51,9 @@ def create_app() -> FastAPI:
     app.state.config = config
     app.state.shutting_down = False
 
-    from src.api.deps import get_metrics
+    from src.api.deps import get_metrics_sync
 
-    metrics = get_metrics()
+    metrics = get_metrics_sync()
 
     @app.middleware("http")
     async def reject_during_shutdown(
@@ -80,7 +68,7 @@ def create_app() -> FastAPI:
 
         started = time.perf_counter()
         if getattr(request.app.state, "shutting_down", False):
-            response = _handle_ss_error(request, ServiceShuttingDownError())
+            response = await _handle_ss_error(request, ServiceShuttingDownError())
         else:
             response = await call_next(request)
 
@@ -107,12 +95,12 @@ def create_app() -> FastAPI:
     return app
 
 
-def _handle_ss_error(_request: Request, exc: Exception) -> Response:
+async def _handle_ss_error(_request: Request, exc: Exception) -> Response:
     ss_error = cast(SSError, exc)
     return JSONResponse(status_code=ss_error.status_code, content=ss_error.to_dict())
 
 
-def _handle_oom_error(request: Request, _exc: Exception) -> Response:
+async def _handle_oom_error(request: Request, _exc: Exception) -> Response:
     logger.error("SS_RESOURCE_OOM", extra={"path": request.url.path})
     return JSONResponse(status_code=503, content=OutOfMemoryError().to_dict())
 

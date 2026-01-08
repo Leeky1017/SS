@@ -5,7 +5,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from fastapi.testclient import TestClient
+import pytest
 
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService, NoopJobScheduler
@@ -21,6 +21,7 @@ from src.infra.job_store import JobStore
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.main import create_app
 from src.utils.job_workspace import resolve_job_dir
+from tests.asgi_client import asgi_client
 
 
 def _prepare_queued_job(*, jobs_dir: Path, queue: FileWorkerQueue) -> str:
@@ -44,12 +45,14 @@ def _prepare_queued_job(*, jobs_dir: Path, queue: FileWorkerQueue) -> str:
     return job.job_id
 
 
-def test_create_app_lifespan_emits_startup_and_shutdown_events(caplog) -> None:
+@pytest.mark.anyio
+async def test_create_app_lifespan_emits_startup_and_shutdown_events(caplog) -> None:
     caplog.set_level(logging.INFO)
     app = create_app()
 
-    with TestClient(app):
-        pass
+    async with asgi_client(app=app) as client:
+        response = await client.get("/health/live")
+        assert response.status_code == 200
 
     messages = [record.getMessage() for record in caplog.records]
     assert "SS_API_STARTUP" in messages
@@ -57,12 +60,13 @@ def test_create_app_lifespan_emits_startup_and_shutdown_events(caplog) -> None:
     assert "SS_API_SHUTDOWN_COMPLETE" in messages
 
 
-def test_api_shutdown_gate_when_shutting_down_returns_503() -> None:
+@pytest.mark.anyio
+async def test_api_shutdown_gate_when_shutting_down_returns_503() -> None:
     app = create_app()
 
-    with TestClient(app) as client:
+    async with asgi_client(app=app) as client:
         app.state.shutting_down = True
-        response = client.get("/v1/jobs/job-any")
+        response = await client.get("/v1/jobs/job-any")
 
     assert response.status_code == 503
     assert response.json()["error_code"] == "SERVICE_SHUTTING_DOWN"

@@ -5,7 +5,7 @@ from starlette.requests import Request
 from src.domain.audit import AuditContext
 
 
-def get_audit_context(request: Request) -> AuditContext:
+async def get_audit_context(request: Request) -> AuditContext:
     actor_id = request.headers.get("x-ss-actor-id")
     if actor_id is not None and actor_id.strip() == "":
         actor_id = None
@@ -22,4 +22,3 @@ def get_audit_context(request: Request) -> AuditContext:
         user_agent=user_agent,
         source="api",
     )
-
