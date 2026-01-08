@@ -2,7 +2,7 @@
 
 - Issue: #200
 - Branch: task/200-p5-closeout-191-192
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/201
 
 ## Goal
 - Close out Phase 5.4/#191 and Phase 5.5/#192 documentation: backfill task cards, finalize run logs, and archive Rulebook tasks.
@@ -51,3 +51,11 @@
   - `openspec/specs/ss-do-template-optimization/task_cards/phase-5.5__regression-TD-TE.md`
   - `openspec/_ops/task_runs/ISSUE-191.md`
   - `openspec/_ops/task_runs/ISSUE-192.md`
+
+### 2026-01-08 preflight + PR
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `git push -u origin HEAD`
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/201`
