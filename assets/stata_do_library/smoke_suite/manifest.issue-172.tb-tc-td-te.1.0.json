@@ -1,0 +1,729 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "issue_172_tb_tc_td_te",
+  "templates": {
+    "TB02": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "swilk command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TB02/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VARS__": "y x"
+      }
+    },
+    "TB03": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "summarize detail",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TB03/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VARS__": "y x"
+      }
+    },
+    "TB04": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "twoway line",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TB04/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__TIME_VAR__": "year",
+        "__YVAR__": "y"
+      }
+    },
+    "TB05": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "collapse and twoway",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TB05/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__GROUP_VAR__": "treat",
+        "__TIME_VAR__": "year",
+        "__YVAR__": "y"
+      }
+    },
+    "TB06": {
+      "dependencies": [
+        {
+          "pkg": "heatplot",
+          "purpose": "heatmap visualization",
+          "source": "ssc"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TB06/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VARS__": "y x treat post"
+      }
+    },
+    "TB07": {
+      "dependencies": [
+        {
+          "pkg": "vioplot",
+          "purpose": "violin plot visualization",
+          "source": "ssc"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TB07/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__BY_VAR__": "treat",
+        "__VAR__": "y"
+      }
+    },
+    "TB08": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "kdensity command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TB08/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__BY_VAR__": "treat",
+        "__VAR__": "y"
+      }
+    },
+    "TB09": {
+      "dependencies": [
+        {
+          "pkg": "spineplot",
+          "purpose": "spine plot visualization",
+          "source": "ssc"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TB09/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VAR1__": "treat",
+        "__VAR2__": "post"
+      }
+    },
+    "TB10": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "scatter and summarize",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TB10/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VAR1__": "y",
+        "__VAR2__": "x"
+      }
+    },
+    "TC01": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "anova command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TC01/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__FACTOR1__": "treat",
+        "__FACTOR2__": "post"
+      }
+    },
+    "TC02": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "anova repeated",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TC02/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__ID_VAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TC03": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "kwallis command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TC03/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__GROUP_VAR__": "treat",
+        "__VAR__": "y"
+      }
+    },
+    "TC04": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "ranksum command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TC04/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__GROUP_VAR__": "treat",
+        "__VAR__": "y"
+      }
+    },
+    "TC05": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "signrank command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TC05/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VAR1__": "y",
+        "__VAR2__": "x"
+      }
+    },
+    "TC06": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "tabulate exact",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TC06/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VAR1__": "treat",
+        "__VAR2__": "post"
+      }
+    },
+    "TC07": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "mcc command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TC07/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VAR1__": "treat",
+        "__VAR2__": "post"
+      }
+    },
+    "TC08": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "nptrend command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TC08/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__GROUP_VAR__": "year",
+        "__VAR__": "y"
+      }
+    },
+    "TC09": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "swilk sfrancia",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TC09/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VARS__": "y x"
+      }
+    },
+    "TC10": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "robvar oneway",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TC10/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__GROUP_VAR__": "treat",
+        "__VAR__": "y"
+      }
+    },
+    "TD01": {
+      "dependencies": [
+        {
+          "pkg": "reghdfe",
+          "purpose": "high-dimensional fixed effects",
+          "source": "ssc"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TD01/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TD02": {
+      "dependencies": [
+        {
+          "pkg": "reghdfe",
+          "purpose": "high-dimensional fixed effects",
+          "source": "ssc"
+        },
+        {
+          "pkg": "estout",
+          "purpose": "table export",
+          "source": "ssc"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TD02/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__ABSORB_VARS__": "id year",
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post"
+      }
+    },
+    "TD03": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "regress with weights",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TD03/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__WEIGHT_VAR__": "cluster"
+      }
+    },
+    "TD04": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "sqreg command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TD04/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post"
+      }
+    },
+    "TD05": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "rreg command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TD05/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post"
+      }
+    },
+    "TD06": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "stepwise command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TD06/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post"
+      }
+    },
+    "TD10": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "regress command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TD10/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEGREE__": "2",
+        "__DEPVAR__": "y",
+        "__INDEPVAR__": "x"
+      }
+    },
+    "TD12": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "bootstrap vce",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TD12/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__REPS__": "50"
+      }
+    },
+    "TE01": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "zip command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TE01/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "post",
+        "__INDEPVARS__": "x treat",
+        "__INFLATE_VARS__": "x"
+      }
+    },
+    "TE02": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "zinb command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TE02/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "post",
+        "__INDEPVARS__": "x treat",
+        "__INFLATE_VARS__": "x"
+      }
+    },
+    "TE03": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "tobit command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TE03/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__LL__": "0",
+        "__UL__": "20"
+      }
+    },
+    "TE04": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "heckman command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TE04/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x post",
+        "__SELECT_VARS__": "x post",
+        "__SELECT_VAR__": "treat"
+      }
+    },
+    "TE05": {
+      "dependencies": [
+        {
+          "pkg": "twopm",
+          "purpose": "two-part model",
+          "source": "ssc"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TE05/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "post",
+        "__INDEPVARS__": "x treat"
+      }
+    },
+    "TE06": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "oprobit command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TE06/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "year",
+        "__INDEPVARS__": "x treat post"
+      }
+    },
+    "TE07": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "clogit command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TE07/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "post",
+        "__GROUP_VAR__": "id",
+        "__INDEPVARS__": "x treat"
+      }
+    },
+    "TE08": {
+      "dependencies": [
+        {
+          "pkg": "mixlogit",
+          "purpose": "mixed logit model",
+          "source": "ssc"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TE08/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "post",
+        "__GROUP_VAR__": "id",
+        "__INDEPVARS__": "x treat",
+        "__RAND_VARS__": "x"
+      }
+    },
+    "TE09": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "nlogit command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TE09/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "post",
+        "__INDEPVARS__": "x treat",
+        "__NEST_VAR__": "year"
+      }
+    },
+    "TE10": {
+      "dependencies": [
+        {
+          "pkg": "stata",
+          "purpose": "cloglog command",
+          "source": "built-in"
+        }
+      ],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TE10/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "post",
+        "__INDEPVARS__": "x treat"
+      }
+    }
+  }
+}

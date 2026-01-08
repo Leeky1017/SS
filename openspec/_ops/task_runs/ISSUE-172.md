@@ -1,0 +1,21 @@
+# ISSUE-172
+
+- Issue: #172
+- Branch: task/172-p44-p45-tb-tc-td-te-audit
+- PR: <fill-after-created>
+
+## Plan
+- Add TB/TC/TD/TE smoke-suite manifest (fixtures + params + deps).
+- Run Stata 18 harness and fix failures to 0 fail.
+- Normalize anchors to pipe-delimited `SS_*|k=v` (remove colon formats).
+
+## Runs
+### 2026-01-08 venv + deps
+- Command: `python3 -m venv .venv && . .venv/bin/activate && pip install -e '.[dev]'`
+- Key output: `Successfully installed ... ruff ... pytest ...`
+- Evidence: `.venv/`
+
+### 2026-01-08 Stata 18 smoke suite (issue-172 TB/TC/TD/TE)
+- Command: `. .venv/bin/activate && python -m src.cli run-smoke-suite --manifest assets/stata_do_library/smoke_suite/manifest.issue-172.tb-tc-td-te.1.0.json --report-path /tmp/ss-issue-172-report2.json --timeout-seconds 300`
+- Key output: `summary {'passed': 37}`
+- Evidence: `assets/stata_do_library/smoke_suite/manifest.issue-172.tb-tc-td-te.1.0.json`, `/tmp/ss-issue-172-report2.json`
