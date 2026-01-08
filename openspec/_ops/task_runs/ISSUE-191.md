@@ -2,20 +2,21 @@
 
 - Issue: #191
 - Branch: task/191-p5-4-descriptive-tb-tc
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/198
 
 ## Goal
 - Enhance TB02-TB10 + TC01-TC10 templates with best practices, fewer external dependencies, stronger error handling, and bilingual comments.
 
 ## Status
-- CURRENT: Implement template/meta upgrades; run `ruff` + `pytest`; open PR with auto-merge.
+- CURRENT: PR opened; enable auto-merge; wait for required checks to pass and merge.
 
 ## Next Actions
-- [ ] Update task card metadata (Issue field)
-- [ ] Enhance TB02-TB10 (best practices + error handling; reduce SSC where feasible)
-- [ ] Enhance TC01-TC10 (best practices + error handling)
-- [ ] Run `ruff check .` + `pytest -q`; record evidence
-- [ ] Run `scripts/agent_pr_preflight.sh`; open PR; enable auto-merge; update `PR:` link
+- [x] Update task card metadata (Issue field)
+- [x] Enhance TB02-TB10 (best practices + error handling; reduce SSC where feasible)
+- [x] Enhance TC01-TC10 (best practices + error handling)
+- [x] Run `ruff check .` + `pytest -q`; record evidence
+- [x] Run `scripts/agent_pr_preflight.sh`; open PR; enable auto-merge; update `PR:` link
+- [ ] Wait for checks; merge PR
 
 ## Decisions Made
 - 2026-01-08 Prefer “warn + degrade gracefully” over “hard fail” for optional visualization helpers when a built-in fallback exists.
@@ -58,3 +59,11 @@
   - `pytest: 136 passed, 5 skipped`
 - Evidence:
   - `assets/stata_do_library/smoke_suite/manifest.issue-172.tb-tc-td-te.1.0.json`
+
+### 2026-01-08 preflight + PR
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `git push -u origin HEAD`
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/198`
