@@ -2,7 +2,7 @@
 
 - Issue: #165
 - Branch: task/165-p4-3-data-prep-ta
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/175
 
 ## Goal
 - Make TA01-TA14 (data prep) templates runnable under the Stata 18 smoke-suite harness with fixtures; standardize anchors + style; fail fast on missing SSC deps.
@@ -69,3 +69,12 @@
   - `TA01-TA14: all passed (0 fail)`
 - Evidence:
   - `/tmp/smoke_suite_report_165.json`
+
+### 2026-01-08 13:36 deliver: preflight + PR
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `gh pr create --title "... (#165)" --body "Closes #165 ..."`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+  - `https://github.com/Leeky1017/SS/pull/175`
