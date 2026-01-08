@@ -4,7 +4,7 @@
 *   - data.dta  role=main_dataset  required=yes
 *   - data.csv  role=main_dataset  required=no
 * OUTPUTS:
-*   - fig_TB06_heatplot.png type=figure desc="Correlation heatplot"
+*   - fig_TB06_heatplot.png type=graph desc="Correlation heatplot"
 *   - table_TB06_corr.csv type=table desc="Correlation matrix"
 *   - data_TB06_heat.dta type=data desc="Data file"
 *   - result.log type=log desc="Execution log"
@@ -28,31 +28,38 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TB06|level=L1|title=Heatplot"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 capture which heatplot
 if _rc {
-    display "SS_DEP_MISSING:heatplot"
-    display "SS_ERROR:DEP_MISSING:heatplot not installed"
-    display "SS_ERR:DEP_MISSING:heatplot not installed"
+    display "SS_DEP_CHECK|pkg=heatplot|source=ssc|status=missing"
+    display "SS_DEP_MISSING|pkg=heatplot"
+    display "SS_RC|code=199|cmd=which heatplot|msg=dependency_missing|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB06|status=fail|elapsed_sec=`elapsed'"
     log close
     exit 199
 }
 display "SS_DEP_CHECK|pkg=heatplot|source=ssc|status=ok"
-
 local vars = "__VARS__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm file data.csv|msg=file_not_found:data.csv|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB06|status=fail|elapsed_sec=`elapsed'"
     log close
-    exit 601
+    exit `rc'
 }
 import delimited "data.csv", clear
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
@@ -62,7 +69,7 @@ matrix C = r(C)
 heatplot C, values(format(%4.2f)) color(hcl diverging, intensity(.6)) ///
     title("相关系数热力图") aspectratio(1)
 graph export "fig_TB06_heatplot.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TB06_heatplot.png|type=figure|desc=heatplot"
+display "SS_OUTPUT_FILE|file=fig_TB06_heatplot.png|type=graph|desc=heatplot"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"

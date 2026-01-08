@@ -23,7 +23,7 @@
     {
       "description": "Violin plot",
       "file": "fig_TB07_violin.png",
-      "type": "figure"
+      "type": "graph"
     },
     {
       "description": "Data file",

@@ -4,7 +4,7 @@
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TD04_qreg.csv type=table desc="Quantile regression results"
-*   - fig_TD04_qreg.png type=figure desc="Quantile regression plot"
+*   - fig_TD04_qreg.png type=graph desc="Quantile regression plot"
 *   - data_TD04_qreg.dta type=data desc="Data file"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
@@ -23,7 +23,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TD04|level=L0|title=Quantile_Reg"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 local depvar = "__DEPVAR__"
@@ -32,23 +32,57 @@ local indepvars = "__INDEPVARS__"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm file data.csv|msg=file_not_found:data.csv|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TD04|status=fail|elapsed_sec=`elapsed'"
     log close
-    exit 601
+    exit `rc'
 }
 import delimited "data.csv", clear
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
-sqreg `depvar' `indepvars', quantiles(.10 .25 .50 .75 .90) reps(100)
+capture noisily sqreg `depvar' `indepvars', quantiles(.10 .25 .50 .75 .90) reps(100)
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=sqreg|msg=fit_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TD04|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 display "SS_METRIC|name=n_obs|value=`e(N)'"
 
-grqreg, ci ols title("分位数回归系数")
+capture noisily 
+
+if _rc {
+
+    local rc = _rc
+
+    display "SS_RC|code=`rc'|cmd=grqreg|msg=fit_failed|severity=fail"
+
+    timer off 1
+
+    quietly timer list 1
+
+    local elapsed = r(t1)
+
+    display "SS_TASK_END|id=TD04|status=fail|elapsed_sec=`elapsed'"
+
+    log close
+
+    exit `rc'
+
+}, ci ols title("分位数回归系数")
 graph export "fig_TD04_qreg.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TD04_qreg.png|type=figure|desc=qreg_plot"
+display "SS_OUTPUT_FILE|file=fig_TD04_qreg.png|type=graph|desc=qreg_plot"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"

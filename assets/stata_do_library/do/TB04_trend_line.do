@@ -4,7 +4,7 @@
 *   - data.dta  role=main_dataset  required=yes
 *   - data.csv  role=main_dataset  required=no
 * OUTPUTS:
-*   - fig_TB04_trend.png type=figure desc="Trend line plot"
+*   - fig_TB04_trend.png type=graph desc="Trend line plot"
 *   - data_TB04_trend.dta type=data desc="Data file"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
@@ -31,7 +31,7 @@ log using "result.log", text replace
 
 * ============ SS_* 锚点: 任务开始 ============
 display "SS_TASK_BEGIN|id=TB04|level=L0|title=Trend_Line"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检查 ============
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -43,14 +43,18 @@ local timevar = "__TIME_VAR__"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm file data.csv|msg=file_not_found:data.csv|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB04|status=fail|elapsed_sec=`elapsed'"
     log close
-    exit 601
+    exit `rc'
 }
 import delimited "data.csv", clear
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 * ============ 绑定图 ============
@@ -59,7 +63,7 @@ sort `timevar'
 twoway (line `yvar' `timevar', lcolor(navy) lwidth(medium)), ///
     title("时间趋势图: `yvar'") xtitle("`timevar'") ytitle("`yvar'")
 graph export "fig_TB04_trend.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TB04_trend.png|type=figure|desc=trend_line"
+display "SS_OUTPUT_FILE|file=fig_TB04_trend.png|type=graph|desc=trend_line"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 * ============ 输出 ============

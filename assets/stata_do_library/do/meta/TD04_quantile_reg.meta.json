@@ -28,7 +28,7 @@
     {
       "description": "Quantile regression plot",
       "file": "fig_TD04_qreg.png",
-      "type": "figure"
+      "type": "graph"
     },
     {
       "description": "Data file",

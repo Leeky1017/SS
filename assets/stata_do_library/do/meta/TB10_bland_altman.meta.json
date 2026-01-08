@@ -23,7 +23,7 @@
     {
       "description": "Bland-Altman plot",
       "file": "fig_TB10_ba.png",
-      "type": "figure"
+      "type": "graph"
     },
     {
       "description": "BA statistics",

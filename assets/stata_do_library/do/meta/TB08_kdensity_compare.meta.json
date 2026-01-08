@@ -23,7 +23,7 @@
     {
       "description": "Kdensity comparison plot",
       "file": "fig_TB08_kdensity.png",
-      "type": "figure"
+      "type": "graph"
     },
     {
       "description": "Data file",

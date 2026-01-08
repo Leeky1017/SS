@@ -23,7 +23,7 @@
     {
       "description": "Group mean trend plot",
       "file": "fig_TB05_group_trend.png",
-      "type": "figure"
+      "type": "graph"
     },
     {
       "description": "Data file",

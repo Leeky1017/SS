@@ -3,7 +3,7 @@
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
-*   - fig_TB09_spine.png type=figure desc="Spine plot"
+*   - fig_TB09_spine.png type=graph desc="Spine plot"
 *   - data_TB09_spine.dta type=data desc="Data file"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
@@ -26,7 +26,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TB09|level=L1|title=Spineplot"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=spineplot|source=ssc|status=ok"
 
 local var1 = "__VAR1__"
@@ -35,20 +35,24 @@ local var2 = "__VAR2__"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm file data.csv|msg=file_not_found:data.csv|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TB09|status=fail|elapsed_sec=`elapsed'"
     log close
-    exit 601
+    exit `rc'
 }
 import delimited "data.csv", clear
 local n_input = _N
-display "SS_METRIC:n_input:`n_input'"
+display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 spineplot `var1' `var2', title("脊柱图: `var1' by `var2'")
 graph export "fig_TB09_spine.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TB09_spine.png|type=figure|desc=spine_plot"
+display "SS_OUTPUT_FILE|file=fig_TB09_spine.png|type=graph|desc=spine_plot"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
