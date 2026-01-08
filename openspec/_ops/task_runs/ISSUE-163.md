@@ -9,7 +9,7 @@
 - Make templates T01–T20 run on Stata 18 with fixtures (0 fail), emit contract-compliant anchors (`SS_EVENT|k=v`), and follow unified template style (headers/steps/naming/seeds + fast-fail missing deps).
 
 ## Status
-- CURRENT: PR opened and branch rebased on `origin/main`; local validations green; waiting on required checks + auto-merge.
+- CURRENT: PR merged (auto-merge); controlplane `main` synced to `origin/main`; preparing post-merge closeout (task card completion + Rulebook archive) and then worktree cleanup.
 
 ## Next Actions
 - [x] Create Rulebook task `issue-163-core-t01-t20` (proposal/tasks/notes).
@@ -18,8 +18,9 @@
 - [x] Fix templates until harness reaches 0 fail (anchors/style/deps/runtime) when Stata is runnable; normalize anchors/style/deps and ensure lints pass.
 - [x] Run `ruff check .` and `pytest -q`.
 - [x] Run `scripts/agent_pr_preflight.sh`, open PR, update `PR:` field.
-- [ ] Enable PR auto-merge and wait for required checks (`ci`, `openspec-log-guard`, `merge-serial`).
-- [ ] After merge, run `scripts/agent_controlplane_sync.sh` and `scripts/agent_worktree_cleanup.sh "163" "core-t01-t20"`.
+- [x] Enable PR auto-merge and wait for required checks (`ci`, `openspec-log-guard`, `merge-serial`).
+- [x] After merge, run `scripts/agent_controlplane_sync.sh`.
+- [ ] Clean up worktree: `scripts/agent_worktree_cleanup.sh "163" "core-t01-t20"`.
 
 ## Decisions Made
 - 2026-01-08 Use `ss run-smoke-suite --manifest ...` for the Phase-4.1 batch run so the default smoke-suite manifest can stay minimal.
@@ -97,3 +98,37 @@
   - `PR: https://github.com/Leeky1017/SS/pull/189`
 - Evidence:
   - https://github.com/Leeky1017/SS/pull/189
+
+### 2026-01-08 15:09 enable auto-merge
+- Command:
+  - `gh pr merge 189 --auto --squash`
+- Key output:
+  - `will be automatically merged via squash when all requirements are met`
+- Evidence:
+  - https://github.com/Leeky1017/SS/pull/189
+
+### 2026-01-08 15:10 required checks
+- Command:
+  - `gh pr checks --watch 189`
+- Key output:
+  - `All checks were successful`
+- Evidence:
+  - https://github.com/Leeky1017/SS/pull/189
+
+### 2026-01-08 17:06 merged + controlplane sync
+- Command:
+  - `gh pr view 189 --json state,mergedAt,mergeCommit`
+  - `scripts/agent_controlplane_sync.sh`
+- Key output:
+  - `state=MERGED mergedAt=2026-01-08T09:00:08Z mergeCommit=ab033394...`
+  - `Fast-forward: 3dfb2ca..ab03339`
+- Evidence:
+  - https://github.com/Leeky1017/SS/pull/189
+
+### 2026-01-08 17:10 rulebook task archive
+- Command:
+  - `git mv rulebook/tasks/issue-163-core-t01-t20 rulebook/tasks/archive/2026-01-08-issue-163-core-t01-t20`
+- Key output:
+  - `moved into rulebook/tasks/archive/`
+- Evidence:
+  - `rulebook/tasks/archive/2026-01-08-issue-163-core-t01-t20/`

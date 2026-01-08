@@ -31,7 +31,16 @@ Make every template in scope run on **Stata 18** with fixtures, emit **contract-
 
 ## Acceptance checklist
 
-- [ ] Stata 18 baseline run: 0 `fail` across all templates in scope (fixtures)
-- [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
-- [ ] Code style is normalized across the scope (headers/steps/naming/seeds)
-- [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Stata 18 baseline run: 0 `fail` across all templates in scope (fixtures)
+- [x] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
+- [x] Code style is normalized across the scope (headers/steps/naming/seeds)
+- [x] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/189
+- Summary:
+  - Normalized T01–T20 anchors to `SS_EVENT|k=v` (+ `SS_TASK_VERSION|version=2.0.1`) and unified style (headers/steps/naming/seeds).
+  - Added SSC dependency fast-fail paths where applicable (e.g. `estout`) with structured anchors (`SS_DEP_MISSING|pkg=...`, `SS_RC|code=199|...`).
+  - Added a dedicated smoke-suite manifest for Phase 4.1 core T01–T20 and recorded the batch run results.
+- Run log: `openspec/_ops/task_runs/ISSUE-163.md`
