@@ -2,7 +2,7 @@
 
 - Issue: #182
 - Branch: task/182-closeout-172-rulebook-archive
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/183
 
 ## Plan
 - Archive Rulebook task for Issue #172.
