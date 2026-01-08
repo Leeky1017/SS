@@ -8,7 +8,7 @@
 - Enhance TB02-TB10 + TC01-TC10 templates with best practices, fewer external dependencies, stronger error handling, and bilingual comments.
 
 ## Status
-- CURRENT: PR opened; enable auto-merge; wait for required checks to pass and merge.
+- CURRENT: DONE (merged via PR #198; controlplane `main` synced; worktree cleaned).
 
 ## Next Actions
 - [x] Update task card metadata (Issue field)
@@ -16,7 +16,7 @@
 - [x] Enhance TC01-TC10 (best practices + error handling)
 - [x] Run `ruff check .` + `pytest -q`; record evidence
 - [x] Run `scripts/agent_pr_preflight.sh`; open PR; enable auto-merge; update `PR:` link
-- [ ] Wait for checks; merge PR
+- [x] Wait for checks; merge PR
 
 ## Decisions Made
 - 2026-01-08 Prefer “warn + degrade gracefully” over “hard fail” for optional visualization helpers when a built-in fallback exists.
@@ -67,3 +67,14 @@
   - `gh pr create ...`
 - Key output:
   - `https://github.com/Leeky1017/SS/pull/198`
+
+### 2026-01-08 checks + merge + sync + cleanup
+- Command:
+  - `gh pr checks 198 --watch`
+  - `gh pr view 198 --json state,mergedAt`
+  - `scripts/agent_controlplane_sync.sh`
+  - `scripts/agent_worktree_cleanup.sh 191 p5-4-descriptive-tb-tc`
+- Key output:
+  - `state=MERGED mergedAt=2026-01-08T11:45:26Z`
+  - `Fast-forward ... HEAD is now at 3105e86`
+  - `OK: cleaned worktree .worktrees/issue-191-p5-4-descriptive-tb-tc`

@@ -30,8 +30,16 @@ Enhance descriptive-statistics templates with best practices (最佳实践), Sta
 
 ## Acceptance checklist
 
-- [ ] Each template has a best-practice review record
-- [ ] Outputs are upgraded with Stata 18-native tooling where feasible
-- [ ] Error handling and diagnostics are strengthened (no silent failure)
-- [ ] Key steps have bilingual comments (中英文注释)
-- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Each template has a best-practice review record
+- [x] Outputs are upgraded with Stata 18-native tooling where feasible
+- [x] Error handling and diagnostics are strengthened (no silent failure)
+- [x] Key steps have bilingual comments (中英文注释)
+- [x] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/198
+- Added best-practice review blocks + bilingual guidance across TB02–TB10 and TC01–TC10.
+- Replaced/softened SSC plotting deps with base-Stata fallbacks where possible (e.g., TB06/TB07/TB09).
+- Strengthened input validation and explicit warn/fail behavior for common descriptive-test failures.
+- Run log: `openspec/_ops/task_runs/ISSUE-191.md`

@@ -8,7 +8,7 @@
 - Enhance TD01-TD06, TD10, TD12 + TE01-TE10 templates with regression best practices/diagnostics, fewer SSC dependencies where feasible, stronger error handling, and bilingual comments.
 
 ## Status
-- CURRENT: PR opened; enable auto-merge; wait for required checks to pass and merge.
+- CURRENT: DONE (merged via PR #199; controlplane `main` synced; worktree cleaned).
 
 ## Next Actions
 - [x] Update task card metadata (Issue field)
@@ -17,7 +17,7 @@
 - [x] Strengthen validation + error handling for common regression failures
 - [x] Run `ruff check .` + `pytest -q`; record evidence
 - [x] Run `scripts/agent_pr_preflight.sh`; open PR; enable auto-merge; update `PR:` link
-- [ ] Wait for checks; merge PR
+- [x] Wait for checks; merge PR
 
 ## Decisions Made
 - 2026-01-08 Replace SSC table export (`estout/esttab`) with matrix-based CSV export; keep SSC model commands only when no base-Stata equivalent exists.
@@ -70,3 +70,14 @@
   - `gh pr create ...`
 - Key output:
   - `https://github.com/Leeky1017/SS/pull/199`
+
+### 2026-01-08 checks + merge + sync + cleanup
+- Command:
+  - `gh pr checks 199 --watch`
+  - `gh pr view 199 --json state,mergedAt`
+  - `scripts/agent_controlplane_sync.sh`
+  - `scripts/agent_worktree_cleanup.sh 192 p5-5-regression-td-te`
+- Key output:
+  - `state=MERGED mergedAt=2026-01-08T11:48:58Z`
+  - `Fast-forward ... HEAD is now at f354442`
+  - `OK: cleaned worktree .worktrees/issue-192-p5-5-regression-td-te`
