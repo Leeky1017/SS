@@ -46,3 +46,7 @@
 ### 2026-01-08 14:07 Closeout
 - Command: Update task card acceptance + completion section
 - Evidence: https://github.com/Leeky1017/SS/pull/179
+
+### 2026-01-08 14:12 Rulebook archive
+- Command: Archive `rulebook/tasks/issue-171-composition-executor/`
+- Evidence: `rulebook/tasks/archive/2026-01-08-issue-171-composition-executor/`
