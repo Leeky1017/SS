@@ -1,7 +1,7 @@
 # ISSUE-193
 - Issue: #193
 - Branch: task/193-p5-1-core-t01-t20
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/196
 
 ## Goal
 - Phase 5.1 core T01–T20: content enhancement (best practices + SSC→Stata18 native + stronger error handling + bilingual comments).
@@ -56,3 +56,13 @@
 - Command: `/home/leeky/work/SS/.venv/bin/mypy`
 - Key output: `Success: no issues found`
 - Evidence: `pyproject.toml`
+
+### 2026-01-08 17:26 pr-preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+- Evidence: `scripts/agent_pr_preflight.sh`
+
+### 2026-01-08 17:27 pr-create
+- Command: `gh pr create ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/196`
+- Evidence: PR #196
