@@ -1,3 +1,4 @@
+import fnmatch
 import json
 from pathlib import Path
 
@@ -89,11 +90,22 @@ def _validate_params(*, template_id: str, entry: dict, tasks: dict, library_dir:
 
     inputs = meta.get("inputs", [])
     assert isinstance(inputs, list) and inputs
-    input_names = {i.get("name") for i in inputs if isinstance(i, dict)}
-    fixture_dests = {f.get("dest") for f in entry.get("fixtures", []) if isinstance(f, dict)}
-    assert fixture_dests.issubset(input_names), (
-        f"{template_id}: fixture dest not declared in meta.inputs"
-    )
+    input_names = {
+        name
+        for name in (i.get("name") for i in inputs if isinstance(i, dict))
+        if isinstance(name, str) and name.strip() != ""
+    }
+    fixture_dests = {
+        dest
+        for dest in (f.get("dest") for f in entry.get("fixtures", []) if isinstance(f, dict))
+        if isinstance(dest, str) and dest.strip() != ""
+    }
+    missing_dests = [
+        dest
+        for dest in sorted(fixture_dests)
+        if not _fixture_dest_declared(fixture_dest=dest, input_names=input_names)
+    ]
+    assert not missing_dests, f"{template_id}: fixture dest not declared in meta.inputs"
 
     required = {
         p.get("name")
@@ -106,6 +118,15 @@ def _validate_params(*, template_id: str, entry: dict, tasks: dict, library_dir:
     for key, value in params.items():
         assert isinstance(key, str) and key.strip() != ""
         assert isinstance(value, str)
+
+
+def _fixture_dest_declared(*, fixture_dest: str, input_names: set[str]) -> bool:
+    if fixture_dest in input_names:
+        return True
+    for name in input_names:
+        if any(ch in name for ch in "*?[]") and fnmatch.fnmatchcase(fixture_dest, name):
+            return True
+    return False
 
 
 def _validate_dependencies(

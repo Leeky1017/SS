@@ -103,38 +103,39 @@ async def test_upload_csv_and_preview_returns_columns_and_rows(
     )
 
 
-def test_upload_two_csvs_with_roles_is_deterministic_across_order(
+async def test_upload_two_csvs_with_roles_is_deterministic_across_order(
     job_service, store, jobs_dir
 ) -> None:
     # Arrange
     svc = _svc(store=store, jobs_dir=jobs_dir)
-    client = _client(svc=svc)
+    app = _app(svc=svc)
     csv_a = b"age,income\n30,1000\n"
     csv_b = b"id,y\n1,2\n"
     job_multi = job_service.create_job(requirement="hello")
+    job_single = job_service.create_job(requirement="hello-single")
 
     # Act
-    uploaded = client.post(
-        f"/v1/jobs/{job_multi.job_id}/inputs/upload",
-        files=[
-            ("file", ("a.csv", csv_a, "text/csv")),
-            ("file", ("b.csv", csv_b, "text/csv")),
-        ],
-        data={"role": ["primary_dataset", "secondary_dataset"]},
-    )
-    uploaded_reordered = client.post(
-        f"/v1/jobs/{job_multi.job_id}/inputs/upload",
-        files=[
-            ("file", ("b.csv", csv_b, "text/csv")),
-            ("file", ("a.csv", csv_a, "text/csv")),
-        ],
-        data={"role": ["secondary_dataset", "primary_dataset"]},
-    )
-    job_single = job_service.create_job(requirement="hello-single")
-    uploaded_single = client.post(
-        f"/v1/jobs/{job_single.job_id}/inputs/upload",
-        files={"file": ("a.csv", csv_a, "text/csv")},
-    )
+    async with asgi_client(app=app) as client:
+        uploaded = await client.post(
+            f"/v1/jobs/{job_multi.job_id}/inputs/upload",
+            files=[
+                ("file", ("a.csv", csv_a, "text/csv")),
+                ("file", ("b.csv", csv_b, "text/csv")),
+            ],
+            data={"role": ["primary_dataset", "secondary_dataset"]},
+        )
+        uploaded_reordered = await client.post(
+            f"/v1/jobs/{job_multi.job_id}/inputs/upload",
+            files=[
+                ("file", ("b.csv", csv_b, "text/csv")),
+                ("file", ("a.csv", csv_a, "text/csv")),
+            ],
+            data={"role": ["secondary_dataset", "primary_dataset"]},
+        )
+        uploaded_single = await client.post(
+            f"/v1/jobs/{job_single.job_id}/inputs/upload",
+            files={"file": ("a.csv", csv_a, "text/csv")},
+        )
 
     # Assert
     assert uploaded.status_code == 200
