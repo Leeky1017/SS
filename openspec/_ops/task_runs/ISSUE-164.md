@@ -9,11 +9,12 @@
 - Phase 4.2: Make templates `T21`–`T50` run on Stata 18 with fixtures, emit contract-compliant anchors, and follow unified style.
 
 ## Status
-- CURRENT: PR #173 merged; performing post-merge closeout (task card + worktree cleanup).
+- CURRENT: Completed; templates `T21`–`T50` passed Stata 18 audit and closeout artifacts are recorded.
 
 ## Next Actions
-- [ ] Fill Phase 4.2 task card Acceptance + Completion.
-- [ ] Sync controlplane `main` to `origin/main`, then cleanup worktree.
+- [x] Fill Phase 4.2 task card Acceptance + Completion.
+- [x] Sync controlplane `main` to `origin/main`, then cleanup worktree.
+- [x] Archive Rulebook task files under `rulebook/tasks/archive/`.
 
 ## Runs
 ### 2026-01-08 issue + worktree
@@ -87,3 +88,14 @@
   - `gh issue reopen 164`
 - Key output:
   - `Reopened issue https://github.com/Leeky1017/SS/issues/164`
+
+### 2026-01-08 post-merge closeout (docs + archive)
+- Command:
+  - `gh pr view 174 --json state,mergedAt,url`
+  - `gh pr view 176 --json state,mergedAt,url`
+- Key output:
+  - `mergedAt=2026-01-08T05:37:45Z url=https://github.com/Leeky1017/SS/pull/174`
+  - `url=https://github.com/Leeky1017/SS/pull/176`
+- Evidence:
+  - `openspec/specs/ss-do-template-optimization/task_cards/phase-4.2__core-T21-T50.md`
+  - `rulebook/tasks/archive/2026-01-08-issue-164-p4-2-core-t21-t50/`
