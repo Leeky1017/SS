@@ -30,6 +30,60 @@ class InputFilenameUnsafeError(SSError):
         )
 
 
+class InputRoleInvalidError(SSError):
+    def __init__(self, *, role: str) -> None:
+        super().__init__(
+            error_code="INPUT_ROLE_INVALID",
+            message=f"dataset role invalid: {role}",
+            status_code=400,
+        )
+
+
+class InputRoleCountMismatchError(SSError):
+    def __init__(self, *, expected: int, actual: int) -> None:
+        super().__init__(
+            error_code="INPUT_ROLE_COUNT_MISMATCH",
+            message=f"dataset roles count mismatch: expected={expected} actual={actual}",
+            status_code=400,
+        )
+
+
+class InputFilenameCountMismatchError(SSError):
+    def __init__(self, *, expected: int, actual: int) -> None:
+        super().__init__(
+            error_code="INPUT_FILENAME_COUNT_MISMATCH",
+            message=f"dataset filenames count mismatch: expected={expected} actual={actual}",
+            status_code=400,
+        )
+
+
+class InputDatasetKeyConflictError(SSError):
+    def __init__(self, *, dataset_key: str) -> None:
+        super().__init__(
+            error_code="INPUT_DATASET_KEY_CONFLICT",
+            message=f"dataset_key conflict: {dataset_key}",
+            status_code=400,
+        )
+
+
+class InputPrimaryDatasetMissingError(SSError):
+    def __init__(self) -> None:
+        super().__init__(
+            error_code="INPUT_PRIMARY_DATASET_MISSING",
+            message="primary_dataset role missing",
+            status_code=400,
+        )
+
+
+class InputPrimaryDatasetMultipleError(SSError):
+    def __init__(self, *, count: int) -> None:
+        super().__init__(
+            error_code="INPUT_PRIMARY_DATASET_MULTIPLE",
+            message=f"multiple primary_dataset roles: {count}",
+            status_code=400,
+        )
+
+
 class InputPathUnsafeError(SSError):
     def __init__(self, *, job_id: str, rel_path: str) -> None:
         super().__init__(

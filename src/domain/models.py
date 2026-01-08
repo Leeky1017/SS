@@ -32,6 +32,8 @@ class JobStatus(str, Enum):
 
 
 class ArtifactKind(str, Enum):
+    INPUTS_MANIFEST = "inputs.manifest"
+    INPUTS_DATASET = "inputs.dataset"
     LLM_PROMPT = "llm.prompt"
     LLM_RESPONSE = "llm.response"
     LLM_META = "llm.meta"

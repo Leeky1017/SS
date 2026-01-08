@@ -48,12 +48,22 @@ def _extract_template(step: PlanStep) -> str:
 
 
 def _extract_primary_dataset_rel_path(inputs_manifest: Mapping[str, object]) -> str:
-    dataset = inputs_manifest.get("primary_dataset")
-    rel_path: object
-    if isinstance(dataset, Mapping):
-        rel_path = dataset.get("rel_path", "")
+    rel_path: object = ""
+    datasets = inputs_manifest.get("datasets")
+    if isinstance(datasets, list):
+        for item in datasets:
+            if not isinstance(item, Mapping):
+                continue
+            if item.get("role") != "primary_dataset":
+                continue
+            rel_path = item.get("rel_path", "")
+            break
     else:
-        rel_path = inputs_manifest.get("primary_dataset_rel_path", "")
+        dataset = inputs_manifest.get("primary_dataset")
+        if isinstance(dataset, Mapping):
+            rel_path = dataset.get("rel_path", "")
+        else:
+            rel_path = inputs_manifest.get("primary_dataset_rel_path", "")
 
     if not isinstance(rel_path, str):
         raise DoFileInputsManifestInvalidError(reason="primary_dataset_rel_path_not_string")

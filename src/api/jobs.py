@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from fastapi import APIRouter, Body, Depends, File, Form, Query, UploadFile
 from fastapi.responses import FileResponse
 from opentelemetry.trace import get_tracer
@@ -29,11 +31,13 @@ from src.api.schemas import (
     RunJobResponse,
 )
 from src.domain.artifacts_service import ArtifactsService
-from src.domain.job_inputs_service import JobInputsService
+from src.domain.inputs_manifest import ROLE_PRIMARY_DATASET, ROLE_SECONDARY_DATASET
+from src.domain.job_inputs_service import DatasetUpload, JobInputsService
 from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobService
 from src.domain.models import JobConfirmation
 from src.domain.plan_service import PlanService
+from src.infra.input_exceptions import InputFilenameCountMismatchError, InputRoleCountMismatchError
 from src.infra.tracing import synthetic_parent_context_for_trace_id
 
 router = APIRouter(tags=["jobs"])
@@ -66,20 +70,40 @@ def get_job(
 @router.post("/jobs/{job_id}/inputs/upload", response_model=InputsUploadResponse)
 async def upload_job_inputs(
     job_id: str,
-    file: UploadFile = File(...),
-    role: str = Form(default="primary_dataset"),
-    filename: str | None = Form(default=None),
+    file: list[UploadFile] = File(...),
+    role: list[str] | None = Form(default=None),
+    filename: list[str] | None = Form(default=None),
     tenant_id: str = Depends(get_tenant_id),
     svc: JobInputsService = Depends(get_job_inputs_service),
 ) -> InputsUploadResponse:
-    payload = svc.upload_primary_dataset(
-        tenant_id=tenant_id,
-        job_id=job_id,
-        data=await file.read(),
-        original_name=file.filename,
-        filename_override=filename,
-        content_type=file.content_type,
-    )
+    file_count = len(file)
+    roles: Sequence[str]
+    if role is None:
+        roles = [ROLE_PRIMARY_DATASET] + [ROLE_SECONDARY_DATASET] * (file_count - 1)
+    else:
+        roles = role
+    if len(roles) != file_count:
+        raise InputRoleCountMismatchError(expected=file_count, actual=len(roles))
+
+    filename_overrides: Sequence[str | None]
+    if filename is None:
+        filename_overrides = [None for _ in range(file_count)]
+    else:
+        if len(filename) != file_count:
+            raise InputFilenameCountMismatchError(expected=file_count, actual=len(filename))
+        filename_overrides = filename
+
+    uploads = [
+        DatasetUpload(
+            role=roles[index],
+            data=await item.read(),
+            original_name=item.filename,
+            filename_override=filename_overrides[index],
+            content_type=item.content_type,
+        )
+        for index, item in enumerate(file)
+    ]
+    payload = svc.upload_datasets(tenant_id=tenant_id, job_id=job_id, uploads=uploads)
     return InputsUploadResponse.model_validate(payload)
 
 
