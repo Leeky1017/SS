@@ -44,8 +44,16 @@ The plan MUST keep simple single-file jobs **simple** (sequential, minimal steps
 
 ## Acceptance checklist
 
-- [ ] Plan schema exists and is validated (schema + tests)
-- [ ] Planner selects one of the supported composition modes and records it in the plan
-- [ ] Plan includes explicit data-flow bindings and intermediate product declarations
-- [ ] Simple single-file jobs produce a sequential plan without unnecessary scaffolding
-- [ ] Fixtures/examples cover merge-then-sequential and parallel-then-aggregate
+- [x] Plan schema exists and is validated (schema + tests)
+- [x] Planner selects one of the supported composition modes and records it in the plan
+- [x] Plan includes explicit data-flow bindings and intermediate product declarations
+- [x] Simple single-file jobs produce a sequential plan without unnecessary scaffolding
+- [x] Fixtures/examples cover merge-then-sequential and parallel-then-aggregate
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/167
+- Added composition-aware plan schema validation (`composition_mode`, `dataset_ref`, `input_bindings`, `products`) with error handling.
+- Routed planner to choose the simplest supported `composition_mode` and kept single-file jobs minimal.
+- Added fixtures/examples for merge-then-sequential and parallel-then-aggregate plans.
+- Run log: `openspec/_ops/task_runs/ISSUE-162.md`
