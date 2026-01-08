@@ -86,3 +86,11 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-08 Preflight (post-commit): include changed files
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `== Changed Files ==` lists `TA01`–`TA14` do/meta + smoke suite manifest + run log + rulebook task
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
