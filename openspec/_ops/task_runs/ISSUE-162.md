@@ -49,3 +49,11 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-08 00:19 PR preflight (post-commit)
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+  - `Note: initial git fetch failed with TLS handshake; retry succeeded`
