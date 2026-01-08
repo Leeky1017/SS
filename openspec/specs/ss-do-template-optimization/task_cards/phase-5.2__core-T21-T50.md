@@ -31,8 +31,17 @@ Upgrade templates in scope from “can run” to **production-grade analysis**: 
 
 ## Acceptance checklist
 
-- [ ] Each template has a best-practice review record (what changed + why)
-- [ ] SSC deps are removed/replaced where feasible (exceptions justified)
-- [ ] Error handling is stronger with explicit `warn/fail` and `SS_RC` context
-- [ ] Key steps have bilingual comments (中英文注释)
-- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Each template has a best-practice review record (what changed + why)
+- [x] SSC deps are removed/replaced where feasible (exceptions justified)
+- [x] Error handling is stronger with explicit `warn/fail` and `SS_RC` context
+- [x] Key steps have bilingual comments (中英文注释)
+- [x] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-178.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/184
+- Run log: `openspec/_ops/task_runs/ISSUE-178.md`
+- Summary:
+  - Added `BEST_PRACTICE_REVIEW` records and bumped template versions to `2.1.0` for `T21`–`T50`.
+  - Removed optional SSC `estout/esttab` outputs in `T21`–`T24` and `T31`–`T35` and replaced with Stata 18 `putdocx` reports (meta outputs updated to `.docx`).
+  - Strengthened input validation and error handling (robust VCE for discrete/count models; correct factor-variable interaction for `T21` margins; warn-level `SS_RC` for expected non-fatal conditions).
