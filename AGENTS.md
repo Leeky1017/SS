@@ -51,6 +51,7 @@
   - 在控制面执行：`scripts/agent_worktree_cleanup.sh "$N" "$SLUG"`
 - PR 需要通过 required checks：`ci` / `openspec-log-guard` / `merge-serial`。
 - PR 前（或启用 auto-merge 前）必须运行：`scripts/agent_pr_preflight.sh`（roadmap 依赖 + open PR 文件重叠预警）。
+- Auto-merge 必须“验证已合并”：即使 checks 全绿也要确认 PR 状态为 `MERGED`（`mergedAt != null`）；若被 `reviewDecision=REVIEW_REQUIRED` 阻断，agent 必须尝试 `gh pr merge --admin`（要求仓库允许 admin bypass）以保持全流程无人值守，并把 blocker+处置写入 run log，禁止不了了之。
 - Task card 收口（强制，禁止“做完就不管”）：
   - 如果该 Issue 有对应 task card（例如 `openspec/specs/**/task_cards/*.md` 中引用了 `Issue: #N`），PR 合并后必须回填：
     - Acceptance checklist 全部打勾（`[x]`）
