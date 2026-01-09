@@ -1,7 +1,7 @@
 # ISSUE-263
 - Issue: #263
 - Branch: `task/263-p58-timeseries-th`
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/266
 
 ## Plan
 - Upgrade TH templates with best-practice review + bilingual comments.
@@ -28,3 +28,13 @@
 - Command: `/tmp/ss-venv/bin/python -m pytest -q`
 - Key output: `159 passed, 5 skipped in 7.79s`
 - Evidence: `/tmp/ss-venv`
+
+### 2026-01-10 00:25 pr-preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs; OK: no hard dependencies found in execution plan`
+- Evidence: `scripts/agent_pr_preflight.sh`
+
+### 2026-01-10 00:25 pr-create
+- Command: `gh pr create ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/266`
+- Evidence: https://github.com/Leeky1017/SS/pull/266
