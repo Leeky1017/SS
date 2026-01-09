@@ -1,4 +1,11 @@
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* Template: TG03 — IPW Weight
+* 识别假设 / ID assumptions: method-specific; review before use (no "auto validity")
+* 诊断输出 / Diagnostics: run minimal, relevant checks; treat WARN as evidence, not noise
+* SSC依赖 / SSC deps: keep minimal; required packages are explicit in header
+* 解读要点 / Interpretation: estimates are conditional on assumptions; add robustness checks
 * SS_TEMPLATE: id=TG03  level=L0  module=G  title="IPW Weight"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -35,7 +42,7 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION|version=2.0.1"
+display "SS_TASK_VERSION|version=2.1.0"
 
 * 无社区命令依赖
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"

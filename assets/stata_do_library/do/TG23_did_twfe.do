@@ -6,10 +6,15 @@
 *   - table_TG23_twfe_comparison.csv type=table desc="TWFE comparison"
 *   - fig_TG23_comparison.png type=graph desc="Comparison plot"
 *   - result.log type=log desc="Execution log"
-* DEPENDENCIES:
-*   - reghdfe source=ssc purpose="HDFE regression"
-*   - did_multiplegt source=ssc purpose="Robust DID"
+* DEPENDENCIES: none (optional: `csdid` for robust comparison)
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* 方法 / Method: TWFE baseline (built-in) + optional robust staggered DID comparison (csdid)
+* 识别假设 / ID assumptions: TWFE can be biased under heterogeneous effects with staggered adoption
+* 诊断输出 / Diagnostics: cohort-count warning + TWFE vs robust comparison (if available)
+* SSC依赖 / SSC deps: minimized (remove mandatory `reghdfe`/`did_multiplegt`)
+* 解读要点 / Interpretation: large TWFE-vs-robust gap suggests heterogeneity/negative weights concerns
 
 * ============ 初始化 ============
 capture log close _all
@@ -26,22 +31,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG23|level=L2|title=DID_TWFE"
-display "SS_TASK_VERSION|version=2.0.1"
-
-* ============ 依赖检测 ============
-local required_deps "reghdfe did_multiplegt"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
-display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=reghdfe|source=ssc|status=ok"
+display "SS_TASK_VERSION|version=2.1.0"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local outcome_var = "__OUTCOME_VAR__"
@@ -97,7 +88,13 @@ display "═══════════════════════�
 display "SECTION 1: 标准TWFE估计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-reghdfe `outcome_var' `treat_var', absorb(`id_var' `time_var') vce(cluster `id_var')
+* TWFE baseline using built-in FE regression / 使用内置TWFE基准
+capture noisily xtreg `outcome_var' `treat_var' i.`time_var', fe vce(cluster `id_var')
+if _rc {
+display "SS_RC|code=430|cmd=xtreg|msg=twfe_failed|detail=xtreg_twfe_failed_rc_`_rc'|severity=fail"
+    log close
+    exit 430
+}
 
 local twfe_coef = _b[`treat_var']
 local twfe_se = _se[`treat_var']
@@ -119,33 +116,44 @@ display "═══════════════════════�
 display "SECTION 2: de Chaisemartin-D'Haultfoeuille估计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-display ">>> 执行did_multiplegt..."
+display ">>> 执行稳健交错DID比较 (csdid, 若可用)..."
 
-local dcdh_coef = .
-local dcdh_se = .
-local dcdh_t = .
-local dcdh_p = .
+local robust_coef = .
+local robust_se = .
+local robust_t = .
+local robust_p = .
 
-capture noisily did_multiplegt old `outcome_var' `id_var' `time_var' `treat_var', robust_dynamic
+* Derive first treatment time (gvar) from treat indicator (assumes 0->1 and stays)
+bysort `id_var': egen byte _ever_treated = max(`treat_var')
+bysort `id_var' (`time_var'): generate _first_treat = `time_var' if `treat_var' == 1 & `treat_var'[_n-1] == 0
+bysort `id_var': egen first_treat_time = min(_first_treat)
+replace first_treat_time = 0 if missing(first_treat_time)
+
+capture which csdid
 if _rc {
-display "SS_RC|code=0|cmd=warning|msg=did_multipletgt_failed|detail=did_multiplegt_failed|severity=warn"
+display "SS_RC|code=0|cmd=warning|msg=csdid_missing|detail=csdid_not_installed_skip_robust_comparison|severity=warn"
 }
 else {
-    * 提取结果
-    capture local dcdh_coef = e(effect_0)
-    capture local dcdh_se = e(se_effect_0)
-    if `dcdh_se' > 0 {
-        local dcdh_t = `dcdh_coef' / `dcdh_se'
-        local dcdh_p = 2 * (1 - normal(abs(`dcdh_t')))
+    capture noisily csdid `outcome_var', ivar(`id_var') time(`time_var') gvar(first_treat_time) agg(simple)
+    if _rc {
+display "SS_RC|code=0|cmd=warning|msg=csdid_failed|detail=csdid_failed_skip_comparison|severity=warn"
+    }
+    else {
+        capture local robust_coef = e(b)[1, 1]
+        capture local robust_se = sqrt(e(V)[1, 1])
+        if `robust_se' > 0 {
+            local robust_t = `robust_coef' / `robust_se'
+            local robust_p = 2 * (1 - normal(abs(`robust_t')))
+        }
     }
 }
 
 display ""
-display ">>> de Chaisemartin-D'Haultfoeuille估计:"
-display "    系数: " %10.4f `dcdh_coef'
-display "    标准误: " %10.4f `dcdh_se'
+display ">>> 稳健交错DID估计(若可用):"
+display "    系数: " %10.4f `robust_coef'
+display "    标准误: " %10.4f `robust_se'
 
-display "SS_METRIC|name=dcdh_coef|value=`dcdh_coef'"
+display "SS_METRIC|name=robust_coef|value=`robust_coef'"
 
 * ============ 负权重诊断 ============
 display ""
@@ -156,12 +164,7 @@ display "═══════════════════════�
 * 分析处理时间异质性
 display ">>> 检查处理时间异质性..."
 
-* 找出首次处理时间
-bysort `id_var': egen byte _ever_treated = max(`treat_var')
-bysort `id_var' (`time_var'): generate _first_treat = `time_var' if `treat_var' == 1 & `treat_var'[_n-1] == 0
-bysort `id_var': egen first_treat_time = min(_first_treat)
-
-quietly levelsof first_treat_time if !missing(first_treat_time), local(treat_times)
+quietly levelsof first_treat_time if first_treat_time > 0, local(treat_times)
 local n_cohorts : word count `treat_times'
 
 display ""
@@ -190,10 +193,10 @@ display "═══════════════════════�
 display "SECTION 4: 估计量比较"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-local diff = `twfe_coef' - `dcdh_coef'
+local diff = `twfe_coef' - `robust_coef'
 local pct_diff = .
-if `dcdh_coef' < . & `dcdh_coef' != 0 {
-    local pct_diff = `diff' / `dcdh_coef' * 100
+if `robust_coef' < . & `robust_coef' != 0 {
+    local pct_diff = `diff' / `robust_coef' * 100
 }
 
 display ""
@@ -202,7 +205,7 @@ display "───────────────────────�
 display "方法                    系数        标准误"
 display "─────────────────────────────────────────────────"
 display "标准TWFE            " %10.4f `twfe_coef' "  " %10.4f `twfe_se'
-display "de Chaisemartin     " %10.4f `dcdh_coef' "  " %10.4f `dcdh_se'
+display "稳健(若可用)         " %10.4f `robust_coef' "  " %10.4f `robust_se'
 display "─────────────────────────────────────────────────"
 display "差异                " %10.4f `diff' " (" %5.1f `pct_diff' "%)"
 
@@ -228,11 +231,11 @@ replace std_error = `twfe_se' in 1
 replace t_stat = `twfe_t' in 1
 replace p_value = `twfe_p' in 1
 
-replace estimator = "de Chaisemartin" in 2
-replace coefficient = `dcdh_coef' in 2
-replace std_error = `dcdh_se' in 2
-replace t_stat = `dcdh_t' in 2
-replace p_value = `dcdh_p' in 2
+replace estimator = "Robust (csdid)" in 2
+replace coefficient = `robust_coef' in 2
+replace std_error = `robust_se' in 2
+replace t_stat = `robust_t' in 2
+replace p_value = `robust_p' in 2
 
 export delimited using "table_TG23_twfe_comparison.csv", replace
 display "SS_OUTPUT_FILE|file=table_TG23_twfe_comparison.csv|type=table|desc=twfe_comparison"
@@ -259,15 +262,15 @@ replace ci_lower = `twfe_coef' - 1.96 * `twfe_se' in 1
 replace ci_upper = `twfe_coef' + 1.96 * `twfe_se' in 1
 replace order = 1 in 1
 
-replace estimator = "de Chaisemartin" in 2
-replace coef = `dcdh_coef' in 2
-replace ci_lower = `dcdh_coef' - 1.96 * `dcdh_se' in 2
-replace ci_upper = `dcdh_coef' + 1.96 * `dcdh_se' in 2
+replace estimator = "Robust (csdid)" in 2
+replace coef = `robust_coef' in 2
+replace ci_lower = `robust_coef' - 1.96 * `robust_se' in 2
+replace ci_upper = `robust_coef' + 1.96 * `robust_se' in 2
 replace order = 2 in 2
 
 twoway (bar coef order, barwidth(0.6) color(navy)) ///
        (rcap ci_lower ci_upper order, lcolor(black)), ///
-       xlabel(1 "TWFE" 2 "de Chaisemartin") ///
+       xlabel(1 "TWFE" 2 "Robust") ///
        xtitle("估计方法") ytitle("系数估计") ///
        title("TWFE vs 稳健估计量比较") ///
        yline(0, lcolor(gray) lpattern(dot)) ///
@@ -279,7 +282,7 @@ display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 display "SS_SUMMARY|key=n_input|value=`n_input'"
 display "SS_SUMMARY|key=twfe_coef|value=`twfe_coef'"
-display "SS_SUMMARY|key=dcdh_coef|value=`dcdh_coef'"
+display "SS_SUMMARY|key=robust_coef|value=`robust_coef'"
 
 * 清理临时变量
 capture drop _ever_treated _first_treat first_treat_time
@@ -298,7 +301,7 @@ display "  处理队列数:      " %10.0fc `n_cohorts'
 display ""
 display "  估计结果:"
 display "    TWFE:          " %10.4f `twfe_coef' " (SE=" %6.4f `twfe_se' ")"
-display "    de Chaisemartin: " %10.4f `dcdh_coef' " (SE=" %6.4f `dcdh_se' ")"
+display "    Robust (csdid): " %10.4f `robust_coef' " (SE=" %6.4f `robust_se' ")"
 display "    差异:          " %10.4f `diff' " (" %5.1f `pct_diff' "%)"
 display ""
 if abs(`pct_diff') > 20 {

@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "ivreg2",
-      "purpose": "IV regression",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "ivregress 2sls + regress",
+      "source": "built-in"
     }
   ],
   "description": "Local average treatment effect estimation",
@@ -76,5 +76,5 @@
   ],
   "title": "LATE Estimate",
   "title_zh": "LATE估计",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

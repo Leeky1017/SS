@@ -10,7 +10,7 @@
 | **Name(EN)** | IV Weak Test |
 | **家族** | causal_inference |
 | **等级** | L1 |
-| **版本** | 2.0.0 |
+| **版本** | 2.1.0 |
 
 ## 功能描述
 
@@ -47,9 +47,7 @@ Weak instrument tests for IV
 
 | 包/命令 | 来源 | 用途 |
 |---------|------|------|
-| ivreg2 | ssc | IV regression |
-| ranktest | ssc | Rank test |
-
+| stata | built-in | ivregress 2sls + first-stage joint test |
 ## 示例
 
 ```stata

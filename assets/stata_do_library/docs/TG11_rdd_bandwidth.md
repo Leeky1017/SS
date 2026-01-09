@@ -10,7 +10,7 @@
 | **Name(EN)** | RDD Bandwidth |
 | **家族** | causal_inference |
 | **等级** | L1 |
-| **版本** | 2.0.0 |
+| **版本** | 2.1.0 |
 
 ## 功能描述
 
@@ -49,7 +49,6 @@ RDD optimal bandwidth selection
 | 包/命令 | 来源 | 用途 |
 |---------|------|------|
 | rdrobust | ssc | RDD bandwidth |
-
 ## 示例
 
 ```stata

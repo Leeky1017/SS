@@ -8,8 +8,15 @@
 *   - data_TG24_late.dta type=data desc="LATE data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - ivreg2 source=ssc purpose="IV regression"
+*   - stata source=built-in purpose="ivregress + regress"
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* 方法 / Method: LATE via Wald ratio + `ivregress 2sls` (binary Z, monotonicity)
+* 识别假设 / ID assumptions: relevance + exclusion + monotonicity + independence (as-if random Z)
+* 诊断输出 / Diagnostics: first-stage effect/F statistic + weak-IV warning (rule-of-thumb)
+* SSC依赖 / SSC deps: removed (replace `ivreg2`)
+* 解读要点 / Interpretation: LATE applies to compliers only; generalization needs care
 
 * ============ 初始化 ============
 capture log close _all
@@ -26,22 +33,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG24|level=L2|title=LATE_Estimate"
-display "SS_TASK_VERSION|version=2.0.1"
-
-* ============ 依赖检测 ============
-local required_deps "ivreg2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
-display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=ivreg2|source=ssc|status=ok"
+display "SS_TASK_VERSION|version=2.1.0"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local outcome_var = "__OUTCOME_VAR__"
@@ -165,9 +158,14 @@ display ">>> Wald估计量 (简约形式/第一阶段):"
 display "    简约形式: " %10.4f `reduced_form'
 display "    第一阶段: " %10.4f `first_stage_coef'
 display "    LATE (Wald): " %10.4f `late_wald'
+display "    第一阶段F(单工具变量): " %10.2f `fs_f'
+
+if `fs_f' < 10 {
+display "SS_RC|code=0|cmd=warning|msg=weak_iv|detail=First-stage_F__10_possible_weak_instruments|severity=warn"
+}
 
 * 2SLS估计
-ivreg2 `outcome_var' `valid_covariates' (`treatment_var' = `instrument'), robust first
+ivregress 2sls `outcome_var' `valid_covariates' (`treatment_var' = `instrument'), vce(robust)
 
 local late_2sls = _b[`treatment_var']
 local late_se = _se[`treatment_var']

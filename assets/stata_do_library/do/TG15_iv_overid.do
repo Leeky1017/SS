@@ -6,8 +6,15 @@
 *   - table_TG15_overid_tests.csv type=table desc="Overid tests"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - ivreg2 source=ssc purpose="IV regression"
+*   - stata source=built-in purpose="ivregress + estat overid"
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* 方法 / Method: `ivregress 2sls` + `estat overid` (Hansen/Sargan depending on VCE)
+* 识别假设 / ID assumptions: overid tests require more instruments than endogenous vars
+* 诊断输出 / Diagnostics: `estat overid` p-value + explicit just-identified warning
+* SSC依赖 / SSC deps: removed (replace `ivreg2`)
+* 解读要点 / Interpretation: failing to reject overid ≠ proof of validity; rejection is a warning
 
 * ============ 初始化 ============
 capture log close _all
@@ -24,22 +31,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG15|level=L1|title=IV_Overid"
-display "SS_TASK_VERSION|version=2.0.1"
-
-* ============ 依赖检测 ============
-local required_deps "ivreg2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
-display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=ivreg2|source=ssc|status=ok"
+display "SS_TASK_VERSION|version=2.1.0"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local dep_var = "__DEPVAR__"
@@ -117,39 +110,39 @@ display "═══════════════════════�
 display "SECTION 1: 过度识别检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 构建回归命令
-local iv_opts "robust"
+* 构建回归命令 / Build VCE option
+local vce_opt "vce(robust)"
 if "`cluster_var'" != "" {
     capture confirm variable `cluster_var'
     if !_rc {
-        local iv_opts "cluster(`cluster_var')"
+        local vce_opt "vce(cluster `cluster_var')"
     }
 }
 
-ivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), `iv_opts'
+capture noisily ivregress 2sls `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), `vce_opt'
+if _rc {
+display "SS_RC|code=430|cmd=ivregress_2sls|msg=ivregress_failed|detail=ivregress_failed_rc_`_rc'|severity=fail"
+    log close
+    exit 430
+}
 
-* 提取检验统计量
-local sargan = e(sargan)
-local sargan_p = e(sarganp)
-local sargan_df = e(sargandf)
-local hansen_j = e(j)
-local hansen_p = e(jp)
-
-display ""
-display ">>> Sargan检验 (同方差假设):"
-display "    Chi2统计量: " %10.4f `sargan'
-display "    自由度: " %10.0f `sargan_df'
-display "    p值: " %10.4f `sargan_p'
-
-display ""
-display ">>> Hansen J检验 (异方差稳健):"
-display "    J统计量: " %10.4f `hansen_j'
-display "    p值: " %10.4f `hansen_p'
-
-display "SS_METRIC|name=sargan|value=`sargan'"
-display "SS_METRIC|name=sargan_p|value=`sargan_p'"
-display "SS_METRIC|name=hansen_j|value=`hansen_j'"
-display "SS_METRIC|name=hansen_p|value=`hansen_p'"
+local overid_chi2 = .
+local overid_p = .
+local overid_df_r = .
+if `overid_df' > 0 {
+    capture noisily estat overid
+    if _rc == 0 {
+        capture local overid_chi2 = r(chi2)
+        capture local overid_p = r(p)
+        capture local overid_df_r = r(df)
+        if `overid_p' < . & `overid_p' < 0.05 {
+display "SS_RC|code=0|cmd=warning|msg=overid_rejected|detail=estat_overid_rejects_instrument_validity|severity=warn"
+        }
+    }
+    else {
+display "SS_RC|code=0|cmd=warning|msg=overid_failed|detail=estat_overid_failed_rc_`_rc'|severity=warn"
+    }
+}
 
 * ============ 结果解释 ============
 display ""
@@ -163,40 +156,18 @@ display "    H0: 所有工具变量都是外生的（有效的）"
 display "    H1: 至少一个工具变量是内生的（无效的）"
 display ""
 
-local sargan_conclusion = ""
-local hansen_conclusion = ""
-
-if `sargan_p' >= 0.10 {
-    display ">>> Sargan检验结论: 不拒绝H0 (p=" %5.4f `sargan_p' ")"
-    display "    工具变量整体外生性假设成立"
-    local sargan_conclusion = "通过:工具变量外生"
+local overid_conclusion = ""
+if `overid_df' <= 0 {
+    local overid_conclusion = "不适用:恰好识别"
 }
-else if `sargan_p' >= 0.05 {
-    display ">>> Sargan检验结论: 在10%水平拒绝H0 (p=" %5.4f `sargan_p' ")"
-    display "    边际拒绝，需谨慎"
-    local sargan_conclusion = "边际拒绝:需谨慎"
+else if `overid_p' >= 0.10 {
+    local overid_conclusion = "通过:不拒绝H0"
 }
-else {
-    display ">>> Sargan检验结论: 拒绝H0 (p=" %5.4f `sargan_p' ")"
-    display "    警告: 工具变量可能存在内生性问题！"
-display "SS_RC|code=0|cmd=warning|msg=overid_rejected|detail=Sargan_test_rejects_instrument_validity|severity=warn"
-    local sargan_conclusion = "拒绝:IV可能内生"
+else if `overid_p' >= 0.05 {
+    local overid_conclusion = "边际拒绝:需谨慎"
 }
-
-display ""
-
-if `hansen_p' >= 0.10 {
-    display ">>> Hansen J检验结论: 不拒绝H0 (p=" %5.4f `hansen_p' ")"
-    local hansen_conclusion = "通过:工具变量外生"
-}
-else if `hansen_p' >= 0.05 {
-    display ">>> Hansen J检验结论: 在10%水平拒绝H0 (p=" %5.4f `hansen_p' ")"
-    local hansen_conclusion = "边际拒绝:需谨慎"
-}
-else {
-    display ">>> Hansen J检验结论: 拒绝H0 (p=" %5.4f `hansen_p' ")"
-display "SS_RC|code=0|cmd=warning|msg=hansen_rejected|detail=Hansen_J_test_rejects_instrument_validity|severity=warn"
-    local hansen_conclusion = "拒绝:IV可能内生"
+else if `overid_p' < . {
+    local overid_conclusion = "拒绝:IV可能无效"
 }
 
 * ============ 输出结果 ============
@@ -214,17 +185,17 @@ generate int df = .
 generate double p_value = .
 generate str50 conclusion = ""
 
-replace test = "Sargan" in 1
-replace statistic = `sargan' in 1
-replace df = `sargan_df' in 1
-replace p_value = `sargan_p' in 1
-replace conclusion = "`sargan_conclusion'" in 1
+replace test = "estat overid" in 1
+replace statistic = `overid_chi2' in 1
+replace df = cond(`overid_df_r' < ., `overid_df_r', `overid_df') in 1
+replace p_value = `overid_p' in 1
+replace conclusion = "`overid_conclusion'" in 1
 
-replace test = "Hansen J" in 2
-replace statistic = `hansen_j' in 2
-replace df = `overid_df' in 2
-replace p_value = `hansen_p' in 2
-replace conclusion = "`hansen_conclusion'" in 2
+replace test = "Overid df (n_iv - n_endog)" in 2
+replace statistic = `overid_df' in 2
+replace df = . in 2
+replace p_value = . in 2
+replace conclusion = "" in 2
 
 export delimited using "table_TG15_overid_tests.csv", replace
 display "SS_OUTPUT_FILE|file=table_TG15_overid_tests.csv|type=table|desc=overid_tests"
@@ -232,8 +203,8 @@ restore
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 display "SS_SUMMARY|key=n_input|value=`n_input'"
-display "SS_SUMMARY|key=sargan|value=`sargan'"
-display "SS_SUMMARY|key=hansen_j|value=`hansen_j'"
+display "SS_SUMMARY|key=overid_chi2|value=`overid_chi2'"
+display "SS_SUMMARY|key=overid_p|value=`overid_p'"
 
 * ============ 任务完成摘要 ============
 display ""
@@ -245,15 +216,10 @@ display "  样本量:          " %10.0fc `n_input'
 display "  工具变量数:      " %10.0fc `n_instruments'
 display "  过度识别df:      " %10.0fc `overid_df'
 display ""
-display "  Sargan检验:"
-display "    统计量:        " %10.4f `sargan'
-display "    p值:           " %10.4f `sargan_p'
-display "    结论:          `sargan_conclusion'"
-display ""
-display "  Hansen J检验:"
-display "    统计量:        " %10.4f `hansen_j'
-display "    p值:           " %10.4f `hansen_p'
-display "    结论:          `hansen_conclusion'"
+display "  estat overid:"
+display "    统计量(chi2):  " %10.4f `overid_chi2'
+display "    p值:           " %10.4f `overid_p'
+display "    结论:          `overid_conclusion'"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
 

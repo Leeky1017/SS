@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "ivreg2",
-      "purpose": "IV regression",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "ivregress 2sls + estat",
+      "source": "built-in"
     }
   ],
   "description": "Two-stage least squares IV regression",
@@ -87,5 +87,5 @@
   ],
   "title": "IV 2SLS",
   "title_zh": "工具变量2SLS",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

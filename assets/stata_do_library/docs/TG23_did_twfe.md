@@ -10,7 +10,7 @@
 | **Name(EN)** | DID TWFE |
 | **家族** | causal_inference |
 | **等级** | L2 |
-| **版本** | 2.0.0 |
+| **版本** | 2.1.0 |
 
 ## 功能描述
 
@@ -47,9 +47,7 @@ TWFE diagnostics and robust alternatives
 
 | 包/命令 | 来源 | 用途 |
 |---------|------|------|
-| reghdfe | ssc | HDFE regression |
-| did_multiplegt | ssc | Robust DID |
-
+| stata | built-in | TWFE baseline + diagnostics (csdid optional) |
 ## 示例
 
 ```stata

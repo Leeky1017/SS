@@ -8,9 +8,15 @@
 *   - fig_TG02_balance_compare.png type=graph desc="Balance comparison"
 *   - data_TG02_matched.dta type=data desc="Matched data"
 *   - result.log type=log desc="Execution log"
-* DEPENDENCIES:
-*   - psmatch2 source=ssc purpose="PSM matching"
+* DEPENDENCIES: none (Stata 18 built-in `teffects`, `tebalance`)
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* 方法 / Method: PSM via `teffects psmatch` (ATET)
+* 识别假设 / ID assumptions: unconfoundedness + overlap (common support)
+* 诊断输出 / Diagnostics: `osample()` overlap flag + `tebalance summarize` (+ density plot)
+* SSC依赖 / SSC deps: removed (replace `psmatch2` with Stata 18-native)
+* 解读要点 / Interpretation: ATET is for treated; treat Fails/Warns as signals, not proof
 
 * ============ 初始化 ============
 capture log close _all
@@ -35,22 +41,9 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION|version=2.0.1"
+display "SS_TASK_VERSION|version=2.1.0"
 
-* ============ 依赖检测 ============
-local required_deps "psmatch2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
-display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=psmatch2|source=ssc|status=ok"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local treatment_var = "__TREATMENT_VAR__"
@@ -114,6 +107,14 @@ foreach var of local covariates {
     }
 }
 
+* 检查处理变量是否为0/1（仅支持二元处理） / Ensure binary treatment (0/1)
+quietly tabulate `treatment_var'
+if r(r) != 2 {
+display "SS_RC|code=198|cmd=validate_inputs|msg=not_binary|detail=`treatment_var'_must_be_binary_01|severity=fail"
+    log close
+    exit 198
+}
+
 * 统计处理组和对照组
 quietly count if `treatment_var' == 1
 local n_treated = r(N)
@@ -125,25 +126,48 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
-* ============ 执行PSM匹配 ============
+* ============ 执行PSM匹配 / Run teffects psmatch ============
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
-display "SECTION 1: 执行倾向得分匹配"
+display "SECTION 1: teffects psmatch (ATET)"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 构建psmatch2命令
-local psmatch_opts "neighbor(`n_neighbors') caliper(`caliper') common"
+* `teffects psmatch` uses matching with replacement; `__WITH_REPLACE__=no` is treated as warn.
 if "`with_replace'" == "no" {
-    local psmatch_opts "`psmatch_opts' noreplacement"
+display "SS_RC|code=0|cmd=warning|msg=psmatch_replacement_only|detail=teffects_psmatch_uses_replacement_ignore_with_replace_no|severity=warn"
 }
 
-display ">>> 执行psmatch2..."
-psmatch2 `treatment_var' `valid_covariates', outcome(`outcome_var') `psmatch_opts'
+tempvar osample
+capture noisily teffects psmatch (`outcome_var') (`treatment_var' `valid_covariates', logit), ///
+    atet nneighbor(`n_neighbors') caliper(`caliper') osample(`osample') generate(_nn)
+if _rc {
+display "SS_RC|code=430|cmd=teffects_psmatch|msg=teffects_failed|detail=teffects_psmatch_failed_rc_`_rc'|severity=fail"
+    log close
+    exit 430
+}
 
-* 获取ATT结果
-local att = r(att)
-local att_se = r(seatt)
-local att_t = r(tatt)
+* Propensity score for treated level / 处理组倾向得分
+capture predict double _pscore, ps tlevel(1)
+if _rc {
+display "SS_RC|code=0|cmd=warning|msg=predict_pscore_failed|detail=predict_ps_failed_rc_`_rc'|severity=warn"
+}
+
+quietly count if `osample' == 1
+local n_osample = r(N)
+if `n_osample' > 0 {
+display "SS_RC|code=0|cmd=warning|msg=overlap_violation|detail=osample_flagged_`n_osample'_obs|severity=warn"
+}
+display "SS_METRIC|name=n_osample|value=`n_osample'"
+
+* 获取ATET（ATT） / Extract ATET
+local att = .
+local att_se = .
+local att_t = .
+capture local att = _b[ATET]
+capture local att_se = _se[ATET]
+if `att_se' < . & `att_se' > 0 {
+    local att_t = `att' / `att_se'
+}
 
 display ""
 display ">>> ATT估计结果:"
@@ -155,82 +179,48 @@ display "SS_METRIC|name=att|value=`att'"
 display "SS_METRIC|name=att_se|value=`att_se'"
 display "SS_METRIC|name=att_t|value=`att_t'"
 
-* ============ 匹配质量评估 ============
+* ============ 匹配质量评估 / Balance & overlap diagnostics ============
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
 display "SECTION 2: 匹配质量评估"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 统计匹配结果
-quietly count if _treated == 1 & _support == 1
+* 统计在支持集内的样本量 / Approximate matched counts using osample() + neighbor indices
+quietly count if `treatment_var' == 1 & `osample' == 0
 local n_treated_matched = r(N)
-quietly count if _treated == 0 & _weight > 0
+
+local n_control_matched = .
+preserve
+keep if `treatment_var' == 1 & `osample' == 0
+keep _nn*
+gen long _rowid = _n
+reshape long _nn, i(_rowid) j(_k)
+drop if missing(_nn)
+duplicates drop _nn, force
+quietly count
 local n_control_matched = r(N)
+restore
 
 display ""
 display ">>> 匹配统计:"
 display "    匹配的处理组: `n_treated_matched' / `n_treated'"
 display "    使用的对照组: `n_control_matched' / `n_control'"
 
-* 计算匹配后平衡性
-tempname balance_after
-postfile `balance_after' str32 variable double mean_t double mean_c double std_diff_before double std_diff_after double bias_reduction ///
-    using "temp_balance_after.dta", replace
-
-display ""
-display "匹配后平衡性检验:"
-display "变量                 标准化差异(前)  标准化差异(后)  偏误减少"
-display "───────────────────────────────────────────────────────────────"
-
-foreach var of local valid_covariates {
-    * 匹配前标准化差异
-    quietly summarize `var' if `treatment_var' == 1
-    local mean_t_before = r(mean)
-    local sd_t = r(sd)
-    quietly summarize `var' if `treatment_var' == 0
-    local mean_c_before = r(mean)
-    local sd_c = r(sd)
-    local pooled_sd = sqrt((`sd_t'^2 + `sd_c'^2) / 2)
-    if `pooled_sd' > 0 {
-        local std_diff_before = (`mean_t_before' - `mean_c_before') / `pooled_sd' * 100
-    }
-    else {
-        local std_diff_before = 0
-    }
-    
-    * 匹配后标准化差异（加权）
-    quietly summarize `var' if _treated == 1 & _support == 1
-    local mean_t_after = r(mean)
-    quietly summarize `var' if _treated == 0 [aw = _weight]
-    local mean_c_after = r(mean)
-    if `pooled_sd' > 0 {
-        local std_diff_after = (`mean_t_after' - `mean_c_after') / `pooled_sd' * 100
-    }
-    else {
-        local std_diff_after = 0
-    }
-    
-    * 偏误减少
-    if abs(`std_diff_before') > 0 {
-        local bias_reduction = (1 - abs(`std_diff_after') / abs(`std_diff_before')) * 100
-    }
-    else {
-        local bias_reduction = 100
-    }
-    
-    post `balance_after' ("`var'") (`mean_t_after') (`mean_c_after') (`std_diff_before') (`std_diff_after') (`bias_reduction')
-    
-    display %20s "`var'" "  " %12.2f `std_diff_before' "%  " %12.2f `std_diff_after' "%  " %10.1f `bias_reduction' "%"
+* Export balance table via collect: tebalance summarize, baseline
+capture noisily collect clear
+capture noisily collect: tebalance summarize `valid_covariates', baseline
+if _rc {
+display "SS_RC|code=0|cmd=warning|msg=tebalance_failed|detail=tebalance_summarize_failed_rc_`_rc'|severity=warn"
 }
-
-postclose `balance_after'
-
-* 导出平衡性结果
-preserve
-use "temp_balance_after.dta", clear
-export delimited using "table_TG02_balance_after.csv", replace
-display "SS_OUTPUT_FILE|file=table_TG02_balance_after.csv|type=table|desc=balance_after"
-restore
+else {
+    capture noisily collect export "table_TG02_balance_after.csv", as(csv) replace
+    if _rc {
+display "SS_RC|code=0|cmd=warning|msg=collect_export_failed|detail=collect_export_failed_rc_`_rc'|severity=warn"
+    }
+    else {
+        display "SS_OUTPUT_FILE|file=table_TG02_balance_after.csv|type=table|desc=balance_after"
+    }
+}
 
 * ============ 生成平衡性对比图 ============
 display ""
@@ -238,14 +228,14 @@ display "═══════════════════════�
 display "SECTION 3: 生成图表"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 使用pstest命令生成平衡性图
-capture pstest `valid_covariates', both graph
-if !_rc {
+* Covariate-balance density plot (propensity score by default) / 平衡性密度图
+capture noisily tebalance density
+if _rc == 0 {
     graph export "fig_TG02_balance_compare.png", replace width(1200)
     display "SS_OUTPUT_FILE|file=fig_TG02_balance_compare.png|type=graph|desc=balance_compare"
 }
 else {
-display "SS_RC|code=0|cmd=warning|msg=graph_failed|detail=Could_not_generate_balance_graph|severity=warn"
+display "SS_RC|code=0|cmd=warning|msg=graph_failed|detail=tebalance_density_failed_rc_`_rc'|severity=warn"
 }
 
 * ============ 导出ATT结果 ============
@@ -272,8 +262,11 @@ display "═══════════════════════�
 display "SECTION 4: 输出结果"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 保留匹配样本
-keep if _support == 1
+* 保留支持集样本（由 osample() 标记） / Keep overlap-support sample
+capture confirm variable `osample'
+if !_rc {
+    keep if `osample' == 0
+}
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
@@ -285,12 +278,6 @@ display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 display "SS_SUMMARY|key=n_input|value=`n_input'"
 display "SS_SUMMARY|key=n_output|value=`n_output'"
 display "SS_SUMMARY|key=att|value=`att'"
-
-* 清理临时文件
-capture erase "temp_balance_after.dta"
-if _rc != 0 {
-    * Expected non-fatal return code
-}
 
 * ============ 任务完成摘要 ============
 display ""

@@ -1,5 +1,5 @@
 {
-  "audit_date": "2026-01-08",
+  "audit_date": "2026-01-09",
   "compliance_summary": {
     "anchor_compliant": 310,
     "dangerous_command_free": 310,
@@ -1050,7 +1050,7 @@
       "outputs": [
         "fig_T19_residuals.png",
         "result.log",
-        "table_T19_paper.rtf",
+        "table_T19_paper.docx",
         "table_T19_reg_robust.csv",
         "table_T19_se_comparison.csv"
       ],
@@ -1076,7 +1076,7 @@
       "name": "聚类稳健标准误OLS回归",
       "outputs": [
         "result.log",
-        "table_T20_paper.rtf",
+        "table_T20_paper.docx",
         "table_T20_reg_cluster.csv",
         "table_T20_se_comparison.csv"
       ],
@@ -1104,7 +1104,7 @@
       "outputs": [
         "fig_T21_margins.png",
         "result.log",
-        "table_T21_paper.rtf",
+        "table_T21_paper.docx",
         "table_T21_reg_interaction.csv"
       ],
       "placeholders": [
@@ -1131,7 +1131,7 @@
       "name": "实体固定效应",
       "outputs": [
         "result.log",
-        "table_T22_paper.rtf",
+        "table_T22_paper.docx",
         "table_T22_reg_fe.csv"
       ],
       "placeholders": [
@@ -1158,7 +1158,7 @@
       "outputs": [
         "fig_T23_time_effects.png",
         "result.log",
-        "table_T23_paper.rtf",
+        "table_T23_paper.docx",
         "table_T23_reg_timefe.csv"
       ],
       "placeholders": [
@@ -1185,7 +1185,7 @@
       "outputs": [
         "result.log",
         "table_T24_model_comparison.csv",
-        "table_T24_paper.rtf"
+        "table_T24_paper.docx"
       ],
       "placeholders": [
         "__DEPVAR__",
@@ -1363,7 +1363,7 @@
         "result.log",
         "table_T31_fe_coef.csv",
         "table_T31_fe_gof.csv",
-        "table_T31_paper.rtf"
+        "table_T31_paper.docx"
       ],
       "placeholders": [
         "__CLUSTER_VAR__",
@@ -1390,7 +1390,7 @@
       "name": "面板随机效应回归",
       "outputs": [
         "result.log",
-        "table_T32_paper.rtf",
+        "table_T32_paper.docx",
         "table_T32_re_coef.csv",
         "table_T32_re_gof.csv"
       ],
@@ -1420,7 +1420,7 @@
         "result.log",
         "table_T33_comparison.csv",
         "table_T33_hausman.csv",
-        "table_T33_paper.rtf"
+        "table_T33_paper.docx"
       ],
       "placeholders": [
         "__DEPVAR__",
@@ -1448,7 +1448,7 @@
         "fig_T34_did_trend.png",
         "result.log",
         "table_T34_did_coef.csv",
-        "table_T34_paper.rtf"
+        "table_T34_paper.docx"
       ],
       "placeholders": [
         "__DEPVAR__",
@@ -1476,7 +1476,7 @@
         "fig_T35_event_study.png",
         "result.log",
         "table_T35_event_coef.csv",
-        "table_T35_paper.rtf"
+        "table_T35_paper.docx"
       ],
       "placeholders": [
         "__DEPVAR__",
