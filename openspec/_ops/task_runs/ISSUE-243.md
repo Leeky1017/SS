@@ -51,3 +51,19 @@
 ### 2026-01-09 frontend
 - Command: `cd frontend && npm run build`
 - Key output: `✓ built`
+
+### 2026-01-09 pr
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+
+### 2026-01-09 pr
+- Command: `gh pr create ...`
+- Key output: `PR: https://github.com/Leeky1017/SS/pull/245`
+
+### 2026-01-09 pr
+- Command: `gh pr merge 245 --auto --squash`
+- Key output: `auto-merge enabled`
+
+### 2026-01-09 pr
+- Command: `gh pr checks 245 --watch`
+- Key output: `All checks were successful`
