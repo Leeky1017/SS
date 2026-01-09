@@ -18,6 +18,16 @@ class Config:
     do_template_library_dir: Path
     stata_cmd: tuple[str, ...]
     log_level: str
+    upload_object_store_backend: str
+    upload_s3_endpoint: str
+    upload_s3_region: str
+    upload_s3_bucket: str
+    upload_s3_access_key_id: str
+    upload_s3_secret_access_key: str
+    upload_presigned_url_ttl_seconds: int
+    upload_multipart_threshold_bytes: int
+    upload_multipart_part_size_bytes: int
+    upload_max_bundle_files: int
     llm_provider: str = field(default="stub", kw_only=True)
     llm_base_url: str = field(default="https://yunwu.ai/v1", kw_only=True)
     llm_api_key: str = field(default="", kw_only=True)
@@ -75,6 +85,21 @@ def _clamped_ratio(raw: str, *, default: float) -> float:
     return ratio
 
 
+def _clamped_int(
+    raw: str,
+    *,
+    default: int,
+    min_value: int | None = None,
+    max_value: int | None = None,
+) -> int:
+    value = _int_value(raw, default=default)
+    if min_value is not None and value < min_value:
+        return min_value
+    if max_value is not None and value > max_value:
+        return max_value
+    return value
+
+
 def _load_llm_settings(*, env: Mapping[str, str]) -> tuple[float, int, float, float]:
     timeout_seconds = _float_value(str(env.get("SS_LLM_TIMEOUT_SECONDS", "30.0")), default=30.0)
     max_attempts = _int_value(str(env.get("SS_LLM_MAX_ATTEMPTS", "3")), default=3)
@@ -104,6 +129,35 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     stata_cmd_raw = str(e.get("SS_STATA_CMD", "")).strip()
     stata_cmd = tuple(shlex.split(stata_cmd_raw)) if stata_cmd_raw != "" else tuple()
     log_level = str(e.get("SS_LOG_LEVEL", "INFO")).strip().upper()
+    upload_object_store_backend = (
+        str(e.get("SS_UPLOAD_OBJECT_STORE_BACKEND", "fake")).strip().lower()
+    )
+    upload_s3_endpoint = str(e.get("SS_UPLOAD_S3_ENDPOINT", "")).strip()
+    upload_s3_region = str(e.get("SS_UPLOAD_S3_REGION", "")).strip()
+    upload_s3_bucket = str(e.get("SS_UPLOAD_S3_BUCKET", "")).strip()
+    upload_s3_access_key_id = str(e.get("SS_UPLOAD_S3_ACCESS_KEY_ID", "")).strip()
+    upload_s3_secret_access_key = str(e.get("SS_UPLOAD_S3_SECRET_ACCESS_KEY", "")).strip()
+    upload_presigned_url_ttl_seconds = _clamped_int(
+        str(e.get("SS_UPLOAD_PRESIGNED_URL_TTL_SECONDS", "900")),
+        default=900,
+        min_value=1,
+        max_value=900,
+    )
+    upload_multipart_threshold_bytes = _clamped_int(
+        str(e.get("SS_UPLOAD_MULTIPART_THRESHOLD_BYTES", str(64 * 1024 * 1024))),
+        default=64 * 1024 * 1024,
+        min_value=1,
+    )
+    upload_multipart_part_size_bytes = _clamped_int(
+        str(e.get("SS_UPLOAD_MULTIPART_PART_SIZE_BYTES", str(8 * 1024 * 1024))),
+        default=8 * 1024 * 1024,
+        min_value=5 * 1024 * 1024,
+    )
+    upload_max_bundle_files = _clamped_int(
+        str(e.get("SS_UPLOAD_MAX_BUNDLE_FILES", "64")),
+        default=64,
+        min_value=1,
+    )
     llm_provider = str(e.get("SS_LLM_PROVIDER", "stub")).strip().lower()
     llm_base_url = str(e.get("SS_LLM_BASE_URL", "https://yunwu.ai/v1")).strip()
     llm_api_key = str(e.get("SS_LLM_API_KEY", "")).strip()
@@ -162,6 +216,16 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         do_template_library_dir=do_template_library_dir,
         stata_cmd=stata_cmd,
         log_level=log_level,
+        upload_object_store_backend=upload_object_store_backend,
+        upload_s3_endpoint=upload_s3_endpoint,
+        upload_s3_region=upload_s3_region,
+        upload_s3_bucket=upload_s3_bucket,
+        upload_s3_access_key_id=upload_s3_access_key_id,
+        upload_s3_secret_access_key=upload_s3_secret_access_key,
+        upload_presigned_url_ttl_seconds=upload_presigned_url_ttl_seconds,
+        upload_multipart_threshold_bytes=upload_multipart_threshold_bytes,
+        upload_multipart_part_size_bytes=upload_multipart_part_size_bytes,
+        upload_max_bundle_files=upload_max_bundle_files,
         llm_provider=llm_provider,
         llm_base_url=llm_base_url,
         llm_api_key=llm_api_key,
