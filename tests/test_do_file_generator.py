@@ -92,3 +92,38 @@ def test_generate_with_missing_generate_step_raises_plan_invalid_error():
     with pytest.raises(DoFilePlanInvalidError) as exc:
         generator.generate(plan=plan, inputs_manifest=inputs_manifest)
     assert exc.value.error_code == "DOFILE_PLAN_INVALID"
+
+
+def test_generate_with_csv_manifest_uses_import_delimited(
+    job_service,
+    draft_service,
+    plan_service,
+):
+    # Arrange
+    job = job_service.create_job(requirement="need a descriptive analysis")
+    asyncio.run(draft_service.preview(job_id=job.job_id))
+    plan = plan_service.freeze_plan(job_id=job.job_id, confirmation=JobConfirmation())
+    generator = DoFileGenerator()
+    inputs_manifest = {
+        "schema_version": 2,
+        "datasets": [
+            {
+                "dataset_key": "ds_demo",
+                "role": "primary_dataset",
+                "rel_path": "inputs/data.csv",
+                "original_name": "data.csv",
+                "size_bytes": 1,
+                "sha256": "x",
+                "fingerprint": "sha256:x",
+                "format": "csv",
+                "uploaded_at": "2026-01-01T00:00:00Z",
+                "content_type": "text/csv",
+            }
+        ],
+    }
+
+    # Act
+    rendered = generator.generate(plan=plan, inputs_manifest=inputs_manifest).do_file
+
+    # Assert
+    assert 'import delimited using "inputs/data.csv", clear varnames(1)' in rendered
