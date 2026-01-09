@@ -7,12 +7,13 @@
 - Phase 5.6 TF01–TF14: content enhancement (best practices + SSC→Stata18 native where feasible + stronger error handling + bilingual comments).
 
 ## Status
-- CURRENT: TF01–TF14 updates implemented; validations green; ready to open PR.
+- CURRENT: PR #253 merged; controlplane `main` synced; worktree cleaned.
 
 ## Next Actions
 - [x] Add per-template Phase 5.6 best-practice review blocks (TF01–TF14).
 - [x] Replace SSC deps where feasible (fallback + justification where not).
 - [x] Run do-lint + ruff + pytest and link outputs here.
+- [x] Verify PR merged, sync controlplane, and cleanup worktree.
 
 ## Decisions Made
 - <date>: <decision> → <reason>
@@ -76,3 +77,21 @@
   - `will be automatically merged`
 - Evidence:
   - `https://github.com/Leeky1017/SS/pull/253`
+
+### 2026-01-09 14:59 merge-verify
+- Command:
+  - `gh pr view 253 --json state,mergedAt`
+- Key output:
+  - `state=MERGED mergedAt=2026-01-09T14:59:07Z`
+- Evidence:
+  - `https://github.com/Leeky1017/SS/pull/253`
+
+### 2026-01-09 15:00 post-merge-sync
+- Command:
+  - `scripts/agent_controlplane_sync.sh`
+  - `scripts/agent_worktree_cleanup.sh "246" "p5-6-panel-advanced-tf"`
+- Key output:
+  - `Fast-forward ... (includes PR #253)`
+  - `OK: cleaned worktree .worktrees/issue-246-p5-6-panel-advanced-tf ...`
+- Evidence:
+  - `scripts/agent_controlplane_sync.sh`
