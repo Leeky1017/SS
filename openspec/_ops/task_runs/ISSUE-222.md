@@ -1,19 +1,19 @@
 # ISSUE-222
 - Issue: #222
 - Branch: task/222-ss-frontend-desktop-pro
-- PR: (not created yet)
+- PR: https://github.com/Leeky1017/SS/pull/223
 
 ## Goal
 - Add new OpenSpec capability spec `ss-frontend-desktop-pro` describing a standalone React + TypeScript + Vite frontend under `frontend/` that replicates `index.html` Desktop Pro UI and enables the v1 UX loop closure.
 
 ## Status
-- CURRENT: Drafting spec and task cards.
+- CURRENT: PR opened; enabling auto-merge and waiting for required checks.
 
 ## Next Actions
-- [ ] Write `openspec/specs/ss-frontend-desktop-pro/spec.md` + task cards FE-C001–FE-C006.
-- [ ] Run `openspec validate --specs --strict --no-interactive`.
-- [ ] Run `scripts/agent_pr_preflight.sh`, open PR (Closes #222), enable auto-merge.
-- [ ] Update this run log with PR link + key command evidence.
+- [x] Write `openspec/specs/ss-frontend-desktop-pro/spec.md` + task cards FE-C001–FE-C006.
+- [x] Run `openspec validate --specs --strict --no-interactive`.
+- [x] Run `scripts/agent_pr_preflight.sh` and open PR (Closes #222).
+- [ ] Enable auto-merge and watch required checks.
 
 ## Decisions Made
 - 2026-01-09: Treat `VITE_API_BASE_URL` as the full `/v1` prefix (default `/v1`) to keep all frontend calls versioned.
@@ -65,5 +65,15 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - N/A
+
+### 2026-01-09 PR
+- Command:
+  - `git commit -m "docs: add ss-frontend-desktop-pro spec and task cards (#222)"`
+  - `git push -u origin HEAD`
+  - `gh pr create --title "[ROUND-03-FE-A] FE-C000: ss-frontend-desktop-pro spec + task cards (#222)" --body "Closes #222 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/223`
 - Evidence:
   - N/A
