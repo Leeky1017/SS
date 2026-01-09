@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Annotated, Literal, Union
+
 from pydantic import BaseModel, Field
 
 from src.utils.json_types import JsonValue
@@ -239,3 +241,66 @@ class BundleResponse(BaseModel):
     bundle_id: str
     job_id: str
     files: list[BundleFileResponse] = Field(default_factory=list)
+
+
+class CreateUploadSessionRequest(BaseModel):
+    bundle_id: str
+    file_id: str
+
+
+class UploadSessionPartUrl(BaseModel):
+    part_number: int
+    url: str
+
+
+class UploadSessionResponse(BaseModel):
+    upload_session_id: str
+    job_id: str
+    file_id: str
+    upload_strategy: Literal["direct", "multipart"]
+    expires_at: str
+    presigned_url: str | None = None
+    part_size: int | None = None
+    presigned_urls: list[UploadSessionPartUrl] = Field(default_factory=list)
+
+
+class RefreshUploadUrlsRequest(BaseModel):
+    part_numbers: list[int] | None = None
+
+
+class RefreshUploadUrlsResponse(BaseModel):
+    upload_session_id: str
+    parts: list[UploadSessionPartUrl] = Field(default_factory=list)
+    expires_at: str
+
+
+class FinalizeUploadPart(BaseModel):
+    part_number: int
+    etag: str
+    sha256: str | None = None
+
+
+class FinalizeUploadRequest(BaseModel):
+    parts: list[FinalizeUploadPart] = Field(default_factory=list)
+
+
+class FinalizeUploadSuccess(BaseModel):
+    success: Literal[True]
+    status: str
+    upload_session_id: str
+    file_id: str
+    sha256: str
+    size_bytes: int
+
+
+class FinalizeUploadFailure(BaseModel):
+    success: Literal[False]
+    retryable: bool
+    error_code: str
+    message: str
+
+
+FinalizeUploadResponse = Annotated[
+    Union[FinalizeUploadSuccess, FinalizeUploadFailure],
+    Field(discriminator="success"),
+]
