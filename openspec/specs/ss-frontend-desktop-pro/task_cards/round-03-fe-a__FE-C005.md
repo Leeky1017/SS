@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: #N
+- Issue: #243
 - Spec: `openspec/specs/ss-frontend-desktop-pro/spec.md`
 - Related specs:
   - `openspec/specs/frontend-stata-proxy-extension/spec.md`
@@ -56,4 +56,3 @@ Step 3 是“专业确认”的关键路径：用户需要在确认前完成变�
 - [ ] 实现 `frontend-stata-proxy-extension` 的交互要点，并且降级策略符合本卡 In scope 的明确规则
 - [ ] confirm 成功后 Step 3 进入锁定只读态（banner 可见、输入禁用、避免重复编辑）
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-N.md` 记录关键命令与输出
-

@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: #N
+- Issue: #243
 - Spec: `openspec/specs/ss-frontend-desktop-pro/spec.md`
 - Related specs:
   - `openspec/specs/ss-api-surface/spec.md`
@@ -46,4 +46,3 @@
 - [ ] artifacts 呈现与 `ss-job-contract` 对齐（kind + job-relative `rel_path` 的语义正确）
 - [ ] 错误态可恢复（清晰提示 + request id + 重试）
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-N.md` 记录关键命令与输出
-

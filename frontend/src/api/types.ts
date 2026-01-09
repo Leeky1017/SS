@@ -25,6 +25,8 @@ export type ConfirmJobRequest = {
   notes: string | null
   variable_corrections: Record<string, string>
   default_overrides: Record<string, unknown>
+  answers?: Record<string, string[]>
+  expert_suggestions_feedback?: Record<string, unknown>
 }
 
 export type ConfirmJobResponse = {
@@ -108,17 +110,73 @@ export type DraftPreviewDataSource = {
   format: string
 }
 
-export type DraftPreviewResponse = {
+export type DraftPreviewDecision = 'auto_freeze' | 'require_confirm' | 'require_confirm_with_downgrade'
+
+export type DraftPreviewPendingResponse = {
+  status: 'pending'
+  message?: string
+  retry_after_seconds: number
+  retry_until?: string
+}
+
+export type DraftQualityWarning = {
+  type: string
+  severity: string
+  message: string
+  suggestion?: string
+}
+
+export type DraftStage1Option = {
+  option_id: string
+  label: string
+  value: string | number | boolean | null
+}
+
+export type DraftStage1Question = {
+  question_id: string
+  question_text: string
+  question_type: string
+  options: DraftStage1Option[]
+  priority?: number
+}
+
+export type DraftOpenUnknown = {
+  field: string
+  description: string
+  impact?: string
+  blocking?: boolean
+  candidates?: string[]
+}
+
+export type DraftPreviewReadyResponse = {
   job_id: string
   draft_text: string
+  draft_id?: string
+  status?: string
+  decision?: DraftPreviewDecision
+  risk_score?: number
   outcome_var: string | null
   treatment_var: string | null
   controls: string[]
-  column_candidates: string[]
-  variable_types: InputsPreviewColumn[]
-  data_sources: DraftPreviewDataSource[]
-  default_overrides: Record<string, unknown>
+  column_candidates?: string[]
+  variable_types?: InputsPreviewColumn[]
+  data_sources?: DraftPreviewDataSource[]
+  data_quality_warnings?: DraftQualityWarning[]
+  stage1_questions?: DraftStage1Question[]
+  open_unknowns?: DraftOpenUnknown[]
+  default_overrides?: Record<string, unknown>
+}
+
+export type DraftPreviewResponse = DraftPreviewPendingResponse | DraftPreviewReadyResponse
+
+export type DraftPatchRequest = { field_updates: Record<string, string> }
+
+export type DraftPatchResponse = {
+  status: string
+  patched_fields?: string[]
+  remaining_unknowns_count?: number
+  open_unknowns?: DraftOpenUnknown[]
+  draft_preview?: Partial<DraftPreviewReadyResponse>
 }
 
 export type RunJobResponse = { job_id: string; status: SSJobStatus; scheduled_at: string | null }
-

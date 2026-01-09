@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: #N
+- Issue: #243
 - Spec: `openspec/specs/ss-frontend-desktop-pro/spec.md`
 - Related specs:
   - `openspec/specs/ss-ux-loop-closure/spec.md`
@@ -48,4 +48,3 @@
 - [ ] 错误态可恢复（清晰提示 + request id + 重试）
 - [ ] 刷新页面后不丢失 `job_id`，且能回到 Step 2 并继续预览/重试
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-N.md` 记录关键命令与输出
-

@@ -6,6 +6,8 @@ import type {
   ConfirmJobResponse,
   CreateJobRequest,
   CreateJobResponse,
+  DraftPatchRequest,
+  DraftPatchResponse,
   DraftPreviewResponse,
   FreezePlanRequest,
   FreezePlanResponse,
@@ -17,26 +19,10 @@ import type {
   RedeemTaskCodeResponse,
   RunJobResponse,
 } from './types'
+import { encodePathPreservingSlashes, readErrorMessage, requestId, resolveBaseUrl, safeJson } from './utils'
 import { clearAuthToken, getAuthToken } from '../state/storage'
 
-type ApiClientOptions = {
-  baseUrl?: string
-}
-
-function resolveBaseUrl(override: string | undefined): string {
-  const raw = override ?? (import.meta.env.VITE_API_BASE_URL as string | undefined)
-  if (raw !== undefined && raw.trim() !== '') {
-    return raw.trim()
-  }
-  return '/v1'
-}
-
-function requestId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID().replaceAll('-', '')
-  }
-  return Math.random().toString(16).slice(2) + Date.now().toString(16)
-}
+type ApiClientOptions = { baseUrl?: string }
 
 function isDevMockEnabled(): boolean {
   return import.meta.env.DEV && (import.meta.env.VITE_API_MOCK as string | undefined) !== '0'
@@ -48,14 +34,6 @@ function requireTaskCode(): boolean {
 
 function canFallbackToCreateJob(): boolean {
   return import.meta.env.DEV && !requireTaskCode()
-}
-
-async function safeJson(response: Response): Promise<unknown> {
-  const text = await response.text()
-  if (text.trim() === '') {
-    return null
-  }
-  return JSON.parse(text)
 }
 
 export class ApiClient {
@@ -126,6 +104,10 @@ export class ApiClient {
     return await this.getJson<DraftPreviewResponse>(`/jobs/${jobId}/draft/preview`, jobId)
   }
 
+  public async patchDraft(jobId: string, payload: DraftPatchRequest): Promise<ApiResult<DraftPatchResponse>> {
+    return await this.postJson<DraftPatchResponse>(`/jobs/${jobId}/draft/patch`, payload, jobId)
+  }
+
   public async confirmJob(jobId: string, payload: ConfirmJobRequest): Promise<ApiResult<ConfirmJobResponse>> {
     return await this.postJson<ConfirmJobResponse>(`/jobs/${jobId}/confirm`, payload, jobId)
   }
@@ -139,8 +121,9 @@ export class ApiClient {
   }
 
   public async downloadArtifact(jobId: string, artifactId: string): Promise<ApiResult<Blob>> {
+    const encoded = encodePathPreservingSlashes(artifactId)
     return await this.request<Blob>({
-      path: `/jobs/${jobId}/artifacts/${artifactId}`,
+      path: `/jobs/${jobId}/artifacts/${encoded}`,
       method: 'GET',
       jobId,
       responseType: 'blob',
@@ -266,29 +249,4 @@ export class ApiClient {
       return toParseError(requestId, err)
     }
   }
-}
-
-function readErrorMessage(details: unknown): string | null {
-  if (details === null || details === undefined) {
-    return null
-  }
-  if (typeof details === 'object') {
-    const asRecord = details as Record<string, unknown>
-    const message = asRecord.message
-    if (typeof message === 'string' && message.trim() !== '') {
-      return message
-    }
-    const detail = asRecord.detail
-    if (typeof detail === 'string' && detail.trim() !== '') {
-      return detail
-    }
-    const errorCode = asRecord.error_code
-    if (typeof errorCode === 'string' && errorCode.trim() !== '') {
-      return errorCode
-    }
-  }
-  if (typeof details === 'string') {
-    return details
-  }
-  return null
 }
