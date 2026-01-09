@@ -1,7 +1,7 @@
 # ISSUE-211
 - Issue: #211
 - Branch: task/211-frontend-stata-proxy-extension
-- PR: (pending)
+- PR: https://github.com/Leeky1017/SS/pull/212
 
 ## Plan
 - Add frontend OpenSpec + task cards
@@ -35,3 +35,10 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-09 PR: open + enable auto-merge
+- Command:
+  - `gh pr create ...`
+  - `gh pr merge --auto --squash`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/212`
