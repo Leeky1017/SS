@@ -110,6 +110,26 @@ scripts/agent_pr_preflight.sh
 scripts/agent_pr_automerge_and_sync.sh
 ```
 
+#### 合并门禁（必须显式验证，不允许“以为会自动合并”）
+
+即使 required checks 全绿 + 已开启 auto-merge，也**必须**确认 PR 已真正进入 `MERGED` 状态（`mergedAt != null`）。
+
+推荐检查命令：
+
+```bash
+PR=123
+gh pr checks "$PR" --watch
+gh pr view "$PR" --json state,mergedAt,mergeStateStatus,reviewDecision --jq '{state:.state,mergedAt:.mergedAt,mergeStateStatus:.mergeStateStatus,reviewDecision:(.reviewDecision//"")}'
+```
+
+若 `mergedAt` 仍为空，必须当成 blocker 处理并落盘 run log（禁止不了了之）。常见原因：
+- `reviewDecision=REVIEW_REQUIRED`：作者不能自批；为保持无人值守，需仓库允许 `gh pr merge --admin` 绕过 review 要求（或配置 bot/app 自动 approve/merge）
+- `mergeStateStatus=BEHIND`：分支落后于 `main`，需要 rebase + push 后重新跑 checks
+- `mergeStateStatus=DIRTY`：有冲突，需解决冲突
+- merge queue / serial workflow 仍在排队：继续等待，但必须在 run log 记录状态与下一步
+
+为了避免“卡住但无人发现”，建议优先使用 `scripts/agent_pr_automerge_and_sync.sh`：脚本会等待并在 merge 被阻塞时给出明确错误/提示（并可在 PR 留 comment）。
+
 ### 8) 合并后收口（强制）
 
 - 控制面同步：`scripts/agent_controlplane_sync.sh`
