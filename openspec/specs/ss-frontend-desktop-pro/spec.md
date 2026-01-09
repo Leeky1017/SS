@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Ship a standalone, maintainable SS Web frontend under `frontend/` that faithfully reproduces the existing Desktop Pro UI (`index.html` + `assets/desktop_pro_*.css`) while integrating the current `/v1` API to complete the minimum user loop: create → upload → preview → blueprint → confirm → status/artifacts.
+Ship a standalone, maintainable SS Web frontend under `frontend/` that faithfully reproduces the existing Desktop Pro UI (`index.html` + `assets/desktop_pro_*.css`) while integrating the current `/v1` API to complete the minimum user loop: redeem (task code) → upload → preview → blueprint → confirm → status/artifacts (with a dev-only fallback entry path).
 
 ## Related specs (normative)
 
@@ -50,28 +50,72 @@ For local development, the frontend MUST support a dev-proxy workflow (e.g., Vit
 The frontend MUST:
 - send a per-request id as `X-SS-Request-Id`
 - show the last request id in the UI error panel for debugging
-- allow users to set `X-SS-Tenant-ID` via the “Task Code” field (when provided); when empty, omit the header and rely on server default
 
 #### Scenario: A request includes a request id
-- **WHEN** the frontend calls `POST /v1/jobs`
+- **WHEN** the frontend calls `POST /v1/task-codes/redeem`
 - **THEN** it includes `X-SS-Request-Id: 0123456789abcdef` and shows the request id when the request fails
+
+### Requirement: Production entry MUST redeem a task code and persist an auth token
+
+The default production entry flow MUST be:
+1) User inputs `task_code` and `requirement`
+2) Frontend calls `POST /v1/task-codes/redeem`
+3) Backend returns `{job_id, token}`
+4) Frontend persists the token and resumes the UX loop for that `job_id`
+
+The frontend MUST persist:
+- `ss.last_job_id` = the redeemed `job_id`
+- `ss.auth.v1.{job_id}` = the redeemed `token`
+
+#### Scenario: Redeem succeeds and persists token
+- **WHEN** the user submits `task_code` + `requirement` and the frontend receives `{job_id, token}` from `POST /v1/task-codes/redeem`
+- **THEN** the token is persisted under `ss.auth.v1.{job_id}` and `ss.last_job_id` is updated to that `job_id`
+
+### Requirement: Dev-only fallback to `POST /v1/jobs` MUST be gated by `VITE_REQUIRE_TASK_CODE`
+
+The frontend MUST support a dev-only fallback entry path to enable local development and compatibility with existing backends:
+- If `VITE_REQUIRE_TASK_CODE=1`, the UI MUST require a non-empty `task_code` and MUST NOT fall back to `POST /v1/jobs`.
+- If `VITE_REQUIRE_TASK_CODE` is unset or `0`, the frontend MAY fall back to `POST /v1/jobs` when:
+  - the user did not provide `task_code`, or
+  - `POST /v1/task-codes/redeem` responds with `404` (endpoint not available).
+
+#### Scenario: Task code is required in production builds
+- **GIVEN** `VITE_REQUIRE_TASK_CODE=1`
+- **WHEN** the user tries to start without a `task_code`
+- **THEN** the UI shows a validation error and no `POST /v1/jobs` request is made
+
+### Requirement: Auth token MUST be attached to all `/v1/**` requests and MUST be cleared on 401/403
+
+When an auth token exists for the current job, every request under `/v1/**` MUST include:
+- `Authorization: Bearer token_0123456789abcdef`
+
+If any `/v1/**` request returns `401` or `403`, the frontend MUST:
+- remove the stored token for the current job (`ss.auth.v1.{job_id}`)
+- show a clear message: “Task Code 已失效/未授权，需要重新兑换”
+- guide the user back to the redeem step
+
+#### Scenario: Unauthorized clears token and guides re-redeem
+- **GIVEN** `ss.auth.v1.{job_id}` exists for the current job
+- **WHEN** a `/v1/**` request returns `401` or `403`
+- **THEN** `ss.auth.v1.{job_id}` is cleared and the UI prompts the user to redeem again
 
 ### Requirement: The v1 UX loop MUST be usable end-to-end from the frontend
 
 The frontend MUST implement a minimum usable flow aligned with backend `/v1` endpoints:
-1) Create job: `POST /v1/jobs`
-2) Upload dataset: `POST /v1/jobs/{job_id}/inputs/upload`
-3) Inputs preview: `GET /v1/jobs/{job_id}/inputs/preview`
-4) Blueprint precheck: `GET /v1/jobs/{job_id}/draft/preview`
-5) Confirm + enqueue: `POST /v1/jobs/{job_id}/confirm`
-6) Status + artifacts:
+1) Redeem task code (production): `POST /v1/task-codes/redeem` → `{job_id, token}`
+2) Create job (dev-only fallback): `POST /v1/jobs`
+3) Upload dataset: `POST /v1/jobs/{job_id}/inputs/upload`
+4) Inputs preview: `GET /v1/jobs/{job_id}/inputs/preview`
+5) Blueprint precheck: `GET /v1/jobs/{job_id}/draft/preview`
+6) Confirm + enqueue: `POST /v1/jobs/{job_id}/confirm`
+7) Status + artifacts:
    - `GET /v1/jobs/{job_id}`
    - `GET /v1/jobs/{job_id}/artifacts`
    - `GET /v1/jobs/{job_id}/artifacts/{artifact_id:path}`
 
 #### Scenario: User completes the loop and reaches artifacts
 - **GIVEN** the SS backend is running and reachable via `VITE_API_BASE_URL`
-- **WHEN** the user completes create → upload → preview → blueprint → confirm
+- **WHEN** the user completes redeem (or dev-only create) → upload → preview → blueprint → confirm
 - **THEN** the frontend can poll `GET /v1/jobs/{job_id}` until a terminal state
 - **AND** the user can list artifacts and download at least one artifact file
 
@@ -101,7 +145,8 @@ The frontend MUST support a usable downgrade when the backend does not yet provi
 The frontend MUST persist enough client state to allow refresh-resume:
 - `job_id` and current step/view
 - requirement text
-- tenant/task code (if set by the user)
+- `task_code` (if set by the user)
+- token (stored under `ss.auth.v1.{job_id}`; referenced via `ss.last_job_id`)
 - inputs preview + blueprint preview snapshots (best-effort)
 
 #### Scenario: Refresh resumes the last job
