@@ -1,60 +1,53 @@
-# [BACKEND] Stata Proxy Extension: variable corrections + structured draft preview + contract freeze validation
+# [BACKEND] Stata Proxy Extension — Proxy Layer 功能补齐（变量纠偏 + 结构化草案预览 + 冻结前列名校验）
 
-## Metadata
+## Background
 
-- Issue: #203 https://github.com/Leeky1017/SS/issues/203
-- Related specs:
-  - `openspec/specs/backend-stata-proxy-extension/spec.md`
-  - `openspec/specs/ss-job-contract/spec.md`
-  - `openspec/specs/ss-api-surface/spec.md`
-  - `openspec/specs/ss-delivery-workflow/spec.md`
+SS 新后端在 Execution Engine（`src/domain/composition_exec/` 等）已成熟，但 Proxy Layer（API + domain service）仍缺少旧版 `stata_service` 已验证的关键交互语义：
+- confirm 时提交变量纠偏（variable corrections），并保证后续冻结/计划/Do-file 一致
+- 草案预览返回结构化字段（outcome/treatment/controls + 候选列 + 类型/数据源），可直接驱动 UI
+- 契约冻结前做列名交叉验证，阻断不存在的变量进入可执行阶段
+
+本 task card 用于追踪“实现工作”，权威行为以 OpenSpec 为准：`openspec/specs/backend-stata-proxy-extension/spec.md`。
 
 ## Goal
 
-把旧版 `stata_service` 的代理层遗珠（变量纠偏、结构化草案预览、冻结前列名交叉验证）以 **spec-first** 的方式固化为可验证契约，为后续实现提供唯一权威输入。
+实现 backend proxy extension 的三项能力：variable corrections、structured draft preview、contract freeze validation，使确认与冻结链路可复现、可审计、可测试。
 
-## In scope
+## In scope (v1)
 
-- OpenSpec：`openspec/specs/backend-stata-proxy-extension/spec.md`
-  - 功能目标、Schema 变更清单、Service 变更清单
-  - API 端点 Request/Response JSON 契约
-  - confirm→StataRunner 前的数据流图（Mermaid）
-  - 验收测试用例（pytest 名称 + 行为断言）
-- Rulebook task：`rulebook/tasks/issue-203-backend-stata-proxy-extension/`（proposal + tasks）
-- Run log：`openspec/_ops/task_runs/ISSUE-203.md`（关键命令 + 关键输出 + 证据路径）
+- **API payload**：
+  - `POST /v1/jobs/{job_id}/confirm` 接收并持久化 `variable_corrections: dict[str,str]` 与 `default_overrides: dict[str,JsonValue]`
+  - `GET /v1/jobs/{job_id}/draft/preview` 返回结构化字段（保持 `draft_text` 向后兼容）
+- **Domain behavior**：
+  - variable corrections 清洗规则（trim / drop empty / drop identity），并使用 *token-boundary* 正则替换（避免子串误伤）
+  - corrections 必须应用到确认后“有效字段”（requirement/draft 结构字段等），使 plan/do-file 与 UI 一致
+  - freeze 前列名交叉验证：纠偏后的变量名必须存在于 primary dataset 列集合，否则拒绝冻结/排队
+  - `plan_id` 必须包含 confirmation payload（含 `variable_corrections` / `default_overrides`），保证幂等与可解释的冲突语义
+- **Tests**：
+  - unit：token-boundary 替换边界条件与幂等性
+  - integration：confirm 携带纠偏后，生成/执行前链路使用纠偏后的变量名；冻结校验失败返回稳定错误码
 
 ## Out of scope
 
-- 修改任何 `src/**/*.py`（本 Issue 仅规格与交付链路）
-- 为上述能力编写实现代码或测试代码
-- 修改现有执行引擎（`src/domain/composition_exec/`）
+- 前端 UI（`index.html`）与交互逻辑（本卡仅后端）
+- 改动 Execution Engine 的核心执行流水线（除“将纠偏后的有效输入”传入下游所需的最小改动）
+- 方法论升级（建模/统计口径）与模板库优化
 
 ## Dependencies & parallelism
 
-- Hard dependencies: None (spec-only)
-- Can run in parallel after this merges: the implementation Issue(s) that actually modify API/models/services/tests
+- Related specs:
+  - `openspec/specs/backend-stata-proxy-extension/spec.md`
+  - `openspec/specs/ss-api-surface/spec.md`
+  - `openspec/specs/ss-job-contract/spec.md`
+  - `openspec/specs/ss-llm-brain/spec.md`
+- Parallelizable with: frontend confirmation UX（只要 endpoint 契约一致即可并行）
 
 ## Acceptance checklist
 
-- [x] `openspec/specs/backend-stata-proxy-extension/spec.md` 覆盖：变量纠偏、结构化草案预览、契约冻结校验三大目标，并包含 schema/service/endpoint/dataflow/acceptance
-- [x] `rulebook/tasks/issue-203-backend-stata-proxy-extension/proposal.md` 与 `rulebook/tasks/issue-203-backend-stata-proxy-extension/tasks.md` 填写完整
-- [x] `openspec/_ops/task_runs/ISSUE-203.md` 记录关键命令与输出（Issue/worktree/validate/preflight/PR）
-- [x] 通过本地 gates 并在 run log 留证：`openspec validate --specs --strict --no-interactive`、`ruff check .`、`pytest -q`
-- [x] PR 满足交付门禁：branch `task/203-backend-stata-proxy-extension`、commit message 包含 `(#203)`、PR body 包含 `Closes #203`、required checks 全绿并启用 auto-merge
-
-## Evidence
-
-- Run log: `openspec/_ops/task_runs/ISSUE-203.md`
-- Local gates:
-  - `openspec validate --specs --strict --no-interactive`
-  - `ruff check .`
-  - `pytest -q`
-
-## Completion
-
-- PR: https://github.com/Leeky1017/SS/pull/204
-- Run log: `openspec/_ops/task_runs/ISSUE-203.md`
-- Summary:
-  - Added OpenSpec for backend proxy extension (goals, schema/service deltas, endpoint contracts, dataflow, acceptance tests)
-  - Added task card under `backend-stata-proxy-extension` spec for tracking and closeout
-  - Added Issue run log with validation + preflight evidence and auto-merge metadata
+- [ ] `ConfirmJobRequest` / `JobConfirmation` 增加并持久化 `variable_corrections` 与 `default_overrides`
+- [ ] Variable corrections 清洗规则实现且可测试（trim/drop-empty/drop-identity）
+- [ ] Token-boundary 替换实现且不误伤子串（`col_a` 不影响 `col_a2`）
+- [ ] `DraftPreviewResponse` 返回结构化字段：`outcome_var` / `treatment_var` / `controls[]` / `column_candidates[]` / `variable_types[]` / `data_sources[]` / `default_overrides`
+- [ ] `freeze_plan` 在写入 `artifacts/plan.json` 前完成列名交叉验证；失败返回 HTTP 400 + `error_code="CONTRACT_COLUMN_NOT_FOUND"`，且 job 不进入 `queued`
+- [ ] `plan_id` 在 confirmation payload 变化时必然变化（包含纠偏与 overrides），一致输入保持幂等
+- [ ] Tests 通过并留证：`ruff check .`、`pytest -q`、`openspec validate --specs --strict --no-interactive`
