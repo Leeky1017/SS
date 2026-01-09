@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from datetime import timedelta
+from typing import cast
 
 from src.domain.models import Draft, Job
 from src.utils.json_types import JsonValue
@@ -103,6 +104,7 @@ def list_of_dicts(value: object) -> list[dict[str, object]]:
 def _v1_open_unknowns(*, draft: Draft, candidates: list[str]) -> list[JsonValue]:
     unknowns: list[JsonValue] = []
     candidate_list = candidates[:20]
+    candidate_values = [cast(JsonValue, item) for item in candidate_list]
     if draft.outcome_var is None or (
         isinstance(draft.outcome_var, str) and draft.outcome_var == ""
     ):
@@ -112,7 +114,7 @@ def _v1_open_unknowns(*, draft: Draft, candidates: list[str]) -> list[JsonValue]
                 "description": "Select outcome variable",
                 "impact": "high",
                 "blocking": True,
-                "candidates": candidate_list,
+                "candidates": candidate_values,
             }
         )
     if draft.treatment_var is None or (
@@ -124,7 +126,7 @@ def _v1_open_unknowns(*, draft: Draft, candidates: list[str]) -> list[JsonValue]
                 "description": "Select treatment variable",
                 "impact": "high",
                 "blocking": True,
-                "candidates": candidate_list,
+                "candidates": candidate_values,
             }
         )
     return unknowns

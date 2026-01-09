@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from json import JSONDecodeError
+from typing import cast
 
 from src.domain.dataset_preview import dataset_preview
 from src.domain.draft_v1_contract import (
@@ -83,7 +84,8 @@ class DraftService:
 
         controls = field_updates.get("controls")
         if isinstance(controls, list) and all(isinstance(item, str) for item in controls):
-            updates["controls"] = [item for item in controls if item.strip() != ""]
+            controls_str = cast(list[str], controls)
+            updates["controls"] = [item for item in controls_str if item.strip() != ""]
             patched.append("controls")
 
         default_overrides = field_updates.get("default_overrides")
