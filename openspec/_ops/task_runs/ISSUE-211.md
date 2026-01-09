@@ -1,7 +1,7 @@
 # ISSUE-211
 - Issue: #211
 - Branch: task/211-frontend-stata-proxy-extension
-- PR: https://github.com/Leeky1017/SS/pull/212 (impl)
+- PR: https://github.com/Leeky1017/SS/pull/212 (impl), https://github.com/Leeky1017/SS/pull/213 (closeout)
 
 ## Plan
 - Add frontend OpenSpec + task cards
