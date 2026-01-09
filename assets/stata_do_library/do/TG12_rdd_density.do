@@ -4,7 +4,7 @@
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TG12_density_test.csv type=table desc="Density test results"
-*   - fig_TG12_density_plot.png type=figure desc="Density plot"
+*   - fig_TG12_density_plot.png type=graph desc="Density plot"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - rddensity source=ssc purpose="RDD density test"
@@ -12,7 +12,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -23,16 +25,17 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG12|level=L1|title=RDD_Density"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "rddensity"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
         log close
         exit 199
     }
@@ -58,8 +61,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -73,8 +75,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 * ============ 变量检查 ============
 capture confirm numeric variable `running_var'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`running_var' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`running_var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`running_var'_not_found|var=`running_var'|severity=fail"
     log close
     exit 200
 }
@@ -135,7 +136,7 @@ if `p_value' < 0.05 {
     display ""
     display ">>> 结论: 在5%水平下拒绝密度连续性假设"
     display ">>> 警告: 可能存在断点操纵！"
-    display "SS_WARNING:MANIPULATION:Density discontinuity detected at cutoff"
+display "SS_RC|code=0|cmd=warning|msg=manipulation|detail=Density_discontinuity_detected_at_cutoff|severity=warn"
     local conclusion = "拒绝H0:存在操纵嫌疑"
 }
 else if `p_value' < 0.10 {
@@ -190,11 +191,11 @@ if _rc != 0 {
            xtitle("`running_var'") ytitle("密度") ///
            title("驱动变量密度分布")
     graph export "fig_TG12_density_plot.png", replace width(1200)
-    display "SS_OUTPUT_FILE|file=fig_TG12_density_plot.png|type=figure|desc=density_plot"
+    display "SS_OUTPUT_FILE|file=fig_TG12_density_plot.png|type=graph|desc=density_plot"
 }
 else {
     graph export "fig_TG12_density_plot.png", replace width(1200)
-    display "SS_OUTPUT_FILE|file=fig_TG12_density_plot.png|type=figure|desc=density_plot"
+    display "SS_OUTPUT_FILE|file=fig_TG12_density_plot.png|type=graph|desc=density_plot"
 }
 
 * ============ 补充检验 ============

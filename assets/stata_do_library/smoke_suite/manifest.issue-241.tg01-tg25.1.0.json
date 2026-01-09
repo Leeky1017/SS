@@ -1,0 +1,290 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "issue_241_tg01_tg25",
+  "templates": {
+    "TG01": {
+      "dependencies": [
+        { "pkg": "psmatch2", "source": "ssc", "purpose": "PSM matching" }
+      ],
+      "fixtures": [{ "source": "fixtures/TG01/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__COVARIATES__": "x",
+        "__COMMON_SUPPORT__": "yes",
+        "__MODEL__": "logit",
+        "__TREATMENT_VAR__": "treat"
+      }
+    },
+    "TG02": {
+      "dependencies": [
+        { "pkg": "psmatch2", "source": "ssc", "purpose": "PSM matching" }
+      ],
+      "fixtures": [{ "source": "fixtures/TG02/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__CALIPER__": "0.2",
+        "__COVARIATES__": "x",
+        "__N_NEIGHBORS__": "1",
+        "__OUTCOME_VAR__": "y",
+        "__SEED__": "12345",
+        "__TREATMENT_VAR__": "treat",
+        "__WITH_REPLACE__": "yes"
+      }
+    },
+    "TG03": {
+      "dependencies": [{ "pkg": "stata", "source": "built-in", "purpose": "teffects ipw" }],
+      "fixtures": [{ "source": "fixtures/TG03/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__COVARIATES__": "x",
+        "__ESTIMAND__": "ATE",
+        "__OUTCOME_VAR__": "y",
+        "__SEED__": "12345",
+        "__STABILIZE__": "yes",
+        "__TREATMENT_VAR__": "treat",
+        "__TRIM_PCTL__": "99"
+      }
+    },
+    "TG04": {
+      "dependencies": [{ "pkg": "stata", "source": "built-in", "purpose": "pscore + strata" }],
+      "fixtures": [{ "source": "fixtures/TG04/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__COVARIATES__": "x",
+        "__N_STRATA__": "5",
+        "__OUTCOME_VAR__": "y",
+        "__SEED__": "12345",
+        "__TREATMENT_VAR__": "treat"
+      }
+    },
+    "TG05": {
+      "dependencies": [{ "pkg": "cem", "source": "ssc", "purpose": "CEM matching" }],
+      "fixtures": [{ "source": "fixtures/TG05/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__MATCH_VARS__": "x",
+        "__OUTCOME_VAR__": "y",
+        "__SEED__": "12345",
+        "__TREATMENT_VAR__": "treat"
+      }
+    },
+    "TG06": {
+      "dependencies": [
+        { "pkg": "psmatch2", "source": "ssc", "purpose": "Mahalanobis matching" }
+      ],
+      "fixtures": [{ "source": "fixtures/TG06/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__MATCH_VARS__": "x",
+        "__N_NEIGHBORS__": "1",
+        "__OUTCOME_VAR__": "y",
+        "__SEED__": "12345",
+        "__TREATMENT_VAR__": "treat"
+      }
+    },
+    "TG07": {
+      "dependencies": [
+        { "pkg": "psmatch2", "source": "ssc", "purpose": "PSM matching" }
+      ],
+      "fixtures": [{ "source": "fixtures/TG07/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__COVARIATES__": "x",
+        "__PSCORE_VAR__": "pscore",
+        "__SEED__": "12345",
+        "__THRESHOLD__": "10",
+        "__TREATMENT_VAR__": "treat"
+      }
+    },
+    "TG08": {
+      "dependencies": [{ "pkg": "rbounds", "source": "ssc", "purpose": "Rosenbaum bounds" }],
+      "fixtures": [{ "source": "fixtures/TG08/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__GAMMA_MAX__": "2",
+        "__GAMMA_STEP__": "0.5",
+        "__OUTCOME_VAR__": "y",
+        "__SEED__": "12345",
+        "__TREATMENT_VAR__": "treat"
+      }
+    },
+    "TG09": {
+      "dependencies": [{ "pkg": "rdrobust", "source": "ssc", "purpose": "RD estimation" }],
+      "fixtures": [{ "source": "fixtures/TG09/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__BANDWIDTH__": "0.5",
+        "__CUTOFF__": "1.0",
+        "__KERNEL__": "triangular",
+        "__OUTCOME_VAR__": "y",
+        "__POLY_ORDER__": "1",
+        "__RUNNING_VAR__": "x"
+      }
+    },
+    "TG10": {
+      "dependencies": [{ "pkg": "rdrobust", "source": "ssc", "purpose": "Fuzzy RD" }],
+      "fixtures": [{ "source": "fixtures/TG10/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__BANDWIDTH__": "0.5",
+        "__CUTOFF__": "1.0",
+        "__OUTCOME_VAR__": "y",
+        "__RUNNING_VAR__": "x",
+        "__TREATMENT_VAR__": "treat"
+      }
+    },
+    "TG11": {
+      "dependencies": [{ "pkg": "rdrobust", "source": "ssc", "purpose": "Bandwidth selection" }],
+      "fixtures": [{ "source": "fixtures/TG11/sample_data.csv", "dest": "data.csv" }],
+      "params": { "__CUTOFF__": "1.0", "__OUTCOME_VAR__": "y", "__RUNNING_VAR__": "x" }
+    },
+    "TG12": {
+      "dependencies": [{ "pkg": "rddensity", "source": "ssc", "purpose": "McCrary density test" }],
+      "fixtures": [{ "source": "fixtures/TG12/sample_data.csv", "dest": "data.csv" }],
+      "params": { "__CUTOFF__": "1.0", "__METHOD__": "rddensity", "__RUNNING_VAR__": "x" }
+    },
+    "TG13": {
+      "dependencies": [{ "pkg": "ivreg2", "source": "ssc", "purpose": "2SLS estimation" }],
+      "fixtures": [{ "source": "fixtures/TG13/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__DEPVAR__": "y",
+        "__ENDOG_VAR__": "x",
+        "__EXOG_VARS__": "post",
+        "__INSTRUMENTS__": "treat",
+        "__ROBUST__": "yes"
+      }
+    },
+    "TG14": {
+      "dependencies": [
+        { "pkg": "ivreg2", "source": "ssc", "purpose": "IV weak-ID tests" },
+        { "pkg": "ranktest", "source": "ssc", "purpose": "Weak-IV diagnostics" }
+      ],
+      "fixtures": [{ "source": "fixtures/TG14/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__DEPVAR__": "y",
+        "__ENDOG_VAR__": "x",
+        "__EXOG_VARS__": "post",
+        "__INSTRUMENTS__": "treat"
+      }
+    },
+    "TG15": {
+      "dependencies": [{ "pkg": "ivreg2", "source": "ssc", "purpose": "Overidentification tests" }],
+      "fixtures": [{ "source": "fixtures/TG15/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__DEPVAR__": "y",
+        "__ENDOG_VAR__": "x",
+        "__EXOG_VARS__": "",
+        "__INSTRUMENTS__": "treat post"
+      }
+    },
+    "TG16": {
+      "dependencies": [{ "pkg": "xtivreg2", "source": "ssc", "purpose": "Panel IV estimation" }],
+      "fixtures": [{ "source": "fixtures/TG16/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__DEPVAR__": "y",
+        "__ENDOG_VAR__": "x",
+        "__EXOG_VARS__": "",
+        "__ID_VAR__": "id",
+        "__INSTRUMENTS__": "treat post",
+        "__METHOD__": "fe",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TG17": {
+      "dependencies": [{ "pkg": "synth", "source": "ssc", "purpose": "Synthetic control" }],
+      "fixtures": [{ "source": "fixtures/TG17/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__ID_VAR__": "id",
+        "__OUTCOME_VAR__": "y",
+        "__PREDICTORS__": "x",
+        "__TREATED_UNIT__": "2",
+        "__TREATMENT_TIME__": "2003",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TG18": {
+      "dependencies": [{ "pkg": "synth", "source": "ssc", "purpose": "Synthetic control placebo" }],
+      "fixtures": [{ "source": "fixtures/TG18/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__ID_VAR__": "id",
+        "__OUTCOME_VAR__": "y",
+        "__PLACEBO_TYPE__": "in_space",
+        "__TREATED_UNIT__": "2",
+        "__TREATMENT_TIME__": "2003",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TG19": {
+      "dependencies": [],
+      "fixtures": [{ "source": "fixtures/TG19/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__CLUSTER_VAR__": "cluster",
+        "__CONTROLS__": "x",
+        "__OUTCOME_VAR__": "y",
+        "__POST_VAR__": "post",
+        "__TIME_VAR__": "year",
+        "__TREAT_VAR__": "treat"
+      }
+    },
+    "TG20": {
+      "dependencies": [
+        { "pkg": "csdid", "source": "ssc", "purpose": "Callaway-Sant'Anna DID" },
+        { "pkg": "drdid", "source": "ssc", "purpose": "DR DID" }
+      ],
+      "fixtures": [{ "source": "fixtures/TG20/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__CONTROLS__": "x",
+        "__ID_VAR__": "id",
+        "__OUTCOME_VAR__": "y",
+        "__TIME_VAR__": "year",
+        "__TREAT_TIME_VAR__": "treat_time"
+      }
+    },
+    "TG21": {
+      "dependencies": [],
+      "fixtures": [{ "source": "fixtures/TG21/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__ID_VAR__": "id",
+        "__OUTCOME_VAR__": "y",
+        "__TIME_VAR__": "year",
+        "__TREATMENT_TIME__": "2001",
+        "__TREAT_VAR__": "treat"
+      }
+    },
+    "TG22": {
+      "dependencies": [],
+      "fixtures": [{ "source": "fixtures/TG22/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__N_PERMUTATIONS__": "100",
+        "__OUTCOME_VAR__": "y",
+        "__PLACEBO_TYPE__": "permute_treat",
+        "__POST_VAR__": "post",
+        "__TIME_VAR__": "year",
+        "__TREAT_VAR__": "treat"
+      }
+    },
+    "TG23": {
+      "dependencies": [
+        { "pkg": "reghdfe", "source": "ssc", "purpose": "twfe with hdfe" },
+        { "pkg": "did_multiplegt", "source": "ssc", "purpose": "DID with multiple groups/times" }
+      ],
+      "fixtures": [{ "source": "fixtures/TG23/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__ID_VAR__": "id",
+        "__OUTCOME_VAR__": "y",
+        "__TIME_VAR__": "year",
+        "__TREAT_VAR__": "treat"
+      }
+    },
+    "TG24": {
+      "dependencies": [{ "pkg": "ivreg2", "source": "ssc", "purpose": "LATE estimation" }],
+      "fixtures": [{ "source": "fixtures/TG24/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__COVARIATES__": "post",
+        "__INSTRUMENT__": "treat",
+        "__OUTCOME_VAR__": "y",
+        "__TREATMENT_VAR__": "post"
+      }
+    },
+    "TG25": {
+      "dependencies": [{ "pkg": "mtefe", "source": "ssc", "purpose": "MTE estimation" }],
+      "fixtures": [{ "source": "fixtures/TG25/sample_data.csv", "dest": "data.csv" }],
+      "params": {
+        "__COVARIATES__": "x",
+        "__INSTRUMENT__": "treat",
+        "__OUTCOME_VAR__": "y",
+        "__TREATMENT_VAR__": "post"
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #241
 - Parent: #125
 - Superphase: Phase 4 (full-library Stata 18 audit)
 - Templates: `TG*` (~25 templates, current inventory)
@@ -33,4 +33,3 @@ Make causal-inference templates run on **Stata 18** with fixtures, emit **contra
 - [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
 - [ ] Identification/data-shape violations yield explicit `warn/fail` with `SS_RC`
 - [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
-

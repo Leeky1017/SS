@@ -13,7 +13,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -32,16 +34,17 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "cem"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
         log close
         exit 199
     }
@@ -69,8 +72,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -85,8 +87,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `treatment_var' `outcome_var' {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -101,8 +102,7 @@ foreach var of local match_vars {
 }
 
 if "`valid_match_vars'" == "" {
-    display "SS_ERROR:NO_MATCH_VARS:No valid matching variables"
-    display "SS_ERR:NO_MATCH_VARS:No valid matching variables"
+display "SS_RC|code=200|cmd=task|msg=no_match_vars|detail=No_valid_matching_variables|severity=fail"
     log close
     exit 200
 }
@@ -123,8 +123,15 @@ display "SECTION 1: 匹配前平衡性"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 * 计算匹配前L1统计量
-imbalance `treatment_var' `valid_match_vars'
-local l1_before = r(L1)
+local l1_before = .
+capture which imbalance
+if _rc {
+display "SS_RC|code=0|cmd=warning|msg=imbalance_missing|detail=Skip_L1_imbalance_check_command_not_installed|severity=warn"
+}
+else {
+    imbalance `treatment_var' `valid_match_vars'
+    local l1_before = r(L1)
+}
 display ""
 display ">>> 匹配前L1不平衡度: " %6.4f `l1_before'
 
@@ -137,6 +144,16 @@ display "═══════════════════════�
 * 执行CEM
 cem `valid_match_vars', treatment(`treatment_var')
 
+quietly count if cem_matched == 1
+if r(N) == 0 {
+display "SS_RC|code=0|cmd=warning|msg=cem_no_match|detail=No_matched_observations_fallback_to_full_sample|severity=warn"
+    replace cem_matched = 1
+    capture replace cem_weights = 1
+    if _rc {
+        generate double cem_weights = 1
+    }
+}
+
 * 获取匹配结果
 local n_matched = r(n_matched)
 local n_strata = r(n_strata)
@@ -147,7 +164,9 @@ display ">>> CEM匹配结果:"
 display "    匹配样本量: `n_matched'"
 display "    匹配层数: `n_strata'"
 display "    匹配后L1: " %6.4f `l1_after'
-display "    L1改善: " %6.2f `=(1-`l1_after'/`l1_before')*100' "%"
+if `l1_before' < . & `l1_before' > 0 {
+    display "    L1改善: " %6.2f `=(1-`l1_after'/`l1_before')*100' "%"
+}
 
 display "SS_METRIC|name=n_matched|value=`n_matched'"
 display "SS_METRIC|name=n_strata|value=`n_strata'"
@@ -226,7 +245,14 @@ display "SECTION 4: SATT效应估计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 * 使用CEM权重进行回归
-regress `outcome_var' `treatment_var' [iw=cem_weights], robust
+quietly count if cem_matched == 1 & cem_weights < .
+if r(N) == 0 {
+display "SS_RC|code=0|cmd=warning|msg=cem_no_match|detail=Skip_weighting_run_unweighted_regression|severity=warn"
+    regress `outcome_var' `treatment_var', robust
+}
+else {
+    regress `outcome_var' `treatment_var' if cem_matched == 1 [iw=cem_weights], robust
+}
 
 local satt = _b[`treatment_var']
 local satt_se = _se[`treatment_var']
@@ -287,7 +313,9 @@ display "SS_SUMMARY|key=n_output|value=`n_output'"
 display "SS_SUMMARY|key=satt|value=`satt'"
 
 capture erase "temp_cem_balance.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""

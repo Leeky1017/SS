@@ -4,14 +4,16 @@
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TG22_placebo_results.csv type=table desc="Placebo results"
-*   - fig_TG22_placebo_dist.png type=figure desc="Placebo distribution"
+*   - fig_TG22_placebo_dist.png type=graph desc="Placebo distribution"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -22,7 +24,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG22|level=L2|title=DID_Placebo"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
@@ -55,8 +57,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -73,8 +74,7 @@ save `original_data'
 foreach var in `outcome_var' `treat_var' `post_var' {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -120,7 +120,7 @@ if "`placebo_type'" == "time" {
     local n_pre : word count `pre_times'
     
     if `n_pre' < 2 {
-        display "SS_WARNING:FEW_PERIODS:Too few pre-treatment periods"
+display "SS_RC|code=0|cmd=warning|msg=few_periods|detail=Too_few_pre-treatment_periods|severity=warn"
     }
     
     local iter = 0
@@ -256,7 +256,7 @@ histogram effect, bin(30) ///
     title("DID安慰剂检验: 效应分布") ///
     note("红线=真实效应(" %6.4f `true_effect' "), 置换p值=" %5.3f `perm_p')
 graph export "fig_TG22_placebo_dist.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TG22_placebo_dist.png|type=figure|desc=placebo_dist"
+display "SS_OUTPUT_FILE|file=fig_TG22_placebo_dist.png|type=graph|desc=placebo_dist"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 display "SS_SUMMARY|key=n_input|value=`n_input'"
@@ -265,7 +265,9 @@ display "SS_SUMMARY|key=perm_p|value=`perm_p'"
 
 * 清理
 capture erase "temp_placebo.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * 恢复原始数据
 use `original_data', clear

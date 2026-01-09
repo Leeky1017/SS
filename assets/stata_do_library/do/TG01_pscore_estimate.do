@@ -5,7 +5,7 @@
 * OUTPUTS:
 *   - table_TG01_pscore_model.csv type=table desc="Pscore model results"
 *   - table_TG01_balance_before.csv type=table desc="Balance before matching"
-*   - fig_TG01_pscore_dist.png type=figure desc="Pscore distribution"
+*   - fig_TG01_pscore_dist.png type=graph desc="Pscore distribution"
 *   - data_TG01_with_pscore.dta type=data desc="Data with pscore"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
@@ -14,7 +14,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -33,16 +35,17 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "psmatch2"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
         log close
         exit 199
     }
@@ -74,8 +77,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -90,8 +92,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 * 检查处理变量
 capture confirm variable `treatment_var'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`treatment_var' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`treatment_var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`treatment_var'_not_found|var=`treatment_var'|severity=fail"
     log close
     exit 200
 }
@@ -99,8 +100,7 @@ if _rc {
 * 检查处理变量是否为0/1
 quietly tabulate `treatment_var'
 if r(r) != 2 {
-    display "SS_ERROR:NOT_BINARY:`treatment_var' must be binary (0/1)"
-    display "SS_ERR:NOT_BINARY:`treatment_var' must be binary (0/1)"
+display "SS_RC|code=198|cmd=validate_inputs|msg=not_binary|detail=`treatment_var'_must_be_binary_01|severity=fail"
     log close
     exit 198
 }
@@ -125,7 +125,7 @@ local valid_covariates ""
 foreach var of local covariates {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_WARNING:COV_INVALID:`var' not found or not numeric"
+display "SS_RC|code=0|cmd=warning|msg=cov_invalid|detail=`var'_not_found_or_not_numeric|severity=warn"
     }
     else {
         local valid_covariates "`valid_covariates' `var'"
@@ -133,8 +133,7 @@ foreach var of local covariates {
 }
 
 if "`valid_covariates'" == "" {
-    display "SS_ERROR:NO_COVARIATES:No valid covariates"
-    display "SS_ERR:NO_COVARIATES:No valid covariates"
+display "SS_RC|code=200|cmd=validate_inputs|msg=no_covariates|detail=No_valid_covariates|severity=fail"
     log close
     exit 200
 }
@@ -297,7 +296,7 @@ twoway (kdensity pscore if `treatment_var' == 1, lcolor(red) lwidth(medium)) ///
        xline(`cs_min' `cs_max', lcolor(gray) lpattern(dash)) ///
        note("虚线表示共同支撑域边界")
 graph export "fig_TG01_pscore_dist.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TG01_pscore_dist.png|type=figure|desc=pscore_dist"
+display "SS_OUTPUT_FILE|file=fig_TG01_pscore_dist.png|type=graph|desc=pscore_dist"
 
 * ============ 共同支撑限制 ============
 if "`common_support'" == "yes" {
@@ -312,7 +311,7 @@ if "`common_support'" == "yes" {
     if `n_outside' > 0 {
         display ">>> 移除共同支撑域外观测: `n_outside'"
         drop if _common_support == 0
-        display "SS_WARNING:COMMON_SUPPORT:Dropped `n_outside' observations outside common support"
+display "SS_RC|code=0|cmd=warning|msg=common_support|detail=Dropped_`n_outside'_observations_outside_common_support|severity=warn"
     }
     
     drop _common_support
@@ -337,9 +336,13 @@ display "SS_SUMMARY|key=pseudo_r2|value=`pseudo_r2'"
 
 * 清理临时文件
 capture erase "temp_balance_before.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 capture erase "temp_pscore_model.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""
