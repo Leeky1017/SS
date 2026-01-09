@@ -1,19 +1,21 @@
 # ISSUE-227
 - Issue: #227
 - Branch: task/227-ss-inputs-upload-sessions
-- PR: (pending)
+- PR: https://github.com/Leeky1017/SS/pull/228
 
 ## Goal
 - Add new OpenSpec capability spec `ss-inputs-upload-sessions` defining a large-file/high-concurrency inputs upload system (bundle → upload-sessions → finalize) aligned with existing SS inputs manifest/preview, multi-tenant, and token auth.
 
 ## Status
-- CURRENT: Spec + task cards drafted; validations passing; preparing PR.
+- CURRENT: PR merged; syncing controlplane and cleaning worktree.
 
 ## Next Actions
 - [x] Write `openspec/specs/ss-inputs-upload-sessions/spec.md` + task cards UPLOAD-C001–UPLOAD-C006.
 - [x] Run `openspec validate --specs --strict --no-interactive`.
 - [x] Run `rulebook task validate issue-227-ss-inputs-upload-sessions`.
-- [ ] Open PR (Closes #227) and backfill `PR:` link.
+- [x] Open PR (Closes #227) and backfill `PR:` link.
+- [ ] Sync controlplane `main` with `origin/main`.
+- [ ] Cleanup worktree `issue-227-ss-inputs-upload-sessions`.
 
 ## Decisions Made
 - 2026-01-09: Duplicate filenames are allowed; disambiguate by server-generated `file_id` (no auto-rename).
@@ -62,5 +64,34 @@
   - `scripts/agent_controlplane_sync.sh`
 - Key output:
   - `fatal: unable to access 'https://github.com/Leeky1017/SS.git/': Failed to connect to github.com port 443`
+- Evidence:
+  - N/A
+
+### 2026-01-09 Preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - N/A
+
+### 2026-01-09 PR
+- Command:
+  - `git commit -m "docs: add ss-inputs-upload-sessions spec and task cards (#227)"`
+  - `git push -u origin HEAD`
+  - `gh pr create --title "[ROUND-03-UPLOAD-A] UPLOAD-SPEC: ss-inputs-upload-sessions (spec + task cards) (#227)" --body "Closes #227 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/228`
+- Evidence:
+  - N/A
+
+### 2026-01-09 Merge
+- Command:
+  - `gh pr merge 228 --auto --squash`
+- Key output:
+  - `Merged`
+  - `Checks: ci / openspec-log-guard / merge-serial = SUCCESS`
+  - `Merge commit: 950a3db273e74588a75ba33b9a1a0e55128cdb1c`
 - Evidence:
   - N/A
