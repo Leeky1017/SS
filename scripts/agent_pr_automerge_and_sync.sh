@@ -49,6 +49,10 @@ comment_pr() {
 }
 
 rebase_onto_origin_main() {
+  if [[ -n "$(git status --porcelain=v1)" ]]; then
+    echo "ERROR: working tree must be clean before auto-rebase" >&2
+    exit 1
+  fi
   git fetch origin main
   git rebase origin/main
   git push --force-with-lease
@@ -215,9 +219,9 @@ gh pr checks "$PR_NUMBER" --watch
 START_MERGE_TS="$(date +%s)"
 LAST_STATUS_LINE=""
 while true; do
-  IFS=$'\t' read -r MERGED_AT MERGE_STATE REVIEW_DECISION PR_URL < <(
+  IFS=$'\x1f' read -r MERGED_AT MERGE_STATE REVIEW_DECISION PR_URL < <(
     gh pr view "$PR_NUMBER" --json mergedAt,mergeStateStatus,reviewDecision,url \
-      --jq '[.mergedAt // "", .mergeStateStatus // "", .reviewDecision // "", .url] | @tsv'
+      --jq '[.mergedAt // "", .mergeStateStatus // "", .reviewDecision // "", .url] | join(\"\\u001f\")'
   )
 
   if [[ -n "$MERGED_AT" && "$MERGED_AT" != "null" ]]; then
