@@ -36,7 +36,7 @@ class Config:
     llm_provider: str = field(default="stub", kw_only=True)
     llm_base_url: str = field(default="https://yunwu.ai/v1", kw_only=True)
     llm_api_key: str = field(default="", kw_only=True)
-    llm_model: str = field(default="claude-opus-4-5", kw_only=True)
+    llm_model: str = field(default="claude-opus-4-5-20251101", kw_only=True)
     llm_temperature: float | None = field(default=None, kw_only=True)
     llm_seed: str | None = field(default=None, kw_only=True)
     llm_timeout_seconds: float
@@ -119,6 +119,13 @@ def _load_llm_settings(*, env: Mapping[str, str]) -> tuple[float, int, float, fl
     return timeout_seconds, max_attempts, backoff_base_seconds, backoff_max_seconds
 
 
+def _normalize_llm_model(value: str) -> str:
+    model = value.strip()
+    if model == "claude-opus-4-5":
+        return "claude-opus-4-5-20251101"
+    return model
+
+
 def load_config(env: Mapping[str, str] | None = None) -> Config:
     """Load config from environment variables with explicit defaults."""
     e = os.environ if env is None else env
@@ -193,7 +200,7 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     llm_provider = str(e.get("SS_LLM_PROVIDER", "stub")).strip().lower()
     llm_base_url = str(e.get("SS_LLM_BASE_URL", "https://yunwu.ai/v1")).strip()
     llm_api_key = str(e.get("SS_LLM_API_KEY", "")).strip()
-    llm_model = str(e.get("SS_LLM_MODEL", "claude-opus-4-5")).strip()
+    llm_model = _normalize_llm_model(str(e.get("SS_LLM_MODEL", "claude-opus-4-5-20251101")))
     llm_temperature_raw = str(e.get("SS_LLM_TEMPERATURE", "")).strip()
     llm_temperature = None
     if llm_temperature_raw != "":

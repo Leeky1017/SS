@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Mapping
 from dataclasses import dataclass
+from pathlib import PurePosixPath
 
 from src.domain.models import ArtifactKind, LLMPlan, PlanStep, PlanStepType, is_safe_job_rel_path
 from src.infra.exceptions import (
@@ -50,8 +51,31 @@ def _extract_template(step: PlanStep) -> str:
     raise DoFilePlanInvalidError(reason="missing_template_id")
 
 
-def _extract_primary_dataset_rel_path(inputs_manifest: Mapping[str, object]) -> str:
+def _infer_dataset_format_from_rel_path(rel_path: str) -> str | None:
+    ext = PurePosixPath(rel_path).suffix.lower()
+    if ext == ".csv":
+        return "csv"
+    if ext in {".xls", ".xlsx"}:
+        return "excel"
+    if ext == ".dta":
+        return "dta"
+    return None
+
+
+def _normalize_dataset_format(*, raw: object, rel_path: str) -> str:
+    if isinstance(raw, str):
+        candidate = raw.strip().lower()
+        if candidate in {"csv", "excel", "dta"}:
+            return candidate
+    inferred = _infer_dataset_format_from_rel_path(rel_path)
+    if inferred is not None:
+        return inferred
+    raise DoFileInputsManifestInvalidError(reason="primary_dataset_format_missing")
+
+
+def _extract_primary_dataset_info(inputs_manifest: Mapping[str, object]) -> tuple[str, str]:
     rel_path: object = ""
+    fmt: object = ""
     datasets = inputs_manifest.get("datasets")
     if isinstance(datasets, list):
         for item in datasets:
@@ -60,13 +84,16 @@ def _extract_primary_dataset_rel_path(inputs_manifest: Mapping[str, object]) -> 
             if item.get("role") != "primary_dataset":
                 continue
             rel_path = item.get("rel_path", "")
+            fmt = item.get("format", "")
             break
     else:
         dataset = inputs_manifest.get("primary_dataset")
         if isinstance(dataset, Mapping):
             rel_path = dataset.get("rel_path", "")
+            fmt = dataset.get("format", "")
         else:
             rel_path = inputs_manifest.get("primary_dataset_rel_path", "")
+            fmt = inputs_manifest.get("primary_dataset_format", "")
 
     if not isinstance(rel_path, str):
         raise DoFileInputsManifestInvalidError(reason="primary_dataset_rel_path_not_string")
@@ -74,7 +101,7 @@ def _extract_primary_dataset_rel_path(inputs_manifest: Mapping[str, object]) -> 
         raise DoFileInputsManifestInvalidError(reason="primary_dataset_rel_path_missing")
     if not is_safe_job_rel_path(rel_path):
         raise DoFileInputsManifestInvalidError(reason="primary_dataset_rel_path_unsafe")
-    return rel_path
+    return rel_path, _normalize_dataset_format(raw=fmt, rel_path=rel_path)
 
 
 def _extract_analysis_vars(step: PlanStep) -> list[str]:
@@ -94,8 +121,20 @@ def _extract_analysis_vars(step: PlanStep) -> list[str]:
     return values
 
 
+def _dataset_load_line(*, dataset_format: str, dataset_job_rel_path: str) -> str:
+    if dataset_format == "csv":
+        return f"import delimited using {_stata_quote(dataset_job_rel_path)}, clear varnames(1)"
+    if dataset_format == "excel":
+        return f"import excel {_stata_quote(dataset_job_rel_path)}, firstrow clear"
+    return f"use {_stata_quote(dataset_job_rel_path)}, clear"
+
+
 def _render_stub_descriptive_v1(
-    *, plan_id: str, dataset_job_rel_path: str, analysis_vars: list[str]
+    *,
+    plan_id: str,
+    dataset_job_rel_path: str,
+    dataset_format: str,
+    analysis_vars: list[str],
 ) -> str:
     dataset_from_work_dir = dataset_job_rel_path
     analysis_comment = ""
@@ -114,7 +153,10 @@ def _render_stub_descriptive_v1(
         "* template: stub_descriptive_v1",
         analysis_comment,
         "",
-        f"use {_stata_quote(dataset_from_work_dir)}, clear",
+        _dataset_load_line(
+            dataset_format=dataset_format,
+            dataset_job_rel_path=dataset_from_work_dir,
+        ),
         "",
         "quietly describe",
         "local ss_k = r(k)",
@@ -142,7 +184,7 @@ class DoFileGenerator:
         logger.info("SS_DOFILE_GENERATE_START", extra={"plan_id": plan.plan_id})
         step = _extract_generate_step(plan)
         template = _extract_template(step)
-        dataset_rel_path = _extract_primary_dataset_rel_path(inputs_manifest)
+        dataset_rel_path, dataset_format = _extract_primary_dataset_info(inputs_manifest)
         analysis_vars = _extract_analysis_vars(step)
 
         if template != "stub_descriptive_v1":
@@ -151,6 +193,7 @@ class DoFileGenerator:
         do_file = _render_stub_descriptive_v1(
             plan_id=plan.plan_id,
             dataset_job_rel_path=dataset_rel_path,
+            dataset_format=dataset_format,
             analysis_vars=analysis_vars,
         )
         outputs = (
