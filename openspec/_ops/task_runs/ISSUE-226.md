@@ -13,7 +13,7 @@
 - [x] Create spec `openspec/specs/ss-frontend-backend-alignment/spec.md` and task cards ALIGN-C001..C005.
 - [x] Run `openspec validate --specs --strict --no-interactive`.
 - [x] Create + validate Rulebook task `issue-226-ss-frontend-backend-alignment`.
-- [ ] Commit changes with message containing `(#226)`.
+- [x] Commit changes with message containing `(#226)`.
 
 ## Decisions Made
 - 2026-01-09: Redeem returns a non-rotating token (same task_code → same token); `expires_at` uses sliding expiration of 7 days.
@@ -54,5 +54,13 @@
   - `rulebook task validate issue-226-ss-frontend-backend-alignment`
 - Key output:
   - `Task issue-226-ss-frontend-backend-alignment is valid`
+- Evidence:
+  - N/A
+
+### 2026-01-09 Commit
+- Command:
+  - `git commit -m "docs: add ss-frontend-backend-alignment spec and task cards (#226)"`
+- Key output:
+  - `fd7c6f2 docs: add ss-frontend-backend-alignment spec and task cards (#226)`
 - Evidence:
   - N/A
