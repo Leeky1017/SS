@@ -30,13 +30,16 @@ class ConfirmJobRequest(BaseModel):
     confirmed: bool = True
     notes: str | None = None
     variable_corrections: dict[str, str] = Field(default_factory=dict)
+    answers: dict[str, JsonValue] = Field(default_factory=dict)
     default_overrides: dict[str, JsonValue] = Field(default_factory=dict)
+    expert_suggestions_feedback: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class ConfirmJobResponse(BaseModel):
     job_id: str
     status: str
     scheduled_at: str | None = None
+    message: str
 
 
 class PlanStepResponse(BaseModel):
@@ -138,16 +141,65 @@ class DraftPreviewDataSource(BaseModel):
     format: str
 
 
+class DraftDataQualityWarning(BaseModel):
+    type: str
+    severity: str
+    message: str
+    suggestion: str | None = None
+
+
+class DraftStage1Question(BaseModel):
+    question_id: str
+    question_text: str
+    question_type: str
+    options: list[str] = Field(default_factory=list)
+    priority: int = 0
+
+
+class DraftOpenUnknown(BaseModel):
+    field: str
+    description: str
+    impact: str
+    blocking: bool | None = None
+    candidates: list[str] = Field(default_factory=list)
+
+
 class DraftPreviewResponse(BaseModel):
     job_id: str
     draft_text: str
+    draft_id: str
+    decision: str
+    risk_score: float
+    status: str
     outcome_var: str | None = None
     treatment_var: str | None = None
     controls: list[str] = Field(default_factory=list)
     column_candidates: list[str] = Field(default_factory=list)
+    data_quality_warnings: list[DraftDataQualityWarning] = Field(default_factory=list)
+    stage1_questions: list[DraftStage1Question] = Field(default_factory=list)
+    open_unknowns: list[DraftOpenUnknown] = Field(default_factory=list)
     variable_types: list[InputsPreviewColumn] = Field(default_factory=list)
     data_sources: list[DraftPreviewDataSource] = Field(default_factory=list)
     default_overrides: dict[str, JsonValue] = Field(default_factory=dict)
+
+
+class DraftPreviewPendingResponse(BaseModel):
+    status: str = "pending"
+    message: str
+    retry_after_seconds: int
+    retry_until: str
+
+
+class DraftPatchRequest(BaseModel):
+    field_updates: dict[str, JsonValue] = Field(default_factory=dict)
+
+
+class DraftPatchResponse(BaseModel):
+    status: str = "patched"
+    patched_fields: list[str] = Field(default_factory=list)
+    remaining_unknowns_count: int
+    open_unknowns: list[DraftOpenUnknown] = Field(default_factory=list)
+    draft_preview: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class InputsPreviewResponse(BaseModel):

@@ -174,12 +174,15 @@ async def confirm_job(
         confirmed=payload.confirmed,
         notes=payload.notes,
         variable_corrections=payload.variable_corrections,
+        answers=payload.answers,
         default_overrides=payload.default_overrides,
+        expert_suggestions_feedback=payload.expert_suggestions_feedback,
     )
     return ConfirmJobResponse(
         job_id=job.job_id,
         status=job.status.value,
         scheduled_at=job.scheduled_at,
+        message="confirmed" if payload.confirmed else "skipped",
     )
 
 

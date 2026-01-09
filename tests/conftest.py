@@ -6,7 +6,8 @@ import pytest
 
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
-from src.domain.job_service import JobService, NoopJobScheduler
+from src.domain.job_service import JobService
+from src.domain.job_support import NoopJobScheduler
 from src.domain.llm_client import StubLLMClient
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine

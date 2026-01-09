@@ -6,8 +6,9 @@ from pathlib import Path
 from src.config import Config
 from src.domain.do_template_run_service import DoTemplateRunService
 from src.domain.idempotency import JobIdempotency
-from src.domain.job_service import JobService, NoopJobScheduler
+from src.domain.job_service import JobService
 from src.domain.job_store import JobStore
+from src.domain.job_support import NoopJobScheduler
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore

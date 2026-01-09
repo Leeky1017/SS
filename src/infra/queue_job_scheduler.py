@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from opentelemetry.trace import get_tracer
 
-from src.domain.job_service import JobScheduler
+from src.domain.job_support import JobScheduler
 from src.domain.models import Job
 from src.domain.worker_queue import WorkerQueue
 from src.infra.tracing import (

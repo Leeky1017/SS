@@ -12,8 +12,9 @@ from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_inputs_service import JobInputsService
 from src.domain.job_query_service import JobQueryService
-from src.domain.job_service import JobScheduler, JobService
+from src.domain.job_service import JobService
 from src.domain.job_store import JobStore
+from src.domain.job_support import JobScheduler
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.llm_client import LLMClient
 from src.domain.metrics import RuntimeMetrics
