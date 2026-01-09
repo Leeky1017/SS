@@ -70,3 +70,12 @@
   - `src/api/routes.py`
   - `src/api/deps.py`
   - `src/api/schemas.py`
+
+### 2026-01-09 18:50 pr preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - `openspec/_ops/task_runs/ISSUE-233.md`
