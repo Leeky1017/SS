@@ -26,14 +26,11 @@ class CreateJobResponse(BaseModel):
     status: str
 
 
-class DraftPreviewResponse(BaseModel):
-    job_id: str
-    draft_text: str
-
-
 class ConfirmJobRequest(BaseModel):
     confirmed: bool = True
     notes: str | None = None
+    variable_corrections: dict[str, str] = Field(default_factory=dict)
+    default_overrides: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class ConfirmJobResponse(BaseModel):
@@ -132,6 +129,25 @@ class InputsUploadResponse(BaseModel):
 class InputsPreviewColumn(BaseModel):
     name: str
     inferred_type: str
+
+
+class DraftPreviewDataSource(BaseModel):
+    dataset_key: str
+    role: str
+    original_name: str
+    format: str
+
+
+class DraftPreviewResponse(BaseModel):
+    job_id: str
+    draft_text: str
+    outcome_var: str | None = None
+    treatment_var: str | None = None
+    controls: list[str] = Field(default_factory=list)
+    column_candidates: list[str] = Field(default_factory=list)
+    variable_types: list[InputsPreviewColumn] = Field(default_factory=list)
+    data_sources: list[DraftPreviewDataSource] = Field(default_factory=list)
+    default_overrides: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class InputsPreviewResponse(BaseModel):

@@ -20,6 +20,11 @@ from src.domain.models import (
     PlanStep,
     PlanStepType,
 )
+from src.domain.plan_contract import (
+    analysis_spec_from_draft,
+    apply_confirmation_effects,
+    validate_contract_columns,
+)
 from src.domain.plan_routing import choose_composition_mode, extract_input_dataset_keys
 from src.infra.exceptions import JobStoreIOError
 from src.infra.input_exceptions import InputPathUnsafeError
@@ -80,6 +85,7 @@ class PlanService:
         logger.info("SS_PLAN_FREEZE_START", extra={"tenant_id": tenant_id, "job_id": job_id})
         job = self._store.load(tenant_id=tenant_id, job_id=job_id)
         confirmation = self._effective_confirmation(job=job, confirmation=confirmation)
+        job, confirmation = apply_confirmation_effects(job=job, confirmation=confirmation)
         expected_plan_id = self._expected_plan_id(job=job, confirmation=confirmation)
 
         if job.llm_plan is not None:
@@ -106,6 +112,7 @@ class PlanService:
             )
             raise PlanFreezeNotAllowedError(job_id=job_id, status=job.status.value)
 
+        validate_contract_columns(workspace=self._workspace, tenant_id=tenant_id, job=job)
         plan = self._build_plan(job=job, confirmation=confirmation, plan_id=expected_plan_id)
         self._write_plan_artifact(tenant_id=tenant_id, job_id=job_id, plan=plan)
 
@@ -136,9 +143,23 @@ class PlanService:
         job: Job,
         confirmation: JobConfirmation,
     ) -> JobConfirmation:
+        updates: dict[str, object] = {}
         if confirmation.requirement is None:
-            return confirmation.model_copy(update={"requirement": job.requirement})
-        return confirmation
+            updates["requirement"] = job.requirement
+        existing = job.confirmation
+        if existing is not None:
+            missing_corrections = len(confirmation.variable_corrections) == 0
+            existing_corrections = len(existing.variable_corrections) > 0
+            if missing_corrections and existing_corrections:
+                updates["variable_corrections"] = existing.variable_corrections
+
+            missing_overrides = len(confirmation.default_overrides) == 0
+            existing_overrides = len(existing.default_overrides) > 0
+            if missing_overrides and existing_overrides:
+                updates["default_overrides"] = existing.default_overrides
+        if len(updates) == 0:
+            return confirmation
+        return confirmation.model_copy(update=updates)
 
     def _expected_plan_id(self, *, job: Job, confirmation: JobConfirmation) -> str:
         inputs_fingerprint = ""
@@ -178,6 +199,7 @@ class PlanService:
                     "input_bindings": {"primary_dataset": f"input:{primary_key}"},
                     "products": [],
                     "requirement_fingerprint": requirement_fingerprint,
+                    "analysis_spec": analysis_spec_from_draft(job=job),
                 },
                 depends_on=[],
                 produces=[ArtifactKind.STATA_DO],

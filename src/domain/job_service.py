@@ -12,6 +12,10 @@ from src.domain.metrics import NoopMetrics, RuntimeMetrics
 from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobConfirmation, JobInputs, JobStatus
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
+from src.domain.variable_corrections import (
+    apply_variable_corrections_dict_values,
+    clean_variable_corrections,
+)
 from src.infra.exceptions import JobAlreadyExistsError
 from src.utils.json_types import JsonObject, JsonValue
 from src.utils.tenancy import DEFAULT_TENANT_ID
@@ -136,6 +140,8 @@ class JobService:
         job_id: str,
         confirmed: bool,
         notes: str | None = None,
+        variable_corrections: dict[str, str] | None = None,
+        default_overrides: dict[str, JsonValue] | None = None,
     ) -> Job:
         if not confirmed:
             job = self._store.load(tenant_id=tenant_id, job_id=job_id)
@@ -152,7 +158,13 @@ class JobService:
                 metadata={"confirmed": False},
             )
             return job
-        updated = self.trigger_run(tenant_id=tenant_id, job_id=job_id, notes=notes)
+        updated = self.trigger_run(
+            tenant_id=tenant_id,
+            job_id=job_id,
+            notes=notes,
+            variable_corrections=variable_corrections,
+            default_overrides=default_overrides,
+        )
         logger.info(
             "SS_JOB_CONFIRMED",
             extra={"tenant_id": tenant_id, "job_id": job_id, "status": updated.status.value},
@@ -173,6 +185,8 @@ class JobService:
         tenant_id: str = DEFAULT_TENANT_ID,
         job_id: str,
         notes: str | None = None,
+        variable_corrections: dict[str, str] | None = None,
+        default_overrides: dict[str, JsonValue] | None = None,
     ) -> Job:
         job = self._store.load(tenant_id=tenant_id, job_id=job_id)
         if job.status in {
@@ -187,7 +201,13 @@ class JobService:
             from_status=job.status,
             to_status=JobStatus.CONFIRMED,
         )
-        self._freeze_plan_for_run(tenant_id=tenant_id, job_id=job_id, notes=notes)
+        self._freeze_plan_for_run(
+            tenant_id=tenant_id,
+            job_id=job_id,
+            notes=notes,
+            variable_corrections=variable_corrections,
+            default_overrides=default_overrides,
+        )
         job = self._store.load(tenant_id=tenant_id, job_id=job_id)
         return self._queue_run(job=job, tenant_id=tenant_id)
 
@@ -247,11 +267,34 @@ class JobService:
         )
         return job
 
-    def _freeze_plan_for_run(self, *, tenant_id: str, job_id: str, notes: str | None) -> None:
+    def _freeze_plan_for_run(
+        self,
+        *,
+        tenant_id: str,
+        job_id: str,
+        notes: str | None,
+        variable_corrections: dict[str, str] | None,
+        default_overrides: dict[str, JsonValue] | None,
+    ) -> None:
+        if variable_corrections is None:
+            cleaned: dict[str, str] = {}
+        else:
+            cleaned = clean_variable_corrections(variable_corrections)
+        overrides: dict[str, JsonValue]
+        if default_overrides is None:
+            overrides = {}
+        else:
+            overrides = dict(default_overrides)
+        if len(cleaned) > 0 and len(overrides) > 0:
+            overrides = apply_variable_corrections_dict_values(overrides, cleaned)
         self._plan_service.freeze_plan(
             tenant_id=tenant_id,
             job_id=job_id,
-            confirmation=JobConfirmation(notes=notes),
+            confirmation=JobConfirmation(
+                notes=notes,
+                variable_corrections=cleaned,
+                default_overrides=overrides,
+            ),
         )
 
     def _queue_run(self, *, job: Job, tenant_id: str) -> Job:

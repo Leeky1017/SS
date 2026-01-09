@@ -100,7 +100,12 @@ def journey_draft_service(
         retry_backoff_base_seconds=1.0,
         retry_backoff_max_seconds=30.0,
     )
-    return DraftService(store=journey_store, llm=llm, state_machine=journey_state_machine)
+    return DraftService(
+        store=journey_store,
+        llm=llm,
+        state_machine=journey_state_machine,
+        workspace=FileJobWorkspaceStore(jobs_dir=journey_jobs_dir),
+    )
 
 
 @pytest.fixture
@@ -157,7 +162,18 @@ def journey_attach_sample_inputs(
         (inputs_dir / "primary.csv").write_text("id,y,x\n1,1,2\n", encoding="utf-8")
         (inputs_dir / "manifest.json").write_text(
             json.dumps(
-                {"primary_dataset": {"rel_path": "inputs/primary.csv"}},
+                {
+                    "schema_version": 2,
+                    "datasets": [
+                        {
+                            "dataset_key": "primary",
+                            "role": "primary_dataset",
+                            "rel_path": "inputs/primary.csv",
+                            "format": "csv",
+                            "original_name": "primary.csv",
+                        }
+                    ],
+                },
                 indent=2,
                 sort_keys=True,
             )

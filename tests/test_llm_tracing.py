@@ -12,6 +12,7 @@ from src.domain.llm_client import LLMClient, LLMProviderError
 from src.domain.models import ArtifactKind, Draft, Job
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import LLMCallFailedError
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
 from src.utils.job_workspace import resolve_job_dir
@@ -101,7 +102,12 @@ def test_preview_when_llm_fails_persists_llm_artifacts_and_raises_llm_call_faile
         retry_backoff_base_seconds=0.0,
         retry_backoff_max_seconds=0.0,
     )
-    svc = DraftService(store=store, llm=llm, state_machine=state_machine)
+    svc = DraftService(
+        store=store,
+        llm=llm,
+        state_machine=state_machine,
+        workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+    )
     job = job_service.create_job(requirement="trigger failure")
 
     # Act / Assert
@@ -154,7 +160,12 @@ def test_preview_when_llm_times_out_retries_and_logs_timeout(
         retry_backoff_base_seconds=0.0,
         retry_backoff_max_seconds=0.0,
     )
-    svc = DraftService(store=store, llm=llm, state_machine=state_machine)
+    svc = DraftService(
+        store=store,
+        llm=llm,
+        state_machine=state_machine,
+        workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+    )
     job = job_service.create_job(requirement="trigger timeout")
 
     # Act / Assert
