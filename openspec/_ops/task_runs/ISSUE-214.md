@@ -1,7 +1,7 @@
 # ISSUE-214
 - Issue: #214
 - Branch: task/214-env-deps-bootstrap
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/219
 
 ## Plan
 - Discover SS deps + config surface
