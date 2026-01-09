@@ -1,7 +1,7 @@
 # ISSUE-232
 - Issue: #232
 - Branch: task/232-fe-c001-003
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/236
 
 ## Goal
 - Deliver FE-C001 → FE-C002 → FE-C003: standalone `frontend/` (Vite + React + TS) with Desktop Pro style baseline, typed API client, and Step 1 redeem UX with localStorage resume.
