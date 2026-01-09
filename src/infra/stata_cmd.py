@@ -68,6 +68,8 @@ def _validate_wsl_windows_interop(*, stata_cmd: Sequence[str]) -> None:
         completed = subprocess.run(
             [str(cmd_exe), "/c", "exit", "0"],
             text=True,
+            encoding="utf-8",
+            errors="replace",
             capture_output=True,
             check=False,
             timeout=5,
