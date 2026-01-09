@@ -20,6 +20,7 @@
 ## Errors Encountered
 - 2026-01-09: `ruff` not on PATH in worktree → used `../../.venv/bin/ruff`.
 - 2026-01-09: `git pull --rebase --autostash origin main` caused conflicts in `src/api/{deps,routes,schemas}.py` due to upstream v1 auth changes → merged both feature sets and re-ran `ruff`/`pytest`.
+- 2026-01-09: PR check `ci` failed (mypy) due to untyped/missing boto3 imports + `_client: object` typing → introduced `_S3Client` Protocol and removed mypy failures in `src/infra/s3_object_store.py`.
 
 ## Runs
 ### 2026-01-09 18:05 create issue + worktree
@@ -89,3 +90,15 @@
   - `will be automatically merged via squash when all requirements are met`
 - Evidence:
   - `openspec/_ops/task_runs/ISSUE-233.md`
+
+### 2026-01-09 19:05 fix CI (mypy boto3)
+- Command:
+  - `gh run view 20849140661 --log-failed`
+  - `../../.venv/bin/mypy`
+  - `../../.venv/bin/pytest -q`
+- Key output:
+  - Fixed mypy errors in `src/infra/s3_object_store.py` (boto3 import typing + client protocol)
+  - `Success: no issues found in 132 source files`
+  - `152 passed, 5 skipped`
+- Evidence:
+  - `src/infra/s3_object_store.py`

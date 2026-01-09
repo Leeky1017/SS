@@ -1,10 +1,14 @@
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
+from typing import Any, Protocol, cast
 
-import boto3
-from botocore.config import Config as BotoConfig
-from botocore.exceptions import BotoCoreError, ClientError
+import boto3  # type: ignore
+from botocore.config import Config as BotoConfig  # type: ignore
+from botocore.exceptions import (  # type: ignore
+    BotoCoreError,
+    ClientError,
+)
 
 from src.config import Config
 from src.domain.object_store import CompletedPart, ObjectHead, ObjectStore
@@ -23,8 +27,34 @@ def _require_value(value: str, *, label: str) -> str:
     return candidate
 
 
+class _S3Body(Protocol):
+    def read(self) -> bytes: ...
+
+    def iter_chunks(self, *, chunk_size: int) -> Iterable[bytes]: ...
+
+
+class _S3Client(Protocol):
+    def generate_presigned_url(
+        self,
+        client_method: str,
+        *,
+        Params: Mapping[str, Any],
+        ExpiresIn: int,
+    ) -> str: ...
+
+    def create_multipart_upload(self, **kwargs: Any) -> Mapping[str, Any]: ...
+
+    def complete_multipart_upload(self, **kwargs: Any) -> Mapping[str, Any]: ...
+
+    def abort_multipart_upload(self, **kwargs: Any) -> object: ...
+
+    def head_object(self, **kwargs: Any) -> Mapping[str, Any]: ...
+
+    def get_object(self, **kwargs: Any) -> Mapping[str, Any]: ...
+
+
 class S3ObjectStore(ObjectStore):
-    def __init__(self, *, client: object, bucket: str):
+    def __init__(self, *, client: _S3Client, bucket: str):
         self._client = client
         self._bucket = bucket
 
@@ -51,7 +81,7 @@ class S3ObjectStore(ObjectStore):
             endpoint_url=endpoint_url,
             config=BotoConfig(signature_version="s3v4"),
         )
-        return cls(client=client, bucket=bucket)
+        return cls(client=cast(_S3Client, client), bucket=bucket)
 
     def presign_put(
         self,
@@ -60,7 +90,7 @@ class S3ObjectStore(ObjectStore):
         expires_in_seconds: int,
         content_type: str | None,
     ) -> str:
-        params: dict[str, object] = {"Bucket": self._bucket, "Key": object_key}
+        params: dict[str, Any] = {"Bucket": self._bucket, "Key": object_key}
         if content_type is not None and content_type.strip() != "":
             params["ContentType"] = content_type
         try:
@@ -75,7 +105,7 @@ class S3ObjectStore(ObjectStore):
             raise ObjectStoreOperationFailedError(operation="presign_put") from exc
 
     def create_multipart_upload(self, *, object_key: str, content_type: str | None) -> str:
-        kwargs: dict[str, object] = {"Bucket": self._bucket, "Key": object_key}
+        kwargs: dict[str, Any] = {"Bucket": self._bucket, "Key": object_key}
         if content_type is not None and content_type.strip() != "":
             kwargs["ContentType"] = content_type
         try:
@@ -163,6 +193,6 @@ class S3ObjectStore(ObjectStore):
             body = resp.get("Body")
             if body is None:
                 return iter(())
-            return body.iter_chunks(chunk_size=chunk_size)
+            return cast(_S3Body, body).iter_chunks(chunk_size=chunk_size)
         except _BOTO_ERRORS as exc:  # pragma: no cover
             raise ObjectStoreOperationFailedError(operation="iter_bytes") from exc
