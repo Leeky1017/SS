@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #255
 - Parent: #125
 - Superphase: Phase 4 (full-library Stata 18 audit)
 - Templates: `TH*` (~15 templates, current inventory)
@@ -33,4 +33,3 @@ Make time-series templates run on **Stata 18** with fixtures, emit **contract-co
 - [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
 - [ ] Time-series preconditions are validated with explicit `warn/fail`
 - [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
-
