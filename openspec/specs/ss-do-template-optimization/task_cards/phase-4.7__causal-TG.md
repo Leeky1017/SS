@@ -29,7 +29,16 @@ Make causal-inference templates run on **Stata 18** with fixtures, emit **contra
 
 ## Acceptance checklist
 
-- [ ] Stata 18 baseline run: 0 `fail` across `TG*`
-- [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
-- [ ] Identification/data-shape violations yield explicit `warn/fail` with `SS_RC`
-- [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Stata 18 baseline run: 0 `fail` across `TG*`
+- [x] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
+- [x] Identification/data-shape violations yield explicit `warn/fail` with `SS_RC`
+- [x] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/249
+- Summary:
+  - Stata 18 smoke suite reached 0 fail for TG01–TG25 (fixtures)
+  - Normalized legacy anchors (`SS_*:...`) to pipe-delimited anchors and `SS_RC`
+  - Fixed fragile runtime paths in PSM/IV/RDD/DID templates and hardened fixtures
+- Run log: `openspec/_ops/task_runs/ISSUE-241.md`
