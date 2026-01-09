@@ -52,3 +52,11 @@
   - `159 passed, 5 skipped`
 - Evidence:
   - `tests/test_smoke_suite_manifest.py`
+
+### 2026-01-09 00:18 pr-preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+- Evidence:
+  - `scripts/agent_pr_preflight.sh`
