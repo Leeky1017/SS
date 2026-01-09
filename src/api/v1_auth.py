@@ -7,6 +7,7 @@ from fastapi import Depends, Header, Request
 from src.api.deps import get_config, get_job_store, get_tenant_id
 from src.config import Config
 from src.domain.job_store import JobStore
+from src.domain.upload_session_id import job_id_from_upload_session_id
 from src.infra.auth_exceptions import (
     AuthBearerTokenInvalidError,
     AuthBearerTokenMissingError,
@@ -52,6 +53,26 @@ async def enforce_v1_job_bearer_auth(
         raise AuthTokenInvalidError()
     if _is_expired(job_expires_at=getattr(job, "auth_expires_at", None), now=utc_now()):
         raise AuthTokenInvalidError()
+
+
+async def enforce_v1_upload_session_bearer_auth(
+    upload_session_id: str | None = None,
+    authorization: str | None = Header(default=None, alias="Authorization"),
+    tenant_id: str = Depends(get_tenant_id),
+    store: JobStore = Depends(get_job_store),
+) -> None:
+    if upload_session_id is None:
+        return
+    try:
+        job_id = job_id_from_upload_session_id(upload_session_id)
+    except ValueError:
+        return
+    await enforce_v1_job_bearer_auth(
+        job_id=job_id,
+        authorization=authorization,
+        tenant_id=tenant_id,
+        store=store,
+    )
 
 
 def _bearer_token_or_raise(authorization: str | None) -> str:

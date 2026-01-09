@@ -25,8 +25,13 @@ class Config:
     upload_s3_access_key_id: str
     upload_s3_secret_access_key: str
     upload_presigned_url_ttl_seconds: int
+    upload_max_file_size_bytes: int
+    upload_max_sessions_per_job: int
     upload_multipart_threshold_bytes: int
+    upload_multipart_min_part_size_bytes: int
     upload_multipart_part_size_bytes: int
+    upload_multipart_max_part_size_bytes: int
+    upload_multipart_max_parts: int
     upload_max_bundle_files: int
     llm_provider: str = field(default="stub", kw_only=True)
     llm_base_url: str = field(default="https://yunwu.ai/v1", kw_only=True)
@@ -143,15 +148,42 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         min_value=1,
         max_value=900,
     )
+    upload_max_file_size_bytes = _clamped_int(
+        str(e.get("SS_UPLOAD_MAX_FILE_SIZE_BYTES", str(5 * 1024 * 1024 * 1024))),
+        default=5 * 1024 * 1024 * 1024,
+        min_value=1,
+    )
+    upload_max_sessions_per_job = _clamped_int(
+        str(e.get("SS_UPLOAD_MAX_SESSIONS_PER_JOB", "64")),
+        default=64,
+        min_value=1,
+    )
     upload_multipart_threshold_bytes = _clamped_int(
         str(e.get("SS_UPLOAD_MULTIPART_THRESHOLD_BYTES", str(64 * 1024 * 1024))),
         default=64 * 1024 * 1024,
         min_value=1,
     )
+    upload_multipart_min_part_size_bytes = _clamped_int(
+        str(e.get("SS_UPLOAD_MULTIPART_MIN_PART_SIZE_BYTES", str(5 * 1024 * 1024))),
+        default=5 * 1024 * 1024,
+        min_value=1,
+    )
+    upload_multipart_max_part_size_bytes = _clamped_int(
+        str(e.get("SS_UPLOAD_MULTIPART_MAX_PART_SIZE_BYTES", str(64 * 1024 * 1024))),
+        default=64 * 1024 * 1024,
+        min_value=upload_multipart_min_part_size_bytes,
+    )
     upload_multipart_part_size_bytes = _clamped_int(
         str(e.get("SS_UPLOAD_MULTIPART_PART_SIZE_BYTES", str(8 * 1024 * 1024))),
         default=8 * 1024 * 1024,
-        min_value=5 * 1024 * 1024,
+        min_value=upload_multipart_min_part_size_bytes,
+        max_value=upload_multipart_max_part_size_bytes,
+    )
+    upload_multipart_max_parts = _clamped_int(
+        str(e.get("SS_UPLOAD_MULTIPART_MAX_PARTS", "10000")),
+        default=10000,
+        min_value=1,
+        max_value=10000,
     )
     upload_max_bundle_files = _clamped_int(
         str(e.get("SS_UPLOAD_MAX_BUNDLE_FILES", "64")),
@@ -223,8 +255,13 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         upload_s3_access_key_id=upload_s3_access_key_id,
         upload_s3_secret_access_key=upload_s3_secret_access_key,
         upload_presigned_url_ttl_seconds=upload_presigned_url_ttl_seconds,
+        upload_max_file_size_bytes=upload_max_file_size_bytes,
+        upload_max_sessions_per_job=upload_max_sessions_per_job,
         upload_multipart_threshold_bytes=upload_multipart_threshold_bytes,
+        upload_multipart_min_part_size_bytes=upload_multipart_min_part_size_bytes,
         upload_multipart_part_size_bytes=upload_multipart_part_size_bytes,
+        upload_multipart_max_part_size_bytes=upload_multipart_max_part_size_bytes,
+        upload_multipart_max_parts=upload_multipart_max_parts,
         upload_max_bundle_files=upload_max_bundle_files,
         llm_provider=llm_provider,
         llm_base_url=llm_base_url,

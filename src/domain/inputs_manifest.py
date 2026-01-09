@@ -24,17 +24,20 @@ MANIFEST_SCHEMA_VERSION_V2 = 2
 ROLE_PRIMARY_DATASET = "primary_dataset"
 ROLE_SECONDARY_DATASET = "secondary_dataset"
 ROLE_AUXILIARY_DATA = "auxiliary_data"
+ROLE_OTHER = "other"
 
 ALLOWED_DATASET_ROLES = {
     ROLE_PRIMARY_DATASET,
     ROLE_SECONDARY_DATASET,
     ROLE_AUXILIARY_DATA,
+    ROLE_OTHER,
 }
 
 _ROLE_SORT_ORDER = {
     ROLE_PRIMARY_DATASET: 0,
     ROLE_SECONDARY_DATASET: 1,
     ROLE_AUXILIARY_DATA: 2,
+    ROLE_OTHER: 3,
 }
 
 
@@ -153,8 +156,8 @@ def manifest_payload(*, datasets: Sequence[PreparedDataset]) -> JsonObject:
 
 def inputs_fingerprint(*, datasets: Sequence[PreparedDataset]) -> str:
     canonical = [
-        {"dataset_key": item.dataset_key, "role": item.role, "fingerprint": item.fingerprint}
-        for item in sorted(datasets, key=lambda d: d.dataset_key)
+        {"sha256": item.sha256, "size_bytes": item.size_bytes, "role": item.role}
+        for item in sorted(datasets, key=lambda d: (d.role, d.sha256))
     ]
     encoded = json.dumps(
         canonical,

@@ -18,15 +18,19 @@ from src.domain.job_support import JobScheduler
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.llm_client import LLMClient
 from src.domain.metrics import RuntimeMetrics
+from src.domain.object_store import ObjectStore
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.domain.task_code_redeem_service import TaskCodeRedeemService
 from src.domain.upload_bundle_service import UploadBundleService
+from src.domain.upload_sessions_service import UploadSessionsService
 from src.infra.audit_logger import LoggingAuditLogger
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
+from src.infra.file_upload_session_store import FileUploadSessionStore
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store_factory import build_job_store
 from src.infra.llm_client_factory import build_llm_client
+from src.infra.object_store_factory import build_object_store
 from src.infra.prometheus_metrics import PrometheusMetrics
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.utils.tenancy import DEFAULT_TENANT_ID, is_safe_tenant_id
@@ -212,6 +216,37 @@ async def get_upload_bundle_service() -> UploadBundleService:
     return _upload_bundle_service_cached()
 
 
+@lru_cache
+def _object_store_cached() -> ObjectStore:
+    return build_object_store(config=_config_cached())
+
+
+async def get_object_store() -> ObjectStore:
+    return _object_store_cached()
+
+
+@lru_cache
+def _upload_session_store_cached() -> FileUploadSessionStore:
+    config = _config_cached()
+    return FileUploadSessionStore(jobs_dir=config.jobs_dir)
+
+
+@lru_cache
+def _upload_sessions_service_cached() -> UploadSessionsService:
+    return UploadSessionsService(
+        config=_config_cached(),
+        store=_job_store_cached(),
+        workspace=_job_workspace_store_cached(),
+        object_store=_object_store_cached(),
+        bundle_service=_upload_bundle_service_cached(),
+        session_store=_upload_session_store_cached(),
+    )
+
+
+async def get_upload_sessions_service() -> UploadSessionsService:
+    return _upload_sessions_service_cached()
+
+
 async def get_job_query_service() -> JobQueryService:
     return _job_query_service_cached()
 
@@ -243,6 +278,9 @@ def clear_dependency_caches() -> None:
     _job_workspace_store_cached.cache_clear()
     _job_inputs_service_cached.cache_clear()
     _upload_bundle_service_cached.cache_clear()
+    _object_store_cached.cache_clear()
+    _upload_session_store_cached.cache_clear()
+    _upload_sessions_service_cached.cache_clear()
     _job_query_service_cached.cache_clear()
     _plan_service_cached.cache_clear()
     _task_code_redeem_service_cached.cache_clear()
