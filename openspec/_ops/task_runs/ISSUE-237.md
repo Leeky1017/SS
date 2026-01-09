@@ -1,7 +1,7 @@
 # ISSUE-237
 - Issue: #237
 - Branch: task/237-align-c004-c005
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/239
 
 ## Goal
 - ALIGN-C004: Align Step3 draft preview/patch/confirm backend contract (v1), enforce confirm blocking rules, and persist confirm payload into plan id inputs.
