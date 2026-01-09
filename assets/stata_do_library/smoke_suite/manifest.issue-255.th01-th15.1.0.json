@@ -68,9 +68,9 @@
       "params": { "__VARS__": "y x", "__TIME_VAR__": "year", "__LAGS__": "1" }
     },
     "TH14": {
-      "dependencies": [{ "pkg": "asreg", "purpose": "Rolling regression", "source": "ssc" }],
+      "dependencies": [],
       "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH14/sample_data.csv" }],
-      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x", "__TIME_VAR__": "year", "__WINDOW__": "2" }
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x", "__TIME_VAR__": "year", "__WINDOW__": "5" }
     },
     "TH15": {
       "dependencies": [],

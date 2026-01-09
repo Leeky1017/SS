@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #263
 - Parent: #125
 - Superphase: Phase 5 (content enhancement)
 - Templates: `TH*` (~15 templates, current inventory)
@@ -35,4 +35,3 @@ Enhance time-series templates with best practices (最佳实践), Stata 18-nativ
 - [ ] Error handling and diagnostics are strengthened (no silent failure)
 - [ ] Key steps have bilingual comments (中英文注释)
 - [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
-

@@ -8,9 +8,17 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* ==============================================================================
+* BEST_PRACTICE_REVIEW (Phase 5.8) / 最佳实践审查（阶段 5.8）
+* - 2026-01-09 (Issue #263): Add `tsset`/gap diagnostics and fail fast on mgarch estimation errors.
+*   增加 tsset/缺口诊断；mgarch 估计失败则 fail-fast。
+* - 2026-01-09 (Issue #263): Note: DCC requires multiple series and works best with stationary returns.
+*   提示：DCC 需要多变量序列，且通常建议对收益率等（更平稳）变量建模。
+* ==============================================================================
 capture log close _all
-if _rc != 0 {
-    * No log to close - this is expected
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
 }
 clear all
 set more off
@@ -23,7 +31,25 @@ log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TH08|level=L2|title=DCC_GARCH"
 display "SS_TASK_VERSION|version=2.0.1"
+display "SS_BP_REVIEW|issue=263|template_id=TH08|ssc=none|output=csv_dta|policy=warn_fail"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
+
+program define ss_fail_TH08
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TH08|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    local rc_log = _rc
+    if `rc_log' != 0 {
+        display "SS_RC|code=`rc_log'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
 
 local vars = "__VARS__"
 local timevar = "__TIME_VAR__"
@@ -31,9 +57,7 @@ local timevar = "__TIME_VAR__"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_RC|code=FILE_NOT_FOUND|file=data.csv|severity=fail"
-    log close
-    exit 601
+    ss_fail_TH08 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear varnames(1) encoding(utf8)
 local n_input = _N
@@ -43,29 +67,56 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 capture confirm variable `timevar'
 if _rc {
-    display "SS_RC|code=INPUT_VAR_MISSING|var=`timevar'|severity=fail"
-    log close
-    exit 111
+    ss_fail_TH08 111 "confirm variable `timevar'" "time_var_missing"
 }
 foreach v of local vars {
     capture confirm variable `v'
     if _rc {
-        display "SS_RC|code=INPUT_VAR_MISSING|var=`v'|severity=fail"
-        log close
-        exit 111
+        ss_fail_TH08 111 "confirm variable `v'" "series_var_missing"
     }
 }
+local n_vars : word count `vars'
+if `n_vars' < 2 {
+    ss_fail_TH08 198 "validate vars count" "need_at_least_two_series"
+}
+display "SS_METRIC|name=n_vars|value=`n_vars'"
 
 local tsvar "`timevar'"
-capture isid `timevar'
+local _ss_need_index = 0
+capture confirm numeric variable `timevar'
 if _rc {
+    local _ss_need_index = 1
+    display "SS_RC|code=TIMEVAR_NOT_NUMERIC|var=`timevar'|severity=warn"
+}
+if `_ss_need_index' == 0 {
+    capture isid `timevar'
+    if _rc {
+        local _ss_need_index = 1
+        display "SS_RC|code=TIMEVAR_NOT_UNIQUE|var=`timevar'|severity=warn"
+    }
+}
+if `_ss_need_index' == 1 {
     sort `timevar'
+    capture drop ss_time_index
+    local rc_drop = _rc
+    if `rc_drop' != 0 & `rc_drop' != 111 {
+        display "SS_RC|code=`rc_drop'|cmd=drop ss_time_index|msg=drop_failed|severity=warn"
+    }
     gen long ss_time_index = _n
     local tsvar "ss_time_index"
-    display "SS_RC|code=TIMEVAR_NOT_UNIQUE|var=`timevar'|severity=warn"
     display "SS_METRIC|name=ts_timevar|value=ss_time_index"
 }
 capture tsset `tsvar'
+if _rc {
+    ss_fail_TH08 `=_rc' "tsset `tsvar'" "tsset_failed"
+}
+capture tsreport, report
+if _rc == 0 {
+    display "SS_METRIC|name=ts_n_gaps|value=`=r(N_gaps)'"
+    if r(N_gaps) > 0 {
+        display "SS_RC|code=TIME_GAPS|n_gaps=`=r(N_gaps)'|severity=warn"
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -73,8 +124,7 @@ local task_success = 1
 local ll = .
 capture noisily mgarch dcc ((`vars'), noconstant), arch(1) garch(1)
 if _rc {
-    local task_success = 0
-    display "SS_RC|code=CMD_FAILED|cmd=mgarch_dcc|rc=`_rc'|severity=warn"
+    ss_fail_TH08 `=_rc' "mgarch dcc ((`vars'), noconstant), arch(1) garch(1)" "mgarch_dcc_failed"
 }
 else {
     local ll = e(ll)
