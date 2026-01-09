@@ -19,6 +19,7 @@ from src.domain.llm_client import LLMClient
 from src.domain.metrics import RuntimeMetrics
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
+from src.domain.task_code_redeem_service import TaskCodeRedeemService
 from src.infra.audit_logger import LoggingAuditLogger
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
@@ -27,6 +28,7 @@ from src.infra.llm_client_factory import build_llm_client
 from src.infra.prometheus_metrics import PrometheusMetrics
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.utils.tenancy import DEFAULT_TENANT_ID, is_safe_tenant_id
+from src.utils.time import utc_now
 
 
 @lru_cache
@@ -203,6 +205,15 @@ async def get_plan_service() -> PlanService:
     return _plan_service_cached()
 
 
+@lru_cache
+def _task_code_redeem_service_cached() -> TaskCodeRedeemService:
+    return TaskCodeRedeemService(store=_job_store_cached(), now=utc_now)
+
+
+async def get_task_code_redeem_service() -> TaskCodeRedeemService:
+    return _task_code_redeem_service_cached()
+
+
 def clear_dependency_caches() -> None:
     _config_cached.cache_clear()
     _job_store_cached.cache_clear()
@@ -218,3 +229,4 @@ def clear_dependency_caches() -> None:
     _job_inputs_service_cached.cache_clear()
     _job_query_service_cached.cache_clear()
     _plan_service_cached.cache_clear()
+    _task_code_redeem_service_cached.cache_clear()

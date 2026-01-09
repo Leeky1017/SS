@@ -155,3 +155,15 @@ class InputsPreviewResponse(BaseModel):
     row_count: int | None = None
     columns: list[InputsPreviewColumn] = Field(default_factory=list)
     sample_rows: list[dict[str, str | int | float | bool | None]] = Field(default_factory=list)
+
+
+class TaskCodeRedeemRequest(BaseModel):
+    task_code: str = Field(description="Task code to redeem", min_length=1)
+    requirement: str = Field(description="Job requirement text (required field; may be empty)")
+
+
+class TaskCodeRedeemResponse(BaseModel):
+    job_id: str
+    token: str
+    expires_at: str
+    is_idempotent: bool

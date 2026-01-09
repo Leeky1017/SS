@@ -232,6 +232,9 @@ class Job(BaseModel):
     llm_plan: LLMPlan | None = None
     runs: list[RunAttempt] = Field(default_factory=list)
     artifacts_index: list[ArtifactRef] = Field(default_factory=list)
+    redeem_task_code: str | None = None
+    auth_token: str | None = None
+    auth_expires_at: str | None = None
 
     @field_validator("schema_version")
     @classmethod
