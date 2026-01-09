@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "issue_255_th01_th15",
+  "templates": {
+    "TH01": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH01/sample_data.csv" }],
+      "params": { "__VAR__": "y", "__TIME_VAR__": "year", "__MAXLAG__": "1" }
+    },
+    "TH02": {
+      "dependencies": [{ "pkg": "kpss", "purpose": "KPSS test", "source": "ssc" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH02/sample_data.csv" }],
+      "params": { "__VAR__": "y", "__TIME_VAR__": "year" }
+    },
+    "TH03": {
+      "dependencies": [{ "pkg": "zandrews", "purpose": "Zivot-Andrews test", "source": "ssc" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH03/sample_data.csv" }],
+      "params": { "__VAR__": "y", "__TIME_VAR__": "year" }
+    },
+    "TH04": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH04/sample_data.csv" }],
+      "params": {
+        "__VAR__": "y",
+        "__TIME_VAR__": "year",
+        "__P__": "1",
+        "__D__": "0",
+        "__Q__": "0",
+        "__SP__": "1",
+        "__SD__": "0",
+        "__SQ__": "0",
+        "__SEASON__": "2"
+      }
+    },
+    "TH06": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH06/sample_data.csv" }],
+      "params": { "__VAR__": "y", "__TIME_VAR__": "year" }
+    },
+    "TH07": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH07/sample_data.csv" }],
+      "params": { "__VAR__": "y", "__TIME_VAR__": "year" }
+    },
+    "TH08": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH08/sample_data.csv" }],
+      "params": { "__VARS__": "y x", "__TIME_VAR__": "year" }
+    },
+    "TH09": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH09/sample_data.csv" }],
+      "params": { "__VARS__": "y x", "__TIME_VAR__": "year", "__LAGS__": "1" }
+    },
+    "TH11": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH11/sample_data.csv" }],
+      "params": { "__VARS__": "y x", "__TIME_VAR__": "year", "__LAGS__": "1", "__STEPS__": "5" }
+    },
+    "TH12": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH12/sample_data.csv" }],
+      "params": { "__VARS__": "y x", "__TIME_VAR__": "year", "__LAGS__": "1", "__STEPS__": "5" }
+    },
+    "TH13": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH13/sample_data.csv" }],
+      "params": { "__VARS__": "y x", "__TIME_VAR__": "year", "__LAGS__": "1" }
+    },
+    "TH14": {
+      "dependencies": [{ "pkg": "asreg", "purpose": "Rolling regression", "source": "ssc" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH14/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x", "__TIME_VAR__": "year", "__WINDOW__": "2" }
+    },
+    "TH15": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TH15/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__TIME_VAR__": "year" }
+    }
+  }
+}
