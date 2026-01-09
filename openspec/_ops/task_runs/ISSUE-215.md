@@ -1,7 +1,7 @@
 # ISSUE-215
 - Issue: #215
 - Branch: task/215-stata-proxy-extension
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/220
 
 ## Plan
 - Implement backend-stata-proxy-extension proxy-layer changes (schemas + services + validation).
@@ -33,3 +33,18 @@
 - Command: `openspec validate --specs --strict --no-interactive`
 - Key output: `Totals: 22 passed, 0 failed (22 items)`
 - Evidence: `openspec/specs/`
+
+### 2026-01-09 12:22 preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+- Evidence: `scripts/agent_pr_preflight.sh`
+
+### 2026-01-09 12:23 pr
+- Command: `gh pr create ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/220`
+- Evidence: `openspec/_ops/task_runs/ISSUE-215.md`
+
+### 2026-01-09 12:23 automerge
+- Command: `gh pr merge --auto --squash https://github.com/Leeky1017/SS/pull/220`
+- Key output: `will be automatically merged via squash when all requirements are met`
+- Evidence: `https://github.com/Leeky1017/SS/pull/220`
