@@ -5,7 +5,7 @@
 * OUTPUTS:
 *   - table_TG02_att_result.csv type=table desc="ATT results"
 *   - table_TG02_balance_after.csv type=table desc="Balance after matching"
-*   - fig_TG02_balance_compare.png type=figure desc="Balance comparison"
+*   - fig_TG02_balance_compare.png type=graph desc="Balance comparison"
 *   - data_TG02_matched.dta type=data desc="Matched data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
@@ -14,7 +14,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -33,16 +35,17 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "psmatch2"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
         log close
         exit 199
     }
@@ -81,8 +84,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -97,8 +99,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `treatment_var' `outcome_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -241,10 +242,10 @@ display "═══════════════════════�
 capture pstest `valid_covariates', both graph
 if !_rc {
     graph export "fig_TG02_balance_compare.png", replace width(1200)
-    display "SS_OUTPUT_FILE|file=fig_TG02_balance_compare.png|type=figure|desc=balance_compare"
+    display "SS_OUTPUT_FILE|file=fig_TG02_balance_compare.png|type=graph|desc=balance_compare"
 }
 else {
-    display "SS_WARNING:GRAPH_FAILED:Could not generate balance graph"
+display "SS_RC|code=0|cmd=warning|msg=graph_failed|detail=Could_not_generate_balance_graph|severity=warn"
 }
 
 * ============ 导出ATT结果 ============
@@ -287,7 +288,9 @@ display "SS_SUMMARY|key=att|value=`att'"
 
 * 清理临时文件
 capture erase "temp_balance_after.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""

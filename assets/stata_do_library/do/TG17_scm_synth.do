@@ -4,7 +4,7 @@
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TG17_synth_path.csv type=table desc="Synth path"
-*   - fig_TG17_synth_path.png type=figure desc="Synth path plot"
+*   - fig_TG17_synth_path.png type=graph desc="Synth path plot"
 *   - data_TG17_synth.dta type=data desc="Synth data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
@@ -13,7 +13,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -24,16 +26,17 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG17|level=L2|title=SCM_Synth"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "synth"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
         log close
         exit 199
     }
@@ -61,13 +64,14 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
 import delimited "data.csv", clear
 local n_input = _N
+tempfile original_data
+save `original_data', replace
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
@@ -77,8 +81,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `outcome_var' `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -108,8 +111,7 @@ foreach u of local units {
 }
 
 if !`found_treated' {
-    display "SS_ERROR:TREATED_NOT_FOUND:Treated unit `treated_unit' not found"
-    display "SS_ERR:TREATED_NOT_FOUND:Treated unit `treated_unit' not found"
+display "SS_RC|code=198|cmd=task|msg=treated_not_found|detail=Treated_unit_`treated_unit'_not_found|severity=fail"
     log close
     exit 198
 }
@@ -155,12 +157,12 @@ local trunit_spec "trunit(`treated_unit')"
 local pred_spec ""
 if "`valid_predictors'" != "" {
     foreach var of local valid_predictors {
-        local pred_spec "`pred_spec' `var'(mean)"
+        local pred_spec "`pred_spec' `var'"
     }
 }
 
-* 添加结果变量的预处理期均值作为预测变量
-local pred_spec "`pred_spec' `outcome_var'(`t_min'(`pretreat_period'))"
+* 添加结果变量的预处理期作为预测变量
+local pred_spec "`pred_spec' `outcome_var'(`t_min'(1)`pretreat_period')"
 
 display ">>> 执行synth命令..."
 
@@ -216,14 +218,14 @@ twoway (line _Y_treated _time, lcolor(black) lwidth(medium)) ///
        title("合成控制法: 实际 vs 合成对照") ///
        note("红色虚线=处理时间")
 graph export "fig_TG17_synth_path.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TG17_synth_path.png|type=figure|desc=synth_path"
+display "SS_OUTPUT_FILE|file=fig_TG17_synth_path.png|type=graph|desc=synth_path"
 
 * 导出结果数据
 export delimited using "table_TG17_synth_path.csv", replace
 display "SS_OUTPUT_FILE|file=table_TG17_synth_path.csv|type=table|desc=synth_path_data"
 
 * ============ 恢复原始数据并保存 ============
-use "data.csv", clear
+use `original_data', clear
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
@@ -238,7 +240,9 @@ display "SS_SUMMARY|key=avg_effect|value=`avg_effect'"
 
 * 清理
 capture erase "synth_results.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""

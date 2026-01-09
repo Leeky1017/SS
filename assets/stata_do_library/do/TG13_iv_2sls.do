@@ -14,7 +14,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -25,16 +27,17 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG13|level=L1|title=IV_2SLS"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "ivreg2"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
         log close
         exit 199
     }
@@ -66,8 +69,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -82,8 +84,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `dep_var' `endog_var' {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -98,8 +99,7 @@ foreach var of local instruments {
 }
 
 if "`valid_instruments'" == "" {
-    display "SS_ERROR:NO_INSTRUMENTS:No valid instruments"
-    display "SS_ERR:NO_INSTRUMENTS:No valid instruments"
+display "SS_RC|code=200|cmd=task|msg=no_instruments|detail=No_valid_instruments|severity=fail"
     log close
     exit 200
 }
@@ -120,8 +120,7 @@ display ">>> 工具变量数: `n_instruments'"
 display ">>> 内生变量数: `n_endog'"
 
 if `n_instruments' < `n_endog' {
-    display "SS_ERROR:UNDERIDENTIFIED:Fewer instruments than endogenous variables"
-    display "SS_ERR:UNDERIDENTIFIED:Fewer instruments than endogenous variables"
+display "SS_RC|code=198|cmd=task|msg=underidentified|detail=Fewer_instruments_than_endogenous_variables|severity=fail"
     log close
     exit 198
 }
@@ -175,7 +174,7 @@ display "    观测数: `fs_n'"
 * F统计量检验（弱工具变量）
 if `fs_f' < 10 {
     display ""
-    display "SS_WARNING:WEAK_IV:First-stage F < 10, possible weak instruments"
+display "SS_RC|code=0|cmd=warning|msg=weak_iv|detail=First-stage_F__10_possible_weak_instruments|severity=warn"
 }
 
 display "SS_METRIC|name=first_stage_f|value=`fs_f'"
@@ -319,9 +318,13 @@ display "SS_SUMMARY|key=iv_coef|value=`iv_coef'"
 
 * 清理
 capture erase "temp_first_stage.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 capture erase "temp_2sls_result.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""

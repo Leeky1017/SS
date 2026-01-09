@@ -4,7 +4,7 @@
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TG08_sensitivity.csv type=table desc="Sensitivity results"
-*   - fig_TG08_gamma_bounds.png type=figure desc="Gamma bounds"
+*   - fig_TG08_gamma_bounds.png type=graph desc="Gamma bounds"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - rbounds source=ssc purpose="Rosenbaum bounds"
@@ -12,7 +12,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -31,16 +33,17 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "rbounds"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
         log close
         exit 199
     }
@@ -71,8 +74,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -87,8 +89,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `treatment_var' `outcome_var' {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -276,7 +277,7 @@ twoway (line p_upper gamma, lcolor(red) lwidth(medium)) ///
        title("Rosenbaum敏感性分析") ///
        note("水平虚线=0.05显著性水平; 垂直虚线=临界Gamma")
 graph export "fig_TG08_gamma_bounds.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TG08_gamma_bounds.png|type=figure|desc=gamma_bounds"
+display "SS_OUTPUT_FILE|file=fig_TG08_gamma_bounds.png|type=graph|desc=gamma_bounds"
 restore
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -287,7 +288,9 @@ display "SS_SUMMARY|key=critical_gamma|value=`critical_gamma'"
 * 清理
 drop _outcome_diff _pair_id _rank
 capture erase "temp_sensitivity.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""

@@ -5,7 +5,7 @@
 * OUTPUTS:
 *   - table_TG19_did_result.csv type=table desc="DID results"
 *   - table_TG19_parallel_test.csv type=table desc="Parallel test"
-*   - fig_TG19_parallel_trend.png type=figure desc="Parallel trend"
+*   - fig_TG19_parallel_trend.png type=graph desc="Parallel trend"
 *   - data_TG19_did.dta type=data desc="DID data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -13,7 +13,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -24,7 +26,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG19|level=L1|title=DID_Basic"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
@@ -53,8 +55,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -69,8 +70,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `outcome_var' `treat_var' `post_var' {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -282,11 +282,13 @@ if !_rc {
                legend(off) ///
                note("红色虚线=处理时间, 基准期=-1")
         graph export "fig_TG19_parallel_trend.png", replace width(1200)
-        display "SS_OUTPUT_FILE|file=fig_TG19_parallel_trend.png|type=figure|desc=parallel_trend"
+        display "SS_OUTPUT_FILE|file=fig_TG19_parallel_trend.png|type=graph|desc=parallel_trend"
         restore
         
         capture erase "temp_parallel.dta"
-        if _rc != 0 { }
+        if _rc != 0 {
+            * Expected non-fatal return code
+        }
     }
     else {
         display ">>> 时间点不足，无法进行平行趋势检验"
@@ -306,7 +308,9 @@ display "SS_SUMMARY|key=n_output|value=`n_output'"
 display "SS_SUMMARY|key=did_coef|value=`did_coef'"
 
 capture erase "temp_did_result.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""

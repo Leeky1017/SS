@@ -14,7 +14,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -33,7 +35,7 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * 无社区命令依赖
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
@@ -70,8 +72,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -86,8 +87,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `treatment_var' `outcome_var' {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found or not numeric"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found or not numeric"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found_or_not_numeric|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -327,9 +327,13 @@ display "SS_SUMMARY|key=effect|value=`effect'"
 
 * 清理
 capture erase "temp_weight_stats.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 capture erase "temp_balance_weighted.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""

@@ -1,0 +1,446 @@
+{
+  "cases": [
+    {
+      "archived_outputs": [
+        "runs/0330fdfb4b75479e9747dcfdccd7a853/artifacts/outputs/table_TG01_pscore_model.csv",
+        "runs/0330fdfb4b75479e9747dcfdccd7a853/artifacts/outputs/table_TG01_balance_before.csv",
+        "runs/0330fdfb4b75479e9747dcfdccd7a853/artifacts/outputs/fig_TG01_pscore_dist.png",
+        "runs/0330fdfb4b75479e9747dcfdccd7a853/artifacts/outputs/data_TG01_with_pscore.dta",
+        "runs/0330fdfb4b75479e9747dcfdccd7a853/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/c4/job_c4569dfe979e5974/runs/0330fdfb4b75479e9747dcfdccd7a853/artifacts",
+      "exit_code": 0,
+      "job_id": "job_c4569dfe979e5974",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "0330fdfb4b75479e9747dcfdccd7a853",
+      "status": "passed",
+      "template_id": "TG01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/81c45f5fec6c4a53887927f62d48deae/artifacts/outputs/table_TG02_att_result.csv",
+        "runs/81c45f5fec6c4a53887927f62d48deae/artifacts/outputs/table_TG02_balance_after.csv",
+        "runs/81c45f5fec6c4a53887927f62d48deae/artifacts/outputs/fig_TG02_balance_compare.png",
+        "runs/81c45f5fec6c4a53887927f62d48deae/artifacts/outputs/data_TG02_matched.dta",
+        "runs/81c45f5fec6c4a53887927f62d48deae/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/4c/job_4cd54c6f9da4ab85/runs/81c45f5fec6c4a53887927f62d48deae/artifacts",
+      "exit_code": 0,
+      "job_id": "job_4cd54c6f9da4ab85",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "81c45f5fec6c4a53887927f62d48deae",
+      "status": "passed",
+      "template_id": "TG02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/53244c7544d8410dbd366d3e3df05d6e/artifacts/outputs/table_TG03_ipw_result.csv",
+        "runs/53244c7544d8410dbd366d3e3df05d6e/artifacts/outputs/table_TG03_weight_summary.csv",
+        "runs/53244c7544d8410dbd366d3e3df05d6e/artifacts/outputs/table_TG03_balance_weighted.csv",
+        "runs/53244c7544d8410dbd366d3e3df05d6e/artifacts/outputs/data_TG03_with_weights.dta",
+        "runs/53244c7544d8410dbd366d3e3df05d6e/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/a5/job_a5ff40e21b1a94c4/runs/53244c7544d8410dbd366d3e3df05d6e/artifacts",
+      "exit_code": 0,
+      "job_id": "job_a5ff40e21b1a94c4",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "53244c7544d8410dbd366d3e3df05d6e",
+      "status": "passed",
+      "template_id": "TG03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/de2be1ad6973479c9d276c6308e2d920/artifacts/outputs/table_TG04_strata_effects.csv",
+        "runs/de2be1ad6973479c9d276c6308e2d920/artifacts/outputs/table_TG04_strata_balance.csv",
+        "runs/de2be1ad6973479c9d276c6308e2d920/artifacts/outputs/fig_TG04_strata_effects.png",
+        "runs/de2be1ad6973479c9d276c6308e2d920/artifacts/outputs/data_TG04_with_strata.dta",
+        "runs/de2be1ad6973479c9d276c6308e2d920/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/01/job_015998d9e36fe5ce/runs/de2be1ad6973479c9d276c6308e2d920/artifacts",
+      "exit_code": 0,
+      "job_id": "job_015998d9e36fe5ce",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "de2be1ad6973479c9d276c6308e2d920",
+      "status": "passed",
+      "template_id": "TG04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/83b0b094d3964d779fc14ac28d612cc0/artifacts/outputs/table_TG05_cem_result.csv",
+        "runs/83b0b094d3964d779fc14ac28d612cc0/artifacts/outputs/table_TG05_cem_balance.csv",
+        "runs/83b0b094d3964d779fc14ac28d612cc0/artifacts/outputs/data_TG05_cem_matched.dta",
+        "runs/83b0b094d3964d779fc14ac28d612cc0/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/1f/job_1f5a18b4dcfde3d8/runs/83b0b094d3964d779fc14ac28d612cc0/artifacts",
+      "exit_code": 0,
+      "job_id": "job_1f5a18b4dcfde3d8",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "83b0b094d3964d779fc14ac28d612cc0",
+      "status": "passed",
+      "template_id": "TG05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/20a55ecff45f4f80a6a6bd18409ae287/artifacts/outputs/table_TG06_mahal_result.csv",
+        "runs/20a55ecff45f4f80a6a6bd18409ae287/artifacts/outputs/table_TG06_balance.csv",
+        "runs/20a55ecff45f4f80a6a6bd18409ae287/artifacts/outputs/data_TG06_mahal_matched.dta",
+        "runs/20a55ecff45f4f80a6a6bd18409ae287/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/83/job_835c84aaf9393743/runs/20a55ecff45f4f80a6a6bd18409ae287/artifacts",
+      "exit_code": 0,
+      "job_id": "job_835c84aaf9393743",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "20a55ecff45f4f80a6a6bd18409ae287",
+      "status": "passed",
+      "template_id": "TG06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/977a043aa2504dd4ba61e2d7e785d884/artifacts/outputs/table_TG07_balance_stats.csv",
+        "runs/977a043aa2504dd4ba61e2d7e785d884/artifacts/outputs/table_TG07_balance_detail.csv",
+        "runs/977a043aa2504dd4ba61e2d7e785d884/artifacts/outputs/fig_TG07_love_plot.png",
+        "runs/977a043aa2504dd4ba61e2d7e785d884/artifacts/outputs/fig_TG07_ps_overlap.png",
+        "runs/977a043aa2504dd4ba61e2d7e785d884/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/94/job_94603de87996b7ee/runs/977a043aa2504dd4ba61e2d7e785d884/artifacts",
+      "exit_code": 0,
+      "job_id": "job_94603de87996b7ee",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "977a043aa2504dd4ba61e2d7e785d884",
+      "status": "passed",
+      "template_id": "TG07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/4d61c4b57f304abf8144d5b4d194cde1/artifacts/outputs/table_TG08_sensitivity.csv",
+        "runs/4d61c4b57f304abf8144d5b4d194cde1/artifacts/outputs/fig_TG08_gamma_bounds.png",
+        "runs/4d61c4b57f304abf8144d5b4d194cde1/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/73/job_73e2d06732b3f300/runs/4d61c4b57f304abf8144d5b4d194cde1/artifacts",
+      "exit_code": 0,
+      "job_id": "job_73e2d06732b3f300",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "4d61c4b57f304abf8144d5b4d194cde1",
+      "status": "passed",
+      "template_id": "TG08",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/8a884e74ab2e4ee094edc7bcef70f5f3/artifacts/outputs/table_TG09_rdd_result.csv",
+        "runs/8a884e74ab2e4ee094edc7bcef70f5f3/artifacts/outputs/table_TG09_bandwidth.csv",
+        "runs/8a884e74ab2e4ee094edc7bcef70f5f3/artifacts/outputs/fig_TG09_rdd_plot.png",
+        "runs/8a884e74ab2e4ee094edc7bcef70f5f3/artifacts/outputs/data_TG09_rdd.dta",
+        "runs/8a884e74ab2e4ee094edc7bcef70f5f3/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/6d/job_6dfd58fb3e26e840/runs/8a884e74ab2e4ee094edc7bcef70f5f3/artifacts",
+      "exit_code": 0,
+      "job_id": "job_6dfd58fb3e26e840",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "8a884e74ab2e4ee094edc7bcef70f5f3",
+      "status": "passed",
+      "template_id": "TG09",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/a5355f226b1e4ec3ad23c4349ac097ad/artifacts/outputs/table_TG10_fuzzy_result.csv",
+        "runs/a5355f226b1e4ec3ad23c4349ac097ad/artifacts/outputs/table_TG10_first_stage.csv",
+        "runs/a5355f226b1e4ec3ad23c4349ac097ad/artifacts/outputs/fig_TG10_fuzzy_plot.png",
+        "runs/a5355f226b1e4ec3ad23c4349ac097ad/artifacts/outputs/data_TG10_fuzzy.dta",
+        "runs/a5355f226b1e4ec3ad23c4349ac097ad/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/47/job_4791016d8ce1f1bb/runs/a5355f226b1e4ec3ad23c4349ac097ad/artifacts",
+      "exit_code": 0,
+      "job_id": "job_4791016d8ce1f1bb",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "a5355f226b1e4ec3ad23c4349ac097ad",
+      "status": "passed",
+      "template_id": "TG10",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/6be2c20384d64bb1b375892d5a09df65/artifacts/outputs/table_TG11_bandwidth_results.csv",
+        "runs/6be2c20384d64bb1b375892d5a09df65/artifacts/outputs/table_TG11_sensitivity.csv",
+        "runs/6be2c20384d64bb1b375892d5a09df65/artifacts/outputs/fig_TG11_bandwidth_plot.png",
+        "runs/6be2c20384d64bb1b375892d5a09df65/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/48/job_48c79b83768012e8/runs/6be2c20384d64bb1b375892d5a09df65/artifacts",
+      "exit_code": 0,
+      "job_id": "job_48c79b83768012e8",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "6be2c20384d64bb1b375892d5a09df65",
+      "status": "passed",
+      "template_id": "TG11",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/5b52063305b04ff28f4d02db46cbfcfa/artifacts/outputs/table_TG12_density_test.csv",
+        "runs/5b52063305b04ff28f4d02db46cbfcfa/artifacts/outputs/fig_TG12_density_plot.png",
+        "runs/5b52063305b04ff28f4d02db46cbfcfa/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/0b/job_0bf52392c216323b/runs/5b52063305b04ff28f4d02db46cbfcfa/artifacts",
+      "exit_code": 0,
+      "job_id": "job_0bf52392c216323b",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "5b52063305b04ff28f4d02db46cbfcfa",
+      "status": "passed",
+      "template_id": "TG12",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/03ecec92c1dd4f53833cb6c9b5a8a53b/artifacts/outputs/table_TG13_2sls_result.csv",
+        "runs/03ecec92c1dd4f53833cb6c9b5a8a53b/artifacts/outputs/table_TG13_first_stage.csv",
+        "runs/03ecec92c1dd4f53833cb6c9b5a8a53b/artifacts/outputs/table_TG13_diagnostics.csv",
+        "runs/03ecec92c1dd4f53833cb6c9b5a8a53b/artifacts/outputs/data_TG13_iv.dta",
+        "runs/03ecec92c1dd4f53833cb6c9b5a8a53b/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/84/job_84e8acff93eff4b9/runs/03ecec92c1dd4f53833cb6c9b5a8a53b/artifacts",
+      "exit_code": 0,
+      "job_id": "job_84e8acff93eff4b9",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "03ecec92c1dd4f53833cb6c9b5a8a53b",
+      "status": "passed",
+      "template_id": "TG13",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/ecb00dd98cad436181c72fbaa8028284/artifacts/outputs/table_TG14_weak_iv_tests.csv",
+        "runs/ecb00dd98cad436181c72fbaa8028284/artifacts/outputs/table_TG14_critical_values.csv",
+        "runs/ecb00dd98cad436181c72fbaa8028284/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/52/job_525df472f3c55468/runs/ecb00dd98cad436181c72fbaa8028284/artifacts",
+      "exit_code": 0,
+      "job_id": "job_525df472f3c55468",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "ecb00dd98cad436181c72fbaa8028284",
+      "status": "passed",
+      "template_id": "TG14",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/e2229bca62ae403ba96be27fe36768ad/artifacts/outputs/table_TG15_overid_tests.csv",
+        "runs/e2229bca62ae403ba96be27fe36768ad/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/7c/job_7c32358ffa22e87b/runs/e2229bca62ae403ba96be27fe36768ad/artifacts",
+      "exit_code": 0,
+      "job_id": "job_7c32358ffa22e87b",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "e2229bca62ae403ba96be27fe36768ad",
+      "status": "passed",
+      "template_id": "TG15",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/53b7a8f24fa044dabdf5f894e1bba8ac/artifacts/outputs/table_TG16_panel_iv.csv",
+        "runs/53b7a8f24fa044dabdf5f894e1bba8ac/artifacts/outputs/table_TG16_diagnostics.csv",
+        "runs/53b7a8f24fa044dabdf5f894e1bba8ac/artifacts/outputs/data_TG16_panel_iv.dta",
+        "runs/53b7a8f24fa044dabdf5f894e1bba8ac/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/f3/job_f329c3da1e25d962/runs/53b7a8f24fa044dabdf5f894e1bba8ac/artifacts",
+      "exit_code": 0,
+      "job_id": "job_f329c3da1e25d962",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "53b7a8f24fa044dabdf5f894e1bba8ac",
+      "status": "passed",
+      "template_id": "TG16",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/7a20b3a63719406cbf7bd08f376bcdd5/artifacts/outputs/table_TG17_synth_path.csv",
+        "runs/7a20b3a63719406cbf7bd08f376bcdd5/artifacts/outputs/fig_TG17_synth_path.png",
+        "runs/7a20b3a63719406cbf7bd08f376bcdd5/artifacts/outputs/data_TG17_synth.dta",
+        "runs/7a20b3a63719406cbf7bd08f376bcdd5/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/e0/job_e0f700422edaedd0/runs/7a20b3a63719406cbf7bd08f376bcdd5/artifacts",
+      "exit_code": 0,
+      "job_id": "job_e0f700422edaedd0",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "7a20b3a63719406cbf7bd08f376bcdd5",
+      "status": "passed",
+      "template_id": "TG17",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/a387934e2e8f4ef48b9956da010307a7/artifacts/outputs/table_TG18_placebo_results.csv",
+        "runs/a387934e2e8f4ef48b9956da010307a7/artifacts/outputs/fig_TG18_placebo_plot.png",
+        "runs/a387934e2e8f4ef48b9956da010307a7/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/ec/job_ec0983714d18b66b/runs/a387934e2e8f4ef48b9956da010307a7/artifacts",
+      "exit_code": 0,
+      "job_id": "job_ec0983714d18b66b",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "a387934e2e8f4ef48b9956da010307a7",
+      "status": "passed",
+      "template_id": "TG18",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/bbba770cb9b944eda1b2d5960697f061/artifacts/outputs/table_TG19_did_result.csv",
+        "runs/bbba770cb9b944eda1b2d5960697f061/artifacts/outputs/data_TG19_did.dta",
+        "runs/bbba770cb9b944eda1b2d5960697f061/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/f1/job_f11b8b3a9b502031/runs/bbba770cb9b944eda1b2d5960697f061/artifacts",
+      "exit_code": 0,
+      "job_id": "job_f11b8b3a9b502031",
+      "missing_deps": [],
+      "missing_outputs": [
+        "fig_TG19_parallel_trend.png",
+        "table_TG19_parallel_test.csv"
+      ],
+      "run_id": "bbba770cb9b944eda1b2d5960697f061",
+      "status": "passed",
+      "template_id": "TG19",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/35a688a745734f5ca6ca1a13f5aa7912/artifacts/outputs/table_TG20_staggered_result.csv",
+        "runs/35a688a745734f5ca6ca1a13f5aa7912/artifacts/outputs/data_TG20_staggered.dta",
+        "runs/35a688a745734f5ca6ca1a13f5aa7912/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/7d/job_7dc29e83d62b58b5/runs/35a688a745734f5ca6ca1a13f5aa7912/artifacts",
+      "exit_code": 0,
+      "job_id": "job_7dc29e83d62b58b5",
+      "missing_deps": [],
+      "missing_outputs": [
+        "fig_TG20_event_study.png",
+        "table_TG20_group_effects.csv"
+      ],
+      "run_id": "35a688a745734f5ca6ca1a13f5aa7912",
+      "status": "passed",
+      "template_id": "TG20",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/f2edfd95435344f2b88ca41cfa459283/artifacts/outputs/table_TG21_parallel_test.csv",
+        "runs/f2edfd95435344f2b88ca41cfa459283/artifacts/outputs/table_TG21_pretrend_coefs.csv",
+        "runs/f2edfd95435344f2b88ca41cfa459283/artifacts/outputs/fig_TG21_trends.png",
+        "runs/f2edfd95435344f2b88ca41cfa459283/artifacts/outputs/fig_TG21_pretrend_test.png",
+        "runs/f2edfd95435344f2b88ca41cfa459283/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/3a/job_3a2a37e698b575e6/runs/f2edfd95435344f2b88ca41cfa459283/artifacts",
+      "exit_code": 0,
+      "job_id": "job_3a2a37e698b575e6",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "f2edfd95435344f2b88ca41cfa459283",
+      "status": "passed",
+      "template_id": "TG21",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/8867aab229064f4d9e217ea0f79e7fea/artifacts/outputs/table_TG22_placebo_results.csv",
+        "runs/8867aab229064f4d9e217ea0f79e7fea/artifacts/outputs/fig_TG22_placebo_dist.png",
+        "runs/8867aab229064f4d9e217ea0f79e7fea/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/63/job_633522c355c8cb29/runs/8867aab229064f4d9e217ea0f79e7fea/artifacts",
+      "exit_code": 0,
+      "job_id": "job_633522c355c8cb29",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "8867aab229064f4d9e217ea0f79e7fea",
+      "status": "passed",
+      "template_id": "TG22",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/31ac7f6333544ae3a13f7124e58df0eb/artifacts/outputs/table_TG23_twfe_comparison.csv",
+        "runs/31ac7f6333544ae3a13f7124e58df0eb/artifacts/outputs/fig_TG23_comparison.png",
+        "runs/31ac7f6333544ae3a13f7124e58df0eb/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/ff/job_ffc151a773294070/runs/31ac7f6333544ae3a13f7124e58df0eb/artifacts",
+      "exit_code": 0,
+      "job_id": "job_ffc151a773294070",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "31ac7f6333544ae3a13f7124e58df0eb",
+      "status": "passed",
+      "template_id": "TG23",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/267c81c62f224765b92e8cdf29774db3/artifacts/outputs/table_TG24_late_result.csv",
+        "runs/267c81c62f224765b92e8cdf29774db3/artifacts/outputs/table_TG24_complier_chars.csv",
+        "runs/267c81c62f224765b92e8cdf29774db3/artifacts/outputs/data_TG24_late.dta",
+        "runs/267c81c62f224765b92e8cdf29774db3/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/70/job_701666e8a2097c26/runs/267c81c62f224765b92e8cdf29774db3/artifacts",
+      "exit_code": 0,
+      "job_id": "job_701666e8a2097c26",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "267c81c62f224765b92e8cdf29774db3",
+      "status": "passed",
+      "template_id": "TG24",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/c5e2fb13dd07424b895a54cafdcb6a2e/artifacts/outputs/table_TG25_mte_result.csv",
+        "runs/c5e2fb13dd07424b895a54cafdcb6a2e/artifacts/outputs/table_TG25_policy_params.csv",
+        "runs/c5e2fb13dd07424b895a54cafdcb6a2e/artifacts/outputs/fig_TG25_mte_curve.png",
+        "runs/c5e2fb13dd07424b895a54cafdcb6a2e/artifacts/outputs/data_TG25_mte.dta",
+        "runs/c5e2fb13dd07424b895a54cafdcb6a2e/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-241-p4-7-causal-tg/jobs/ca/job_cab9aeed3f7c69c9/runs/c5e2fb13dd07424b895a54cafdcb6a2e/artifacts",
+      "exit_code": 0,
+      "job_id": "job_cab9aeed3f7c69c9",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "c5e2fb13dd07424b895a54cafdcb6a2e",
+      "status": "passed",
+      "template_id": "TG25",
+      "timed_out": false
+    }
+  ],
+  "finished_at": "2026-01-09T14:03:03.002837+00:00",
+  "library_dir": "assets/stata_do_library",
+  "schema_version": "1.0",
+  "started_at": "2026-01-09T14:01:05.480642+00:00",
+  "stata_cmd": [
+    "/mnt/c/Program Files/Stata18/StataMP-64.exe"
+  ],
+  "suite_id": "issue_241_tg01_tg25",
+  "summary": {
+    "passed": 25
+  }
+}

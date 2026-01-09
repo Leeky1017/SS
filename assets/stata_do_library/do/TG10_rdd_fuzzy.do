@@ -5,7 +5,7 @@
 * OUTPUTS:
 *   - table_TG10_fuzzy_result.csv type=table desc="Fuzzy RDD results"
 *   - table_TG10_first_stage.csv type=table desc="First stage results"
-*   - fig_TG10_fuzzy_plot.png type=figure desc="Fuzzy RDD plot"
+*   - fig_TG10_fuzzy_plot.png type=graph desc="Fuzzy RDD plot"
 *   - data_TG10_fuzzy.dta type=data desc="Fuzzy data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
@@ -14,7 +14,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -25,16 +27,17 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG10|level=L1|title=RDD_Fuzzy"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "rdrobust"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
         log close
         exit 199
     }
@@ -59,8 +62,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -75,8 +77,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `outcome_var' `treatment_var' `running_var' {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -136,7 +137,7 @@ display "SS_METRIC|name=first_stage_jump|value=`fs_tau'"
 * 检查第一阶段强度
 if abs(`fs_tau') < 0.1 {
     display ""
-    display "SS_WARNING:WEAK_FIRST_STAGE:First stage jump < 0.1, may have weak instrument"
+display "SS_RC|code=0|cmd=warning|msg=weak_first_stage|detail=First_stage_jump__0.1_may_have_weak_instrument|severity=warn"
 }
 
 * 导出第一阶段结果
@@ -217,7 +218,7 @@ twoway (scatter `outcome_var' `running_var' if _above_cutoff == 0, mcolor(blue%3
        xtitle("驱动变量") ytitle("`outcome_var'") ///
        title("Fuzzy RDD: 结果变量")
 graph export "fig_TG10_fuzzy_plot.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TG10_fuzzy_plot.png|type=figure|desc=fuzzy_plot"
+display "SS_OUTPUT_FILE|file=fig_TG10_fuzzy_plot.png|type=graph|desc=fuzzy_plot"
 
 * ============ 输出结果 ============
 local n_output = _N

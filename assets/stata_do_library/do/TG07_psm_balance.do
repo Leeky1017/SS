@@ -5,8 +5,8 @@
 * OUTPUTS:
 *   - table_TG07_balance_stats.csv type=table desc="Balance stats"
 *   - table_TG07_balance_detail.csv type=table desc="Balance detail"
-*   - fig_TG07_love_plot.png type=figure desc="Love plot"
-*   - fig_TG07_ps_overlap.png type=figure desc="PS overlap"
+*   - fig_TG07_love_plot.png type=graph desc="Love plot"
+*   - fig_TG07_ps_overlap.png type=graph desc="PS overlap"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - psmatch2 source=ssc purpose="PSM balance"
@@ -14,7 +14,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -33,16 +35,17 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "psmatch2"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
         log close
         exit 199
     }
@@ -77,8 +80,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -92,8 +94,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 * ============ 变量检查 ============
 capture confirm variable `treatment_var'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`treatment_var' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`treatment_var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`treatment_var'_not_found|var=`treatment_var'|severity=fail"
     log close
     exit 200
 }
@@ -273,7 +274,7 @@ twoway (scatter var_id abs_std_diff, msymbol(O) mcolor(navy)), ///
     title("协变量平衡性 Love Plot") ///
     note("红色虚线=`threshold'%阈值")
 graph export "fig_TG07_love_plot.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TG07_love_plot.png|type=figure|desc=love_plot"
+display "SS_OUTPUT_FILE|file=fig_TG07_love_plot.png|type=graph|desc=love_plot"
 restore
 
 * 倾向得分重叠图
@@ -283,7 +284,7 @@ twoway (kdensity `pscore_var' if `treatment_var' == 1, lcolor(red) lwidth(medium
        xtitle("倾向得分") ytitle("密度") ///
        title("倾向得分分布重叠")
 graph export "fig_TG07_ps_overlap.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TG07_ps_overlap.png|type=figure|desc=ps_overlap"
+display "SS_OUTPUT_FILE|file=fig_TG07_ps_overlap.png|type=graph|desc=ps_overlap"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 * ============ 输出结果 ============
@@ -295,9 +296,13 @@ display "SS_SUMMARY|key=n_output|value=`n_output'"
 display "SS_SUMMARY|key=pass_rate|value=`pass_rate'"
 
 capture erase "temp_balance_stats.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 capture erase "temp_balance_detail.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""
