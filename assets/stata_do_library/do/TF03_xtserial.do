@@ -41,6 +41,17 @@ end
 
 display "SS_TASK_BEGIN|id=TF03|level=L1|title=XTSERIAL"
 display "SS_TASK_VERSION|version=2.0.1"
+* ==============================================================================
+* PHASE 5.6 REVIEW (Issue #246) / 最佳实践审查（阶段 5.6）
+* - Best practice: Wooldridge test for serial correlation in panel models; interpret as evidence of AR(1)-type errors. /
+*   最佳实践：Wooldridge 面板序列相关检验；显著通常提示误差项存在一阶序列相关。
+* - SSC deps: required:xtserial (no built-in equivalent used in this library) / SSC 依赖：必需 xtserial（库内无等价内置替代）
+* - Error policy: fail on missing inputs/xtset/test; warn on singleton groups /
+*   错误策略：缺少输入/xtset/检验失败→fail；单成员组→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=246|template_id=TF03|ssc=required:xtserial|output=csv|policy=warn_fail"
+
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 capture which xtserial
 if _rc {
@@ -77,6 +88,15 @@ if _rc {
 capture xtset `panelvar' `timevar'
 if _rc {
     ss_fail_TF03 `=_rc' "xtset `panelvar' `timevar'" "xtset_failed"
+}
+tempvar _ss_n_i
+bysort `panelvar': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=xtset|msg=singleton_groups_present|severity=warn"
 }
 capture noisily xtserial `depvar' `indepvars'
 if _rc {

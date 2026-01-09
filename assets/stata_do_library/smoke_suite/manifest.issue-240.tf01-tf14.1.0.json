@@ -40,7 +40,7 @@
     },
     "TF04": {
       "dependencies": [
-        {"pkg": "xtscc", "purpose": "Driscoll-Kraay SE", "source": "ssc"}
+        {"pkg": "stata", "purpose": "xtreg (FE) clustered SE fallback; optional xtscc", "source": "built-in"}
       ],
       "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
       "params": {
@@ -160,4 +160,3 @@
     }
   }
 }
-
