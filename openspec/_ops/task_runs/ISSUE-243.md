@@ -67,3 +67,7 @@
 ### 2026-01-09 pr
 - Command: `gh pr checks 245 --watch`
 - Key output: `All checks were successful`
+
+### 2026-01-09 rulebook
+- Command: `rulebook task archive issue-243-fe-a3-loop-closure`
+- Key output: `✅ Task issue-243-fe-a3-loop-closure archived successfully`
