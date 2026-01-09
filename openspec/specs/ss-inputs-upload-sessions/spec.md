@@ -37,6 +37,32 @@ The system uses a three-step flow:
   - `multipart`: presigned PUT URLs per part, plus a fixed `part_size`
 - **Finalize**: a server operation that (a) completes multipart assembly if needed, (b) verifies and fingerprints bytes, and (c) materializes the file into the SS inputs system (`inputs/manifest.json` + `job.json.inputs.*`).
 
+## Error model (v1)
+
+Unless otherwise specified, v1 endpoints MUST use the SS structured error envelope:
+- `{"error_code": "<CODE>", "message": "<human readable>"}`
+
+The v1 error code set is frozen (UPLOAD-C001) and MUST include at least:
+- `AUTH_REQUIRED` / `AUTH_INVALID` / `AUTH_EXPIRED` (auth work may be staged; codes are reserved)
+- `BUNDLE_NOT_FOUND` / `FILE_NOT_FOUND`
+- `BUNDLE_FILES_LIMIT_EXCEEDED`
+- `INPUT_UNSUPPORTED_FORMAT` / `INPUT_FILENAME_UNSAFE`
+- `INPUT_PRIMARY_DATASET_MISSING` / `INPUT_PRIMARY_DATASET_MULTIPLE`
+- `UPLOAD_SESSION_NOT_FOUND` / `UPLOAD_SESSION_EXPIRED`
+- `UPLOAD_PARTS_INVALID` / `UPLOAD_INCOMPLETE`
+- `CHECKSUM_MISMATCH` (retryable)
+
+## Limits & config keys (v1)
+
+All configuration MUST be loaded from `src/config.py` and MUST use these fixed env keys:
+- `SS_UPLOAD_OBJECT_STORE_BACKEND` = `s3` | `fake`
+- `SS_UPLOAD_S3_ENDPOINT` / `SS_UPLOAD_S3_REGION` / `SS_UPLOAD_S3_BUCKET`
+- `SS_UPLOAD_S3_ACCESS_KEY_ID` / `SS_UPLOAD_S3_SECRET_ACCESS_KEY`
+- `SS_UPLOAD_PRESIGNED_URL_TTL_SECONDS` (default 900, max 900)
+- `SS_UPLOAD_MULTIPART_THRESHOLD_BYTES` (strategy cutoff)
+- `SS_UPLOAD_MULTIPART_PART_SIZE_BYTES` (default 8 MiB, min 5 MiB)
+- `SS_UPLOAD_MAX_BUNDLE_FILES` (default 64)
+
 ## Requirements
 
 ### Requirement: Bundle endpoints define file roles and duplicate filename semantics
@@ -51,6 +77,11 @@ SS MUST expose job-scoped bundle endpoints under `/v1`:
   - `size_bytes` (int)
   - `role` (string enum; see below)
   - `mime_type` (string, optional)
+
+`POST /v1/jobs/{job_id}/inputs/bundle` response body MUST include:
+- `bundle_id` (string)
+- `job_id` (string)
+- `files[]` where each item includes the declared fields plus a server-generated `file_id`
 
 `GET /v1/jobs/{job_id}/inputs/bundle` response body MUST include:
 - `bundle_id` (string)
@@ -133,6 +164,9 @@ SS MUST expose a refresh endpoint for multipart sessions:
 
 The refresh request MAY include:
 - `part_numbers` (list[int]) to refresh only a subset; when omitted, refresh all parts
+
+Refresh MUST be semantically idempotent:
+- repeated calls for the same `part_numbers` MUST NOT change session semantics and MUST only return fresh URLs.
 
 The refresh response MUST include:
 - `upload_session_id` (string)

@@ -20,6 +20,7 @@ from src.domain.metrics import RuntimeMetrics
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.domain.task_code_redeem_service import TaskCodeRedeemService
+from src.domain.upload_bundle_service import UploadBundleService
 from src.infra.audit_logger import LoggingAuditLogger
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
@@ -197,6 +198,19 @@ async def get_job_inputs_service() -> JobInputsService:
     return _job_inputs_service_cached()
 
 
+@lru_cache
+def _upload_bundle_service_cached() -> UploadBundleService:
+    config = _config_cached()
+    return UploadBundleService(
+        workspace=_job_workspace_store_cached(),
+        max_bundle_files=config.upload_max_bundle_files,
+    )
+
+
+async def get_upload_bundle_service() -> UploadBundleService:
+    return _upload_bundle_service_cached()
+
+
 async def get_job_query_service() -> JobQueryService:
     return _job_query_service_cached()
 
@@ -227,6 +241,7 @@ def clear_dependency_caches() -> None:
     _artifacts_service_cached.cache_clear()
     _job_workspace_store_cached.cache_clear()
     _job_inputs_service_cached.cache_clear()
+    _upload_bundle_service_cached.cache_clear()
     _job_query_service_cached.cache_clear()
     _plan_service_cached.cache_clear()
     _task_code_redeem_service_cached.cache_clear()

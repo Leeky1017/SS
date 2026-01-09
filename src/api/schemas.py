@@ -156,7 +156,6 @@ class InputsPreviewResponse(BaseModel):
     columns: list[InputsPreviewColumn] = Field(default_factory=list)
     sample_rows: list[dict[str, str | int | float | bool | None]] = Field(default_factory=list)
 
-
 class TaskCodeRedeemRequest(BaseModel):
     task_code: str = Field(description="Task code to redeem", min_length=1)
     requirement: str = Field(description="Job requirement text (required field; may be empty)")
@@ -167,3 +166,24 @@ class TaskCodeRedeemResponse(BaseModel):
     token: str
     expires_at: str
     is_idempotent: bool
+
+
+class BundleFileDeclaration(BaseModel):
+    filename: str
+    size_bytes: int = Field(ge=0)
+    role: str
+    mime_type: str | None = None
+
+
+class CreateBundleRequest(BaseModel):
+    files: list[BundleFileDeclaration] = Field(default_factory=list)
+
+
+class BundleFileResponse(BundleFileDeclaration):
+    file_id: str
+
+
+class BundleResponse(BaseModel):
+    bundle_id: str
+    job_id: str
+    files: list[BundleFileResponse] = Field(default_factory=list)
