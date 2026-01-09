@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #240
 - Parent: #125
 - Superphase: Phase 4 (full-library Stata 18 audit)
 - Templates: `TF*` (~14 templates, current inventory)
@@ -33,4 +33,3 @@ Make advanced panel templates run on **Stata 18** with fixtures, emit **contract
 - [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
 - [ ] Panel preconditions are validated with explicit `warn/fail` on violations
 - [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
-

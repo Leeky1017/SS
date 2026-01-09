@@ -1,0 +1,163 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "issue_240_tf01_tf14",
+  "templates": {
+    "TF01": {
+      "dependencies": [
+        {"pkg": "stata", "purpose": "xtcsd command", "source": "built-in"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x1 x2",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TF02": {
+      "dependencies": [
+        {"pkg": "stata", "purpose": "xttest3 command", "source": "built-in"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x1 x2",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TF03": {
+      "dependencies": [
+        {"pkg": "xtserial", "purpose": "Wooldridge test", "source": "ssc"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x1 x2",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TF04": {
+      "dependencies": [
+        {"pkg": "xtscc", "purpose": "Driscoll-Kraay SE", "source": "ssc"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x1 x2",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TF05": {
+      "dependencies": [
+        {"pkg": "xtabond2", "purpose": "System GMM estimation", "source": "ssc"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x1 x2",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TF06": {
+      "dependencies": [
+        {"pkg": "stata", "purpose": "xtabond command", "source": "built-in"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x1 x2",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TF07": {
+      "dependencies": [
+        {"pkg": "xthreg", "purpose": "Panel threshold model", "source": "ssc"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x1 x2",
+        "__THRESHOLD_VAR__": "thresh",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TF08": {
+      "dependencies": [
+        {"pkg": "stata", "purpose": "xttobit command", "source": "built-in"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x1 x2",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year",
+        "__LL__": "0"
+      }
+    },
+    "TF09": {
+      "dependencies": [
+        {"pkg": "stata", "purpose": "xtlogit command", "source": "built-in"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__DEPVAR__": "post",
+        "__INDEPVARS__": "x1 x2",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TF10": {
+      "dependencies": [
+        {"pkg": "stata", "purpose": "xtpoisson command", "source": "built-in"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__DEPVAR__": "count_y",
+        "__INDEPVARS__": "x1 x2",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TF11": {
+      "dependencies": [
+        {"pkg": "stata", "purpose": "xtnbreg command", "source": "built-in"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__DEPVAR__": "count_y",
+        "__INDEPVARS__": "x1 x2",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TF12": {
+      "dependencies": [
+        {"pkg": "stata", "purpose": "mixed command", "source": "built-in"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x1 x2",
+        "__PANELVAR__": "id"
+      }
+    },
+    "TF14": {
+      "dependencies": [
+        {"pkg": "pvar", "purpose": "Panel VAR", "source": "ssc"}
+      ],
+      "fixtures": [{"dest": "data.csv", "source": "fixtures/TF00/sample_data.csv"}],
+      "params": {
+        "__VARS__": "y x1",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    }
+  }
+}
+
