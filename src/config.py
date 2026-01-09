@@ -18,6 +18,12 @@ class Config:
     do_template_library_dir: Path
     stata_cmd: tuple[str, ...]
     log_level: str
+    llm_provider: str = field(default="stub", kw_only=True)
+    llm_base_url: str = field(default="https://yunwu.ai/v1", kw_only=True)
+    llm_api_key: str = field(default="", kw_only=True)
+    llm_model: str = field(default="claude-opus-4-5", kw_only=True)
+    llm_temperature: float | None = field(default=None, kw_only=True)
+    llm_seed: str | None = field(default=None, kw_only=True)
     llm_timeout_seconds: float
     llm_max_attempts: int
     llm_retry_backoff_base_seconds: float
@@ -97,6 +103,16 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     stata_cmd_raw = str(e.get("SS_STATA_CMD", "")).strip()
     stata_cmd = tuple(shlex.split(stata_cmd_raw)) if stata_cmd_raw != "" else tuple()
     log_level = str(e.get("SS_LOG_LEVEL", "INFO")).strip().upper()
+    llm_provider = str(e.get("SS_LLM_PROVIDER", "stub")).strip().lower()
+    llm_base_url = str(e.get("SS_LLM_BASE_URL", "https://yunwu.ai/v1")).strip()
+    llm_api_key = str(e.get("SS_LLM_API_KEY", "")).strip()
+    llm_model = str(e.get("SS_LLM_MODEL", "claude-opus-4-5")).strip()
+    llm_temperature_raw = str(e.get("SS_LLM_TEMPERATURE", "")).strip()
+    llm_temperature = None
+    if llm_temperature_raw != "":
+        llm_temperature = _float_value(llm_temperature_raw, default=0.0)
+    llm_seed_raw = str(e.get("SS_LLM_SEED", "")).strip()
+    llm_seed = None if llm_seed_raw == "" else llm_seed_raw
     tracing_enabled = _bool_value(str(e.get("SS_TRACING_ENABLED", "0")), default=False)
     tracing_service_name = str(e.get("SS_TRACING_SERVICE_NAME", "ss")).strip() or "ss"
     tracing_exporter = str(e.get("SS_TRACING_EXPORTER", "otlp")).strip().lower()
@@ -141,6 +157,12 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         do_template_library_dir=do_template_library_dir,
         stata_cmd=stata_cmd,
         log_level=log_level,
+        llm_provider=llm_provider,
+        llm_base_url=llm_base_url,
+        llm_api_key=llm_api_key,
+        llm_model=llm_model,
+        llm_temperature=llm_temperature,
+        llm_seed=llm_seed,
         tracing_enabled=tracing_enabled,
         tracing_service_name=tracing_service_name,
         tracing_exporter=tracing_exporter,

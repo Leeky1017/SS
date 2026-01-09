@@ -115,6 +115,15 @@ class LLMCallFailedError(SSError):
         )
 
 
+class LLMConfigurationError(SSError):
+    def __init__(self, *, message: str):
+        super().__init__(
+            error_code="LLM_CONFIG_INVALID",
+            message=message,
+            status_code=500,
+        )
+
+
 class LLMArtifactsWriteError(SSError):
     def __init__(self, *, job_id: str, llm_call_id: str):
         super().__init__(

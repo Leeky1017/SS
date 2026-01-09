@@ -15,7 +15,7 @@ from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobScheduler, JobService
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
-from src.domain.llm_client import LLMClient, StubLLMClient
+from src.domain.llm_client import LLMClient
 from src.domain.metrics import RuntimeMetrics
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
@@ -23,7 +23,7 @@ from src.infra.audit_logger import LoggingAuditLogger
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store_factory import build_job_store
-from src.infra.llm_tracing import TracedLLMClient
+from src.infra.llm_client_factory import build_llm_client
 from src.infra.prometheus_metrics import PrometheusMetrics
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.utils.tenancy import DEFAULT_TENANT_ID, is_safe_tenant_id
@@ -71,18 +71,7 @@ def _worker_queue_cached() -> FileWorkerQueue:
 
 @lru_cache
 def _llm_client_cached() -> LLMClient:
-    config = _config_cached()
-    return TracedLLMClient(
-        inner=StubLLMClient(),
-        jobs_dir=config.jobs_dir,
-        model="stub",
-        temperature=0.0,
-        seed=None,
-        timeout_seconds=config.llm_timeout_seconds,
-        max_attempts=config.llm_max_attempts,
-        retry_backoff_base_seconds=config.llm_retry_backoff_base_seconds,
-        retry_backoff_max_seconds=config.llm_retry_backoff_max_seconds,
-    )
+    return build_llm_client(config=_config_cached())
 
 
 @lru_cache
