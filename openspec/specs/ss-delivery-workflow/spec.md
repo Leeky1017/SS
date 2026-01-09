@@ -67,3 +67,26 @@ If preflight reports problems (non-zero exit code), the agent MUST either:
 #### Scenario: Preflight surfaces blocked roadmap dependencies
 - **WHEN** running `scripts/agent_pr_preflight.sh` on a task branch with hard dependencies
 - **THEN** it prints the dependency issues and their states, and exits non-zero if any are still open
+
+### Requirement: Auto-merge completion MUST be verified and cannot be silently abandoned
+
+After enabling auto-merge and all required checks are green, the agent MUST verify the PR has actually merged (`mergedAt != null`).
+
+If the PR is not merged, the agent MUST treat this as a blocker and MUST NOT stop as if delivery is complete.
+The agent MUST:
+- determine and surface the blocker (e.g., `reviewDecision=REVIEW_REQUIRED`, `mergeStateStatus=BEHIND`, merge conflicts, merge queue),
+- record the blocker + next action in the run log `openspec/_ops/task_runs/ISSUE-N.md`,
+- and comment on the PR (or otherwise notify) so it cannot be missed.
+
+Notes:
+- A PR author cannot approve their own PR. To keep SS delivery fully autonomous (no human intervention), the repository MUST allow the agent to bypass review requirements via `gh pr merge --admin` (or provide an equivalent bot/app that can approve/merge).
+
+#### Scenario: Auto-merge is enabled but PR is blocked by required review
+- **GIVEN** auto-merge is enabled and all required checks are green
+- **WHEN** the PR reports `reviewDecision=REVIEW_REQUIRED`
+- **THEN** the agent records a blocker and attempts an admin merge (or bot-based merge) instead of assuming the PR will merge
+
+#### Scenario: Auto-merge is enabled but PR is behind base
+- **GIVEN** auto-merge is enabled and all required checks are green
+- **WHEN** the PR reports `mergeStateStatus=BEHIND`
+- **THEN** the agent records a blocker and rebases/pushes (or coordinates) before continuing
