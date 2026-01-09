@@ -1,7 +1,7 @@
 # ISSUE-209
 - Issue: #209
 - Branch: task/209-backend-proxy-taskcard
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/210
 
 ## Plan
 - Rewrite backend proxy extension task card to be implementation-focused
