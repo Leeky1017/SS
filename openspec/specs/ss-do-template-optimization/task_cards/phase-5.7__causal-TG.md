@@ -30,8 +30,16 @@ Enhance causal templates with best practices (最佳实践), Stata 18-native too
 
 ## Acceptance checklist
 
-- [ ] Each `TG*` template has a best-practice review record
-- [ ] SSC deps removed/replaced where feasible (exceptions justified)
-- [ ] Error handling and diagnostics are strengthened (no silent failure)
-- [ ] Key steps have bilingual comments (中英文注释)
-- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Each `TG*` template has a best-practice review record
+- [x] SSC deps removed/replaced where feasible (exceptions justified)
+- [x] Error handling and diagnostics are strengthened (no silent failure)
+- [x] Key steps have bilingual comments (中英文注释)
+- [x] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-258.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/265
+- TG01–TG25: best-practice review blocks + bilingual notes + version bump to 2.1.0
+- PSM/IV/TWFE: replaced SSC with Stata-native where feasible; SSC-only methods kept with explicit deps
+- Index + smoke-suite manifests aligned to updated TG meta
+- Run log: `openspec/_ops/task_runs/ISSUE-258.md`
