@@ -1,0 +1,110 @@
+# Spec: ss-frontend-desktop-pro
+
+## Purpose
+
+Ship a standalone, maintainable SS Web frontend under `frontend/` that faithfully reproduces the existing Desktop Pro UI (`index.html` + `assets/desktop_pro_*.css`) while integrating the current `/v1` API to complete the minimum user loop: create → upload → preview → blueprint → confirm → status/artifacts.
+
+## Related specs (normative)
+
+- Constitutional constraints: `openspec/specs/ss-constitution/spec.md`
+- API surface + `/v1`: `openspec/specs/ss-api-surface/spec.md`
+- Job contract + artifacts rules: `openspec/specs/ss-job-contract/spec.md`
+- UX loop definition (v1): `openspec/specs/ss-ux-loop-closure/spec.md`
+- Step 3 professional confirmation UX: `openspec/specs/frontend-stata-proxy-extension/spec.md`
+
+## Requirements
+
+### Requirement: The frontend MUST be a standalone project rooted at `frontend/`
+
+SS MUST contain a standalone frontend project at repository root `frontend/` (MUST NOT reuse `legacy/stata_service/frontend/`).
+The project MUST be buildable and runnable with:
+- `cd frontend && npm ci && npm run build`
+- `cd frontend && npm run dev` (manual acceptance)
+
+#### Scenario: Frontend builds in CI
+- **WHEN** `cd frontend && npm ci && npm run build` is executed
+- **THEN** it exits with code `0` and produces a production bundle
+
+### Requirement: Desktop Pro design primitives and CSS variables MUST be the only UI system
+
+The frontend UI MUST replicate the Desktop Pro design system used by `index.html`:
+- reuse the CSS variable semantics from `assets/desktop_pro_theme.css` (e.g., `--surface`, `--border`, `--text-dim`, `--accent`, `--success`, `--error`)
+- keep the primitive classnames or a traceable mapping: `panel`, `section-label`, `btn` (`btn-primary`/`btn-secondary`), `data-table`, `mono`
+- support the light/dark theme toggle using the `data-theme` attribute (`light`/`dark`)
+
+The frontend MUST NOT introduce a new visual system or component library (no Tailwind, MUI, Antd, shadcn, etc.).
+
+#### Scenario: UI stays within the Desktop Pro system
+- **WHEN** reviewing `frontend/` dependencies and CSS sources
+- **THEN** no new UI framework is added and Desktop Pro CSS variables drive the UI
+
+### Requirement: API base URL MUST be configurable and MUST target `/v1`
+
+All API requests from the frontend MUST be issued under `/v1` (stable API surface).
+The frontend MUST support environment-based base URL injection via `VITE_API_BASE_URL`:
+- default: `/v1` (same-origin + versioned path)
+- example override: `https://ss.example.com/v1`
+
+For local development, the frontend MUST support a dev-proxy workflow (e.g., Vite proxy) so `VITE_API_BASE_URL` can remain `/v1` while the dev server forwards `/v1/*` to the configured backend origin.
+
+The frontend MUST:
+- send a per-request id as `X-SS-Request-Id`
+- show the last request id in the UI error panel for debugging
+- allow users to set `X-SS-Tenant-ID` via the “Task Code” field (when provided); when empty, omit the header and rely on server default
+
+#### Scenario: A request includes a request id
+- **WHEN** the frontend calls `POST /v1/jobs`
+- **THEN** it includes `X-SS-Request-Id: 0123456789abcdef` and shows the request id when the request fails
+
+### Requirement: The v1 UX loop MUST be usable end-to-end from the frontend
+
+The frontend MUST implement a minimum usable flow aligned with backend `/v1` endpoints:
+1) Create job: `POST /v1/jobs`
+2) Upload dataset: `POST /v1/jobs/{job_id}/inputs/upload`
+3) Inputs preview: `GET /v1/jobs/{job_id}/inputs/preview`
+4) Blueprint precheck: `GET /v1/jobs/{job_id}/draft/preview`
+5) Confirm + enqueue: `POST /v1/jobs/{job_id}/confirm`
+6) Status + artifacts:
+   - `GET /v1/jobs/{job_id}`
+   - `GET /v1/jobs/{job_id}/artifacts`
+   - `GET /v1/jobs/{job_id}/artifacts/{artifact_id:path}`
+
+#### Scenario: User completes the loop and reaches artifacts
+- **GIVEN** the SS backend is running and reachable via `VITE_API_BASE_URL`
+- **WHEN** the user completes create → upload → preview → blueprint → confirm
+- **THEN** the frontend can poll `GET /v1/jobs/{job_id}` until a terminal state
+- **AND** the user can list artifacts and download at least one artifact file
+
+### Requirement: Step 3 “Blueprint 预检” MUST implement the professional confirmation UX with defined downgrade behavior
+
+Step 3 MUST implement the interaction model defined by:
+- `openspec/specs/frontend-stata-proxy-extension/spec.md`
+
+The frontend MUST support a usable downgrade when the backend does not yet provide the full draft/patch contract:
+- If `GET /v1/jobs/{job_id}/draft/preview` does not contain `data_quality_warnings`, hide the warnings panel.
+- If it does not contain `stage1_questions` or `open_unknowns`, hide the clarification/gating panel and do not block confirmation on missing answers.
+- If variable-correction candidates are missing:
+  - use inputs preview `columns[].name` as dropdown candidates;
+  - if still empty, render variables read-only and hide correction dropdowns.
+- If `POST /v1/jobs/{job_id}/draft/patch` is not available (404/501), disable/hide “应用澄清并刷新预览” and show a non-blocking inline hint.
+- If `decision` is absent, do not show the downgrade-risk modal; confirmation proceeds normally.
+- After a successful confirm, Step 3 MUST enter a locked read-only state (mapping/clarification inputs disabled; locked banner shown).
+
+#### Scenario: Missing backend draft/patch features do not break Step 3
+- **GIVEN** `GET /v1/jobs/{job_id}/draft/preview` returns the current minimal `DraftPreviewResponse`
+- **WHEN** the user opens Step 3 and confirms
+- **THEN** the UI remains usable (no crash) with unavailable panels hidden/disabled
+- **AND** Step 3 transitions to a locked state after confirm success
+
+### Requirement: The frontend MUST persist local state to support refresh/resume
+
+The frontend MUST persist enough client state to allow refresh-resume:
+- `job_id` and current step/view
+- requirement text
+- tenant/task code (if set by the user)
+- inputs preview + blueprint preview snapshots (best-effort)
+
+#### Scenario: Refresh resumes the last job
+- **GIVEN** a user has created a job and uploaded inputs
+- **WHEN** the user refreshes the page
+- **THEN** the frontend restores the last job context and allows continuing from the next step
