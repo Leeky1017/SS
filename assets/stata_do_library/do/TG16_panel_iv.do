@@ -1,4 +1,4 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TG16  level=L1  module=G  title="Panel IV"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -13,7 +13,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -24,16 +26,17 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG16|level=L1|title=Panel_IV"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "xtivreg2"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
         log close
         exit 199
     }
@@ -66,8 +69,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -82,8 +84,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `dep_var' `endog_var' `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -114,7 +115,12 @@ display "SECTION 1: 设置面板结构"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 sort `id_var' `time_var'
-ss_smart_xtset `id_var' `time_var'
+capture xtset `id_var' `time_var'
+if _rc {
+display "SS_RC|code=459|cmd=xtset|msg=xtset_failed|detail=xtset_failed_for_panel_structure|severity=fail"
+    log close
+    exit 459
+}
 
 quietly xtdescribe
 local n_groups = r(n)
@@ -146,7 +152,7 @@ else {
     * HT需要区分时变/时不变、内生/外生
     capture xthtaylor `dep_var' `valid_exog' `endog_var', endog(`endog_var')
     if _rc {
-        display "SS_WARNING:HT_FAILED:Hausman-Taylor failed, using FE-IV instead"
+display "SS_RC|code=0|cmd=warning|msg=ht_failed|detail=Hausman-Taylor_failed_using_FE-IV_instead|severity=warn"
         xtivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), fe robust first
     }
 }
@@ -187,7 +193,7 @@ display "    Kleibergen-Paap F: " %10.2f `widstat'
 
 if `cdf' < 10 {
     display "    警告: F < 10，可能存在弱工具变量"
-    display "SS_WARNING:WEAK_IV:F-statistic < 10"
+display "SS_RC|code=0|cmd=warning|msg=weak_iv|detail=F-statistic__10|severity=warn"
 }
 
 display ""
@@ -260,7 +266,9 @@ display "SS_SUMMARY|key=n_output|value=`n_output'"
 display "SS_SUMMARY|key=iv_coef|value=`iv_coef'"
 
 capture erase "temp_panel_iv.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""

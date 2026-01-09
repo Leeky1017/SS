@@ -4,7 +4,7 @@
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TG18_placebo_results.csv type=table desc="Placebo results"
-*   - fig_TG18_placebo_plot.png type=figure desc="Placebo plot"
+*   - fig_TG18_placebo_plot.png type=graph desc="Placebo plot"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - synth source=ssc purpose="Synthetic control"
@@ -12,7 +12,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -23,16 +25,17 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG18|level=L2|title=SCM_Placebo"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "synth"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
         log close
         exit 199
     }
@@ -62,8 +65,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -81,8 +83,7 @@ save `original_data'
 foreach var in `outcome_var' `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -93,6 +94,7 @@ quietly levelsof `id_var', local(all_units)
 quietly summarize `time_var'
 local t_min = r(min)
 local t_max = r(max)
+local pretreat_end = `treatment_time' - 1
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -130,7 +132,7 @@ if "`placebo_type'" == "unit" {
         }
         
         * 执行合成控制
-        capture noisily synth `outcome_var' `outcome_var'(`t_min'(`=`treatment_time'-1')), ///
+        capture noisily synth `outcome_var' `outcome_var'(`t_min'(1)`pretreat_end'), ///
             trunit(`unit') trperiod(`treatment_time') ///
             counit(`control_units') ///
             keep(synth_temp_`unit') replace
@@ -166,7 +168,9 @@ if "`placebo_type'" == "unit" {
             display "    单位 `unit': 效应=" %8.4f `avg_effect' ", MSPE比=" %8.2f `ratio'
             
             capture erase "synth_temp_`unit'.dta"
-            if _rc != 0 { }
+            if _rc != 0 {
+                * Expected non-fatal return code
+            }
         }
     }
 }
@@ -193,7 +197,8 @@ else {
         }
         
         * 执行合成控制
-        capture noisily synth `outcome_var' `outcome_var'(`t_min'(`=`t'-1')), ///
+        local placebo_pretreat_end = `t' - 1
+        capture noisily synth `outcome_var' `outcome_var'(`t_min'(1)`placebo_pretreat_end'), ///
             trunit(`treated_unit') trperiod(`t') ///
             counit(`control_units') ///
             keep(synth_time_`t') replace
@@ -223,7 +228,9 @@ else {
             display "    时间 `t': 效应=" %8.4f `avg_effect'
             
             capture erase "synth_time_`t'.dta"
-            if _rc != 0 { }
+            if _rc != 0 {
+                * Expected non-fatal return code
+            }
         }
     }
 }
@@ -241,14 +248,18 @@ display "SECTION 2: 计算推断p值"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 use "temp_placebo_results.dta", clear
+quietly count
+local n_total = r(N)
+local p_value = .
 
-if "`placebo_type'" == "unit" {
+if `n_total' == 0 {
+display "SS_RC|code=0|cmd=warning|msg=placebo_empty|detail=No_successful_placebo_runs|severity=warn"
+}
+
+if `n_total' > 0 & "`placebo_type'" == "unit" {
     * 基于MSPE比的排名推断
     gsort -ratio
     generate rank = _n
-    
-    quietly count
-    local n_total = r(N)
     
     quietly summarize rank if placebo_id == `treated_unit'
     local treated_rank = r(mean)
@@ -260,7 +271,7 @@ if "`placebo_type'" == "unit" {
     display "    处理单位排名: `treated_rank' / `n_total'"
     display "    p值: " %6.4f `p_value'
 }
-else {
+else if `n_total' > 0 {
     * 时间安慰剂：检查真实处理时间效应是否异常
     quietly summarize effect
     local mean_effect = r(mean)
@@ -285,7 +296,10 @@ display "═══════════════════════�
 display "SECTION 3: 生成安慰剂效应图"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-if "`placebo_type'" == "unit" {
+if `n_total' == 0 {
+display "SS_RC|code=0|cmd=warning|msg=placebo_empty|detail=Skip_placebo_plot_no_observations|severity=warn"
+}
+else if "`placebo_type'" == "unit" {
     * 绘制MSPE比分布
     histogram ratio, bin(20) ///
         xline(`treated_ratio', lcolor(red) lwidth(thick)) ///
@@ -293,7 +307,7 @@ if "`placebo_type'" == "unit" {
         title("单位安慰剂检验: MSPE比分布") ///
         note("红线=处理单位, p值=" %5.3f `p_value')
     graph export "fig_TG18_placebo_plot.png", replace width(1200)
-    display "SS_OUTPUT_FILE|file=fig_TG18_placebo_plot.png|type=figure|desc=placebo_plot"
+    display "SS_OUTPUT_FILE|file=fig_TG18_placebo_plot.png|type=graph|desc=placebo_plot"
 }
 else {
     * 绘制效应分布
@@ -303,7 +317,7 @@ else {
         title("时间安慰剂检验: 效应分布") ///
         note("红线=真实处理时间效应")
     graph export "fig_TG18_placebo_plot.png", replace width(1200)
-    display "SS_OUTPUT_FILE|file=fig_TG18_placebo_plot.png|type=figure|desc=placebo_plot"
+    display "SS_OUTPUT_FILE|file=fig_TG18_placebo_plot.png|type=graph|desc=placebo_plot"
 }
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -313,7 +327,9 @@ display "SS_SUMMARY|key=p_value|value=`p_value'"
 
 * 清理
 capture erase "temp_placebo_results.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * 恢复原始数据
 use `original_data', clear

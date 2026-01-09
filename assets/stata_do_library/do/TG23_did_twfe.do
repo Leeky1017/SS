@@ -1,10 +1,10 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TG23  level=L2  module=G  title="DID TWFE"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TG23_twfe_comparison.csv type=table desc="TWFE comparison"
-*   - fig_TG23_comparison.png type=figure desc="Comparison plot"
+*   - fig_TG23_comparison.png type=graph desc="Comparison plot"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - reghdfe source=ssc purpose="HDFE regression"
@@ -13,7 +13,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -24,16 +26,17 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG23|level=L2|title=DID_TWFE"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "reghdfe did_multiplegt"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
+display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
+display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
         log close
         exit 199
     }
@@ -57,8 +60,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -73,15 +75,19 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `outcome_var' `id_var' `time_var' `treat_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
 }
 
 * 设置面板
-ss_smart_xtset `id_var' `time_var'
+capture xtset `id_var' `time_var'
+if _rc {
+display "SS_RC|code=459|cmd=xtset|msg=xtset_failed|detail=xtset_failed_for_panel_structure|severity=fail"
+    log close
+    exit 459
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -115,18 +121,23 @@ display "═══════════════════════�
 
 display ">>> 执行did_multiplegt..."
 
-did_multiplegt `outcome_var' `id_var' `time_var' `treat_var', robust_dynamic
+local dcdh_coef = .
+local dcdh_se = .
+local dcdh_t = .
+local dcdh_p = .
 
-* 提取结果
-local dcdh_coef = e(effect_0)
-local dcdh_se = e(se_effect_0)
-if `dcdh_se' > 0 {
-    local dcdh_t = `dcdh_coef' / `dcdh_se'
-    local dcdh_p = 2 * (1 - normal(abs(`dcdh_t')))
+capture noisily did_multiplegt old `outcome_var' `id_var' `time_var' `treat_var', robust_dynamic
+if _rc {
+display "SS_RC|code=0|cmd=warning|msg=did_multipletgt_failed|detail=did_multiplegt_failed|severity=warn"
 }
 else {
-    local dcdh_t = .
-    local dcdh_p = .
+    * 提取结果
+    capture local dcdh_coef = e(effect_0)
+    capture local dcdh_se = e(se_effect_0)
+    if `dcdh_se' > 0 {
+        local dcdh_t = `dcdh_coef' / `dcdh_se'
+        local dcdh_p = 2 * (1 - normal(abs(`dcdh_t')))
+    }
 }
 
 display ""
@@ -146,7 +157,7 @@ display "═══════════════════════�
 display ">>> 检查处理时间异质性..."
 
 * 找出首次处理时间
-bysort `id_var' (`time_var'): generate byte _ever_treated = max(`treat_var')
+bysort `id_var': egen byte _ever_treated = max(`treat_var')
 bysort `id_var' (`time_var'): generate _first_treat = `time_var' if `treat_var' == 1 & `treat_var'[_n-1] == 0
 bysort `id_var': egen first_treat_time = min(_first_treat)
 
@@ -159,7 +170,7 @@ display "    处理队列数: `n_cohorts'"
 
 if `n_cohorts' > 1 {
     display "    存在交错处理，TWFE可能存在负权重问题"
-    display "SS_WARNING:STAGGERED_TREATMENT:Multiple treatment cohorts detected"
+display "SS_RC|code=0|cmd=warning|msg=staggered_treatment|detail=Multiple_treatment_cohorts_detected|severity=warn"
 }
 
 * 计算简单的权重诊断
@@ -180,7 +191,10 @@ display "SECTION 4: 估计量比较"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 local diff = `twfe_coef' - `dcdh_coef'
-local pct_diff = `diff' / `dcdh_coef' * 100
+local pct_diff = .
+if `dcdh_coef' < . & `dcdh_coef' != 0 {
+    local pct_diff = `diff' / `dcdh_coef' * 100
+}
 
 display ""
 display "估计量比较:"
@@ -192,9 +206,9 @@ display "de Chaisemartin     " %10.4f `dcdh_coef' "  " %10.4f `dcdh_se'
 display "─────────────────────────────────────────────────"
 display "差异                " %10.4f `diff' " (" %5.1f `pct_diff' "%)"
 
-if abs(`pct_diff') > 20 {
+if `pct_diff' < . & abs(`pct_diff') > 20 {
     display ""
-    display "SS_WARNING:LARGE_DIFF:TWFE differs from robust estimator by >`=20'%"
+display "SS_RC|code=0|cmd=warning|msg=large_diff|detail=TWFE_differs_from_robust_estimator_by_`20'|severity=warn"
     display ">>> 警告: TWFE与稳健估计量差异较大，建议使用稳健方法"
 }
 
@@ -259,7 +273,7 @@ twoway (bar coef order, barwidth(0.6) color(navy)) ///
        yline(0, lcolor(gray) lpattern(dot)) ///
        legend(off)
 graph export "fig_TG23_comparison.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TG23_comparison.png|type=figure|desc=comparison"
+display "SS_OUTPUT_FILE|file=fig_TG23_comparison.png|type=graph|desc=comparison"
 restore
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -269,7 +283,9 @@ display "SS_SUMMARY|key=dcdh_coef|value=`dcdh_coef'"
 
 * 清理临时变量
 capture drop _ever_treated _first_treat first_treat_time
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""

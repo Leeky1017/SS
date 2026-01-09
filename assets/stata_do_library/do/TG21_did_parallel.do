@@ -1,19 +1,21 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TG21  level=L1  module=G  title="DID Parallel"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TG21_parallel_test.csv type=table desc="Parallel test"
 *   - table_TG21_pretrend_coefs.csv type=table desc="Pretrend coefs"
-*   - fig_TG21_trends.png type=figure desc="Trends"
-*   - fig_TG21_pretrend_test.png type=figure desc="Pretrend test"
+*   - fig_TG21_trends.png type=graph desc="Trends"
+*   - fig_TG21_pretrend_test.png type=graph desc="Pretrend test"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -24,7 +26,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG21|level=L1|title=DID_Parallel"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
@@ -46,8 +48,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -62,20 +63,19 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `outcome_var' `treat_var' `time_var' {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
 }
 
-* 设置面板（如果有ID变量）
-if "`id_var'" != "" {
-    capture confirm variable `id_var'
-    if !_rc {
-        ss_smart_xtset `id_var' `time_var'
-    }
-}
+	* 设置面板（如果有ID变量）
+	if "`id_var'" != "" {
+	    capture confirm variable `id_var'
+	    if !_rc {
+	        capture xtset `id_var' `time_var'
+	    }
+	}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -105,7 +105,7 @@ twoway (connected mean_y `time_var' if `treat_var' == 1, lcolor(red) mcolor(red)
        title("组别趋势对比") ///
        note("虚线=处理时间, 阴影=95%置信区间")
 graph export "fig_TG21_trends.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TG21_trends.png|type=figure|desc=trends"
+display "SS_OUTPUT_FILE|file=fig_TG21_trends.png|type=graph|desc=trends"
 restore
 
 * ============ 事件研究法检验 ============
@@ -219,7 +219,7 @@ twoway (rarea ci_lower ci_upper rel_time, color(navy%20)) ///
        legend(off) ///
        note("基准期=t-1, 红色虚线=处理时间")
 graph export "fig_TG21_pretrend_test.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TG21_pretrend_test.png|type=figure|desc=pretrend_test"
+display "SS_OUTPUT_FILE|file=fig_TG21_pretrend_test.png|type=graph|desc=pretrend_test"
 restore
 
 * ============ 联合显著性检验 ============
@@ -250,13 +250,13 @@ if "`pretrend_vars'" != "" {
     else if `f_p' >= 0.05 {
         display ""
         display ">>> 结论: 在10%水平拒绝平行趋势 (p=" %5.4f `f_p' ")"
-        display "SS_WARNING:PARALLEL_MARGINAL:Marginal rejection of parallel trends"
+display "SS_RC|code=0|cmd=warning|msg=parallel_marginal|detail=Marginal_rejection_of_parallel_trends|severity=warn"
         local parallel_conclusion = "边际拒绝:需谨慎"
     }
     else {
         display ""
         display ">>> 结论: 拒绝平行趋势假设 (p=" %5.4f `f_p' ")"
-        display "SS_WARNING:PARALLEL_REJECTED:Parallel trends assumption rejected"
+display "SS_RC|code=0|cmd=warning|msg=parallel_rejected|detail=Parallel_trends_assumption_rejected|severity=warn"
         local parallel_conclusion = "拒绝:平行趋势不成立"
     }
     
@@ -291,7 +291,9 @@ display "SS_SUMMARY|key=parallel_p|value=`f_p'"
 
 * 清理
 capture erase "temp_pretrend_coefs.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""

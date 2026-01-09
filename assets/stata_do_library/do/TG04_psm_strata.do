@@ -5,7 +5,7 @@
 * OUTPUTS:
 *   - table_TG04_strata_effects.csv type=table desc="Strata effects"
 *   - table_TG04_strata_balance.csv type=table desc="Strata balance"
-*   - fig_TG04_strata_effects.png type=figure desc="Strata effects plot"
+*   - fig_TG04_strata_effects.png type=graph desc="Strata effects plot"
 *   - data_TG04_with_strata.dta type=data desc="Data with strata"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
@@ -14,7 +14,9 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 clear all
 set more off
 version 18
@@ -33,7 +35,7 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
@@ -58,8 +60,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 * ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+display "SS_RC|code=601|cmd=confirm_file|msg=file_not_found|detail=data.csv_not_found|file=data.csv|severity=fail"
     log close
     exit 601
 }
@@ -74,8 +75,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `treatment_var' `outcome_var' {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+display "SS_RC|code=200|cmd=confirm_variable|msg=var_not_found|detail=`var'_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -182,7 +182,13 @@ forvalues s = 1/`n_strata' {
 postclose `strata_effects'
 
 * 计算加权平均效应
-local ate_strata = `weighted_effect' / `total_weight'
+local ate_strata = 0
+if `total_weight' > 0 {
+    local ate_strata = `weighted_effect' / `total_weight'
+}
+else {
+display "SS_RC|code=0|cmd=warning|msg=strata_empty|detail=No_strata_with_sufficient_treatedcontrol_support|severity=warn"
+}
 
 display ""
 display "────────────────────────────────────────────────────────────────"
@@ -256,16 +262,27 @@ use "temp_strata_effects.dta", clear
 generate ci_lower = effect - 1.96 * se
 generate ci_upper = effect + 1.96 * se
 
-twoway (bar effect stratum, barwidth(0.6) color(navy)) ///
-       (rcap ci_lower ci_upper stratum, lcolor(black)), ///
-       xlabel(1(1)`n_strata') ///
-       xtitle("倾向得分分层") ytitle("处理效应") ///
-       title("分层处理效应估计") ///
-       yline(`ate_strata', lcolor(red) lpattern(dash)) ///
-       legend(off) ///
-       note("红色虚线=加权平均效应")
+if `total_weight' > 0 {
+    twoway (bar effect stratum, barwidth(0.6) color(navy)) ///
+           (rcap ci_lower ci_upper stratum, lcolor(black)), ///
+           xlabel(1(1)`n_strata') ///
+           xtitle("倾向得分分层") ytitle("处理效应") ///
+           title("分层处理效应估计") ///
+           yline(`ate_strata', lcolor(red) lpattern(dash)) ///
+           legend(off) ///
+           note("红色虚线=加权平均效应")
+}
+else {
+    twoway (bar effect stratum, barwidth(0.6) color(navy)) ///
+           (rcap ci_lower ci_upper stratum, lcolor(black)), ///
+           xlabel(1(1)`n_strata') ///
+           xtitle("倾向得分分层") ytitle("处理效应") ///
+           title("分层处理效应估计") ///
+           legend(off) ///
+           note("加权平均效应缺失：无足够样本的分层单元")
+}
 graph export "fig_TG04_strata_effects.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TG04_strata_effects.png|type=figure|desc=strata_effects_plot"
+display "SS_OUTPUT_FILE|file=fig_TG04_strata_effects.png|type=graph|desc=strata_effects_plot"
 restore
 
 * ============ 输出结果 ============
@@ -281,9 +298,13 @@ display "SS_SUMMARY|key=n_output|value=`n_output'"
 display "SS_SUMMARY|key=ate_strata|value=`ate_strata'"
 
 capture erase "temp_strata_effects.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 capture erase "temp_strata_balance.dta"
-if _rc != 0 { }
+if _rc != 0 {
+    * Expected non-fatal return code
+}
 
 * ============ 任务完成摘要 ============
 display ""
