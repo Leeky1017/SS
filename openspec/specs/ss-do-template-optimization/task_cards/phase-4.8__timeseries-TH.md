@@ -29,7 +29,16 @@ Make time-series templates run on **Stata 18** with fixtures, emit **contract-co
 
 ## Acceptance checklist
 
-- [ ] Stata 18 baseline run: 0 `fail` across `TH*`
-- [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
-- [ ] Time-series preconditions are validated with explicit `warn/fail`
-- [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Stata 18 baseline run: 0 `fail` across `TH*`
+- [x] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
+- [x] Time-series preconditions are validated with explicit `warn/fail`
+- [x] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-255.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/260
+- Summary:
+  - Added TH smoke-suite manifest for Stata 18 batch harness (TH01–TH04, TH06–TH09, TH11–TH15)
+  - Fixed runtime failures and normalized anchors to `SS_EVENT|k=v`
+  - Added defensive `tsset` prechecks + fallback `ss_time_index`; SSC deps surfaced as `missing_deps`
+- Run log: `openspec/_ops/task_runs/ISSUE-255.md`
