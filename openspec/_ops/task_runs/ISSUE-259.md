@@ -1,7 +1,7 @@
 # ISSUE-259
 - Issue: #259
 - Branch: task/259-ops-e2e-verify
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/264
 
 ## Goal
 - Validate SS end-to-end v1 loop (redeem → upload → preview → draft preview/patch/confirm → run → artifacts download) using Claude Opus 4.5.
