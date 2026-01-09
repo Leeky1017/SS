@@ -3,7 +3,7 @@
 - Issue: #240
 - Parent: #125
 - Branch: task/240-panel-advanced-tf01-tf14
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/244
 
 ## Plan
 - Add TF smoke-suite manifest (fixtures + params + deps).
@@ -49,3 +49,10 @@
 - Command: `scripts/agent_pr_preflight.sh`
 - Key output: `OK: no overlapping files with open PRs`; `OK: no hard dependencies found in execution plan`
 - Evidence: terminal output
+
+### 2026-01-09 21:17 push + PR
+- Command:
+  - `git push -u origin HEAD`
+  - `gh pr create ...`
+- Key output: `PR: https://github.com/Leeky1017/SS/pull/244`
+- Evidence: https://github.com/Leeky1017/SS/pull/244
