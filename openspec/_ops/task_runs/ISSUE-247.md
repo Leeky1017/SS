@@ -1,7 +1,7 @@
 # ISSUE-247
 - Issue: #247
 - Branch: task/247-p5-7-causal-tg
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/254
 
 ## Goal
 - Phase 5.7 TG01–TG25: content enhancement (best practices + SSC→Stata18 native where feasible + stronger error handling + bilingual comments).
@@ -60,3 +60,19 @@
   - `OK: no overlapping files with open PRs`
 - Evidence:
   - `scripts/agent_pr_preflight.sh`
+
+### 2026-01-09 00:45 pr-create
+- Command:
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/254`
+- Evidence:
+  - PR #254
+
+### 2026-01-09 00:46 merge-auto
+- Command:
+  - `gh pr merge --auto --squash 254`
+- Key output:
+  - `will be automatically merged`
+- Evidence:
+  - `https://github.com/Leeky1017/SS/pull/254`
