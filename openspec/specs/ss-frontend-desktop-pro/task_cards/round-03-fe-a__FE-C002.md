@@ -15,6 +15,7 @@
 - API base url 不一致（尤其是 `/v1` 前缀）
 - 错误处理分裂（用户看到的错误不可恢复/不可定位）
 - request id 不可追踪（排障成本高）
+- 授权 token 无法统一注入/失效无法统一处理（401/403 体验不一致）
 - 类型漂移（前后端 contract 更新后不易发现破坏性变更）
 
 ## Goal
@@ -26,9 +27,13 @@
 - `VITE_API_BASE_URL`（默认 `/v1`）注入能力
 - 统一 headers：
   - `X-SS-Request-Id`（每次请求生成；失败时展示）
-  - `X-SS-Tenant-ID`（来自 Task Code；为空则不发送）
+  - `Authorization: Bearer token_0123456789abcdef`（当本地存在 token 时，所有 `/v1/**` 请求都携带）
+- 401/403 统一处理：
+  - 清理 token（`ss.auth.v1.{job_id}`）
+  - 向 UI 返回可识别的未授权错误（引导重新 redeem）
 - 统一错误模型（至少包含：`status`、`message`、`requestId`、`details`）
 - 覆盖 v1 闭环 API（typed）：
+  - `POST /v1/task-codes/redeem`
   - `POST /v1/jobs`
   - `POST /v1/jobs/{job_id}/inputs/upload`
   - `GET /v1/jobs/{job_id}/inputs/preview`
@@ -53,6 +58,7 @@
 - [ ] 所有对 `/v1` 的调用集中在单一 API client 模块中（UI 不直接散落 `fetch`）
 - [ ] base url 可通过 `VITE_API_BASE_URL` 注入，默认 `/v1`
 - [ ] 每次请求携带 `X-SS-Request-Id`，且 UI 可展示最后一次 request id（尤其是错误态）
+- [ ] 当 token 存在时，后续请求确实携带 `Authorization: Bearer ...`（至少覆盖 `/v1/jobs/{job_id}/**`）
+- [ ] 401/403 时统一清理 token 并向 UI 提供“需要重新 redeem”的可恢复错误态
 - [ ] 错误态为可恢复（清晰提示 + 可重试），且错误模型包含 `status/message/requestId`
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-N.md` 记录关键命令与输出
-
