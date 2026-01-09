@@ -1,7 +1,7 @@
 # ISSUE-246
 - Issue: #246
 - Branch: task/246-p5-6-panel-advanced-tf
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/253
 
 ## Goal
 - Phase 5.6 TF01–TF14: content enhancement (best practices + SSC→Stata18 native where feasible + stronger error handling + bilingual comments).
@@ -60,3 +60,19 @@
   - `OK: no overlapping files with open PRs`
 - Evidence:
   - `scripts/agent_pr_preflight.sh`
+
+### 2026-01-09 00:20 pr-create
+- Command:
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/253`
+- Evidence:
+  - PR #253
+
+### 2026-01-09 00:21 merge-auto
+- Command:
+  - `gh pr merge --auto --squash 253`
+- Key output:
+  - `will be automatically merged`
+- Evidence:
+  - `https://github.com/Leeky1017/SS/pull/253`
