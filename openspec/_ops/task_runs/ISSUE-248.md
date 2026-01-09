@@ -1,7 +1,7 @@
 # ISSUE-248
 - Issue: #248
 - Branch: task/248-delivery-autonomous-merge
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/250
 
 ## Goal
 - Ensure auto-merge cannot be silently abandoned: agent must verify PR is actually `MERGED`, and scripts/specs provide deterministic blocker handling (review required / behind / conflicts).
