@@ -27,3 +27,6 @@
 
 ### 2026-01-09 Closeout
 - Key output: PR https://github.com/Leeky1017/SS/pull/249 merged; task card acceptance + completion backfilled
+
+### 2026-01-09 Rulebook archive
+- Key output: Moved `rulebook/tasks/issue-241-p4-7-causal-tg` to `rulebook/tasks/archive/2026-01-09-issue-241-p4-7-causal-tg`
