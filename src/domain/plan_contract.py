@@ -15,6 +15,7 @@ from src.domain.variable_corrections import (
 )
 from src.infra.input_exceptions import InputPathUnsafeError
 from src.infra.plan_exceptions import ContractColumnNotFoundError
+from src.utils.json_types import JsonValue
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,7 @@ def apply_confirmation_effects(
     return job, confirmation
 
 
-def analysis_spec_from_draft(*, job: Job) -> dict[str, object]:
+def analysis_spec_from_draft(*, job: Job) -> dict[str, JsonValue]:
     draft = job.draft
     if draft is None:
         return {}
@@ -139,4 +140,3 @@ def _missing_contract_vars(*, draft: Draft, columns: set[str]) -> list[str]:
         if item.strip() != "" and item not in columns:
             missing.append(item)
     return sorted(set(missing))
-
