@@ -1,7 +1,7 @@
 # ISSUE-218
 - Issue: #218
 - Branch: task/218-fe-b001-b005
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/221
 
 ## Goal
 - Upgrade `index.html` Step 3 “分析蓝图预检” to legacy-proven confirmation UX (preview loading, variable corrections, clarification gating, data-quality warnings, confirm lockdown), following `openspec/specs/frontend-stata-proxy-extension/spec.md`.
@@ -55,5 +55,23 @@
   - `. .venv/bin/activate && pytest -q`
 - Key output:
   - `140 passed, 5 skipped in 5.99s`
+- Evidence:
+  - N/A
+
+### 2026-01-09 Preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - N/A
+
+### 2026-01-09 PR
+- Command:
+  - `git push -u origin HEAD`
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/221`
 - Evidence:
   - N/A
