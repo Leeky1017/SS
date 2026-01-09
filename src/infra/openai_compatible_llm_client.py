@@ -36,6 +36,6 @@ class OpenAICompatibleLLMClient(LLMClient):
         except OpenAIError as e:
             raise LLMProviderError(str(e)) from e
         content = response.choices[0].message.content
-        if content is None:
-            raise LLMProviderError("empty response content")
+        if not isinstance(content, str):
+            raise LLMProviderError("non-text response content")
         return content
