@@ -106,11 +106,34 @@ class JobInputs(BaseModel):
         return value
 
 
+class DraftVariableType(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    inferred_type: str
+
+
+class DraftDataSource(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    dataset_key: str
+    role: str
+    original_name: str
+    format: str
+
+
 class Draft(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     text: str
     created_at: str
+    outcome_var: str | None = None
+    treatment_var: str | None = None
+    controls: list[str] = Field(default_factory=list)
+    column_candidates: list[str] = Field(default_factory=list)
+    variable_types: list[DraftVariableType] = Field(default_factory=list)
+    data_sources: list[DraftDataSource] = Field(default_factory=list)
+    default_overrides: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class JobConfirmation(BaseModel):
@@ -118,6 +141,8 @@ class JobConfirmation(BaseModel):
 
     requirement: str | None = None
     notes: str | None = None
+    variable_corrections: dict[str, str] = Field(default_factory=dict)
+    default_overrides: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class PlanStepType(str, Enum):

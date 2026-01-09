@@ -10,6 +10,7 @@ from src.domain.draft_service import DraftService
 from src.domain.llm_client import LLMClient, StubLLMClient
 from src.domain.models import Draft, Job
 from src.domain.state_machine import JobStateMachine
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.job_store import JobStore
 from src.infra.llm_failover import FailoverLLMClient
 from src.infra.llm_tracing import TracedLLMClient
@@ -46,7 +47,12 @@ async def test_draft_preview_when_llm_times_out_uses_fallback(
         retry_backoff_base_seconds=0.0,
         retry_backoff_max_seconds=0.0,
     )
-    draft_service = DraftService(store=store, llm=llm, state_machine=state_machine)
+    draft_service = DraftService(
+        store=store,
+        llm=llm,
+        state_machine=state_machine,
+        workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+    )
 
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = async_override(job_service)

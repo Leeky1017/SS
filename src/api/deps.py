@@ -163,6 +163,7 @@ async def get_draft_service() -> DraftService:
         store=_job_store_cached(),
         llm=_llm_client_cached(),
         state_machine=_job_state_machine_cached(),
+        workspace=_job_workspace_store_cached(),
     )
 
 

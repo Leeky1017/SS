@@ -108,7 +108,12 @@ def stress_draft_service(
         retry_backoff_base_seconds=1.0,
         retry_backoff_max_seconds=30.0,
     )
-    return DraftService(store=stress_store, llm=llm, state_machine=stress_state_machine)
+    return DraftService(
+        store=stress_store,
+        llm=llm,
+        state_machine=stress_state_machine,
+        workspace=FileJobWorkspaceStore(jobs_dir=stress_jobs_dir),
+    )
 
 
 @pytest.fixture

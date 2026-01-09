@@ -64,3 +64,16 @@ class PlanCompositionInvalidError(SSError):
             message=f"plan composition invalid: {reason}{ctx}",
             status_code=400,
         )
+
+
+class ContractColumnNotFoundError(SSError):
+    def __init__(self, *, missing: list[str]):
+        missing_csv = ",".join(missing)
+        super().__init__(
+            error_code="CONTRACT_COLUMN_NOT_FOUND",
+            message=(
+                "One or more variables are not present in the primary dataset columns: "
+                f"missing={missing_csv}"
+            ),
+            status_code=400,
+        )

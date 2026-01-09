@@ -173,6 +173,8 @@ async def confirm_job(
         job_id=job_id,
         confirmed=payload.confirmed,
         notes=payload.notes,
+        variable_corrections=payload.variable_corrections,
+        default_overrides=payload.default_overrides,
     )
     return ConfirmJobResponse(
         job_id=job.job_id,
