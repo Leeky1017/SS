@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #246
 - Parent: #125
 - Superphase: Phase 5 (content enhancement)
 - Templates: `TF*` (~14 templates, current inventory)
@@ -30,9 +30,17 @@ Enhance advanced panel templates with best practices (最佳实践), Stata 18-na
 
 ## Acceptance checklist
 
-- [ ] Each `TF*` template has a best-practice review record
-- [ ] SSC deps removed/replaced where feasible (exceptions justified)
-- [ ] Error handling and diagnostics are strengthened (no silent failure)
-- [ ] Key steps have bilingual comments (中英文注释)
-- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Each `TF*` template has a best-practice review record
+- [x] SSC deps removed/replaced where feasible (exceptions justified)
+- [x] Error handling and diagnostics are strengthened (no silent failure)
+- [x] Key steps have bilingual comments (中英文注释)
+- [x] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-246.md`
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/253
+- Run log: `openspec/_ops/task_runs/ISSUE-246.md`
+- Summary:
+  - Added Phase 5.6 best-practice review blocks + bilingual guidance across TF01–TF14.
+  - Made `TF04_xtscc.do` treat `xtscc` as optional, with built-in fallback.
+  - Updated meta and smoke manifest to match dependency strategy.
