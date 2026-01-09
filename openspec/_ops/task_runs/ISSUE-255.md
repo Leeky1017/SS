@@ -3,7 +3,7 @@
 - Issue: #255
 - Parent: #125
 - Branch: task/255-phase-4-8-timeseries-th
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/260
 
 ## Goal
 - Make TH time-series templates run on Stata 18 with fixtures, and emit contract-compliant anchors.
@@ -61,3 +61,10 @@
 - Command: `scripts/agent_pr_preflight.sh`
 - Key output: `OK: no overlapping files with open PRs`; `OK: no hard dependencies found in execution plan`
 - Evidence: terminal output
+
+### 2026-01-09 23:18 push + PR
+- Command:
+  - `git push -u origin HEAD`
+  - `gh pr create ...`
+- Key output: `PR: https://github.com/Leeky1017/SS/pull/260`
+- Evidence: https://github.com/Leeky1017/SS/pull/260
