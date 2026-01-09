@@ -1,7 +1,7 @@
 # ISSUE-211
 - Issue: #211
 - Branch: task/211-frontend-stata-proxy-extension
-- PR: (pending)
+- PR: https://github.com/Leeky1017/SS/pull/212 (impl), https://github.com/Leeky1017/SS/pull/213 (closeout)
 
 ## Plan
 - Add frontend OpenSpec + task cards
@@ -35,3 +35,13 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-09 Setup: closeout worktree
+- Command: `scripts/agent_worktree_setup.sh "211" "frontend-stata-proxy-extension-closeout"`
+- Key output:
+  - `Worktree created: .worktrees/issue-211-frontend-stata-proxy-extension-closeout`
+  - `Branch: task/211-frontend-stata-proxy-extension-closeout`
+
+### 2026-01-09 Closeout: archive Rulebook task
+- Command: `git mv rulebook/tasks/issue-211-frontend-stata-proxy-extension rulebook/tasks/archive/2026-01-09-issue-211-frontend-stata-proxy-extension`
+- Evidence: `rulebook/tasks/archive/2026-01-09-issue-211-frontend-stata-proxy-extension/`
