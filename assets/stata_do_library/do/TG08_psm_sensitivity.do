@@ -1,4 +1,11 @@
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* Template: TG08 — PSM Sensitivity
+* 识别假设 / ID assumptions: method-specific; review before use (no "auto validity")
+* 诊断输出 / Diagnostics: run minimal, relevant checks; treat WARN as evidence, not noise
+* SSC依赖 / SSC deps: keep minimal; required packages are explicit in header
+* 解读要点 / Interpretation: estimates are conditional on assumptions; add robustness checks
 * SS_TEMPLATE: id=TG08  level=L1  module=G  title="PSM Sensitivity"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -33,7 +40,7 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION|version=2.0.1"
+display "SS_TASK_VERSION|version=2.1.0"
 
 * ============ 依赖检测 ============
 local required_deps "rbounds"

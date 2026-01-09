@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "ivreg2",
-      "purpose": "IV regression",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "ivregress 2sls + estat overid",
+      "source": "built-in"
     }
   ],
   "description": "Overidentification tests for IV",
@@ -72,5 +72,5 @@
   ],
   "title": "IV Overid",
   "title_zh": "过度识别检验",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

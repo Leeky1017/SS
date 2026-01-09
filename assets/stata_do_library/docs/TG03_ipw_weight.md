@@ -10,7 +10,7 @@
 | **Name(EN)** | IPW Weight |
 | **家族** | causal_inference |
 | **等级** | L0 |
-| **版本** | 2.0.0 |
+| **版本** | 2.1.0 |
 
 ## 功能描述
 
@@ -52,7 +52,6 @@ Inverse probability weighting for ATE/ATT estimation
 | 包/命令 | 来源 | 用途 |
 |---------|------|------|
 | stata | built-in | logit command |
-
 ## 示例
 
 ```stata

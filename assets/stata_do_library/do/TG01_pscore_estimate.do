@@ -9,8 +9,15 @@
 *   - data_TG01_with_pscore.dta type=data desc="Data with pscore"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - psmatch2 source=ssc purpose="PSM matching"
+*   - stata source=built-in purpose="logit/probit + predict"
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* 方法 / Method: treatment-model propensity score (logit/probit) + overlap check
+* 识别假设 / ID assumptions: unconfoundedness + overlap (common support)
+* 诊断输出 / Diagnostics: balance-before table + pscore distribution + common-support drop (optional)
+* SSC依赖 / SSC deps: removed (no longer requires `psmatch2`)
+* 解读要点 / Interpretation: pscore is not causal; use it to diagnose overlap and guide design
 
 * ============ 初始化 ============
 capture log close _all
@@ -35,22 +42,9 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION|version=2.0.1"
+display "SS_TASK_VERSION|version=2.1.0"
 
-* ============ 依赖检测 ============
-local required_deps "psmatch2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
-display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=psmatch2|source=ssc|status=ok"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local treatment_var = "__TREATMENT_VAR__"

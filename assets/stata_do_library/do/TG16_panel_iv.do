@@ -8,8 +8,15 @@
 *   - data_TG16_panel_iv.dta type=data desc="Panel IV data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - xtivreg2 source=ssc purpose="Panel IV"
+*   - stata source=built-in purpose="xtivreg + postestimation (estat)"
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* 方法 / Method: panel IV via built-in `xtivreg` (FE/RE) with explicit panel structure
+* 识别假设 / ID assumptions: relevance + exclusion; FE requires strict exogeneity of id FE
+* 诊断输出 / Diagnostics: first-stage excluded-instruments test (proxy) + `estat overid` when available
+* SSC依赖 / SSC deps: removed (replace `xtivreg2`)
+* 解读要点 / Interpretation: weak instruments are especially problematic; treat weak-ID warnings seriously
 
 * ============ 初始化 ============
 capture log close _all
@@ -26,22 +33,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG16|level=L1|title=Panel_IV"
-display "SS_TASK_VERSION|version=2.0.1"
-
-* ============ 依赖检测 ============
-local required_deps "xtivreg2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
-display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=xtivreg2|source=ssc|status=ok"
+display "SS_TASK_VERSION|version=2.1.0"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local dep_var = "__DEPVAR__"
@@ -141,11 +134,11 @@ display "═══════════════════════�
 
 if "`method'" == "fe" {
     display ">>> 使用固定效应IV (FE-2SLS)"
-    xtivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), fe robust first
+    xtivreg `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), fe vce(robust)
 }
 else if "`method'" == "re" {
     display ">>> 使用随机效应IV (RE-2SLS)"
-    xtivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), re robust first
+    xtivreg `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), re vce(robust)
 }
 else {
     display ">>> 使用Hausman-Taylor估计"
@@ -153,7 +146,7 @@ else {
     capture xthtaylor `dep_var' `valid_exog' `endog_var', endog(`endog_var')
     if _rc {
 display "SS_RC|code=0|cmd=warning|msg=ht_failed|detail=Hausman-Taylor_failed_using_FE-IV_instead|severity=warn"
-        xtivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), fe robust first
+        xtivreg `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), fe vce(robust)
     }
 }
 
@@ -163,12 +156,6 @@ local iv_se = _se[`endog_var']
 local iv_t = `iv_coef' / `iv_se'
 local iv_p = 2 * ttail(e(df_r), abs(`iv_t'))
 local iv_n = e(N)
-
-* 诊断统计量
-local cdf = e(cdf)
-local widstat = e(widstat)
-local hansen_j = e(j)
-local hansen_p = e(jp)
 
 display ""
 display ">>> 面板IV估计结果:"
@@ -186,20 +173,41 @@ display "═══════════════════════�
 display "SECTION 3: 诊断检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-display ""
-display ">>> 弱工具变量检验:"
-display "    Cragg-Donald F: " %10.2f `cdf'
-display "    Kleibergen-Paap F: " %10.2f `widstat'
-
-if `cdf' < 10 {
-    display "    警告: F < 10，可能存在弱工具变量"
-display "SS_RC|code=0|cmd=warning|msg=weak_iv|detail=F-statistic__10|severity=warn"
+* Proxy first-stage excluded-instruments test (FE shown with time FE) / 第一阶段联合检验（代理）
+local excl_type = ""
+local excl_stat = .
+local excl_p = .
+capture noisily xtreg `endog_var' `valid_instruments' `valid_exog' i.`time_var', fe vce(robust)
+if _rc == 0 {
+    capture noisily test `valid_instruments'
+    if _rc == 0 {
+        capture local excl_stat = r(F)
+        capture local excl_p = r(p)
+        if `excl_stat' < . {
+            local excl_type = "F"
+        }
+        else {
+            capture local excl_stat = r(chi2)
+            capture local excl_p = r(p)
+            local excl_type = "chi2"
+        }
+    }
 }
 
-display ""
-display ">>> 过度识别检验:"
-display "    Hansen J: " %10.4f `hansen_j'
-display "    p值: " %10.4f `hansen_p'
+if "`excl_type'" == "F" & `excl_stat' < . & `excl_stat' < 10 {
+display "SS_RC|code=0|cmd=warning|msg=weak_iv|detail=Excluded_instruments_F__10_possible_weak_instruments|severity=warn"
+}
+
+local overid_chi2 = .
+local overid_p = .
+capture noisily estat overid
+if _rc == 0 {
+    capture local overid_chi2 = r(chi2)
+    capture local overid_p = r(p)
+    if `overid_p' < . & `overid_p' < 0.05 {
+display "SS_RC|code=0|cmd=warning|msg=overid_reject|detail=estat_overid_p_lt_0_05_instruments_may_be_invalid|severity=warn"
+    }
+}
 
 * 导出结果
 tempname results
@@ -236,18 +244,19 @@ generate str30 test = ""
 generate double statistic = .
 generate double p_value = .
 
-replace test = "Cragg-Donald F" in 1
-replace statistic = `cdf' in 1
+replace test = "Excluded instruments (`excl_type')" in 1
+replace statistic = `excl_stat' in 1
+replace p_value = `excl_p' in 1
 
-replace test = "Kleibergen-Paap F" in 2
-replace statistic = `widstat' in 2
+replace test = "estat overid" in 2
+replace statistic = `overid_chi2' in 2
+replace p_value = `overid_p' in 2
 
-replace test = "Hansen J" in 3
-replace statistic = `hansen_j' in 3
-replace p_value = `hansen_p' in 3
+replace test = "N observations" in 3
+replace statistic = `iv_n' in 3
 
-replace test = "N observations" in 4
-replace statistic = `iv_n' in 4
+replace test = "N groups" in 4
+replace statistic = `n_groups' in 4
 
 export delimited using "table_TG16_diagnostics.csv", replace
 display "SS_OUTPUT_FILE|file=table_TG16_diagnostics.csv|type=table|desc=diagnostics"

@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "xtivreg2",
-      "purpose": "Panel IV",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "xtivreg + estat",
+      "source": "built-in"
     }
   ],
   "description": "Panel data IV estimation",
@@ -100,5 +100,5 @@
   ],
   "title": "Panel IV",
   "title_zh": "面板工具变量",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

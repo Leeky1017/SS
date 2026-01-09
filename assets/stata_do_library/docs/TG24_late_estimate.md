@@ -10,7 +10,7 @@
 | **Name(EN)** | LATE Estimate |
 | **家族** | causal_inference |
 | **等级** | L2 |
-| **版本** | 2.0.0 |
+| **版本** | 2.1.0 |
 
 ## 功能描述
 
@@ -48,8 +48,7 @@ Local average treatment effect estimation
 
 | 包/命令 | 来源 | 用途 |
 |---------|------|------|
-| ivreg2 | ssc | IV regression |
-
+| stata | built-in | ivregress 2sls + regress |
 ## 示例
 
 ```stata

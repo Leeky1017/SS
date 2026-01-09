@@ -1,4 +1,11 @@
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* Template: TG21 — DID Parallel
+* 识别假设 / ID assumptions: method-specific; review before use (no "auto validity")
+* 诊断输出 / Diagnostics: run minimal, relevant checks; treat WARN as evidence, not noise
+* SSC依赖 / SSC deps: keep minimal; required packages are explicit in header
+* 解读要点 / Interpretation: estimates are conditional on assumptions; add robustness checks
 * SS_TEMPLATE: id=TG21  level=L1  module=G  title="DID Parallel"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -26,7 +33,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG21|level=L1|title=DID_Parallel"
-display "SS_TASK_VERSION|version=2.0.1"
+display "SS_TASK_VERSION|version=2.1.0"
 
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 

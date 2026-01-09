@@ -2,14 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "ivreg2",
-      "purpose": "IV regression",
-      "source": "ssc"
-    },
-    {
-      "pkg": "ranktest",
-      "purpose": "Rank test",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "ivregress 2sls + first-stage joint test",
+      "source": "built-in"
     }
   ],
   "description": "Weak instrument tests for IV",
@@ -76,5 +71,5 @@
   ],
   "title": "IV Weak Test",
   "title_zh": "弱工具变量检验",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

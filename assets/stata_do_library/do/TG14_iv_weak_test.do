@@ -7,9 +7,15 @@
 *   - table_TG14_critical_values.csv type=table desc="Critical values"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - ivreg2 source=ssc purpose="IV regression"
-*   - ranktest source=ssc purpose="Rank test"
+*   - stata source=built-in purpose="ivregress + first-stage joint test"
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* 方法 / Method: Stata-native weak-ID signals around `ivregress 2sls`
+* 识别假设 / ID assumptions: instrument relevance is testable; exclusion is not (needs design)
+* 诊断输出 / Diagnostics: excluded-instruments joint test + rule-of-thumb threshold (F>=10)
+* SSC依赖 / SSC deps: removed (no `ivreg2`/`ranktest`; KP/Stock-Yogo need SSC tools)
+* 解读要点 / Interpretation: F<10 is a warning flag; consider stronger instruments/robust checks
 
 * ============ 初始化 ============
 capture log close _all
@@ -26,22 +32,9 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG14|level=L1|title=IV_Weak_Test"
-display "SS_TASK_VERSION|version=2.0.1"
+display "SS_TASK_VERSION|version=2.1.0"
 
-* ============ 依赖检测 ============
-local required_deps "ivreg2 ranktest"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
-display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=ivreg2|source=ssc|status=ok"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local dep_var = "__DEPVAR__"
@@ -107,93 +100,63 @@ display "═══════════════════════�
 display "SECTION 1: 弱工具变量检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 运行ivreg2获取诊断统计量
-ivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), robust first ffirst
+* First-stage regression + excluded-instruments joint test (weak-ID signal)
+regress `endog_var' `valid_instruments' `valid_exog', robust
+local excl_type = "F"
+local excl_stat = .
+local excl_p = .
+local excl_df = .
+capture noisily test `valid_instruments'
+if _rc == 0 {
+    capture local excl_stat = r(F)
+    capture local excl_p = r(p)
+    capture local excl_df = r(df)
+    if `excl_stat' >= . {
+        capture local excl_stat = r(chi2)
+        capture local excl_p = r(p)
+        capture local excl_df = r(df)
+        local excl_type = "chi2"
+    }
+}
 
-* 提取统计量
-local cdf = e(cdf)
-local widstat = e(widstat)
-local archi2 = e(archi2)
-local archi2p = e(archi2p)
-local arf = e(arf)
-local arfp = e(arfp)
+* 2SLS estimation (context) / 2SLS估计（用于上下文）
+capture noisily ivregress 2sls `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), vce(robust)
+if _rc {
+display "SS_RC|code=430|cmd=ivregress_2sls|msg=ivregress_failed|detail=ivregress_failed_rc_`_rc'|severity=fail"
+    log close
+    exit 430
+}
+
+* Optional: built-in first-stage table in log
+capture noisily estat firststage
 
 display ""
-display ">>> 弱工具变量检验结果:"
+display ">>> 弱工具变量检验结果 (Stata-native):"
 display ""
-display "1. Cragg-Donald Wald F统计量: " %10.2f `cdf'
-display "   (用于i.i.d.误差假设)"
+display "1. 排除工具变量联合检验(`excl_type'): " %10.2f `excl_stat'
+display "   p值: " %10.4f `excl_p'
 display ""
-display "2. Kleibergen-Paap rk Wald F统计量: " %10.2f `widstat'
-display "   (用于异方差/聚类稳健)"
-display ""
-display "3. Anderson-Rubin检验:"
-display "   Chi2统计量: " %10.2f `archi2'
-display "   p值: " %10.4f `archi2p'
-display "   F统计量: " %10.2f `arf'
-display "   p值: " %10.4f `arfp'
+display "2. 经验阈值: F >= 10 (rule-of-thumb; Staiger-Stock)"
 
-display "SS_METRIC|name=cragg_donald_f|value=`cdf'"
-display "SS_METRIC|name=kleibergen_paap_f|value=`widstat'"
+display "SS_METRIC|name=excluded_inst_stat|value=`excl_stat'"
 
 * ============ Stock-Yogo临界值 ============
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
-display "SECTION 2: Stock-Yogo临界值比较"
+display "SECTION 2: 经验阈值比较 / Rule-of-thumb"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* Stock-Yogo临界值（单内生变量情况）
 display ""
-display ">>> Stock-Yogo 2SLS相对偏误临界值 (单内生变量):"
-display "    工具变量数: `n_instruments'"
-display ""
-display "    最大相对偏误    临界值"
-display "    ─────────────────────────"
-
-* 简化的临界值表（实际应用中应使用完整表）
-if `n_instruments' == 1 {
-    display "    10%             16.38"
-    display "    15%             8.96"
-    display "    20%             6.66"
-    display "    25%             5.53"
-    local cv_10 = 16.38
-}
-else if `n_instruments' == 2 {
-    display "    10%             19.93"
-    display "    15%             11.59"
-    display "    20%             8.75"
-    display "    25%             7.25"
-    local cv_10 = 19.93
-}
-else if `n_instruments' == 3 {
-    display "    10%             22.30"
-    display "    15%             12.83"
-    display "    20%             9.54"
-    display "    25%             7.80"
-    local cv_10 = 22.30
-}
-else {
-    display "    10%             约 " %5.2f `=16 + `n_instruments''
-    local cv_10 = 16 + `n_instruments'
-}
-
-* 判断
-display ""
-if `cdf' >= `cv_10' {
-    display ">>> 结论: Cragg-Donald F (" %5.2f `cdf' ") >= 临界值 (" %5.2f `cv_10' ")"
-    display ">>> 工具变量强度: 通过10%偏误检验"
-    local weak_iv_conclusion = "通过:工具变量足够强"
-}
-else if `cdf' >= 10 {
-    display ">>> 结论: Cragg-Donald F (" %5.2f `cdf' ") >= 10 (经验法则)"
-    display ">>> 工具变量强度: 可接受"
-    local weak_iv_conclusion = "可接受:F>=10"
-}
-else {
-    display ">>> 结论: Cragg-Donald F (" %5.2f `cdf' ") < 10"
-    display ">>> 警告: 存在弱工具变量问题！"
-display "SS_RC|code=0|cmd=warning|msg=weak_iv|detail=Cragg-Donald_F__10|severity=warn"
-    local weak_iv_conclusion = "警告:弱工具变量"
+display ">>> 经验阈值 (rule-of-thumb): 排除工具变量联合检验 F >= 10"
+local weak_iv_conclusion = "信息:robust_wald_test"
+if "`excl_type'" == "F" & `excl_stat' < . {
+    if `excl_stat' >= 10 {
+        local weak_iv_conclusion = "通过:F>=10"
+    }
+    else {
+        local weak_iv_conclusion = "警告:F<10"
+display "SS_RC|code=0|cmd=warning|msg=weak_iv|detail=Excluded_instruments_F__10|severity=warn"
+    }
 }
 
 * ============ 输出结果 ============
@@ -211,25 +174,23 @@ generate double statistic = .
 generate double p_value = .
 generate str50 conclusion = ""
 
-replace test = "Cragg-Donald Wald F" in 1
-replace statistic = `cdf' in 1
-replace conclusion = cond(`cdf' >= 10, "通过(F>=10)", "弱IV") in 1
+replace test = "Excluded instruments (`excl_type')" in 1
+replace statistic = `excl_stat' in 1
+replace p_value = `excl_p' in 1
+replace conclusion = "`weak_iv_conclusion'" in 1
 
-replace test = "Kleibergen-Paap rk Wald F" in 2
-replace statistic = `widstat' in 2
-replace conclusion = cond(`widstat' >= 10, "通过(F>=10)", "弱IV") in 2
+replace test = "Observations" in 2
+replace statistic = e(N) in 2
 
-replace test = "Anderson-Rubin Chi2" in 3
-replace statistic = `archi2' in 3
-replace p_value = `archi2p' in 3
-replace conclusion = cond(`archi2p' < 0.05, "内生变量显著", "内生变量不显著") in 3
+replace test = "Instruments (count)" in 3
+replace statistic = `n_instruments' in 3
 
-replace test = "Anderson-Rubin F" in 4
-replace statistic = `arf' in 4
-replace p_value = `arfp' in 4
+replace test = "Endogenous vars (count)" in 4
+replace statistic = `n_endog' in 4
 
-replace test = "工具变量数" in 5
-replace statistic = `n_instruments' in 5
+replace test = "Rule-of-thumb threshold" in 5
+replace statistic = 10 in 5
+replace conclusion = "F>=10 suggests not-too-weak (heuristic)" in 5
 
 export delimited using "table_TG14_weak_iv_tests.csv", replace
 display "SS_OUTPUT_FILE|file=table_TG14_weak_iv_tests.csv|type=table|desc=weak_iv_tests"
@@ -238,31 +199,18 @@ restore
 * 导出临界值表
 preserve
 clear
-set obs 4
-generate str20 max_bias = ""
-generate int n_iv_1 = .
-generate int n_iv_2 = .
-generate int n_iv_3 = .
+set obs 2
+generate str40 rule = ""
+generate double threshold = .
+generate str80 note = ""
 
-replace max_bias = "10%" in 1
-replace n_iv_1 = 16 in 1
-replace n_iv_2 = 20 in 1
-replace n_iv_3 = 22 in 1
+replace rule = "Rule-of-thumb (Staiger-Stock)" in 1
+replace threshold = 10 in 1
+replace note = "Excluded-instruments F >= 10 suggests instruments not too weak (heuristic)" in 1
 
-replace max_bias = "15%" in 2
-replace n_iv_1 = 9 in 2
-replace n_iv_2 = 12 in 2
-replace n_iv_3 = 13 in 2
-
-replace max_bias = "20%" in 3
-replace n_iv_1 = 7 in 3
-replace n_iv_2 = 9 in 3
-replace n_iv_3 = 10 in 3
-
-replace max_bias = "25%" in 4
-replace n_iv_1 = 6 in 4
-replace n_iv_2 = 7 in 4
-replace n_iv_3 = 8 in 4
+replace rule = "Design reminder" in 2
+replace threshold = . in 2
+replace note = "Exclusion restriction is not testable; rely on design + robustness checks" in 2
 
 export delimited using "table_TG14_critical_values.csv", replace
 display "SS_OUTPUT_FILE|file=table_TG14_critical_values.csv|type=table|desc=critical_values"
@@ -270,8 +218,7 @@ restore
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 display "SS_SUMMARY|key=n_input|value=`n_input'"
-display "SS_SUMMARY|key=cragg_donald_f|value=`cdf'"
-display "SS_SUMMARY|key=kleibergen_paap_f|value=`widstat'"
+display "SS_SUMMARY|key=excluded_inst_stat|value=`excl_stat'"
 
 * ============ 任务完成摘要 ============
 display ""
@@ -283,8 +230,7 @@ display "  样本量:              " %10.0fc `n_input'
 display "  工具变量数:          " %10.0fc `n_instruments'
 display ""
 display "  弱工具变量检验:"
-display "    Cragg-Donald F:    " %10.2f `cdf'
-display "    Kleibergen-Paap F: " %10.2f `widstat'
+display "    排除工具变量检验(`excl_type'): " %10.2f `excl_stat'
 display "    结论:              `weak_iv_conclusion'"
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"

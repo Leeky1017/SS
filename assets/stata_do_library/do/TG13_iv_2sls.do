@@ -9,8 +9,15 @@
 *   - data_TG13_iv.dta type=data desc="IV data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - ivreg2 source=ssc purpose="IV regression"
+*   - stata source=built-in purpose="ivregress + postestimation (estat)"
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* 方法 / Method: `ivregress 2sls` (Stata 18-native)
+* 识别假设 / ID assumptions: relevance + exclusion + monotonicity (if LATE-like), plus correct functional form
+* 诊断输出 / Diagnostics: excluded-instruments joint test (first stage) + `estat overid/endogenous` when applicable
+* SSC依赖 / SSC deps: removed (replace `ivreg2`)
+* 解读要点 / Interpretation: weak instruments inflate bias/SE; treat weak-ID warnings seriously
 
 * ============ 初始化 ============
 capture log close _all
@@ -27,22 +34,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG13|level=L1|title=IV_2SLS"
-display "SS_TASK_VERSION|version=2.0.1"
-
-* ============ 依赖检测 ============
-local required_deps "ivreg2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
-display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=ivreg2|source=ssc|status=ok"
+display "SS_TASK_VERSION|version=2.1.0"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local dep_var = "__DEPVAR__"
@@ -141,8 +134,25 @@ else {
 }
 
 local fs_r2 = e(r2)
-local fs_f = e(F)
 local fs_n = e(N)
+
+* Excluded-instruments joint test (weak-ID signal) / 排除工具变量联合显著性检验
+local excl_type = "F"
+local excl_stat = .
+local excl_p = .
+local excl_df = .
+capture noisily test `valid_instruments'
+if _rc == 0 {
+    capture local excl_stat = r(F)
+    capture local excl_p = r(p)
+    capture local excl_df = r(df)
+    if `excl_stat' >= . {
+        capture local excl_stat = r(chi2)
+        capture local excl_p = r(p)
+        capture local excl_df = r(df)
+        local excl_type = "chi2"
+    }
+}
 
 * 保存第一阶段系数
 tempname fscoef
@@ -168,16 +178,27 @@ postclose `fscoef'
 display ""
 display ">>> 第一阶段结果:"
 display "    R-squared: " %6.4f `fs_r2'
-display "    F统计量: " %8.2f `fs_f'
+if `excl_stat' < . {
+    display "    排除工具变量联合检验(`excl_type'): " %8.2f `excl_stat'
+    display "    p值: " %8.4f `excl_p'
+}
 display "    观测数: `fs_n'"
 
-* F统计量检验（弱工具变量）
-if `fs_f' < 10 {
-    display ""
-display "SS_RC|code=0|cmd=warning|msg=weak_iv|detail=First-stage_F__10_possible_weak_instruments|severity=warn"
+* Weak-IV warning (rule-of-thumb) / 弱工具变量警告（经验法则）
+if `excl_stat' < . {
+    if "`excl_type'" == "F" & `excl_stat' < 10 {
+display "SS_RC|code=0|cmd=warning|msg=weak_iv|detail=Excluded_instruments_F__10_possible_weak_instruments|severity=warn"
+    }
+    if "`excl_type'" == "chi2" & `excl_df' < . & `excl_df' > 0 {
+        local chi2_per_df = `excl_stat' / `excl_df'
+        if `chi2_per_df' < 10 {
+display "SS_RC|code=0|cmd=warning|msg=weak_iv|detail=Excluded_instruments_chi2_over_df__10_possible_weak_instruments|severity=warn"
+        }
+        display "SS_METRIC|name=excluded_chi2_over_df|value=`chi2_per_df'"
+    }
 }
 
-display "SS_METRIC|name=first_stage_f|value=`fs_f'"
+display "SS_METRIC|name=excluded_inst_stat|value=`excl_stat'"
 display "SS_METRIC|name=first_stage_r2|value=`fs_r2'"
 
 preserve
@@ -193,10 +214,10 @@ display "SECTION 2: 2SLS估计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 if "`robust'" == "yes" {
-    ivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), robust first
+    ivregress 2sls `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), vce(robust)
 }
 else {
-    ivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), first
+    ivregress 2sls `dep_var' `valid_exog' (`endog_var' = `valid_instruments')
 }
 
 * 提取结果
@@ -206,13 +227,6 @@ local iv_t = `iv_coef' / `iv_se'
 local iv_p = 2 * ttail(e(df_r), abs(`iv_t'))
 local iv_n = e(N)
 local iv_r2 = e(r2)
-
-* 诊断统计量
-local cragg_donald = e(cdf)
-local sargan = e(sargan)
-local sargan_p = e(sarganp)
-local basmann = e(basmann)
-local basmann_p = e(basmannp)
 
 display ""
 display ">>> 2SLS估计结果:"
@@ -258,47 +272,70 @@ display "═══════════════════════�
 display "SECTION 3: 诊断检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-display ""
-display ">>> 弱工具变量检验:"
-display "    Cragg-Donald Wald F: " %10.2f `cragg_donald'
-if `cragg_donald' < 10 {
-    display "    警告: F < 10，可能存在弱工具变量问题"
+local overid_chi2 = .
+local overid_p = .
+if `n_instruments' > `n_endog' {
+    capture noisily estat overid
+    if _rc == 0 {
+        capture local overid_chi2 = r(chi2)
+        capture local overid_p = r(p)
+        if `overid_p' < . & `overid_p' < 0.05 {
+display "SS_RC|code=0|cmd=warning|msg=overid_reject|detail=estat_overid_p_lt_0_05_instruments_may_be_invalid|severity=warn"
+        }
+    }
+    else {
+display "SS_RC|code=0|cmd=warning|msg=overid_failed|detail=estat_overid_failed_rc_`_rc'|severity=warn"
+    }
 }
 
-if `n_instruments' > `n_endog' {
-    display ""
-    display ">>> 过度识别检验:"
-    display "    Sargan统计量: " %10.4f `sargan'
-    display "    Sargan p值: " %10.4f `sargan_p'
-    if `sargan_p' < 0.05 {
-        display "    警告: 拒绝工具变量外生性"
+local endog_chi2 = .
+local endog_p = .
+capture noisily estat endogenous
+if _rc == 0 {
+    capture local endog_chi2 = r(chi2)
+    capture local endog_p = r(p)
+}
+
+local weak_ok = 0
+if `excl_stat' < . {
+    if "`excl_type'" == "F" & `excl_stat' >= 10 {
+        local weak_ok = 1
+    }
+    if "`excl_type'" == "chi2" {
+        * For robust tests, no single universal threshold; keep as informational.
+        local weak_ok = 1
     }
 }
 
 * 导出诊断结果
 preserve
 clear
-set obs 4
+set obs 5
 generate str30 test = ""
 generate double statistic = .
 generate double p_value = .
 generate str50 conclusion = ""
 
-replace test = "First-stage F" in 1
-replace statistic = `fs_f' in 1
-replace conclusion = cond(`fs_f' >= 10, "通过(F>=10)", "警告:可能弱IV") in 1
+replace test = "Excluded instruments (`excl_type')" in 1
+replace statistic = `excl_stat' in 1
+replace p_value = `excl_p' in 1
+replace conclusion = cond(`weak_ok' == 1, "OK (see rule-of-thumb)", "WARN: possible weak IV") in 1
 
-replace test = "Cragg-Donald F" in 2
-replace statistic = `cragg_donald' in 2
-replace conclusion = cond(`cragg_donald' >= 10, "通过", "警告:弱IV") in 2
+replace test = "Overidentification (estat overid)" in 2
+replace statistic = `overid_chi2' in 2
+replace p_value = `overid_p' in 2
+replace conclusion = cond(`overid_p' >= 0.05, "OK: fail to reject", cond(`overid_p' < 0.05, "WARN: reject (invalid IV?)", "")) in 2
 
-replace test = "Sargan" in 3
-replace statistic = `sargan' in 3
-replace p_value = `sargan_p' in 3
-replace conclusion = cond(`sargan_p' >= 0.05, "通过:IV外生", "拒绝:IV可能内生") in 3
+replace test = "Endogeneity (estat endogenous)" in 3
+replace statistic = `endog_chi2' in 3
+replace p_value = `endog_p' in 3
+replace conclusion = cond(`endog_p' < 0.05, "Endogeneity detected", cond(`endog_p' >= 0.05, "No endogeneity detected", "")) in 3
 
 replace test = "Observations" in 4
 replace statistic = `iv_n' in 4
+
+replace test = "Instruments (count)" in 5
+replace statistic = `n_instruments' in 5
 
 export delimited using "table_TG13_diagnostics.csv", replace
 display "SS_OUTPUT_FILE|file=table_TG13_diagnostics.csv|type=table|desc=diagnostics"
@@ -336,7 +373,9 @@ display "  样本量:          " %10.0fc `n_input'
 display "  工具变量数:      " %10.0fc `n_instruments'
 display ""
 display "  第一阶段:"
-display "    F统计量:       " %10.2f `fs_f'
+if `excl_stat' < . {
+    display "    工具变量联合检验(`excl_type'): " %10.2f `excl_stat'
+}
 display "    R-squared:     " %10.4f `fs_r2'
 display ""
 display "  2SLS估计:"

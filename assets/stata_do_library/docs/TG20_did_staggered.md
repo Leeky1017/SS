@@ -10,7 +10,7 @@
 | **Name(EN)** | DID Staggered |
 | **家族** | causal_inference |
 | **等级** | L2 |
-| **版本** | 2.0.0 |
+| **版本** | 2.1.0 |
 
 ## 功能描述
 
@@ -52,7 +52,6 @@ Staggered DID with Callaway-Sant'Anna
 |---------|------|------|
 | csdid | ssc | Staggered DID |
 | drdid | ssc | DR DID |
-
 ## 示例
 
 ```stata

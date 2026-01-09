@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "psmatch2",
-      "purpose": "PSM balance",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "balance + overlap diagnostics",
+      "source": "built-in"
     }
   ],
   "description": "Comprehensive PSM balance diagnostics",
@@ -93,5 +93,5 @@
   ],
   "title": "PSM Balance",
   "title_zh": "PSM平衡性检验",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

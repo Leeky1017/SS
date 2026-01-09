@@ -10,7 +10,7 @@
 | **Name(EN)** | MTE Estimate |
 | **家族** | causal_inference |
 | **等级** | L3 |
-| **版本** | 2.0.0 |
+| **版本** | 2.1.0 |
 
 ## 功能描述
 
@@ -50,7 +50,6 @@ Marginal treatment effect estimation
 | 包/命令 | 来源 | 用途 |
 |---------|------|------|
 | mtefe | ssc | MTE estimation |
-
 ## 示例
 
 ```stata

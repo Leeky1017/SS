@@ -8,9 +8,15 @@
 *   - fig_TG07_love_plot.png type=graph desc="Love plot"
 *   - fig_TG07_ps_overlap.png type=graph desc="PS overlap"
 *   - result.log type=log desc="Execution log"
-* DEPENDENCIES:
-*   - psmatch2 source=ssc purpose="PSM balance"
+* DEPENDENCIES: none (Stata built-in)
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* 方法 / Method: covariate balance diagnostics using standardized mean differences (SMD)
+* 识别假设 / ID assumptions: overlap is necessary for PSM; SMD checks are diagnostics only
+* 诊断输出 / Diagnostics: SMD table + love plot + propensity-score overlap plot
+* SSC依赖 / SSC deps: removed (template does not require `psmatch2`)
+* 解读要点 / Interpretation: aim for |SMD| < 10% (rule-of-thumb), plus sensible overlap
 
 * ============ 初始化 ============
 capture log close _all
@@ -35,22 +41,9 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION|version=2.0.1"
+display "SS_TASK_VERSION|version=2.1.0"
 
-* ============ 依赖检测 ============
-local required_deps "psmatch2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
-display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=psmatch2|source=ssc|status=ok"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local treatment_var = "__TREATMENT_VAR__"

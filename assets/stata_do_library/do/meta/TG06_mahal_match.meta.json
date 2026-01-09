@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "psmatch2",
-      "purpose": "Mahalanobis matching",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "teffects nnmatch + tebalance",
+      "source": "built-in"
     }
   ],
   "description": "Mahalanobis distance matching",
@@ -88,5 +88,5 @@
   ],
   "title": "Mahal Match",
   "title_zh": "马氏距离匹配",
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "suite_id": "issue_241_tg01_tg25",
+  "suite_id": "issue_258_tg01_tg25",
   "templates": {
     "TG01": {
       "dependencies": [],

@@ -7,9 +7,15 @@
 *   - table_TG06_balance.csv type=table desc="Balance after matching"
 *   - data_TG06_mahal_matched.dta type=data desc="Matched data"
 *   - result.log type=log desc="Execution log"
-* DEPENDENCIES:
-*   - psmatch2 source=ssc purpose="Mahalanobis matching"
+* DEPENDENCIES: none (Stata 18 built-in `teffects nnmatch`, `tebalance`)
 * ==============================================================================
+
+* ============ 最佳实践审查记录 / Best-practice review (Phase 5.7) ============
+* 方法 / Method: covariate (Mahalanobis/metric) matching via `teffects nnmatch` (ATET)
+* 识别假设 / ID assumptions: unconfoundedness + overlap; exact-match vars enforce design restrictions
+* 诊断输出 / Diagnostics: osample() overlap flag + `tebalance summarize` balance table
+* SSC依赖 / SSC deps: removed (replace `psmatch2`)
+* 解读要点 / Interpretation: ATET pertains to treated; exact matching reduces bias but may drop support
 
 * ============ 初始化 ============
 capture log close _all
@@ -34,22 +40,9 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION|version=2.0.1"
+display "SS_TASK_VERSION|version=2.1.0"
 
-* ============ 依赖检测 ============
-local required_deps "psmatch2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-display "SS_DEP_CHECK|pkg=`dep'|source=ssc|status=missing"
-display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
-display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail"
-display "SS_RC|code=199|cmd=which|msg=dep_missing|detail=`dep'_is_required_but_not_installed|severity=fail"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=psmatch2|source=ssc|status=ok"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local treatment_var = "__TREATMENT_VAR__"
@@ -105,6 +98,28 @@ foreach var of local match_vars {
     }
 }
 
+if "`valid_match_vars'" == "" {
+display "SS_RC|code=200|cmd=validate_inputs|msg=no_match_vars|detail=No_valid_match_vars|severity=fail"
+    log close
+    exit 200
+}
+
+* Ensure binary treatment (0/1) / 仅支持二元处理
+quietly tabulate `treatment_var'
+if r(r) != 2 {
+display "SS_RC|code=198|cmd=validate_inputs|msg=not_binary|detail=`treatment_var'_must_be_binary_01|severity=fail"
+    log close
+    exit 198
+}
+
+local valid_exact_vars ""
+foreach var of local exact_vars {
+    capture confirm variable `var'
+    if !_rc {
+        local valid_exact_vars "`valid_exact_vars' `var'"
+    }
+}
+
 quietly count if `treatment_var' == 1
 local n_treated = r(N)
 quietly count if `treatment_var' == 0
@@ -114,25 +129,41 @@ display ">>> 处理组: `n_treated', 对照组: `n_control'"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
-* ============ 执行马氏距离匹配 ============
+* ============ 执行马氏距离匹配 / teffects nnmatch ============
 display ""
 display "═══════════════════════════════════════════════════════════════════════════════"
-display "SECTION 1: 执行马氏距离匹配"
+display "SECTION 1: teffects nnmatch (ATET)"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 构建psmatch2命令选项
-local match_opts "mahal(`valid_match_vars') neighbor(`n_neighbors')"
-if "`exact_vars'" != "" {
-    local match_opts "`match_opts' exact(`exact_vars')"
+tempvar osample
+local ematch_opt ""
+if "`valid_exact_vars'" != "" {
+    local ematch_opt "ematch(`valid_exact_vars')"
 }
 
-display ">>> 执行马氏距离匹配..."
-psmatch2 `treatment_var', outcome(`outcome_var') `match_opts'
+capture noisily teffects nnmatch (`outcome_var' `valid_match_vars') (`treatment_var'), ///
+    atet nneighbor(`n_neighbors') `ematch_opt' osample(`osample') generate(_nn)
+if _rc {
+display "SS_RC|code=430|cmd=teffects_nnmatch|msg=teffects_failed|detail=teffects_nnmatch_failed_rc_`_rc'|severity=fail"
+    log close
+    exit 430
+}
 
-* 获取ATT结果
-local att = r(att)
-local att_se = r(seatt)
-local att_t = r(tatt)
+quietly count if `osample' == 1
+local n_osample = r(N)
+if `n_osample' > 0 {
+display "SS_RC|code=0|cmd=warning|msg=overlap_violation|detail=osample_flagged_`n_osample'_obs|severity=warn"
+}
+display "SS_METRIC|name=n_osample|value=`n_osample'"
+
+local att = .
+local att_se = .
+local att_t = .
+capture local att = _b[ATET]
+capture local att_se = _se[ATET]
+if `att_se' < . & `att_se' > 0 {
+    local att_t = `att' / `att_se'
+}
 
 display ""
 display ">>> ATT估计结果:"
@@ -149,59 +180,41 @@ display "═══════════════════════�
 display "SECTION 2: 匹配质量评估"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-quietly count if _treated == 1 & _support == 1
+quietly count if `treatment_var' == 1 & `osample' == 0
 local n_treated_matched = r(N)
-quietly count if _treated == 0 & _weight > 0
+
+local n_control_used = .
+preserve
+keep if `treatment_var' == 1 & `osample' == 0
+keep _nn*
+gen long _rowid = _n
+reshape long _nn, i(_rowid) j(_k)
+drop if missing(_nn)
+duplicates drop _nn, force
+quietly count
 local n_control_used = r(N)
+restore
 
 display ""
 display ">>> 匹配统计:"
 display "    匹配处理组: `n_treated_matched' / `n_treated'"
 display "    使用对照组: `n_control_used'"
 
-* 平衡性检验
-tempname balance
-postfile `balance' str32 variable double std_diff_before double std_diff_after double reduction ///
-    using "temp_mahal_balance.dta", replace
-
-display ""
-display "变量                 标准化差异(前)  标准化差异(后)  改善"
-display "───────────────────────────────────────────────────────────────"
-
-foreach var of local valid_match_vars {
-    quietly summarize `var' if `treatment_var' == 1
-    local mean_t_before = r(mean)
-    local sd_t = r(sd)
-    quietly summarize `var' if `treatment_var' == 0
-    local mean_c_before = r(mean)
-    local sd_c = r(sd)
-    local pooled_sd = sqrt((`sd_t'^2 + `sd_c'^2) / 2)
-    local std_diff_before = (`mean_t_before' - `mean_c_before') / `pooled_sd' * 100
-    
-    quietly summarize `var' if _treated == 1 & _support == 1
-    local mean_t_after = r(mean)
-    quietly summarize `var' if _treated == 0 [aw = _weight]
-    local mean_c_after = r(mean)
-    local std_diff_after = (`mean_t_after' - `mean_c_after') / `pooled_sd' * 100
-    
-    if abs(`std_diff_before') > 0.001 {
-        local reduction = (1 - abs(`std_diff_after') / abs(`std_diff_before')) * 100
+* Export balance table via collect: tebalance summarize, baseline
+capture noisily collect clear
+capture noisily collect: tebalance summarize `valid_match_vars', baseline
+if _rc {
+display "SS_RC|code=0|cmd=warning|msg=tebalance_failed|detail=tebalance_summarize_failed_rc_`_rc'|severity=warn"
+}
+else {
+    capture noisily collect export "table_TG06_balance.csv", as(csv) replace
+    if _rc {
+display "SS_RC|code=0|cmd=warning|msg=collect_export_failed|detail=collect_export_failed_rc_`_rc'|severity=warn"
     }
     else {
-        local reduction = 100
+        display "SS_OUTPUT_FILE|file=table_TG06_balance.csv|type=table|desc=balance"
     }
-    
-    post `balance' ("`var'") (`std_diff_before') (`std_diff_after') (`reduction')
-    display %20s "`var'" "  " %12.2f `std_diff_before' "%  " %12.2f `std_diff_after' "%  " %10.1f `reduction' "%"
 }
-
-postclose `balance'
-
-preserve
-use "temp_mahal_balance.dta", clear
-export delimited using "table_TG06_balance.csv", replace
-display "SS_OUTPUT_FILE|file=table_TG06_balance.csv|type=table|desc=balance"
-restore
 
 * ============ 导出结果 ============
 display ""
@@ -230,7 +243,11 @@ export delimited using "table_TG06_mahal_result.csv", replace
 display "SS_OUTPUT_FILE|file=table_TG06_mahal_result.csv|type=table|desc=mahal_result"
 restore
 
-keep if _support == 1
+* Keep overlap-support sample (osample==0) / 保留支持集样本
+capture confirm variable `osample'
+if !_rc {
+    keep if `osample' == 0
+}
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 
@@ -241,11 +258,6 @@ display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 display "SS_SUMMARY|key=n_input|value=`n_input'"
 display "SS_SUMMARY|key=n_output|value=`n_output'"
 display "SS_SUMMARY|key=att|value=`att'"
-
-capture erase "temp_mahal_balance.dta"
-if _rc != 0 {
-    * Expected non-fatal return code
-}
 
 * ============ 任务完成摘要 ============
 display ""
