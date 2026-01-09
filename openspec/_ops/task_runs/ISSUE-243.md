@@ -1,7 +1,7 @@
 # ISSUE-243
 - Issue: #243
 - Branch: task/243-fe-a3-loop-closure
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/245
 
 ## Goal
 - Frontend end-to-end loop closure: Step2 upload+preview → Step3 blueprint precheck → job status + artifacts (FE-C004/005/006).
