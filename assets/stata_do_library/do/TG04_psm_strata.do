@@ -33,7 +33,17 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: strata/subclassification relies on good pscore model; check overlap and within-strata balance. /
+*   最佳实践：分层依赖倾向得分模型；需检查重叠并在层内评估平衡性。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing vars; warn on sparse strata /
+*   错误策略：缺少变量→fail；分层过稀疏→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG04|ssc=none|output=csv_png|policy=warn_fail"
 
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 

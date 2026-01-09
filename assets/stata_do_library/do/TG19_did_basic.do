@@ -24,9 +24,18 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG19|level=L1|title=DID_Basic"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: DID requires parallel trends; report pre-trend evidence and cluster-robust inference where appropriate. /
+*   最佳实践：DID 依赖平行趋势；需输出处理前趋势证据，并在需要时使用聚类稳健推断。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing treated/control or pre/post periods /
+*   错误策略：缺少处理/对照或处理前/后时期→fail
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG19|ssc=none|output=csv_png|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local outcome_var = "__OUTCOME_VAR__"
@@ -98,6 +107,12 @@ display ""
 display ">>> 数据结构:"
 display "    处理组: `n_treated', 对照组: `n_control'"
 display "    处理后: `n_post', 处理前: `n_pre'"
+if `n_treated' == 0 | `n_control' == 0 | `n_pre' == 0 | `n_post' == 0 {
+    display "SS_ERROR:INSUFFICIENT_SUPPORT:Need treated/control and pre/post observations"
+    display "SS_ERR:INSUFFICIENT_SUPPORT:Need treated/control and pre/post observations"
+    log close
+    exit 210
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"

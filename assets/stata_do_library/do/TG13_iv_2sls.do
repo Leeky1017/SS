@@ -9,7 +9,7 @@
 *   - data_TG13_iv.dta type=data desc="IV data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - ivreg2 source=ssc purpose="IV regression"
+*   - stata source=built-in purpose="ivregress 2sls + first-stage/overid diagnostics"
 * ==============================================================================
 
 * ============ 初始化 ============
@@ -25,21 +25,18 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG13|level=L1|title=IV_2SLS"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
-* ============ 依赖检测 ============
-local required_deps "ivreg2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=ivreg2|source=ssc|status=ok"
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: use `ivregress 2sls` and report weak-IV signals (first-stage F) + overid test when applicable. /
+*   最佳实践：使用 `ivregress 2sls`，并报告弱工具变量信号（第一阶段 F）与过度识别检验（如可用）。
+* - SSC deps: removed (ivreg2/ranktest → built-in ivregress/estat) / SSC 依赖：已移除（ivreg2/ranktest → 内置）
+* - Error policy: fail on underidentification; warn on weak-IV (F<10) /
+*   错误策略：欠识别→fail；弱工具变量（F<10）→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG13|ssc=none|output=csv|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local dep_var = "__DEPVAR__"
@@ -194,10 +191,10 @@ display "SECTION 2: 2SLS估计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 if "`robust'" == "yes" {
-    ivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), robust first
+    ivregress 2sls `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), vce(robust)
 }
 else {
-    ivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), first
+    ivregress 2sls `dep_var' `valid_exog' (`endog_var' = `valid_instruments')
 }
 
 * 提取结果
@@ -208,12 +205,30 @@ local iv_p = 2 * ttail(e(df_r), abs(`iv_t'))
 local iv_n = e(N)
 local iv_r2 = e(r2)
 
-* 诊断统计量
-local cragg_donald = e(cdf)
-local sargan = e(sargan)
-local sargan_p = e(sarganp)
-local basmann = e(basmann)
-local basmann_p = e(basmannp)
+* 诊断统计量（built-in: first-stage F from OLS; overid via estat overid when overidentified）
+local overid_chi2 = .
+local overid_p = .
+local overid_df = .
+if `n_instruments' > `n_endog' {
+    capture noisily estat overid
+    if _rc {
+        display "SS_WARNING:OVERID_FAILED:estat overid failed"
+    }
+    else {
+        capture scalar __ss_overid_chi2 = r(chi2)
+        if !_rc local overid_chi2 = __ss_overid_chi2
+        capture scalar __ss_overid_df = r(df)
+        if !_rc local overid_df = __ss_overid_df
+        capture scalar __ss_overid_p = r(p)
+        if !_rc local overid_p = __ss_overid_p
+        capture scalar __ss_overid_chi2_alt = r(J)
+        if !_rc local overid_chi2 = __ss_overid_chi2_alt
+        capture scalar __ss_overid_p_alt = r(p_J)
+        if !_rc local overid_p = __ss_overid_p_alt
+    }
+}
+display "SS_METRIC|name=overid_chi2|value=`overid_chi2'"
+display "SS_METRIC|name=overid_p|value=`overid_p'"
 
 display ""
 display ">>> 2SLS估计结果:"
@@ -261,25 +276,25 @@ display "═══════════════════════�
 
 display ""
 display ">>> 弱工具变量检验:"
-display "    Cragg-Donald Wald F: " %10.2f `cragg_donald'
-if `cragg_donald' < 10 {
+display "    First-stage F: " %10.2f `fs_f'
+if `fs_f' < 10 {
     display "    警告: F < 10，可能存在弱工具变量问题"
 }
 
 if `n_instruments' > `n_endog' {
     display ""
-    display ">>> 过度识别检验:"
-    display "    Sargan统计量: " %10.4f `sargan'
-    display "    Sargan p值: " %10.4f `sargan_p'
-    if `sargan_p' < 0.05 {
-        display "    警告: 拒绝工具变量外生性"
+    display ">>> 过度识别检验 (estat overid):"
+    display "    Chi2: " %10.4f `overid_chi2'
+    display "    p值: " %10.4f `overid_p'
+    if `overid_p' < 0.05 {
+        display "SS_WARNING:OVERID_REJECTED:Overidentification test rejects instrument validity"
     }
 }
 
 * 导出诊断结果
 preserve
 clear
-set obs 4
+set obs 3
 generate str30 test = ""
 generate double statistic = .
 generate double p_value = .
@@ -289,17 +304,13 @@ replace test = "First-stage F" in 1
 replace statistic = `fs_f' in 1
 replace conclusion = cond(`fs_f' >= 10, "通过(F>=10)", "警告:可能弱IV") in 1
 
-replace test = "Cragg-Donald F" in 2
-replace statistic = `cragg_donald' in 2
-replace conclusion = cond(`cragg_donald' >= 10, "通过", "警告:弱IV") in 2
+replace test = "Overid (chi2)" in 2
+replace statistic = `overid_chi2' in 2
+replace p_value = `overid_p' in 2
+replace conclusion = cond(`n_instruments' <= `n_endog', "恰好识别(不适用)", cond(`overid_p' >= 0.05, "通过:IV外生", "拒绝:IV可能内生")) in 2
 
-replace test = "Sargan" in 3
-replace statistic = `sargan' in 3
-replace p_value = `sargan_p' in 3
-replace conclusion = cond(`sargan_p' >= 0.05, "通过:IV外生", "拒绝:IV可能内生") in 3
-
-replace test = "Observations" in 4
-replace statistic = `iv_n' in 4
+replace test = "Observations" in 3
+replace statistic = `iv_n' in 3
 
 export delimited using "table_TG13_diagnostics.csv", replace
 display "SS_OUTPUT_FILE|file=table_TG13_diagnostics.csv|type=table|desc=diagnostics"

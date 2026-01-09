@@ -32,7 +32,18 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: CEM trades bias/variance via coarsening; inspect balance and effective sample size. /
+*   最佳实践：CEM 通过粗化权衡偏误/方差；关注平衡性与有效样本量变化。
+* - SSC deps: required:cem (no built-in CEM) / SSC 依赖：必需 cem（无等价内置命令）
+* - Error policy: fail on missing vars/matching failure; warn on heavy pruning /
+*   错误策略：缺少变量/匹配失败→fail；样本被大量剔除→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG05|ssc=required:cem|output=csv|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 依赖检测 ============
 local required_deps "cem"

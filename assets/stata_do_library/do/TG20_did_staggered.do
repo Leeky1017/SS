@@ -10,7 +10,6 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
 *   - csdid source=ssc purpose="Staggered DID"
-*   - drdid source=ssc purpose="DR DID"
 * ==============================================================================
 
 * ============ 初始化 ============
@@ -26,10 +25,21 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG20|level=L2|title=DID_Staggered"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: prefer heterogeneity-robust staggered DID (csdid) and report event-study pretrends evidence. /
+*   最佳实践：优先异质性稳健的交错DID（csdid），并输出事件研究的处理前趋势证据。
+* - SSC deps: required:csdid (kept; no built-in equivalent) / SSC 依赖：必需 csdid（保留；无等价内置命令）
+* - Error policy: fail on missing vars or no comparison group; warn on few cohorts /
+*   错误策略：缺少变量或无对照→fail；处理队列过少→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG20|ssc=required:csdid|output=csv_png|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 依赖检测 ============
-local required_deps "csdid drdid"
+local required_deps "csdid"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
@@ -106,7 +116,14 @@ display "═══════════════════════�
 replace `treat_time_var' = 0 if missing(`treat_time_var')
 
 * 设置面板
-ss_smart_xtset `id_var' `time_var'
+sort `id_var' `time_var'
+capture xtset `id_var' `time_var'
+if _rc {
+    display "SS_ERROR:XTSET_FAILED:xtset failed"
+    display "SS_ERR:XTSET_FAILED:xtset failed"
+    log close
+    exit 210
+}
 
 * 统计处理组
 quietly levelsof `treat_time_var' if `treat_time_var' > 0, local(treat_times)
@@ -115,8 +132,8 @@ local n_cohorts : word count `treat_times'
 quietly count if `treat_time_var' == 0
 local n_never_treated = r(N)
 
-quietly distinct `id_var' if `treat_time_var' == 0
-local n_never_treated_units = r(ndistinct)
+quietly levelsof `id_var' if `treat_time_var' == 0, local(_ss_never_ids)
+local n_never_treated_units : word count `_ss_never_ids'
 
 display ""
 display ">>> 数据结构:"

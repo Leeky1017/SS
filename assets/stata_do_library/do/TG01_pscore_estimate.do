@@ -9,7 +9,7 @@
 *   - data_TG01_with_pscore.dta type=data desc="Data with pscore"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - psmatch2 source=ssc purpose="PSM matching"
+*   - stata source=built-in purpose="logit/probit propensity score estimation + overlap diagnostics"
 * ==============================================================================
 
 * ============ 初始化 ============
@@ -33,21 +33,18 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
-* ============ 依赖检测 ============
-local required_deps "psmatch2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=psmatch2|source=ssc|status=ok"
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: estimate propensity score via logit/probit and explicitly check overlap/common support. /
+*   最佳实践：用 logit/probit 估计倾向得分，并显式检查重叠/共同支撑。
+* - SSC deps: none (use built-in) / SSC 依赖：无（仅官方命令）
+* - Error policy: fail on missing/bad treatment var or zero overlap; warn on weak overlap /
+*   错误策略：缺少/异常处理变量或无重叠→fail；重叠较弱→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG01|ssc=none|output=csv_png|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local treatment_var = "__TREATMENT_VAR__"
@@ -214,6 +211,28 @@ else {
     probit `treatment_var' `valid_covariates'
 }
 
+* [ZH] 重叠/共同支撑诊断（treated/control 的倾向得分区间是否有交集）
+* [EN] Overlap diagnostics (intersection of treated/control propensity-score ranges)
+predict double pscore, pr
+quietly summarize pscore if `treatment_var' == 1
+local ps_t_min = r(min)
+local ps_t_max = r(max)
+quietly summarize pscore if `treatment_var' == 0
+local ps_c_min = r(min)
+local ps_c_max = r(max)
+local ps_overlap_min = max(`ps_t_min', `ps_c_min')
+local ps_overlap_max = min(`ps_t_max', `ps_c_max')
+display "SS_METRIC|name=ps_overlap_min|value=`ps_overlap_min'"
+display "SS_METRIC|name=ps_overlap_max|value=`ps_overlap_max'"
+if `ps_overlap_min' >= `ps_overlap_max' {
+    display "SS_ERROR:NO_OVERLAP:No overlap in propensity scores between treated and control"
+    display "SS_ERR:NO_OVERLAP:No overlap in propensity scores between treated and control"
+    log close
+    exit 210
+}
+if (`ps_overlap_max' - `ps_overlap_min') < 0.05 {
+    display "SS_WARNING:WEAK_OVERLAP:Overlap range is narrow; results may be unstable"
+}
 * 保存模型结果
 local n_obs = e(N)
 local pseudo_r2 = e(r2_p)
@@ -230,8 +249,7 @@ display "    P-value: " %6.4f `p_chi2'
 display "SS_METRIC|name=pseudo_r2|value=`pseudo_r2'"
 display "SS_METRIC|name=chi2|value=`chi2'"
 
-* 预测倾向得分
-predict double pscore, pr
+* 预测倾向得分（已生成 pscore）
 label variable pscore "倾向得分(处理概率)"
 
 * 导出模型结果

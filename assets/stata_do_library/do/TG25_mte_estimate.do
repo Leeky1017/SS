@@ -25,7 +25,18 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG25|level=L2|title=MTE_Estimate"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: MTE is advanced and assumption-heavy; interpret as sensitivity over unobserved resistance to treatment. /
+*   最佳实践：MTE 假设较强且难度高；可解读为对“未观测抗拒程度”的敏感性刻画。
+* - SSC deps: required:mtefe (no built-in MTE) / SSC 依赖：必需 mtefe（无等价内置命令）
+* - Error policy: fail on missing vars/estimation failure; warn on weak first-stage /
+*   错误策略：缺少变量/估计失败→fail；第一阶段弱→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG25|ssc=required:mtefe|output=csv_png|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 依赖检测 ============
 local required_deps "mtefe"

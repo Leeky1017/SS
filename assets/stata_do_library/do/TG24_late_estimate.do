@@ -8,7 +8,7 @@
 *   - data_TG24_late.dta type=data desc="LATE data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - ivreg2 source=ssc purpose="IV regression"
+*   - stata source=built-in purpose="ivregress 2sls + LATE diagnostics"
 * ==============================================================================
 
 * ============ 初始化 ============
@@ -24,21 +24,18 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG24|level=L2|title=LATE_Estimate"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
-* ============ 依赖检测 ============
-local required_deps "ivreg2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=ivreg2|source=ssc|status=ok"
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: report first-stage strength (F) and interpret LATE under monotonicity/exclusion assumptions. /
+*   最佳实践：报告第一阶段强度（F），并在单调性/排除限制假设下解读 LATE。
+* - SSC deps: removed (ivreg2 → ivregress) / SSC 依赖：已移除（ivreg2 → ivregress）
+* - Error policy: fail if first-stage is near zero; warn on weak-IV signals /
+*   错误策略：第一阶段接近 0 → fail；弱IV信号→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG24|ssc=none|output=csv|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local outcome_var = "__OUTCOME_VAR__"
@@ -155,6 +152,12 @@ quietly regress `treatment_var' `instrument' `valid_covariates', robust
 local first_stage_coef = _b[`instrument']
 local fs_se = _se[`instrument']
 local fs_f = ((`first_stage_coef' / `fs_se')^2)
+if abs(`first_stage_coef') < 1e-8 {
+    display "SS_ERROR:WEAK_FIRST_STAGE:First-stage coefficient is ~0; LATE not identified"
+    display "SS_ERR:WEAK_FIRST_STAGE:First-stage coefficient is ~0; LATE not identified"
+    log close
+    exit 212
+}
 
 * Wald估计量
 local late_wald = `reduced_form' / `first_stage_coef'
@@ -166,7 +169,7 @@ display "    第一阶段: " %10.4f `first_stage_coef'
 display "    LATE (Wald): " %10.4f `late_wald'
 
 * 2SLS估计
-ivreg2 `outcome_var' `valid_covariates' (`treatment_var' = `instrument'), robust first
+ivregress 2sls `outcome_var' `valid_covariates' (`treatment_var' = `instrument'), vce(robust)
 
 local late_2sls = _b[`treatment_var']
 local late_se = _se[`treatment_var']

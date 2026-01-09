@@ -24,9 +24,18 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG21|level=L1|title=DID_Parallel"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: pretrend/event-study evidence is the primary diagnostic for parallel trends. /
+*   最佳实践：处理前趋势/事件研究证据是平行趋势的主要诊断。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing vars; warn if too few pre-periods /
+*   错误策略：缺少变量→fail；处理前期数过少→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG21|ssc=none|output=csv_png|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local outcome_var = "__OUTCOME_VAR__"
@@ -73,7 +82,11 @@ foreach var in `outcome_var' `treat_var' `time_var' {
 if "`id_var'" != "" {
     capture confirm variable `id_var'
     if !_rc {
-        ss_smart_xtset `id_var' `time_var'
+        sort `id_var' `time_var'
+        capture xtset `id_var' `time_var'
+        if _rc {
+            display "SS_WARNING:XTSET_FAILED:xtset failed; continuing as repeated cross-section"
+        }
     }
 }
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"

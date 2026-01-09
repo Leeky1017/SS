@@ -24,7 +24,18 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG11|level=L1|title=RDD_Bandwidth"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: compare bandwidth selectors (MSE/CER) and show sensitivity across bandwidths. /
+*   最佳实践：对比多种带宽选择（MSE/CER），并做带宽敏感性分析。
+* - SSC deps: required:rdrobust / SSC 依赖：必需 rdrobust
+* - Error policy: fail on missing vars; warn if chosen bandwidth leads to tiny effective sample /
+*   错误策略：缺少变量→fail；有效样本过小→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG11|ssc=required:rdrobust|output=csv|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 依赖检测 ============
 local required_deps "rdrobust"

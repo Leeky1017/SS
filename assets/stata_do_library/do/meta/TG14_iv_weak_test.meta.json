@@ -2,14 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "ivreg2",
-      "purpose": "IV regression",
-      "source": "ssc"
-    },
-    {
-      "pkg": "ranktest",
-      "purpose": "Rank test",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "first-stage diagnostics + ivregress (optional)",
+      "source": "built-in"
     }
   ],
   "description": "Weak instrument tests for IV",

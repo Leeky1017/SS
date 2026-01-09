@@ -1,4 +1,4 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TG16  level=L1  module=G  title="Panel IV"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -8,7 +8,7 @@
 *   - data_TG16_panel_iv.dta type=data desc="Panel IV data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - xtivreg2 source=ssc purpose="Panel IV"
+*   - stata source=built-in purpose="xtivreg + weak-IV signal via first-stage F-test"
 * ==============================================================================
 
 * ============ 初始化 ============
@@ -24,21 +24,18 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG16|level=L1|title=Panel_IV"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
-* ============ 依赖检测 ============
-local required_deps "xtivreg2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
-        log close
-        exit 199
-    }
-}
-display "SS_DEP_CHECK|pkg=xtivreg2|source=ssc|status=ok"
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: use built-in `xtivreg` (FE/RE) and report weak-IV warning signal from first-stage joint F-test. /
+*   最佳实践：使用内置 `xtivreg`（FE/RE），并用第一阶段工具变量联合 F 检验作为弱工具变量告警信号。
+* - SSC deps: removed (xtivreg2 → xtivreg) / SSC 依赖：已移除（xtivreg2 → xtivreg）
+* - Error policy: fail on missing panel structure or underidentification; warn on weak-IV signal /
+*   错误策略：面板结构缺失/欠识别→fail；弱工具变量信号→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG16|ssc=none|output=csv|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local dep_var = "__DEPVAR__"
@@ -49,7 +46,7 @@ local id_var = "__ID_VAR__"
 local time_var = "__TIME_VAR__"
 local method = "__METHOD__"
 
-if "`method'" == "" | ("`method'" != "fe" & "`method'" != "re" & "`method'" != "ht") {
+if "`method'" == "" | ("`method'" != "fe" & "`method'" != "re") {
     local method = "fe"
 }
 
@@ -63,7 +60,6 @@ display "    时间变量: `time_var'"
 display "    估计方法: `method'"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
-* ============ 数据加载 ============
 capture confirm file "data.csv"
 if _rc {
     display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
@@ -78,7 +74,6 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 
-* ============ 变量检查 ============
 foreach var in `dep_var' `endog_var' `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
@@ -96,6 +91,12 @@ foreach var of local instruments {
         local valid_instruments "`valid_instruments' `var'"
     }
 }
+if "`valid_instruments'" == "" {
+    display "SS_ERROR:NO_INSTRUMENTS:No valid instruments"
+    display "SS_ERR:NO_INSTRUMENTS:No valid instruments"
+    log close
+    exit 200
+}
 
 local valid_exog ""
 foreach var of local exog_vars {
@@ -104,107 +105,78 @@ foreach var of local exog_vars {
         local valid_exog "`valid_exog' `var'"
     }
 }
+
+local n_instruments : word count `valid_instruments'
+local n_endog : word count `endog_var'
+display "SS_METRIC|name=n_instruments|value=`n_instruments'"
+display "SS_METRIC|name=n_endog|value=`n_endog'"
+if `n_instruments' < `n_endog' {
+    display "SS_ERROR:UNDERIDENTIFIED:Fewer instruments than endogenous variables"
+    display "SS_ERR:UNDERIDENTIFIED:Fewer instruments than endogenous variables"
+    log close
+    exit 198
+}
+
+sort `id_var' `time_var'
+capture xtset `id_var' `time_var'
+if _rc {
+    display "SS_ERROR:XTSET_FAILED:xtset failed"
+    display "SS_ERR:XTSET_FAILED:xtset failed"
+    log close
+    exit 210
+}
+
+tempvar _ss_n_i
+bysort `id_var': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_WARNING:SINGLETON_GROUPS:Singleton groups detected"
+}
+
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
-* ============ 设置面板 ============
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
-display "SECTION 1: 设置面板结构"
-display "═══════════════════════════════════════════════════════════════════════════════"
 
-sort `id_var' `time_var'
-ss_smart_xtset `id_var' `time_var'
-
-quietly xtdescribe
-local n_groups = r(n)
-local n_periods = r(max)
-
-display ""
-display ">>> 面板结构:"
-display "    个体数: `n_groups'"
-display "    最大期数: `n_periods'"
-
-display "SS_METRIC|name=n_groups|value=`n_groups'"
-
-* ============ 面板IV估计 ============
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
-display "SECTION 2: 面板IV估计 (`method')"
-display "═══════════════════════════════════════════════════════════════════════════════"
-
+* [ZH] 第一阶段（弱IV信号）：对工具变量做联合显著性 F 检验 / [EN] First-stage weak-IV signal via joint F-test
 if "`method'" == "fe" {
-    display ">>> 使用固定效应IV (FE-2SLS)"
-    xtivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), fe robust first
-}
-else if "`method'" == "re" {
-    display ">>> 使用随机效应IV (RE-2SLS)"
-    xtivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), re robust first
+    xtreg `endog_var' `valid_instruments' `valid_exog', fe
 }
 else {
-    display ">>> 使用Hausman-Taylor估计"
-    * HT需要区分时变/时不变、内生/外生
-    capture xthtaylor `dep_var' `valid_exog' `endog_var', endog(`endog_var')
-    if _rc {
-        display "SS_WARNING:HT_FAILED:Hausman-Taylor failed, using FE-IV instead"
-        xtivreg2 `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), fe robust first
-    }
+    xtreg `endog_var' `valid_instruments' `valid_exog', re
+}
+test `valid_instruments'
+local fs_f = r(F)
+local fs_p = r(p)
+display "SS_METRIC|name=first_stage_f|value=`fs_f'"
+display "SS_METRIC|name=first_stage_p|value=`fs_p'"
+if `fs_f' < 10 {
+    display "SS_WARNING:WEAK_IV:First-stage F < 10, possible weak instruments"
 }
 
-* 提取结果
+* [ZH] 面板IV估计 / [EN] Panel IV estimation
+if "`method'" == "fe" {
+    xtivreg `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), fe vce(cluster `id_var')
+}
+else {
+    xtivreg `dep_var' `valid_exog' (`endog_var' = `valid_instruments'), re vce(cluster `id_var')
+}
+
 local iv_coef = _b[`endog_var']
 local iv_se = _se[`endog_var']
 local iv_t = `iv_coef' / `iv_se'
 local iv_p = 2 * ttail(e(df_r), abs(`iv_t'))
-local iv_n = e(N)
-
-* 诊断统计量
-local cdf = e(cdf)
-local widstat = e(widstat)
-local hansen_j = e(j)
-local hansen_p = e(jp)
-
-display ""
-display ">>> 面板IV估计结果:"
-display "    `endog_var'系数: " %10.4f `iv_coef'
-display "    标准误: " %10.4f `iv_se'
-display "    t统计量: " %10.4f `iv_t'
-display "    p值: " %10.4f `iv_p'
-
 display "SS_METRIC|name=iv_coef|value=`iv_coef'"
 display "SS_METRIC|name=iv_se|value=`iv_se'"
 
-* ============ 诊断检验 ============
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
-display "SECTION 3: 诊断检验"
-display "═══════════════════════════════════════════════════════════════════════════════"
-
-display ""
-display ">>> 弱工具变量检验:"
-display "    Cragg-Donald F: " %10.2f `cdf'
-display "    Kleibergen-Paap F: " %10.2f `widstat'
-
-if `cdf' < 10 {
-    display "    警告: F < 10，可能存在弱工具变量"
-    display "SS_WARNING:WEAK_IV:F-statistic < 10"
-}
-
-display ""
-display ">>> 过度识别检验:"
-display "    Hansen J: " %10.4f `hansen_j'
-display "    p值: " %10.4f `hansen_p'
-
-* 导出结果
 tempname results
-postfile `results' str32 variable double coef double se double t double p ///
-    using "temp_panel_iv.dta", replace
-
+postfile `results' str32 variable double coef double se double t double p using "temp_panel_iv.dta", replace
 matrix b = e(b)
 matrix V = e(V)
 local varnames : colnames b
 local nvars : word count `varnames'
-
 forvalues i = 1/`nvars' {
     local vname : word `i' of `varnames'
     local coef = b[1, `i']
@@ -213,7 +185,6 @@ forvalues i = 1/`nvars' {
     local p = 2 * ttail(e(df_r), abs(`t'))
     post `results' ("`vname'") (`coef') (`se') (`t') (`p')
 }
-
 postclose `results'
 
 preserve
@@ -222,37 +193,34 @@ export delimited using "table_TG16_panel_iv.csv", replace
 display "SS_OUTPUT_FILE|file=table_TG16_panel_iv.csv|type=table|desc=panel_iv"
 restore
 
-* 导出诊断
 preserve
 clear
-set obs 4
+set obs 3
 generate str30 test = ""
 generate double statistic = .
 generate double p_value = .
+generate str60 conclusion = ""
 
-replace test = "Cragg-Donald F" in 1
-replace statistic = `cdf' in 1
+replace test = "First-stage joint F (instruments)" in 1
+replace statistic = `fs_f' in 1
+replace p_value = `fs_p' in 1
+replace conclusion = cond(`fs_f' >= 10, "通过(F>=10)", "警告:弱IV信号") in 1
 
-replace test = "Kleibergen-Paap F" in 2
-replace statistic = `widstat' in 2
+replace test = "Endog coef" in 2
+replace statistic = `iv_coef' in 2
 
-replace test = "Hansen J" in 3
-replace statistic = `hansen_j' in 3
-replace p_value = `hansen_p' in 3
-
-replace test = "N observations" in 4
-replace statistic = `iv_n' in 4
+replace test = "Observations" in 3
+replace statistic = e(N) in 3
 
 export delimited using "table_TG16_diagnostics.csv", replace
 display "SS_OUTPUT_FILE|file=table_TG16_diagnostics.csv|type=table|desc=diagnostics"
 restore
 
-* ============ 输出结果 ============
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
-
 save "data_TG16_panel_iv.dta", replace
 display "SS_OUTPUT_FILE|file=data_TG16_panel_iv.dta|type=data|desc=panel_iv_data"
+
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 display "SS_SUMMARY|key=n_input|value=`n_input'"
@@ -261,23 +229,6 @@ display "SS_SUMMARY|key=iv_coef|value=`iv_coef'"
 
 capture erase "temp_panel_iv.dta"
 if _rc != 0 { }
-
-* ============ 任务完成摘要 ============
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
-display "TG16 任务完成摘要"
-display "═══════════════════════════════════════════════════════════════════════════════"
-display ""
-display "  样本量:          " %10.0fc `n_input'
-display "  个体数:          " %10.0fc `n_groups'
-display "  估计方法:        `method'"
-display ""
-display "  面板IV估计:"
-display "    `endog_var':   " %10.4f `iv_coef'
-display "    标准误:        " %10.4f `iv_se'
-display "    p值:           " %10.4f `iv_p'
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
 
 local n_dropped = 0
 display "SS_METRIC|name=n_dropped|value=`n_dropped'"

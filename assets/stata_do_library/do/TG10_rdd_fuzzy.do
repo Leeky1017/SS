@@ -25,7 +25,18 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG10|level=L1|title=RDD_Fuzzy"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: fuzzy RDD is local IV; report first-stage strength and interpret LATE at cutoff. /
+*   最佳实践：Fuzzy RDD 本质为局部 IV；应报告第一阶段强度并解读断点处的 LATE。
+* - SSC deps: required:rdrobust / SSC 依赖：必需 rdrobust
+* - Error policy: fail on missing vars; warn on weak first-stage /
+*   错误策略：缺少变量→fail；第一阶段弱→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG10|ssc=required:rdrobust|output=csv_png|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 依赖检测 ============
 local required_deps "rdrobust"

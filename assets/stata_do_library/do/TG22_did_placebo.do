@@ -22,9 +22,18 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG22|level=L2|title=DID_Placebo"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: placebo tests help detect spurious effects; interpret distribution vs observed DID estimate. /
+*   最佳实践：安慰剂检验用于识别伪相关；将观测到的 DID 效应与安慰剂分布对比解读。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing vars; warn if permutations are too few /
+*   错误策略：缺少变量→fail；置换次数过少→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG22|ssc=none|output=csv_png|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local outcome_var = "__OUTCOME_VAR__"

@@ -33,7 +33,17 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: IPW requires overlap; trim/extreme weights and consider stabilized weights. /
+*   最佳实践：IPW 依赖重叠假设；应截断极端权重，并可使用稳定化权重。
+* - SSC deps: none / SSC 依赖：无（仅官方命令）
+* - Error policy: fail on missing vars; warn on extreme/trimmed weights /
+*   错误策略：缺少变量→fail；极端/被截断权重→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG03|ssc=none|output=csv|policy=warn_fail"
 
 * 无社区命令依赖
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"

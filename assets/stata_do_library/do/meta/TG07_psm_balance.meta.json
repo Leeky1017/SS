@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "psmatch2",
-      "purpose": "PSM balance",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "balance diagnostics (weighted/unweighted) + overlap plots",
+      "source": "built-in"
     }
   ],
   "description": "Comprehensive PSM balance diagnostics",

@@ -7,7 +7,6 @@
 *   - fig_TG23_comparison.png type=figure desc="Comparison plot"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - reghdfe source=ssc purpose="HDFE regression"
 *   - did_multiplegt source=ssc purpose="Robust DID"
 * ==============================================================================
 
@@ -24,10 +23,21 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG23|level=L2|title=DID_TWFE"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: TWFE is a baseline; warn on staggered adoption and compare against a heterogeneity-robust estimator. /
+*   最佳实践：TWFE 仅作为基线；在交错处理下需告警并与异质性稳健估计量对比。
+* - SSC deps: required:did_multiplegt (robust comparator); TWFE uses built-in xtreg / SSC 依赖：必需 did_multiplegt（稳健对比）；TWFE 使用内置 xtreg
+* - Error policy: fail on missing panel vars; warn on multiple cohorts /
+*   错误策略：缺少面板变量→fail；多队列→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG23|ssc=required:did_multiplegt|output=csv_png|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 依赖检测 ============
-local required_deps "reghdfe did_multiplegt"
+local required_deps "did_multiplegt"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
@@ -38,7 +48,7 @@ foreach dep of local required_deps {
         exit 199
     }
 }
-display "SS_DEP_CHECK|pkg=reghdfe|source=ssc|status=ok"
+display "SS_DEP_CHECK|pkg=did_multiplegt|source=ssc|status=ok"
 
 * ============ 参数设置 ============
 local outcome_var = "__OUTCOME_VAR__"
@@ -81,7 +91,14 @@ foreach var in `outcome_var' `id_var' `time_var' `treat_var' {
 }
 
 * 设置面板
-ss_smart_xtset `id_var' `time_var'
+sort `id_var' `time_var'
+capture xtset `id_var' `time_var'
+if _rc {
+    display "SS_ERROR:XTSET_FAILED:xtset failed"
+    display "SS_ERR:XTSET_FAILED:xtset failed"
+    log close
+    exit 210
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -91,7 +108,7 @@ display "═══════════════════════�
 display "SECTION 1: 标准TWFE估计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-reghdfe `outcome_var' `treat_var', absorb(`id_var' `time_var') vce(cluster `id_var')
+xtreg `outcome_var' `treat_var' i.`time_var', fe vce(cluster `id_var')
 
 local twfe_coef = _b[`treat_var']
 local twfe_se = _se[`treat_var']

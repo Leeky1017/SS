@@ -23,7 +23,18 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG18|level=L2|title=SCM_Placebo"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: placebo SCM (unit/time) helps calibrate significance; compare RMSPE distributions. /
+*   最佳实践：SCM 安慰剂（单位/时间）用于校准显著性；对比 RMSPE 分布。
+* - SSC deps: required:synth / SSC 依赖：必需 synth
+* - Error policy: fail on missing vars or synth failure; warn on small donor pool /
+*   错误策略：缺少变量/估计失败→fail；供体池过小→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG18|ssc=required:synth|output=csv_png|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 依赖检测 ============
 local required_deps "synth"

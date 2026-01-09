@@ -7,9 +7,9 @@
       "source": "ssc"
     },
     {
-      "pkg": "drdid",
-      "purpose": "DR DID",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "xtset + data handling",
+      "source": "built-in"
     }
   ],
   "description": "Staggered DID with Callaway-Sant'Anna",

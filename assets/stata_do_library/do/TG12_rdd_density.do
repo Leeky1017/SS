@@ -23,7 +23,18 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG12|level=L1|title=RDD_Density"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: McCrary-type density test around cutoff is a key manipulation check. /
+*   最佳实践：断点附近的密度检验（操纵检验）是 RDD 的关键诊断。
+* - SSC deps: required:rddensity (no built-in equivalent) / SSC 依赖：必需 rddensity（无等价内置命令）
+* - Error policy: fail on missing vars; warn if bandwidth is tiny /
+*   错误策略：缺少变量→fail；带宽过小→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG12|ssc=required:rddensity|output=csv_png|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 依赖检测 ============
 local required_deps "rddensity"

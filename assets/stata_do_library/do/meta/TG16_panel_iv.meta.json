@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "xtivreg2",
-      "purpose": "Panel IV",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "xtivreg + weak-IV signal via first-stage F-test",
+      "source": "built-in"
     }
   ],
   "description": "Panel data IV estimation",

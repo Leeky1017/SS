@@ -25,7 +25,18 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TG09|level=L1|title=RDD_Sharp"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.7 REVIEW (Issue #247) / 最佳实践审查（阶段 5.7）
+* - Best practice: report bandwidth choice + run density/continuity diagnostics; interpret as local effect at cutoff. /
+*   最佳实践：报告带宽选择并做密度/连续性诊断；解读为断点处的局部效应。
+* - SSC deps: required:rdrobust (no built-in equivalent) / SSC 依赖：必需 rdrobust（无等价内置命令）
+* - Error policy: fail on missing vars; warn if bandwidth is very small /
+*   错误策略：缺少变量→fail；带宽过小→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=247|template_id=TG09|ssc=required:rdrobust|output=csv_png|policy=warn_fail"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 依赖检测 ============
 local required_deps "rdrobust"
