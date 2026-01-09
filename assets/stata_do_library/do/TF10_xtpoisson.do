@@ -41,6 +41,15 @@ end
 
 display "SS_TASK_BEGIN|id=TF10|level=L0|title=XTPOISSON"
 display "SS_TASK_VERSION|version=2.0.1"
+* ==============================================================================
+* PHASE 5.6 REVIEW (Issue #246) / 最佳实践审查（阶段 5.6）
+* - Best practice: FE Poisson is common for counts; interpret as conditional mean model. Consider overdispersion checks. /
+*   最佳实践：计数数据常用 FE Poisson；关注其条件均值设定，并考虑过度离散诊断。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing inputs/xtset/estimation; warn on singleton groups /
+*   错误策略：缺少输入/xtset/估计失败→fail；单成员组→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=246|template_id=TF10|ssc=none|output=csv|policy=warn_fail"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 local depvar = "__DEPVAR__"
@@ -70,6 +79,15 @@ if _rc {
 capture xtset `panelvar' `timevar'
 if _rc {
     ss_fail_TF10 `=_rc' "xtset `panelvar' `timevar'" "xtset_failed"
+}
+tempvar _ss_n_i
+bysort `panelvar': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=xtset|msg=singleton_groups_present|severity=warn"
 }
 capture noisily xtpoisson `depvar' `indepvars', fe
 if _rc {

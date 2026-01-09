@@ -42,6 +42,17 @@ end
 
 display "SS_TASK_BEGIN|id=TF14|level=L1|title=PVAR"
 display "SS_TASK_VERSION|version=2.0.1"
+* ==============================================================================
+* PHASE 5.6 REVIEW (Issue #246) / 最佳实践审查（阶段 5.6）
+* - Best practice: panel VAR is data-hungry; interpret IRFs cautiously and check stability where possible. /
+*   最佳实践：面板 VAR 对样本要求高；IRF 解读需谨慎，必要时补充稳定性检验。
+* - SSC deps: required:pvar (no built-in PVAR equivalent) / SSC 依赖：必需 pvar（无等价内置命令）
+* - Error policy: fail on missing inputs/xtset/estimation; warn on singleton groups /
+*   错误策略：缺少输入/xtset/估计失败→fail；单成员组→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=246|template_id=TF14|ssc=required:pvar|output=csv_png|policy=warn_fail"
+
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 capture which pvar
 if _rc {
@@ -77,6 +88,15 @@ if _rc {
 capture xtset `panelvar' `timevar'
 if _rc {
     ss_fail_TF14 `=_rc' "xtset `panelvar' `timevar'" "xtset_failed"
+}
+tempvar _ss_n_i
+bysort `panelvar': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=xtset|msg=singleton_groups_present|severity=warn"
 }
 set seed 12345
 display "SS_METRIC|name=seed|value=12345"

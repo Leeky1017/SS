@@ -41,6 +41,15 @@ end
 
 display "SS_TASK_BEGIN|id=TF06|level=L0|title=Diff_GMM"
 display "SS_TASK_VERSION|version=2.0.1"
+* ==============================================================================
+* PHASE 5.6 REVIEW (Issue #246) / 最佳实践审查（阶段 5.6）
+* - Best practice: difference-GMM via `xtabond`; prefer two-step if it converges, otherwise fall back to one-step. /
+*   最佳实践：使用 `xtabond` 做差分 GMM；优先 two-step（若失败则回退 one-step）。
+* - SSC deps: none (built-in `xtabond`) / SSC 依赖：无（官方命令 xtabond）
+* - Error policy: fail on missing inputs/xtset/estimation; warn on singleton groups /
+*   错误策略：缺少输入/xtset/估计失败→fail；单成员组→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=246|template_id=TF06|ssc=none|output=csv|policy=warn_fail"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 local depvar = "__DEPVAR__"
@@ -70,6 +79,15 @@ if _rc {
 capture xtset `panelvar' `timevar'
 if _rc {
     ss_fail_TF06 `=_rc' "xtset `panelvar' `timevar'" "xtset_failed"
+}
+tempvar _ss_n_i
+bysort `panelvar': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=xtset|msg=singleton_groups_present|severity=warn"
 }
 capture noisily xtabond `depvar' `indepvars', lags(1) twostep
 if _rc {

@@ -41,6 +41,15 @@ end
 
 display "SS_TASK_BEGIN|id=TF12|level=L0|title=XTMIXED"
 display "SS_TASK_VERSION|version=2.0.1"
+* ==============================================================================
+* PHASE 5.6 REVIEW (Issue #246) / 最佳实践审查（阶段 5.6）
+* - Best practice: mixed models can be sensitive; report ICC as a quick variance-decomposition diagnostic. /
+*   最佳实践：混合效应模型对设定敏感；输出 ICC 作为方差分解的快速诊断。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing inputs/estimation; warn on singleton groups /
+*   错误策略：缺少输入/估计失败→fail；单成员组→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=246|template_id=TF12|ssc=none|output=csv|policy=warn_fail"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 local depvar = "__DEPVAR__"
@@ -61,6 +70,15 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 capture confirm variable `panelvar'
 if _rc {
     ss_fail_TF12 111 "confirm variable `panelvar'" "panel_var_missing"
+}
+tempvar _ss_n_i
+bysort `panelvar': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=mixed|msg=singleton_groups_present|severity=warn"
 }
 capture noisily mixed `depvar' `indepvars' || `panelvar':
 if _rc {

@@ -41,6 +41,17 @@ end
 
 display "SS_TASK_BEGIN|id=TF05|level=L1|title=System_GMM"
 display "SS_TASK_VERSION|version=2.0.1"
+* ==============================================================================
+* PHASE 5.6 REVIEW (Issue #246) / 最佳实践审查（阶段 5.6）
+* - Best practice: report AR(2) and Hansen p-values; be cautious about instrument proliferation. /
+*   最佳实践：关注 AR(2) 与 Hansen 的 p 值；警惕工具变量过度（instrument proliferation）。
+* - SSC deps: required:xtabond2 (system-GMM implementation) / SSC 依赖：必需 xtabond2（系统 GMM）
+* - Error policy: fail on missing inputs/xtset/estimation; warn on singleton groups /
+*   错误策略：缺少输入/xtset/估计失败→fail；单成员组→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=246|template_id=TF05|ssc=required:xtabond2|output=csv|policy=warn_fail"
+
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 capture which xtabond2
 if _rc {
@@ -77,6 +88,15 @@ if _rc {
 capture xtset `panelvar' `timevar'
 if _rc {
     ss_fail_TF05 `=_rc' "xtset `panelvar' `timevar'" "xtset_failed"
+}
+tempvar _ss_n_i
+bysort `panelvar': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=xtset|msg=singleton_groups_present|severity=warn"
 }
 capture noisily xtabond2 `depvar' L.`depvar' `indepvars', gmm(L.`depvar') iv(`indepvars') twostep robust
 if _rc {

@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "xtscc",
-      "purpose": "Driscoll-Kraay SE",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "xtreg (FE) with clustered SE fallback; optional xtscc for Driscoll-Kraay",
+      "source": "built-in"
     }
   ],
   "description": "Driscoll-Kraay standard errors for panel data",

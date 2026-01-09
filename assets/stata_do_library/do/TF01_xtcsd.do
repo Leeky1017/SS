@@ -41,6 +41,15 @@ end
 
 display "SS_TASK_BEGIN|id=TF01|level=L0|title=XTCSD"
 display "SS_TASK_VERSION|version=2.0.1"
+* ==============================================================================
+* PHASE 5.6 REVIEW (Issue #246) / 最佳实践审查（阶段 5.6）
+* - Best practice: Pesaran CD test after FE regression; interpret as evidence of cross-sectional dependence. /
+*   最佳实践：在 FE 回归后做 Pesaran CD 检验；显著通常提示截面相关。
+* - SSC deps: required:xtcsd (no safe built-in equivalent in this library) / SSC 依赖：必需 xtcsd（库内无等价内置替代）
+* - Error policy: fail on missing inputs/xtset/estimation; warn on singleton groups /
+*   错误策略：缺少输入/xtset/估计失败→fail；单成员组→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=246|template_id=TF01|ssc=required:xtcsd|output=csv|policy=warn_fail"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 capture which xtcsd
@@ -78,6 +87,15 @@ if _rc {
 capture xtset `panelvar' `timevar'
 if _rc {
     ss_fail_TF01 `=_rc' "xtset `panelvar' `timevar'" "xtset_failed"
+}
+tempvar _ss_n_i
+bysort `panelvar': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=xtset|msg=singleton_groups_present|severity=warn"
 }
 capture noisily xtreg `depvar' `indepvars', fe
 if _rc {
