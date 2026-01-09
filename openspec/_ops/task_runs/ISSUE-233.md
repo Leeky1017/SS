@@ -1,7 +1,7 @@
 # ISSUE-233
 - Issue: #233
 - Branch: task/233-upload-c001-c003
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/235
 
 ## Goal
 - Deliver UPLOAD-C001..C003: freeze v1 contract + object store port (fake for tests) + bundle endpoints (POST/GET).
@@ -77,5 +77,15 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - `openspec/_ops/task_runs/ISSUE-233.md`
+
+### 2026-01-09 18:55 pr opened + auto-merge
+- Command:
+  - `gh pr create --title "... (#233)" --body "Closes #233 ..."`
+  - `gh pr merge --auto --squash --delete-branch`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/235`
+  - `will be automatically merged via squash when all requirements are met`
 - Evidence:
   - `openspec/_ops/task_runs/ISSUE-233.md`
