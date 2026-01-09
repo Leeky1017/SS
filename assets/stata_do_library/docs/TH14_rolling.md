@@ -47,7 +47,7 @@ Rolling window regression
 
 | 包/命令 | 来源 | 用途 |
 |---------|------|------|
-| asreg | ssc | Rolling regression |
+| regress | built-in | Rolling regression (no SSC dependency) |
 
 ## 示例
 

@@ -1,12 +1,6 @@
 {
   "contract_version": "1.1",
-  "dependencies": [
-    {
-      "pkg": "asreg",
-      "purpose": "Rolling regression",
-      "source": "ssc"
-    }
-  ],
+  "dependencies": [],
   "description": "Rolling window regression",
   "family": "time_series",
   "id": "TH14",
