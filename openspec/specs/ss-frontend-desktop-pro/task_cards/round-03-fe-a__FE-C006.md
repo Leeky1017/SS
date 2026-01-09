@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: #N
+- Issue: #243
 - Spec: `openspec/specs/ss-frontend-desktop-pro/spec.md`
 - Related specs:
   - `openspec/specs/ss-api-surface/spec.md`
@@ -41,9 +41,16 @@
 
 ## Acceptance checklist
 
-- [ ] Job 状态页可查询并展示 `GET /v1/jobs/{job_id}` 的关键字段（含轮询/刷新）
-- [ ] Artifacts 列表可展示并下载至少一个文件（`/artifacts` + `/artifacts/{artifact_id:path}`）
-- [ ] artifacts 呈现与 `ss-job-contract` 对齐（kind + job-relative `rel_path` 的语义正确）
-- [ ] 错误态可恢复（清晰提示 + request id + 重试）
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-N.md` 记录关键命令与输出
+- [x] Job 状态页可查询并展示 `GET /v1/jobs/{job_id}` 的关键字段（含轮询/刷新）
+- [x] Artifacts 列表可展示并下载至少一个文件（`/artifacts` + `/artifacts/{artifact_id:path}`）
+- [x] artifacts 呈现与 `ss-job-contract` 对齐（kind + job-relative `rel_path` 的语义正确）
+- [x] 错误态可恢复（清晰提示 + request id + 重试）
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-243.md` 记录关键命令与输出
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/245
+- Status view：支持手动刷新 + 3s 轮询，展示 status/timestamps/draft/latest_run/artifacts summary
+- Artifacts：列表展示 kind/rel_path/meta，并通过 job-relative rel_path 下载（URL encoding）
+- 错误态统一展示结构化错误 + request id，并提供重试/重新兑换
+- Run log: `openspec/_ops/task_runs/ISSUE-243.md`

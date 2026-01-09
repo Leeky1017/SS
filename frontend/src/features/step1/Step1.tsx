@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ApiClient } from '../../api/client'
 import type { ApiError } from '../../api/errors'
+import { ErrorPanel } from '../../components/ErrorPanel'
 import { loadAppState, saveAppState, setAuthToken, setLastJobId } from '../../state/storage'
 
 type Step1Props = { api: ApiClient }
@@ -25,13 +26,6 @@ function tplText(id: 'ols' | 'diff'): string {
 
 function formError(message: string, requestId: string): ApiError {
   return { kind: 'http', status: null, message, requestId, details: null, action: 'retry' }
-}
-
-function errorTitle(error: ApiError): string {
-  if (error.kind === 'unauthorized' || error.kind === 'forbidden') {
-    return '未授权'
-  }
-  return '请求失败'
 }
 
 type Step1SubmitResult = { ok: true; jobId: string; token: string | null } | { ok: false; error: ApiError }
@@ -119,21 +113,6 @@ function DevHintPanel(props: { hint: string | null }) {
     <div className="panel">
       <div className="panel-body">
         <div className="inline-hint">{props.hint}</div>
-      </div>
-    </div>
-  )
-}
-
-function ErrorPanel(props: { error: ApiError | null }) {
-  if (props.error === null) return null
-  return (
-    <div className="panel error-panel">
-      <div className="panel-body">
-        <div style={{ fontWeight: 600, marginBottom: 6 }}>{errorTitle(props.error)}</div>
-        <div style={{ color: 'var(--text-dim)' }}>{props.error.message}</div>
-        <div className="mono" style={{ marginTop: 10, color: 'var(--text-muted)' }}>
-          request_id: {props.error.requestId}
-        </div>
       </div>
     </div>
   )

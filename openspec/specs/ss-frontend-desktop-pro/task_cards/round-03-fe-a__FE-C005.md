@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: #N
+- Issue: #243
 - Spec: `openspec/specs/ss-frontend-desktop-pro/spec.md`
 - Related specs:
   - `openspec/specs/frontend-stata-proxy-extension/spec.md`
@@ -51,9 +51,17 @@ Step 3 是“专业确认”的关键路径：用户需要在确认前完成变�
 
 ## Acceptance checklist
 
-- [ ] Step 3 UI 复刻 Desktop Pro primitives（`panel/section-label/btn/data-table/mono` + CSS 变量语义一致）
-- [ ] 能调用并渲染 `GET /v1/jobs/{job_id}/draft/preview` 的结果（含错误态可恢复）
-- [ ] 实现 `frontend-stata-proxy-extension` 的交互要点，并且降级策略符合本卡 In scope 的明确规则
-- [ ] confirm 成功后 Step 3 进入锁定只读态（banner 可见、输入禁用、避免重复编辑）
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-N.md` 记录关键命令与输出
+- [x] Step 3 UI 复刻 Desktop Pro primitives（`panel/section-label/btn/data-table/mono` + CSS 变量语义一致）
+- [x] 能调用并渲染 `GET /v1/jobs/{job_id}/draft/preview` 的结果（含错误态可恢复）
+- [x] 实现 `frontend-stata-proxy-extension` 的交互要点，并且降级策略符合本卡 In scope 的明确规则
+- [x] confirm 成功后 Step 3 进入锁定只读态（banner 可见、输入禁用、避免重复编辑）
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-243.md` 记录关键命令与输出
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/245
+- Draft preview：支持 202 pending（自动重试）与 200 ready 渲染
+- 变量纠偏：dropdown candidates（draft candidates → variable_types → inputs preview columns）+ clear
+- 澄清门控：stage1 questions / open_unknowns 缺失则隐藏不阻断；patch 不可用（404/501）则降级为提示
+- confirm 成功后进入锁定只读态，并跳转到状态页
+- Run log: `openspec/_ops/task_runs/ISSUE-243.md`

@@ -1,14 +1,17 @@
 import { useMemo } from 'react'
 import { ApiClient } from './api/client'
 import { Step1 } from './features/step1/Step1'
-import { Step2Placeholder } from './features/step2/Step2Placeholder'
+import { Step2 } from './features/step2/Step2'
+import { Step3 } from './features/step3/Step3'
+import { Status } from './features/status/Status'
 import { useTheme } from './state/theme'
-import { loadAppState } from './state/storage'
+import { loadAppState, saveAppState } from './state/storage'
 
 function App() {
   const { theme, toggleTheme } = useTheme()
   const state = loadAppState()
   const api = useMemo(() => new ApiClient(), [])
+  const isStatusView = state.view === 'status'
 
   return (
     <div className="app-container">
@@ -19,10 +22,25 @@ function App() {
         </div>
         <div className="tabs-container">
           <div className="tabs">
-            <button className="tab active" type="button">
+            <button
+              className={`tab${!isStatusView ? ' active' : ''}`}
+              type="button"
+              onClick={() => {
+                const next = state.jobId !== null ? 'step2' : 'step1'
+                saveAppState({ view: next })
+                window.location.reload()
+              }}
+            >
               分析任务
             </button>
-            <button className="tab" type="button" disabled>
+            <button
+              className={`tab${isStatusView ? ' active' : ''}`}
+              type="button"
+              onClick={() => {
+                saveAppState({ view: 'status' })
+                window.location.reload()
+              }}
+            >
               执行查询
             </button>
           </div>
@@ -48,7 +66,17 @@ function App() {
         </div>
       </header>
 
-      <main>{state.view === 'step2' ? <Step2Placeholder api={api} /> : <Step1 api={api} />}</main>
+      <main>
+        {state.view === 'status' ? (
+          <Status api={api} />
+        ) : state.view === 'step2' ? (
+          <Step2 api={api} />
+        ) : state.view === 'step3' ? (
+          <Step3 api={api} />
+        ) : (
+          <Step1 api={api} />
+        )}
+      </main>
     </div>
   )
 }
