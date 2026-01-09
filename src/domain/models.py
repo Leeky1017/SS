@@ -142,7 +142,9 @@ class JobConfirmation(BaseModel):
     requirement: str | None = None
     notes: str | None = None
     variable_corrections: dict[str, str] = Field(default_factory=dict)
+    answers: dict[str, JsonValue] = Field(default_factory=dict)
     default_overrides: dict[str, JsonValue] = Field(default_factory=dict)
+    expert_suggestions_feedback: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class PlanStepType(str, Enum):

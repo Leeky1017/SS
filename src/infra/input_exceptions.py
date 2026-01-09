@@ -110,3 +110,12 @@ class InputStorageFailedError(SSError):
             message=f"failed to store input: {job_id}:{rel_path}",
             status_code=500,
         )
+
+
+class InputMainDataSourceNotFoundError(SSError):
+    def __init__(self, *, main_data_source_id: str) -> None:
+        super().__init__(
+            error_code="INPUT_MAIN_DATA_SOURCE_NOT_FOUND",
+            message=f"main_data_source_id not found: {main_data_source_id}",
+            status_code=400,
+        )

@@ -1,44 +1,24 @@
 from __future__ import annotations
 
 import logging
-import secrets
-from dataclasses import dataclass
 from typing import cast
 
-from src.domain.audit import AuditContext, AuditEvent, AuditLogger, NoopAuditLogger
+from src.domain.audit import AuditContext, AuditLogger, NoopAuditLogger
 from src.domain.idempotency import JobIdempotency
+from src.domain.job_confirm_validation import validate_confirm_not_blocked
+from src.domain.job_plan_freeze import freeze_plan_for_run
 from src.domain.job_store import JobStore
+from src.domain.job_support import JobScheduler, emit_job_audit, new_trace_id
 from src.domain.metrics import NoopMetrics, RuntimeMetrics
-from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobConfirmation, JobInputs, JobStatus
+from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobInputs, JobStatus
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
-from src.domain.variable_corrections import (
-    apply_variable_corrections_dict_values,
-    clean_variable_corrections,
-)
 from src.infra.exceptions import JobAlreadyExistsError
 from src.utils.json_types import JsonObject, JsonValue
 from src.utils.tenancy import DEFAULT_TENANT_ID
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
-
-
-def _new_trace_id() -> str:
-    return secrets.token_hex(16)
-
-
-class JobScheduler:
-    def schedule(self, *, job: Job) -> None:
-        raise NotImplementedError
-
-
-@dataclass(frozen=True)
-class NoopJobScheduler(JobScheduler):
-    """Placeholder scheduler: records schedule intent only."""
-
-    def schedule(self, *, job: Job) -> None:
-        return None
 
 
 class JobService:
@@ -66,31 +46,6 @@ class JobService:
         self._audit_context = (
             AuditContext.system(actor_id="unknown") if audit_context is None else audit_context
         )
-
-    def _emit_audit(
-        self,
-        *,
-        action: str,
-        tenant_id: str,
-        job_id: str,
-        result: str,
-        changes: JsonObject | None = None,
-        metadata: JsonObject | None = None,
-    ) -> None:
-        final_meta: JsonObject = {"tenant_id": tenant_id}
-        if metadata is not None:
-            final_meta.update(metadata)
-        event = AuditEvent(
-            action=action,
-            result=result,
-            resource_type="job",
-            resource_id=job_id,
-            job_id=job_id,
-            context=self._audit_context,
-            changes=changes,
-            metadata=final_meta,
-        )
-        self._audit.emit(event=event)
 
     def create_job(
         self,
@@ -123,7 +78,9 @@ class JobService:
             extra={"tenant_id": tenant_id, "job_id": job_id, "idempotency_key": idempotency_key},
         )
         self._metrics.record_job_created()
-        self._emit_audit(
+        emit_job_audit(
+            audit=self._audit,
+            audit_context=self._audit_context,
             action="job.create",
             tenant_id=tenant_id,
             job_id=job_id,
@@ -141,7 +98,9 @@ class JobService:
         confirmed: bool,
         notes: str | None = None,
         variable_corrections: dict[str, str] | None = None,
+        answers: dict[str, JsonValue] | None = None,
         default_overrides: dict[str, JsonValue] | None = None,
+        expert_suggestions_feedback: dict[str, JsonValue] | None = None,
     ) -> Job:
         if not confirmed:
             job = self._store.load(tenant_id=tenant_id, job_id=job_id)
@@ -149,7 +108,9 @@ class JobService:
                 "SS_JOB_CONFIRM_SKIPPED",
                 extra={"tenant_id": tenant_id, "job_id": job_id, "status": job.status.value},
             )
-            self._emit_audit(
+            emit_job_audit(
+                audit=self._audit,
+                audit_context=self._audit_context,
                 action="job.confirm",
                 tenant_id=tenant_id,
                 job_id=job_id,
@@ -158,18 +119,28 @@ class JobService:
                 metadata={"confirmed": False},
             )
             return job
+        validate_confirm_not_blocked(
+            store=self._store,
+            tenant_id=tenant_id,
+            job_id=job_id,
+            answers=answers,
+        )
         updated = self.trigger_run(
             tenant_id=tenant_id,
             job_id=job_id,
             notes=notes,
             variable_corrections=variable_corrections,
+            answers=answers,
             default_overrides=default_overrides,
+            expert_suggestions_feedback=expert_suggestions_feedback,
         )
         logger.info(
             "SS_JOB_CONFIRMED",
             extra={"tenant_id": tenant_id, "job_id": job_id, "status": updated.status.value},
         )
-        self._emit_audit(
+        emit_job_audit(
+            audit=self._audit,
+            audit_context=self._audit_context,
             action="job.confirm",
             tenant_id=tenant_id,
             job_id=job_id,
@@ -186,7 +157,9 @@ class JobService:
         job_id: str,
         notes: str | None = None,
         variable_corrections: dict[str, str] | None = None,
+        answers: dict[str, JsonValue] | None = None,
         default_overrides: dict[str, JsonValue] | None = None,
+        expert_suggestions_feedback: dict[str, JsonValue] | None = None,
     ) -> Job:
         job = self._store.load(tenant_id=tenant_id, job_id=job_id)
         if job.status in {
@@ -201,12 +174,15 @@ class JobService:
             from_status=job.status,
             to_status=JobStatus.CONFIRMED,
         )
-        self._freeze_plan_for_run(
+        freeze_plan_for_run(
+            plan_service=self._plan_service,
             tenant_id=tenant_id,
             job_id=job_id,
             notes=notes,
             variable_corrections=variable_corrections,
             default_overrides=default_overrides,
+            answers=answers,
+            expert_suggestions_feedback=expert_suggestions_feedback,
         )
         job = self._store.load(tenant_id=tenant_id, job_id=job_id)
         return self._queue_run(job=job, tenant_id=tenant_id)
@@ -224,7 +200,7 @@ class JobService:
             schema_version=JOB_SCHEMA_VERSION_CURRENT,
             tenant_id=tenant_id,
             job_id=job_id,
-            trace_id=_new_trace_id(),
+            trace_id=new_trace_id(),
             status=JobStatus.CREATED,
             requirement=requirement,
             created_at=utc_now().isoformat(),
@@ -243,7 +219,9 @@ class JobService:
             "SS_JOB_CREATE_IDEMPOTENT_HIT",
             extra={"tenant_id": tenant_id, "job_id": job_id, "idempotency_key": idempotency_key},
         )
-        self._emit_audit(
+        emit_job_audit(
+            audit=self._audit,
+            audit_context=self._audit_context,
             action="job.create",
             tenant_id=tenant_id,
             job_id=job_id,
@@ -258,7 +236,9 @@ class JobService:
             "SS_JOB_RUN_IDEMPOTENT",
             extra={"tenant_id": tenant_id, "job_id": job.job_id, "status": job.status.value},
         )
-        self._emit_audit(
+        emit_job_audit(
+            audit=self._audit,
+            audit_context=self._audit_context,
             action="job.run.trigger",
             tenant_id=tenant_id,
             job_id=job.job_id,
@@ -266,36 +246,6 @@ class JobService:
             changes={"status": job.status.value},
         )
         return job
-
-    def _freeze_plan_for_run(
-        self,
-        *,
-        tenant_id: str,
-        job_id: str,
-        notes: str | None,
-        variable_corrections: dict[str, str] | None,
-        default_overrides: dict[str, JsonValue] | None,
-    ) -> None:
-        if variable_corrections is None:
-            cleaned: dict[str, str] = {}
-        else:
-            cleaned = clean_variable_corrections(variable_corrections)
-        overrides: dict[str, JsonValue]
-        if default_overrides is None:
-            overrides = {}
-        else:
-            overrides = dict(default_overrides)
-        if len(cleaned) > 0 and len(overrides) > 0:
-            overrides = apply_variable_corrections_dict_values(overrides, cleaned)
-        self._plan_service.freeze_plan(
-            tenant_id=tenant_id,
-            job_id=job_id,
-            confirmation=JobConfirmation(
-                notes=notes,
-                variable_corrections=cleaned,
-                default_overrides=overrides,
-            ),
-        )
 
     def _queue_run(self, *, job: Job, tenant_id: str) -> Job:
         transitions: list[JsonObject] = []
@@ -326,7 +276,9 @@ class JobService:
             "SS_JOB_RUN_QUEUED",
             extra={"tenant_id": tenant_id, "job_id": job.job_id, "status": job.status.value},
         )
-        self._emit_audit(
+        emit_job_audit(
+            audit=self._audit,
+            audit_context=self._audit_context,
             action="job.run.trigger",
             tenant_id=tenant_id,
             job_id=job.job_id,

@@ -64,6 +64,25 @@ def test_plan_id_changes_when_confirmation_payload_changes(
         )
 
 
+def test_plan_id_changes_when_answers_change_raises_plan_already_frozen_error(
+    job_service,
+    draft_service,
+    plan_service,
+) -> None:
+    job = job_service.create_job(requirement="need a descriptive analysis")
+    asyncio.run(draft_service.preview(job_id=job.job_id))
+
+    plan_service.freeze_plan(
+        job_id=job.job_id,
+        confirmation=JobConfirmation(answers={"analysis_goal": "descriptive"}),
+    )
+    with pytest.raises(PlanAlreadyFrozenError):
+        plan_service.freeze_plan(
+            job_id=job.job_id,
+            confirmation=JobConfirmation(answers={"analysis_goal": "causal"}),
+        )
+
+
 @pytest.mark.anyio
 async def test_confirm_job_with_variable_corrections_rewrites_effective_dofile_tokens(
     journey_client,
@@ -146,4 +165,3 @@ async def test_confirm_job_when_column_missing_returns_contract_column_not_found
     got = await journey_client.get(f"/v1/jobs/{job_id}")
     assert got.status_code == 200
     assert got.json()["status"] != "queued"
-

@@ -2,22 +2,26 @@ from __future__ import annotations
 
 import json
 from collections.abc import AsyncIterator, Callable, Iterator
+from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
 import pytest
 from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 from src.api import deps
 from src.domain.artifacts_service import ArtifactsService
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
+from src.domain.job_inputs_service import JobInputsService
 from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobService
 from src.domain.llm_client import StubLLMClient
 from src.domain.models import JobInputs
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
+from src.domain.task_code_redeem_service import TaskCodeRedeemService
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
@@ -146,6 +150,22 @@ def journey_job_query_service(journey_store: JobStore) -> JobQueryService:
 
 
 @pytest.fixture
+def journey_job_inputs_service(journey_store: JobStore, journey_jobs_dir: Path) -> JobInputsService:
+    return JobInputsService(
+        store=journey_store,
+        workspace=FileJobWorkspaceStore(jobs_dir=journey_jobs_dir),
+    )
+
+
+@pytest.fixture
+def journey_task_code_redeem_service(journey_store: JobStore) -> TaskCodeRedeemService:
+    return TaskCodeRedeemService(
+        store=journey_store,
+        now=lambda: datetime(2099, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+    )
+
+
+@pytest.fixture
 def journey_attach_sample_inputs(
     journey_store: JobStore,
     journey_jobs_dir: Path,
@@ -191,17 +211,33 @@ def journey_app(
     journey_artifacts_service: ArtifactsService,
     journey_plan_service: PlanService,
     journey_job_query_service: JobQueryService,
+    journey_job_inputs_service: JobInputsService,
+    journey_task_code_redeem_service: TaskCodeRedeemService,
+    journey_store: JobStore,
 ) -> Iterator[FastAPI]:
     app = create_app()
+    app.dependency_overrides[deps.get_job_store] = async_override(journey_store)
     app.dependency_overrides[deps.get_job_service] = async_override(journey_job_service)
+    app.dependency_overrides[deps.get_job_inputs_service] = async_override(
+        journey_job_inputs_service
+    )
     app.dependency_overrides[deps.get_job_query_service] = async_override(journey_job_query_service)
     app.dependency_overrides[deps.get_draft_service] = async_override(journey_draft_service)
     app.dependency_overrides[deps.get_artifacts_service] = async_override(journey_artifacts_service)
     app.dependency_overrides[deps.get_plan_service] = async_override(journey_plan_service)
+    app.dependency_overrides[deps.get_task_code_redeem_service] = async_override(
+        journey_task_code_redeem_service
+    )
     yield app
 
 
 @pytest.fixture
 async def journey_client(journey_app: FastAPI) -> AsyncIterator[httpx.AsyncClient]:
     async with asgi_client(app=journey_app) as client:
+        yield client
+
+
+@pytest.fixture
+def journey_test_client(journey_app: FastAPI) -> Iterator[TestClient]:
+    with TestClient(journey_app) as client:
         yield client

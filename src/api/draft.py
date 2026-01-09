@@ -1,28 +1,67 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends, Query, Response
 
 from src.api.deps import get_draft_service, get_tenant_id
-from src.api.schemas import DraftPreviewDataSource, DraftPreviewResponse, InputsPreviewColumn
+from src.api.schemas import (
+    DraftPatchRequest,
+    DraftPatchResponse,
+    DraftPreviewDataSource,
+    DraftPreviewPendingResponse,
+    DraftPreviewResponse,
+    InputsPreviewColumn,
+)
 from src.domain.draft_service import DraftService
+from src.infra.input_exceptions import InputMainDataSourceNotFoundError
 
 router = APIRouter(tags=["draft"])
 
 
-@router.get("/jobs/{job_id}/draft/preview", response_model=DraftPreviewResponse)
+@router.get(
+    "/jobs/{job_id}/draft/preview",
+    response_model=DraftPreviewResponse | DraftPreviewPendingResponse,
+)
 async def draft_preview(
     job_id: str,
+    response: Response,
+    main_data_source_id: str | None = Query(default=None),
     tenant_id: str = Depends(get_tenant_id),
     svc: DraftService = Depends(get_draft_service),
-) -> DraftPreviewResponse:
-    draft = await svc.preview(tenant_id=tenant_id, job_id=job_id)
+) -> DraftPreviewResponse | DraftPreviewPendingResponse:
+    result = await svc.preview_v1(tenant_id=tenant_id, job_id=job_id)
+    if result.pending is not None:
+        if main_data_source_id is not None:
+            raise InputMainDataSourceNotFoundError(main_data_source_id=main_data_source_id)
+        response.status_code = 202
+        return DraftPreviewPendingResponse(
+            message=result.pending.message,
+            retry_after_seconds=result.pending.retry_after_seconds,
+            retry_until=result.pending.retry_until,
+        )
+
+    draft = result.draft
+    assert draft is not None
+    draft_dump = draft.model_dump(mode="json")
+
+    if main_data_source_id is not None:
+        known = {item.dataset_key for item in draft.data_sources}
+        if main_data_source_id not in known:
+            raise InputMainDataSourceNotFoundError(main_data_source_id=main_data_source_id)
+
     return DraftPreviewResponse(
         job_id=job_id,
         draft_text=draft.text,
+        draft_id=str(draft_dump.get("draft_id", "")),
+        decision=str(draft_dump.get("decision", "require_confirm")),
+        risk_score=float(draft_dump.get("risk_score", 0.0)),
+        status=str(draft_dump.get("status", "ready")),
         outcome_var=draft.outcome_var,
         treatment_var=draft.treatment_var,
         controls=list(draft.controls),
         column_candidates=list(draft.column_candidates),
+        data_quality_warnings=list(draft_dump.get("data_quality_warnings", [])),
+        stage1_questions=list(draft_dump.get("stage1_questions", [])),
+        open_unknowns=list(draft_dump.get("open_unknowns", [])),
         variable_types=[
             InputsPreviewColumn(name=item.name, inferred_type=item.inferred_type)
             for item in draft.variable_types
@@ -37,4 +76,25 @@ async def draft_preview(
             for item in draft.data_sources
         ],
         default_overrides=dict(draft.default_overrides),
+    )
+
+
+@router.post("/jobs/{job_id}/draft/patch", response_model=DraftPatchResponse)
+async def draft_patch(
+    job_id: str,
+    payload: DraftPatchRequest = Body(default_factory=DraftPatchRequest),
+    tenant_id: str = Depends(get_tenant_id),
+    svc: DraftService = Depends(get_draft_service),
+) -> DraftPatchResponse:
+    patched = svc.patch_v1(tenant_id=tenant_id, job_id=job_id, field_updates=payload.field_updates)
+    draft_dump = patched.draft.model_dump(mode="json")
+    return DraftPatchResponse(
+        patched_fields=list(patched.patched_fields),
+        remaining_unknowns_count=patched.remaining_unknowns_count,
+        open_unknowns=list(draft_dump.get("open_unknowns", [])),
+        draft_preview={
+            "outcome_var": patched.draft.outcome_var,
+            "treatment_var": patched.draft.treatment_var,
+            "controls": list(patched.draft.controls),
+        },
     )

@@ -6,7 +6,8 @@ import pytest
 
 from src.domain.audit import AuditContext, AuditEvent, AuditLogger
 from src.domain.idempotency import JobIdempotency
-from src.domain.job_service import JobService, NoopJobScheduler
+from src.domain.job_service import JobService
+from src.domain.job_support import NoopJobScheduler
 from src.domain.models import JobStatus
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobIllegalTransitionError, JobStateMachine
