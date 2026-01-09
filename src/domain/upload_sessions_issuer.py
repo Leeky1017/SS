@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import math
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import cast
 
 from src.config import Config
@@ -131,7 +131,7 @@ class UploadSessionIssuer:
             actual_size_bytes=int(size_bytes),
         )
 
-    def _assert_session_limit(self, *, tenant_id: str, job_id: str, now) -> None:
+    def _assert_session_limit(self, *, tenant_id: str, job_id: str, now: datetime) -> None:
         active = self._sessions.count_active_sessions(tenant_id=tenant_id, job_id=job_id, now=now)
         if active < int(self._config.upload_max_sessions_per_job):
             return

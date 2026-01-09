@@ -3,6 +3,7 @@ from __future__ import annotations
 import fcntl
 import json
 import logging
+from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
@@ -29,7 +30,7 @@ class FileUploadSessionStore(UploadSessionStore):
         self._jobs_dir = Path(jobs_dir)
 
     @contextmanager
-    def lock_job(self, *, tenant_id: str = DEFAULT_TENANT_ID, job_id: str):
+    def lock_job(self, *, tenant_id: str = DEFAULT_TENANT_ID, job_id: str) -> Iterator[None]:
         job_dir = resolve_job_dir(jobs_dir=self._jobs_dir, tenant_id=tenant_id, job_id=job_id)
         if job_dir is None or not (job_dir / "job.json").exists():
             raise JobNotFoundError(job_id=job_id)

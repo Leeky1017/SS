@@ -7,7 +7,12 @@ from datetime import datetime
 from typing import cast
 
 from src.config import Config
-from src.domain.inputs_manifest import MANIFEST_REL_PATH, inputs_fingerprint, prepare_dataset
+from src.domain.inputs_manifest import (
+    MANIFEST_REL_PATH,
+    PreparedDataset,
+    inputs_fingerprint,
+    prepare_dataset,
+)
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.object_store import CompletedPart, ObjectStore
@@ -300,7 +305,13 @@ class UploadSessionFinalizer:
         )
         return finalized, replace(session, finalized=finalized)
 
-    def _prepare_dataset(self, *, session: UploadSessionRecord, data: bytes, uploaded_at: str):
+    def _prepare_dataset(
+        self,
+        *,
+        session: UploadSessionRecord,
+        data: bytes,
+        uploaded_at: str,
+    ) -> PreparedDataset:
         return prepare_dataset(
             data=data,
             original_name=session.original_name,
@@ -330,7 +341,7 @@ class UploadSessionFinalizer:
         *,
         tenant_id: str,
         job_id: str,
-        dataset,
+        dataset: PreparedDataset,
     ) -> str:
         manifest = load_or_init_manifest(
             workspace=self._workspace,

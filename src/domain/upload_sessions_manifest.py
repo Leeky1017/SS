@@ -5,7 +5,7 @@ from typing import cast
 from src.domain.inputs_manifest import MANIFEST_REL_PATH, PreparedDataset, read_manifest_json
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
-from src.domain.models import ArtifactKind, ArtifactRef, JobInputs
+from src.domain.models import ArtifactKind, ArtifactRef, Job, JobInputs
 from src.infra.upload_session_exceptions import UploadPartsInvalidError
 from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID
@@ -69,7 +69,7 @@ def update_job_inputs(
     store.save(tenant_id=tenant_id, job=job)
 
 
-def index_inputs_artifacts(*, job, dataset_rel_path: str) -> None:
+def index_inputs_artifacts(*, job: Job, dataset_rel_path: str) -> None:
     known = {(ref.kind, ref.rel_path) for ref in job.artifacts_index}
     manifest_ref = ArtifactRef(kind=ArtifactKind.INPUTS_MANIFEST, rel_path=MANIFEST_REL_PATH)
     key = (manifest_ref.kind, manifest_ref.rel_path)
@@ -89,7 +89,7 @@ def _manifest_datasets_list(*, manifest: JsonObject) -> list[JsonObject]:
     parsed: list[JsonObject] = []
     for item in datasets_obj:
         if isinstance(item, dict):
-            parsed.append(cast(JsonObject, item))
+            parsed.append(item)
     return parsed
 
 
@@ -155,4 +155,3 @@ def _prepared_dataset_from_item(*, item: JsonObject) -> PreparedDataset | None:
         content_type=None if content_type is None else str(content_type),
         data=b"",
     )
-

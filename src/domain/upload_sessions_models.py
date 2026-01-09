@@ -50,7 +50,7 @@ def _optional_finalize(
         raise UploadSessionCorruptedError(upload_session_id=upload_session_id)
     return FinalizeSuccessPayload.from_payload(
         upload_session_id=upload_session_id,
-        payload=cast(JsonObject, finalize_obj),
+        payload=finalize_obj,
     )
 
 
