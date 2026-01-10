@@ -22,3 +22,7 @@
 - Command: `pytest -q`
 - Key output: `179 passed, 5 skipped in 8.40s`
 - Evidence: `tests/test_worker_service_pre_run_errors.py::test_worker_service_when_dependency_missing_writes_structured_error_and_retry_succeeds`
+
+### 2026-01-10 ci-fix verification
+- Command: `mypy`
+- Key output: `Success: no issues found in 160 source files`

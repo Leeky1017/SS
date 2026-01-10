@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Sequence, cast
+from typing import Sequence
 
 from src.domain.models import ArtifactKind, ArtifactRef
 from src.domain.stata_runner import RunError, RunResult
@@ -74,7 +74,7 @@ def meta_payload(
         }
         if execution.error.details is not None:
             error_payload["details"] = execution.error.details
-        payload["error"] = cast(JsonObject, error_payload)
+        payload["error"] = error_payload
     return payload
 
 
@@ -114,7 +114,7 @@ def write_run_artifacts(
         }
         if error.details is not None:
             payload["details"] = error.details
-        write_json(error_path, cast(JsonObject, payload))
+        write_json(error_path, payload)
     return stdout_path, stderr_path, log_path, meta_path, error_path
 
 
