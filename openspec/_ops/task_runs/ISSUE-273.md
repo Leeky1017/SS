@@ -7,10 +7,9 @@
 - Audit TM01–TM15 templates: Stata 18 harness 0 fail, anchors `SS_EVENT|k=v`, unified style.
 
 ## Status
-- CURRENT: PR #276 is open; next enable auto-merge and watch required checks.
+- CURRENT: Auto-merge is enabled for PR #276; waiting for required checks/merge queue.
 
 ## Next Actions
-- [ ] Enable auto-merge on PR #276
 - [ ] Watch checks until merged
 
 ## Decisions Made
@@ -73,3 +72,8 @@
 - Command: `gh pr create --title \"chore: audit TM01–TM15 templates (#273)\" --body \"Closes #273 ...\"`
 - Key output: `https://github.com/Leeky1017/SS/pull/276`
 - Evidence: PR body + run log
+
+### 2026-01-10 10:21 Enable auto-merge
+- Command: `gh pr merge 276 --auto --squash`
+- Key output: `will be automatically merged via squash when all requirements are met`
+- Evidence: PR timeline
