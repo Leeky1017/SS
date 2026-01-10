@@ -1,7 +1,7 @@
 # ISSUE-334
 - Issue: #334
 - Branch: task/334-deploy-minio-r002
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/335 (assets), https://github.com/Leeky1017/SS/pull/336 (closeout)
 
 ## Plan
 - Add reusable `docker-compose` assets (MinIO + SS + bucket init).
@@ -33,3 +33,13 @@
 - Command: `openspec validate --specs --strict --no-interactive`
 - Key output: `Totals: 28 passed, 0 failed (28 items)`
 - Evidence: `openspec/specs/ss-deployment-docker-minio/assets/docker-compose.yml`
+
+### 2026-01-10 pr + merge
+- Command: `scripts/agent_pr_preflight.sh && gh pr create ... && gh pr merge --auto --squash && gh pr checks --watch`
+- Key output: `PR 335 merged; checks ci/openspec-log-guard/merge-serial all successful`
+- Evidence: https://github.com/Leeky1017/SS/pull/335
+
+### 2026-01-10 closeout + rulebook archive
+- Command: `git mv rulebook/tasks/issue-334-deploy-minio-r002 rulebook/tasks/archive/2026-01-10-issue-334-deploy-minio-r002`
+- Key output: `task card completion added; rulebook task archived`
+- Evidence: https://github.com/Leeky1017/SS/pull/336
