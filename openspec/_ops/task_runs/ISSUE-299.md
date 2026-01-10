@@ -1,20 +1,20 @@
 # ISSUE-299
 - Issue: #299 https://github.com/Leeky1017/SS/issues/299
 - Branch: task/299-prod-e2e-r010
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/309
 
 ## Goal
 - Wire `assets/stata_do_library/**` into the production `/v1` plan+run chain via explicit DI, using `SS_DO_TEMPLATE_LIBRARY_DIR` (from `src/config.py`) as the single library path source.
 
 ## Status
-- CURRENT: Created Issue + worktree; implementing do-template DI wiring + unit tests.
+- CURRENT: PR opened; enabling auto-merge and watching required checks.
 
 ## Next Actions
-- [ ] Implement DI wiring (API deps + worker assembly).
-- [ ] Add unit tests for filesystem catalog/repository.
-- [ ] Run `ruff check .` and `pytest -q`.
-- [ ] Run `scripts/agent_pr_preflight.sh`.
-- [ ] Open PR and update `PR:`.
+- [x] Implement DI wiring (API deps + worker assembly).
+- [x] Add unit tests for filesystem catalog/repository.
+- [x] Run `ruff check .` and `pytest -q`.
+- [x] Run `scripts/agent_pr_preflight.sh`.
+- [x] Open PR and update `PR:`.
 - [ ] Enable auto-merge; verify PR is `MERGED`.
 - [ ] Sync controlplane `main` and cleanup worktree.
 
