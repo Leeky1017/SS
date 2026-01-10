@@ -10,11 +10,11 @@
 | **Name(EN)** | Cure Model |
 | **家族** | survival |
 | **等级** | L2 |
-| **版本** | 2.0.0 |
+| **版本** | 2.0.2 |
 
 ## 功能描述
 
-Mixture cure survival model
+Mixture cure survival model (built-in approximation)
 
 ## 使用场景
 
@@ -44,9 +44,7 @@ Mixture cure survival model
 
 ## 依赖
 
-| 包/命令 | 来源 | 用途 |
-|---------|------|------|
-| stcure | ssc | Cure model estimation |
+无（仅依赖 Stata 内置命令）
 
 ## 示例
 

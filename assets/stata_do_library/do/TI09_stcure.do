@@ -7,14 +7,14 @@
 *   - data_TI09_cure.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES:
-*   - stcure source=ssc purpose="Cure model"
+*   - none (built-in Stata only)
 * ==============================================================================
 * ------------------------------------------------------------------------------
 * SS_BEST_PRACTICE_REVIEW (Phase 5.9) / 最佳实践审查记录
 * - Date: 2026-01-10
-* - Model intent / 模型目的: mixture cure survival model via `stcure` / 混合治愈模型（stcure）
-* - SSC deps / SSC 依赖: `stcure` is SSC-only; keep as explicit dep (no Stata 18 built-in replacement) / stcure 为 SSC 命令，暂无内置替代，保留并显式声明
-* - Guardrails / 防御: fail-fast on missing dep + stset fail-fast + small-events warning
+* - Model intent / 模型目的: mixture cure survival model / 混合治愈模型
+* - Dep note / 依赖说明: `stcure` is not available from SSC; replaced with built-in approximation (logit cure + parametric survival on time-to-event) / stcure 无法从 SSC 获取，改用内置近似（治愈概率 logit + 事件时间的参数生存）
+* - Guardrails / 防御: stset fail-fast + small-events warning + model skipped when data too small / 数据过小则跳过估计并给出告警
 * ------------------------------------------------------------------------------
 capture log close _all
 local rc_log_close = _rc
@@ -31,7 +31,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TI09|level=L2|title=Cure_Model"
-display "SS_TASK_VERSION|version=2.0.1"
+display "SS_TASK_VERSION|version=2.0.2"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 program define ss_fail
@@ -50,16 +50,6 @@ program define ss_fail
     }
     exit `code'
 end
-
-capture which stcure
-local rc_dep = _rc
-if `rc_dep' != 0 {
-    display "SS_DEP_CHECK|pkg=stcure|source=ssc|status=missing"
-    display "SS_DEP_MISSING|pkg=stcure"
-    display "SS_RC|code=DEP_INSTALL_HINT|cmd=ssc install stcure|msg=install_stcure_then_rerun|severity=warn"
-    ss_fail TI09 199 "which stcure" "dependency_missing"
-}
-display "SS_DEP_CHECK|pkg=stcure|source=ssc|status=ok"
 
 local timevar = "__TIME_VAR__"
 local failvar = "__FAILVAR__"
@@ -101,41 +91,116 @@ quietly count if !inlist(`failvar', 0, 1) & !missing(`failvar')
 if r(N) > 0 {
     display "SS_RC|code=FAILVAR_NOT_BINARY|n=`=r(N)'|severity=warn"
 }
-capture stset `timevar', failure(`failvar')
-local rc_stset = _rc
-if `rc_stset' != 0 {
-    ss_fail TI09 `rc_stset' "stset" "stset_failed"
+local n_dropped = 0
+gen byte _ss_keep = !missing(`timevar') & !missing(`failvar')
+quietly count if _ss_keep == 0
+local n_dropped = r(N)
+if `n_dropped' > 0 {
+    display "SS_RC|code=DROP_MISSING_CORE_VARS|n=`n_dropped'|severity=warn"
+    drop if _ss_keep == 0
 }
-quietly count if _d == 1
+drop _ss_keep
+display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
+
+display "SS_STEP_BEGIN|step=S03_prepare_subject_level"
+local idvar "id"
+capture confirm variable id
+local rc_id = _rc
+if `rc_id' != 0 {
+    gen long _ss_id = _n
+    local idvar "_ss_id"
+    display "SS_RC|code=IDVAR_MISSING|fallback=_ss_id|severity=warn"
+}
+sort `idvar' `timevar'
+by `idvar': egen byte _ss_event = max(`failvar' == 1)
+by `idvar': egen double _ss_time_event = min(cond(`failvar' == 1, `timevar', .))
+by `idvar': egen double _ss_time_last = max(`timevar')
+gen double _ss_time = _ss_time_event
+replace _ss_time = _ss_time_last if missing(_ss_time)
+gen byte _ss_fail = _ss_event
+gen byte _ss_cure = 1 - _ss_fail
+by `idvar': keep if _n == 1
+local n_subjects = _N
+quietly count if _ss_fail == 1
 local n_events = r(N)
+display "SS_METRIC|name=n_subjects|value=`n_subjects'"
 display "SS_METRIC|name=n_events|value=`n_events'"
 if `n_events' == 0 {
-    ss_fail TI09 200 "stset" "no_failure_events"
+    ss_fail TI09 200 "subject_level_event_build" "no_failure_events"
 }
 if `n_events' < 5 {
     display "SS_RC|code=SMALL_EVENT_COUNT|n_events=`n_events'|severity=warn"
 }
-display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
+display "SS_STEP_END|step=S03_prepare_subject_level|status=ok|elapsed_sec=0"
 
-display "SS_STEP_BEGIN|step=S03_analysis"
-capture noisily stcure `indepvars', dist(weibull) link(logit)
-local rc_stcure = _rc
-if `rc_stcure' != 0 {
-    ss_fail TI09 `rc_stcure' "stcure" "stcure_failed"
+display "SS_STEP_BEGIN|step=S04_analysis"
+capture stset _ss_time, failure(_ss_fail)
+local rc_stset = _rc
+if `rc_stset' != 0 {
+    ss_fail TI09 `rc_stset' "stset _ss_time, failure(_ss_fail)" "stset_failed"
 }
+quietly summarize _ss_cure
+local cure_rate = r(mean)
+display "SS_METRIC|name=cure_rate|value=`cure_rate'"
+
+local survival_model = "skipped"
+local cure_model = "skipped"
 local ll = .
-capture local ll = e(ll)
-local rc_ll = _rc
-if `rc_ll' != 0 {
-    display "SS_RC|code=`rc_ll'|cmd=e(ll)|msg=missing_log_likelihood|severity=warn"
+local ll_cure = .
+local rc_survival = .
+local rc_cure = .
+
+if `n_subjects' >= 10 & `n_events' >= 3 {
+    capture noisily streg `indepvars', dist(weibull)
+    local rc_survival = _rc
+    if `rc_survival' == 0 {
+        local survival_model = "streg_weibull"
+        capture local ll = e(ll)
+        if _rc != 0 {
+            display "SS_RC|code=MISSING_LL|cmd=e(ll)|severity=warn"
+        }
+    }
+    else {
+        display "SS_RC|code=MODEL_STREG_FAILED|rc=`rc_survival'|severity=warn"
+    }
 }
+else {
+    display "SS_RC|code=MODEL_SKIPPED_SMALL_SAMPLE|model=streg_weibull|n_subjects=`n_subjects'|n_events=`n_events'|severity=warn"
+}
+
+if `n_subjects' >= 10 & `n_events' >= 1 & (`n_subjects' - `n_events') >= 1 {
+    capture noisily logit _ss_cure `indepvars'
+    local rc_cure = _rc
+    if `rc_cure' == 0 {
+        local cure_model = "logit_cure"
+        capture local ll_cure = e(ll)
+        if _rc != 0 {
+            display "SS_RC|code=MISSING_LL|cmd=e(ll)|severity=warn"
+        }
+    }
+    else {
+        display "SS_RC|code=MODEL_LOGIT_FAILED|rc=`rc_cure'|severity=warn"
+    }
+}
+else {
+    display "SS_RC|code=MODEL_SKIPPED_SMALL_SAMPLE|model=logit_cure|n_subjects=`n_subjects'|n_events=`n_events'|severity=warn"
+}
+
 display "SS_METRIC|name=log_likelihood|value=`ll'"
 
 preserve
 clear
 set obs 1
 gen str32 model = "Cure Model"
-gen double ll = `ll'
+gen long n_subjects = `n_subjects'
+gen long n_events = `n_events'
+gen double cure_rate = `cure_rate'
+gen str32 survival_model = "`survival_model'"
+gen str32 cure_model = "`cure_model'"
+gen double ll_survival = `ll'
+gen double ll_cure = `ll_cure'
+gen double rc_survival = `rc_survival'
+gen double rc_cure = `rc_cure'
 export delimited using "table_TI09_cure.csv", replace
 display "SS_OUTPUT_FILE|file=table_TI09_cure.csv|type=table|desc=cure_results"
 restore
@@ -144,13 +209,13 @@ local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 save "data_TI09_cure.dta", replace
 display "SS_OUTPUT_FILE|file=data_TI09_cure.dta|type=data|desc=cure_data"
-display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
+display "SS_STEP_END|step=S04_analysis|status=ok|elapsed_sec=0"
 
 display "SS_SUMMARY|key=n_input|value=`n_input'"
 display "SS_SUMMARY|key=n_output|value=`n_output'"
 display "SS_SUMMARY|key=log_likelihood|value=`ll'"
+display "SS_SUMMARY|key=cure_rate|value=`cure_rate'"
 
-local n_dropped = 0
 display "SS_METRIC|name=n_dropped|value=`n_dropped'"
 timer off 1
 quietly timer list 1

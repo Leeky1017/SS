@@ -1,13 +1,7 @@
 {
   "contract_version": "1.1",
-  "dependencies": [
-    {
-      "pkg": "stcure",
-      "purpose": "Cure model estimation",
-      "source": "ssc"
-    }
-  ],
-  "description": "Mixture cure survival model",
+  "dependencies": [],
+  "description": "Mixture cure survival model (built-in approximation)",
   "family": "survival",
   "id": "TI09",
   "inputs": [
@@ -64,5 +58,5 @@
   ],
   "title": "Cure Model",
   "title_zh": "治愈模型",
-  "version": "2.0.1"
+  "version": "2.0.2"
 }

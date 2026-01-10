@@ -7,6 +7,12 @@
 - (Optional) Stata installed locally (for Stata runner features)
 - (Optional) Postgres / Redis (only if you switch `SS_JOB_STORE_BACKEND`)
 
+## Stata (SSC packages)
+
+Some templates require Stata SSC packages and will fail-fast if missing.
+
+- Canonical list: `openspec/specs/ss-do-template-library/SSC_DEPENDENCIES.md`
+
 ## Python dependencies
 
 SS is a Python package with dependencies defined in `pyproject.toml`.
@@ -57,4 +63,3 @@ Model ids vary by provider/model availability on Yunwu. Set `SS_LLM_MODEL` accor
 ruff check .
 pytest -q
 ```
-
