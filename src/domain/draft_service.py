@@ -5,6 +5,10 @@ from json import JSONDecodeError
 from typing import cast
 
 from src.domain.dataset_preview import dataset_preview
+from src.domain.draft_preview_llm import (
+    apply_structured_fields_from_llm_text,
+    build_draft_preview_prompt,
+)
 from src.domain.draft_v1_contract import (
     DraftPatchResult,
     DraftPreviewResult,
@@ -106,8 +110,7 @@ class DraftService:
 
     async def _preview_for_loaded_job(self, *, tenant_id: str, job: Job) -> Draft:
         logger.info("SS_DRAFT_PREVIEW_START", extra={"tenant_id": tenant_id, "job_id": job.job_id})
-        requirement = job.requirement if job.requirement is not None else ""
-        prompt = requirement.strip()
+        prompt = self._draft_preview_prompt(tenant_id=tenant_id, job=job)
         try:
             draft = await self._llm.draft_preview(job=job, prompt=prompt)
         except (LLMCallFailedError, LLMArtifactsWriteError) as e:
@@ -133,6 +136,7 @@ class DraftService:
                     },
                 )
             raise
+        draft, _parsed = apply_structured_fields_from_llm_text(draft=draft)
         job.draft = self._enrich_draft(tenant_id=tenant_id, job=job, draft=draft)
         if job.status == JobStatus.CREATED and self._state_machine.ensure_transition(
             job_id=job.job_id,
@@ -146,6 +150,14 @@ class DraftService:
             extra={"tenant_id": tenant_id, "job_id": job.job_id, "status": job.status.value},
         )
         return job.draft
+
+    def _draft_preview_prompt(self, *, tenant_id: str, job: Job) -> str:
+        requirement = job.requirement if job.requirement is not None else ""
+        column_candidates, _ = self._primary_dataset_columns(tenant_id=tenant_id, job_id=job.job_id)
+        return build_draft_preview_prompt(
+            requirement=requirement,
+            column_candidates=column_candidates,
+        )
 
     def _enrich_draft(self, *, tenant_id: str, job: Job, draft: Draft) -> Draft:
         sources = self._data_sources(tenant_id=tenant_id, job_id=job.job_id)
