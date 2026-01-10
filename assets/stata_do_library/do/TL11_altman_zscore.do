@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Altman Z-Score variants exist (private/manufacturing/emerging markets); confirm this formula matches your sample and definitions.
+* - Ratios use total assets and total liabilities; zeros/negatives can produce missing or unstable values—check denominators.
+* - Use the zone classification (Safe/Grey/Distress) as screening; validate against local bankruptcy outcomes when possible.
+* 最佳实践审查（ZH）:
+* - Altman Z-Score 存在不同版本；请确认本公式适用于你的样本类型与变量口径。
+* - 比率分母涉及总资产/总负债；若分母为 0 或异常，会导致结果缺失/不稳定—建议先检查。
+* - 分区（安全/灰区/困境）更适合作为筛查；可在有破产标签时做本地验证。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -35,6 +43,8 @@ local sales = "__SALES__"
 local ta = "__TA__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -61,6 +71,8 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and numeric types.
+* ZH: 校验关键变量存在且为数值型。
 local required_vars "`wc' `re' `ebit' `mve' `tl' `sales' `ta'"
 foreach v of local required_vars {
     capture confirm variable `v'
@@ -89,6 +101,18 @@ foreach v of local required_vars {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute Z-Score and zone classification using common cutoffs (2.99 / 1.81).
+* ZH: 计算 Z-Score 并按常用阈值（2.99 / 1.81）划分区域。
+
+count if missing(`ta') | `ta' == 0
+local n_bad_ta = r(N)
+count if missing(`tl') | `tl' == 0
+local n_bad_tl = r(N)
+display "SS_METRIC|name=n_bad_total_assets|value=`n_bad_ta'"
+display "SS_METRIC|name=n_bad_total_liabilities|value=`n_bad_tl'"
+if (`n_bad_ta' > 0) | (`n_bad_tl' > 0) {
+    display "SS_RC|code=2003|cmd=validate_denominators|msg=zero_or_missing_denominator_detected|severity=warn"
+}
 
 generate x1 = `wc' / `ta'
 generate x2 = `re' / `ta'
@@ -105,8 +129,11 @@ summarize zscore
 local mean_zscore = r(mean)
 count if zone == 3
 local n_distress = r(N)
+count if missing(zscore)
+local n_missing_zscore = r(N)
 display "SS_METRIC|name=mean_zscore|value=`mean_zscore'"
 display "SS_METRIC|name=n_distress|value=`n_distress'"
+display "SS_METRIC|name=n_missing_zscore|value=`n_missing_zscore'"
 
 preserve
 clear

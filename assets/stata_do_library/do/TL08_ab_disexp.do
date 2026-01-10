@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Abnormal discretionary expense model is usually estimated by industry-year; pooled estimates may reduce comparability.
+* - Uses lagged revenue as a scale/driver; confirm revenue definition and timing.
+* - Consider winsorizing scaled variables and reporting estimation sample size.
+* 最佳实践审查（ZH）:
+* - 异常费用模型通常按行业-年份估计；pooled 估计可能降低可比性。
+* - 使用滞后收入作为解释变量；请确认收入定义与时期匹配。
+* - 建议对缩放后的变量截尾，并报告回归有效样本量。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -33,6 +41,8 @@ local panelvar = "__PANELVAR__"
 local timevar = "__TIME_VAR__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -59,6 +69,8 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and numeric types.
+* ZH: 校验关键变量存在且为数值型。
 local required_vars "`disexp' `rev' `assets' `panelvar' `timevar'"
 foreach v of local required_vars {
     capture confirm variable `v'
@@ -87,6 +99,8 @@ foreach v of local required_vars {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Estimate normal discretionary expense model and take residual as abnormal DISEXP.
+* ZH: 估计“正常费用”模型并取残差作为异常 DISEXP。
 
 capture xtset `panelvar' `timevar'
 if _rc {
@@ -103,8 +117,35 @@ generate disexp_scaled = `disexp' / L.`assets'
 generate inv_assets = 1 / L.`assets'
 generate lag_rev = L.`rev' / L.`assets'
 
-regress disexp_scaled inv_assets lag_rev
-predict ab_disexp, residuals
+count if !missing(disexp_scaled, inv_assets, lag_rev)
+local n_reg = r(N)
+display "SS_METRIC|name=n_reg|value=`n_reg'"
+if `n_reg' < 30 {
+    display "SS_RC|code=2001|cmd=count_complete_cases|msg=small_sample_for_regression|severity=warn"
+}
+
+capture noisily regress disexp_scaled inv_assets lag_rev
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=regress|msg=model_fit_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture noisily predict ab_disexp, residuals
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=predict|msg=predict_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 
 summarize ab_disexp
 local mean_ab_disexp = r(mean)

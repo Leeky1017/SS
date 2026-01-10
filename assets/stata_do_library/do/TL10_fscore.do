@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Dechow F-Score is a misstatement risk screening model; confirm inputs are constructed consistently with the intended definition.
+* - Probabilities depend on calibration; use as relative ranking or screening, not an absolute claim.
+* - Outliers/missingness in inputs can dominate the score; consider winsorization and missingness checks.
+* 最佳实践审查（ZH）:
+* - Dechow F-Score 是舞弊/错报风险筛查模型；请确认输入变量的构造与定义一致。
+* - 概率受校准影响；更适合作为相对排序或筛查信号，而非绝对判断。
+* - 输入变量的极端值/缺失会显著影响结果；建议截尾并检查缺失比例。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -35,6 +43,8 @@ local chg_roa = "__CHG_ROA__"
 local issue = "__ISSUE__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -61,6 +71,8 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and numeric types.
+* ZH: 校验关键变量存在且为数值型。
 local required_vars "`rsst' `chg_rec' `chg_inv' `soft' `chg_cash' `chg_roa' `issue'"
 foreach v of local required_vars {
     capture confirm variable `v'
@@ -89,6 +101,8 @@ foreach v of local required_vars {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute F-Score and implied probability via logistic transform.
+* ZH: 计算 F-Score 并通过 logistic 变换得到风险概率。
 
 generate fscore = -7.893 + 0.790*`rsst' + 2.518*`chg_rec' + 1.191*`chg_inv' ///
     + 1.979*`soft' + 0.171*`chg_cash' - 0.932*`chg_roa' + 1.029*`issue'
@@ -97,7 +111,10 @@ generate prob_misstate = exp(fscore) / (1 + exp(fscore))
 
 summarize fscore prob_misstate
 local mean_fscore = r(mean)
+count if missing(fscore)
+local n_missing_fscore = r(N)
 display "SS_METRIC|name=mean_fscore|value=`mean_fscore'"
+display "SS_METRIC|name=n_missing_fscore|value=`n_missing_fscore'"
 
 preserve
 clear

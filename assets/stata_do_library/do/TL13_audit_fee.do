@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Audit fee models are sensitive to scaling/functional form; confirm `__LNFEE__` and `__LNTA__` are log-transformed as intended.
+* - Consider clustering standard errors at firm/auditor level when panel structure exists; this template uses robust SEs for portability.
+* - Residual-based abnormal fee is model-dependent; interpret alongside goodness-of-fit and diagnostics.
+* 最佳实践审查（ZH）:
+* - 审计费用模型对变量缩放/函数形式敏感；请确认 `__LNFEE__`、`__LNTA__` 的对数变换符合预期。
+* - 若存在面板结构，建议按公司/审计师聚类稳健标准误；本模板为通用性采用 robust。
+* - 残差型异常审计费依赖模型设定；建议结合拟合度与诊断共同解读。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -35,6 +43,8 @@ local loss = "__LOSS__"
 local big4 = "__BIG4__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -61,6 +71,8 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and numeric types.
+* ZH: 校验关键变量存在且为数值型。
 local required_vars "`lnfee' `lnta' `invrec' `leverage' `roa' `loss' `big4'"
 foreach v of local required_vars {
     capture confirm variable `v'
@@ -89,12 +101,41 @@ foreach v of local required_vars {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Fit audit fee model and use residual as abnormal audit fee proxy.
+* ZH: 拟合审计费用模型并以残差作为异常审计费指标。
 
-regress `lnfee' `lnta' `invrec' `leverage' `roa' `loss' `big4', robust
+count if !missing(`lnfee', `lnta', `invrec', `leverage', `roa', `loss', `big4')
+local n_reg = r(N)
+display "SS_METRIC|name=n_reg|value=`n_reg'"
+if `n_reg' < 50 {
+    display "SS_RC|code=2001|cmd=count_complete_cases|msg=small_sample_for_regression|severity=warn"
+}
+
+capture noisily regress `lnfee' `lnta' `invrec' `leverage' `roa' `loss' `big4', robust
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=regress|msg=model_fit_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL13|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 local r2 = e(r2)
 display "SS_METRIC|name=r2|value=`r2'"
 
-predict abnormal_fee, residuals
+capture noisily predict abnormal_fee, residuals
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=predict|msg=predict_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL13|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 summarize abnormal_fee
 local mean_ab_fee = r(mean)
 display "SS_METRIC|name=mean_abnormal_fee|value=`mean_ab_fee'"

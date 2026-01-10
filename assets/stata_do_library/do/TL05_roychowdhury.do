@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Roychowdhury REM usually estimates normal levels by industry-year; pooled estimates may mix heterogeneous operating environments.
+* - Scaling by lagged assets and using revenue changes assumes consistent fiscal timing; verify panel/time setup.
+* - REM composite (-abCFO + abPROD - abDISEXP) is sensitive to outliers; consider winsorization and reporting sample sizes per regression.
+* 最佳实践审查（ZH）:
+* - Roychowdhury 真实盈余管理通常按行业-年份估计“正常水平”；pooled 估计可能混合异质经营环境。
+* - 使用滞后资产缩放与收入变动，依赖一致的财务期；请检查面板/时间设定。
+* - REM 合成指标（-abCFO + abPROD - abDISEXP）对极端值敏感；建议截尾并报告各回归的有效样本量。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -35,6 +43,8 @@ local panelvar = "__PANELVAR__"
 local timevar = "__TIME_VAR__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -61,6 +71,8 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and numeric types.
+* ZH: 校验关键变量存在且为数值型。
 local required_vars "`cfo' `prod' `disexp' `rev' `assets' `panelvar' `timevar'"
 foreach v of local required_vars {
     capture confirm variable `v'
@@ -89,6 +101,8 @@ foreach v of local required_vars {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Estimate abnormal CFO/PROD/DISEXP and compute REM composite.
+* ZH: 估计异常 CFO/生产成本/费用并计算 REM 合成指标。
 
 capture xtset `panelvar' `timevar'
 if _rc {
@@ -111,16 +125,94 @@ generate delta_rev = D.`rev' / L.`assets'
 generate lag_rev = L.`rev' / L.`assets'
 
 * Abnormal CFO
-regress cfo_scaled inv_assets rev_scaled delta_rev
-predict ab_cfo, residuals
+count if !missing(cfo_scaled, inv_assets, rev_scaled, delta_rev)
+local n_reg_cfo = r(N)
+display "SS_METRIC|name=n_reg_cfo|value=`n_reg_cfo'"
+if `n_reg_cfo' < 30 {
+    display "SS_RC|code=2001|cmd=count_complete_cases|msg=small_sample_for_cfo_reg|severity=warn"
+}
+capture noisily regress cfo_scaled inv_assets rev_scaled delta_rev
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=regress_cfo|msg=model_fit_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture noisily predict ab_cfo, residuals
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=predict_ab_cfo|msg=predict_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 
 * Abnormal PROD
-regress prod_scaled inv_assets rev_scaled delta_rev L.delta_rev
-predict ab_prod, residuals
+count if !missing(prod_scaled, inv_assets, rev_scaled, delta_rev, L.delta_rev)
+local n_reg_prod = r(N)
+display "SS_METRIC|name=n_reg_prod|value=`n_reg_prod'"
+if `n_reg_prod' < 30 {
+    display "SS_RC|code=2001|cmd=count_complete_cases|msg=small_sample_for_prod_reg|severity=warn"
+}
+capture noisily regress prod_scaled inv_assets rev_scaled delta_rev L.delta_rev
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=regress_prod|msg=model_fit_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture noisily predict ab_prod, residuals
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=predict_ab_prod|msg=predict_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 
 * Abnormal DISEXP
-regress disexp_scaled inv_assets lag_rev
-predict ab_disexp, residuals
+count if !missing(disexp_scaled, inv_assets, lag_rev)
+local n_reg_disexp = r(N)
+display "SS_METRIC|name=n_reg_disexp|value=`n_reg_disexp'"
+if `n_reg_disexp' < 30 {
+    display "SS_RC|code=2001|cmd=count_complete_cases|msg=small_sample_for_disexp_reg|severity=warn"
+}
+capture noisily regress disexp_scaled inv_assets lag_rev
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=regress_disexp|msg=model_fit_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture noisily predict ab_disexp, residuals
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=predict_ab_disexp|msg=predict_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 
 generate rem = -ab_cfo + ab_prod - ab_disexp
 

@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Beneish M-Score inputs are ratios/indexes; confirm definitions match the original paper and your dataset construction.
+* - Thresholds (e.g., -1.78) vary by context and calibration; interpret flags as screening, not proof of manipulation.
+* - Outliers in component ratios can dominate the score; consider winsorization and missingness checks.
+* 最佳实践审查（ZH）:
+* - Beneish M-Score 的输入多为比率/指数；请确认变量口径与论文/样本构造一致。
+* - 阈值（如 -1.78）存在情境差异；应将识别结果视为筛查信号而非确定结论。
+* - 组成比率的极端值会主导得分；建议截尾并关注缺失值比例。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -36,6 +44,8 @@ local lvgi = "__LVGI__"
 local tata = "__TATA__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -62,6 +72,8 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and numeric types.
+* ZH: 校验关键变量存在且为数值型。
 local required_vars "`dsri' `gmi' `aqi' `sgi' `depi' `sgai' `lvgi' `tata'"
 foreach v of local required_vars {
     capture confirm variable `v'
@@ -90,6 +102,8 @@ foreach v of local required_vars {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute Beneish M-Score and a simple screening flag (mscore > -1.78).
+* ZH: 计算 Beneish M-Score 并给出简单筛查标记（mscore > -1.78）。
 
 generate mscore = -4.84 + 0.920*`dsri' + 0.528*`gmi' + 0.404*`aqi' + 0.892*`sgi' ///
     + 0.115*`depi' - 0.172*`sgai' + 4.679*`tata' - 0.327*`lvgi'
@@ -100,8 +114,11 @@ summarize mscore
 local mean_mscore = r(mean)
 count if fraud_flag == 1
 local n_fraud = r(N)
+count if missing(mscore)
+local n_missing_mscore = r(N)
 display "SS_METRIC|name=mean_mscore|value=`mean_mscore'"
 display "SS_METRIC|name=n_fraud|value=`n_fraud'"
+display "SS_METRIC|name=n_missing_mscore|value=`n_missing_mscore'"
 
 preserve
 clear
