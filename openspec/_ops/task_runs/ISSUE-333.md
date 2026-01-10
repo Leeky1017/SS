@@ -51,3 +51,11 @@
   - `https://github.com/Leeky1017/SS/pull/337`
 - Evidence:
   - PR: https://github.com/Leeky1017/SS/pull/337
+
+### 2026-01-10 Rulebook: archive task (post-merge housekeeping)
+- Command:
+  - `rulebook task archive issue-333-prod-e2e-r012`
+- Key output:
+  - Archived task to `rulebook/tasks/archive/2026-01-10-issue-333-prod-e2e-r012/`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/338
