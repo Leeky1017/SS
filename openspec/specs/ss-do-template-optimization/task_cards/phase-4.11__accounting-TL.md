@@ -29,7 +29,16 @@ Make accounting/audit templates run on **Stata 18** with fixtures, emit **contra
 
 ## Acceptance checklist
 
-- [ ] Stata 18 baseline run: 0 `fail` across `TL*`
-- [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
-- [ ] Code style is normalized across the scope
-- [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Stata 18 baseline run: 0 `fail` across `TL*`
+- [x] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
+- [x] Code style is normalized across the scope
+- [x] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-272.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/275
+- Summary:
+  - Added TL smoke-suite manifest + fixture dataset (TL01–TL15)
+  - Fixed Stata batch failures (BOM `r(199)`, one-line braces `r(198)`, `logit` perfect prediction `r(2000)`)
+  - Normalized anchors to pipe-delimited `SS_*|k=v` and unified template style
+- Run log: `openspec/_ops/task_runs/ISSUE-272.md`

@@ -7,10 +7,10 @@
 - Audit TM01–TM15 templates: Stata 18 harness 0 fail, anchors `SS_EVENT|k=v`, unified style.
 
 ## Status
-- CURRENT: Auto-merge is enabled for PR #276; waiting for required checks/merge queue.
+- CURRENT: MERGED: PR #276; control plane `main` synced and worktree cleaned.
 
 ## Next Actions
-- [ ] Watch checks until merged
+- (none)
 
 ## Decisions Made
 - 2026-01-10 Split delivery into two Issues/PRs: #272 (TL*) and #273 (TM*) to keep scope and evidence isolated.
