@@ -1,19 +1,17 @@
 # ISSUE-273
 - Issue: #273
 - Branch: task/273-p4-12-medical-tm
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/276
 
 ## Goal
 - Audit TM01–TM15 templates: Stata 18 harness 0 fail, anchors `SS_EVENT|k=v`, unified style.
 
 ## Status
-- CURRENT: TM smoke suite reports 12 `passed`, 0 `failed`, 3 `missing_deps`; next run `ruff` + `pytest`, then commit/push and open PR.
+- CURRENT: PR #276 is open; next enable auto-merge and watch required checks.
 
 ## Next Actions
-- [ ] Fill Rulebook proposal/tasks/notes (minimal)
-- [ ] Run `ruff check .` + `pytest -q`
-- [ ] Commit + push branch
-- [ ] Run PR preflight, open PR, enable auto-merge
+- [ ] Enable auto-merge on PR #276
+- [ ] Watch checks until merged
 
 ## Decisions Made
 - 2026-01-10 Split delivery into two Issues/PRs: #272 (TL*) and #273 (TM*) to keep scope and evidence isolated.
@@ -63,3 +61,15 @@
   - `ruff`: `All checks passed!`
   - `pytest`: `162 passed, 5 skipped`
 - Evidence: CI-safe local verification
+
+### 2026-01-10 10:18 PR preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence: (terminal transcript)
+
+### 2026-01-10 10:19 Create PR
+- Command: `gh pr create --title \"chore: audit TM01–TM15 templates (#273)\" --body \"Closes #273 ...\"`
+- Key output: `https://github.com/Leeky1017/SS/pull/276`
+- Evidence: PR body + run log
