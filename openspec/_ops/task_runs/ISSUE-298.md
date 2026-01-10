@@ -70,3 +70,15 @@
   - `https://github.com/Leeky1017/SS/pull/301`
 - Evidence:
   - PR: https://github.com/Leeky1017/SS/pull/301
+
+### 2026-01-10 Follow-up: enforce `src/config.py` file size limit
+- Command:
+  - `wc -l src/config.py`
+  - `.venv/bin/ruff check .`
+  - `.venv/bin/pytest -q`
+- Key output:
+  - `298 src/config.py`
+  - `All checks passed!`
+  - `167 passed, 5 skipped`
+- Evidence:
+  - `src/config.py` (refactor; keeps file under 300 lines without changing behavior)
