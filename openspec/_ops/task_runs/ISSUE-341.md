@@ -1,7 +1,7 @@
 # ISSUE-341
 - Issue: #341
 - Branch: task/341-prod-e2e-r030
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/345
 
 ## Plan
 - Enforce plan-freeze missing-params gate (draft blockers + template required params)
@@ -20,4 +20,3 @@
 ### 2026-01-10 tests
 - Command: `.venv/bin/pytest -q`
 - Key output: `182 passed, 5 skipped`
-
