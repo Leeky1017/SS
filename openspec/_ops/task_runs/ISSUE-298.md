@@ -1,7 +1,7 @@
 # ISSUE-298
 - Issue: #298 https://github.com/Leeky1017/SS/issues/298
-- Branch: task/298-prod-e2e-r040
-- PR: https://github.com/Leeky1017/SS/pull/301
+- Branch: task/298-prod-e2e-r040-fix-config
+- PR: https://github.com/Leeky1017/SS/pull/304
 
 ## Goal
 - In production mode, enforce a strict readiness gate: missing critical production dependencies (or stub/fake wiring) must make SS not-ready.
