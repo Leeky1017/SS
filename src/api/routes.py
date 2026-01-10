@@ -5,11 +5,9 @@ from fastapi import APIRouter, Depends
 from src.api import draft, health, inputs_bundle, inputs_upload_sessions, jobs, metrics, task_codes
 from src.api.v1_auth import enforce_v1_job_bearer_auth, enforce_v1_legacy_post_jobs_enabled
 
-api_router = APIRouter()
-api_router.include_router(jobs.router)
-api_router.include_router(draft.router)
-api_router.include_router(health.router)
-api_router.include_router(metrics.router)
+ops_router = APIRouter()
+ops_router.include_router(health.router)
+ops_router.include_router(metrics.router)
 
 api_v1_router = APIRouter(prefix="/v1")
 api_v1_router.include_router(

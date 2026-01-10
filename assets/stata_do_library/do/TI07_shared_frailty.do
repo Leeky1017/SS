@@ -8,6 +8,15 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.9) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Model intent / 模型目的: shared frailty Cox to model within-group dependence / 共享脆弱性 Cox 处理组内相关
+* - PH assumption / 比例风险: still relevant; attempt `estat phtest` best-effort / 仍有关联，尽量输出 phtest 诊断
+* - Competing risks / 竞争风险: N/A / 不适用
+* - SSC deps / SSC 依赖: none / 无
+* - Guardrails / 防御: validate time/fail/group vars + small-events warning
+* ------------------------------------------------------------------------------
 capture log close _all
 local rc_log_close = _rc
 if `rc_log_close' != 0 {
@@ -60,6 +69,35 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* Core validation / 核心校验: time/failure/group vars must exist.
+capture confirm numeric variable `timevar'
+local rc_time = _rc
+if `rc_time' != 0 {
+    ss_fail TI07 200 "confirm numeric variable `timevar'" "timevar_missing_or_not_numeric"
+}
+capture confirm numeric variable `failvar'
+local rc_fail = _rc
+if `rc_fail' != 0 {
+    ss_fail TI07 200 "confirm numeric variable `failvar'" "failvar_missing_or_not_numeric"
+}
+capture confirm variable `group_var'
+local rc_group = _rc
+if `rc_group' != 0 {
+    ss_fail TI07 200 "confirm variable `group_var'" "group_var_missing"
+}
+quietly count if missing(`timevar')
+local n_miss_time = r(N)
+if `n_miss_time' > 0 {
+    display "SS_RC|code=MISSING_TIMEVAR|n=`n_miss_time'|severity=warn"
+}
+quietly count if `timevar' < 0 & !missing(`timevar')
+if r(N) > 0 {
+    display "SS_RC|code=NEGATIVE_TIMEVAR|n=`=r(N)'|severity=warn"
+}
+quietly count if !inlist(`failvar', 0, 1) & !missing(`failvar')
+if r(N) > 0 {
+    display "SS_RC|code=FAILVAR_NOT_BINARY|n=`=r(N)'|severity=warn"
+}
 capture stset `timevar', failure(`failvar')
 local rc_stset = _rc
 if `rc_stset' != 0 {
@@ -77,11 +115,26 @@ if `n_events' < 5 {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* Cox frailty model / 共享脆弱性 Cox 模型
 capture noisily stcox `indepvars', shared(`group_var')
 local rc_stcox = _rc
 if `rc_stcox' != 0 {
     ss_fail TI07 `rc_stcox' "stcox" "stcox_failed"
 }
+* PH test / 比例风险假定检验（若可用）
+local ph_chi2 = .
+local ph_p = .
+capture noisily estat phtest
+local rc_phtest = _rc
+if `rc_phtest' == 0 {
+    capture local ph_chi2 = r(chi2)
+    capture local ph_p = r(p)
+}
+else {
+    display "SS_RC|code=`rc_phtest'|cmd=estat phtest|msg=phtest_unavailable|severity=warn"
+}
+display "SS_METRIC|name=ph_test_chi2|value=`ph_chi2'"
+display "SS_METRIC|name=ph_test_p|value=`ph_p'"
 local ll = .
 local theta = .
 capture local ll = e(ll)
@@ -103,6 +156,7 @@ set obs 1
 gen str32 model = "Shared Frailty"
 gen double ll = `ll'
 gen double theta = `theta'
+gen double ph_p = `ph_p'
 export delimited using "table_TI07_frailty.csv", replace
 display "SS_OUTPUT_FILE|file=table_TI07_frailty.csv|type=table|desc=frailty_results"
 restore

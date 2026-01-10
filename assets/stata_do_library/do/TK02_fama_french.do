@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Inference / 推断: robust SE by default; consider HAC for time-series residual autocorr
+* - Data checks / 数据校验: missingness + factor scaling; verify factor definitions (MKT/SMB/HML/RMW/CMA)
+* - Model caveat / 注意: factor models are sensitive to sample window and data frequency
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -102,6 +111,30 @@ if `is_five_factor' {
         if _rc {
             display "SS_RC|code=0|cmd=confirm_variable|msg=factor_not_found_fallback_to_3_factor|detail=`var'|severity=warn"
             local is_five_factor = 0
+        }
+    }
+}
+
+* Missingness + scaling checks / 缺失值与尺度检查（提示性）
+local check_vars "`return_var' `mkt_var' `smb_var' `hml_var'"
+if `is_five_factor' {
+    local check_vars "`check_vars' `rmw_var' `cma_var'"
+}
+foreach var in `check_vars' {
+    quietly count if missing(`var')
+    local n_miss = r(N)
+    if `n_miss' > 0 {
+        display "SS_RC|code=MISSING_VALUES|var=`var'|n=`n_miss'|severity=warn"
+    }
+    capture quietly summarize `var', detail
+    local rc_sum = _rc
+    if `rc_sum' == 0 {
+        local p1 = r(p1)
+        local p99 = r(p99)
+        if `p1' < . & `p99' < . {
+            if abs(`p1') > 5 | abs(`p99') > 5 {
+                display "SS_RC|code=CHECK_SCALE|var=`var'|p1=`p1'|p99=`p99'|severity=warn"
+            }
         }
     }
 }

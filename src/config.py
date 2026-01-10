@@ -33,6 +33,7 @@ class Config:
     upload_multipart_max_part_size_bytes: int
     upload_multipart_max_parts: int
     upload_max_bundle_files: int
+    ss_env: str = field(default="development", kw_only=True)
     llm_provider: str = field(default="stub", kw_only=True)
     llm_base_url: str = field(default="https://yunwu.ai/v1", kw_only=True)
     llm_api_key: str = field(default="", kw_only=True)
@@ -56,6 +57,9 @@ class Config:
     tracing_exporter: str = field(default="otlp", kw_only=True)
     tracing_otlp_endpoint: str = field(default="http://localhost:4318/v1/traces", kw_only=True)
     tracing_sample_ratio: float = field(default=1.0, kw_only=True)
+
+    def is_production(self) -> bool:
+        return self.ss_env in {"production", "prod"}
 
 
 def _int_value(raw: str, *, default: int) -> int:
@@ -119,16 +123,11 @@ def _load_llm_settings(*, env: Mapping[str, str]) -> tuple[float, int, float, fl
     return timeout_seconds, max_attempts, backoff_base_seconds, backoff_max_seconds
 
 
-def _normalize_llm_model(value: str) -> str:
-    model = value.strip()
-    if model == "claude-opus-4-5":
-        return "claude-opus-4-5-20251101"
-    return model
-
-
 def load_config(env: Mapping[str, str] | None = None) -> Config:
     """Load config from environment variables with explicit defaults."""
     e = os.environ if env is None else env
+    ss_env = str(e.get("SS_ENV", "development")).strip().lower()
+    ss_env = "development" if ss_env == "" else ss_env
     jobs_dir = Path(str(e.get("SS_JOBS_DIR", "./jobs"))).expanduser()
     job_store_backend = str(e.get("SS_JOB_STORE_BACKEND", "file")).strip().lower()
     job_store_postgres_dsn = str(e.get("SS_JOB_STORE_POSTGRES_DSN", "")).strip()
@@ -200,7 +199,9 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     llm_provider = str(e.get("SS_LLM_PROVIDER", "stub")).strip().lower()
     llm_base_url = str(e.get("SS_LLM_BASE_URL", "https://yunwu.ai/v1")).strip()
     llm_api_key = str(e.get("SS_LLM_API_KEY", "")).strip()
-    llm_model = _normalize_llm_model(str(e.get("SS_LLM_MODEL", "claude-opus-4-5-20251101")))
+    llm_model = str(e.get("SS_LLM_MODEL", "claude-opus-4-5-20251101")).strip()
+    if llm_model == "claude-opus-4-5":
+        llm_model = "claude-opus-4-5-20251101"
     llm_temperature_raw = str(e.get("SS_LLM_TEMPERATURE", "")).strip()
     llm_temperature = None
     if llm_temperature_raw != "":
@@ -270,6 +271,7 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         upload_multipart_max_part_size_bytes=upload_multipart_max_part_size_bytes,
         upload_multipart_max_parts=upload_multipart_max_parts,
         upload_max_bundle_files=upload_max_bundle_files,
+        ss_env=ss_env,
         llm_provider=llm_provider,
         llm_base_url=llm_base_url,
         llm_api_key=llm_api_key,

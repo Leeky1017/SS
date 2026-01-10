@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Interpretation / 解释: IV depends on pricing model and option quotes quality / 隐含波动率依赖模型与报价质量
+* - Data checks / 数据校验: validate TTM > 0, prices > 0, scaling of rates/vol
+* - Diagnostics / 诊断: record convergence rate and failures
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -55,9 +64,11 @@ local rf_rate = __RF_RATE__
 local option_type = "__OPTION_TYPE__"
 
 if `rf_rate' < 0 | `rf_rate' > 0.5 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=rf_rate|default=0.05|severity=warn"
     local rf_rate = 0.05
 }
 if "`option_type'" == "" {
+    display "SS_RC|code=PARAM_DEFAULTED|param=option_type|default=call|severity=warn"
     local option_type = "call"
 }
 
@@ -89,6 +100,23 @@ foreach var in `market_price' `spot_var' `strike_var' `ttm_var' {
     if _rc {
         ss_fail_TK09 200 confirm_variable var_not_found `var' S02_validate_inputs
     }
+}
+
+* Missingness + positivity checks / 缺失值与正值检查（提示性）
+foreach var in `market_price' `spot_var' `strike_var' `ttm_var' {
+    quietly count if missing(`var')
+    local n_miss = r(N)
+    if `n_miss' > 0 {
+        display "SS_RC|code=MISSING_VALUES|var=`var'|n=`n_miss'|severity=warn"
+    }
+}
+quietly count if `ttm_var' <= 0 & !missing(`ttm_var')
+if r(N) > 0 {
+    display "SS_RC|code=NONPOSITIVE_TTM|n=`=r(N)'|severity=warn"
+}
+quietly count if `market_price' <= 0 & !missing(`market_price')
+if r(N) > 0 {
+    display "SS_RC|code=NONPOSITIVE_PRICE|var=`market_price'|n=`=r(N)'|severity=warn"
 }
 
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"

@@ -246,6 +246,17 @@ def _main() -> int:
     branch = _current_branch(repo_root)
     issue_number = _issue_number_from_branch(branch)
 
+    common_path = Path(_run(["git", "rev-parse", "--git-common-dir"], cwd=repo_root))
+    common_path = common_path if common_path.is_absolute() else (repo_root / common_path).resolve()
+    controlplane_root = common_path.parent
+    controlplane_dirty = _run(["git", "status", "--porcelain=v1"], cwd=controlplane_root)
+    if controlplane_dirty:
+        print(
+            f"\n== Controlplane Guard ==\nERROR: controlplane dirty: {controlplane_root}\n"
+            f"{controlplane_dirty}\nFix: move into task worktree; keep controlplane clean."
+        )
+        return 5
+
     _run(["git", "fetch", "origin", "main"], cwd=repo_root)
     changed = _changed_files(repo_root, args.base_ref)
 

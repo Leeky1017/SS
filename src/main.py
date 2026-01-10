@@ -14,7 +14,7 @@ from starlette.middleware.base import RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
 
-from src.api.routes import api_router, api_v1_router
+from src.api.routes import api_v1_router, ops_router
 from src.api.versioning import add_legacy_deprecation_headers, is_legacy_unversioned_path
 from src.config import load_config
 from src.infra.exceptions import OutOfMemoryError, ServiceShuttingDownError, SSError
@@ -89,7 +89,7 @@ def create_app() -> FastAPI:
         return response
 
     app.include_router(api_v1_router)
-    app.include_router(api_router, include_in_schema=False)
+    app.include_router(ops_router, include_in_schema=False)
     app.add_exception_handler(SSError, _handle_ss_error)
     app.add_exception_handler(MemoryError, _handle_oom_error)
     return app
