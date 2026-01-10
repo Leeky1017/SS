@@ -1,0 +1,378 @@
+{
+  "cases": [
+    {
+      "archived_outputs": [
+        "runs/40564a4f6bb241ccaba89b826ac03ec4/artifacts/outputs/table_TK01_capm_result.csv",
+        "runs/40564a4f6bb241ccaba89b826ac03ec4/artifacts/outputs/table_TK01_rolling_beta.csv",
+        "runs/40564a4f6bb241ccaba89b826ac03ec4/artifacts/outputs/fig_TK01_sml.png",
+        "runs/40564a4f6bb241ccaba89b826ac03ec4/artifacts/outputs/data_TK01_capm.dta",
+        "runs/40564a4f6bb241ccaba89b826ac03ec4/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/78/job_78920dbec2ef4ec2/runs/40564a4f6bb241ccaba89b826ac03ec4/artifacts",
+      "exit_code": 0,
+      "job_id": "job_78920dbec2ef4ec2",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "40564a4f6bb241ccaba89b826ac03ec4",
+      "status": "passed",
+      "template_id": "TK01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/55dfb7aa5cf44d4ca17b2e4e76d6b427/artifacts/outputs/data_TK02_ff.dta",
+        "runs/55dfb7aa5cf44d4ca17b2e4e76d6b427/artifacts/outputs/fig_TK02_alpha_dist.png",
+        "runs/55dfb7aa5cf44d4ca17b2e4e76d6b427/artifacts/outputs/result.log",
+        "runs/55dfb7aa5cf44d4ca17b2e4e76d6b427/artifacts/outputs/table_TK02_factor_loadings.csv",
+        "runs/55dfb7aa5cf44d4ca17b2e4e76d6b427/artifacts/outputs/table_TK02_ff_result.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/f6/job_f630ee83edb1c6d4/runs/55dfb7aa5cf44d4ca17b2e4e76d6b427/artifacts",
+      "exit_code": 0,
+      "job_id": "job_f630ee83edb1c6d4",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "55dfb7aa5cf44d4ca17b2e4e76d6b427",
+      "status": "passed",
+      "template_id": "TK02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/1ac6e59555ba40bc8779733c86127a1a/artifacts/outputs/data_TK03_event.dta",
+        "runs/1ac6e59555ba40bc8779733c86127a1a/artifacts/outputs/fig_TK03_car_plot.png",
+        "runs/1ac6e59555ba40bc8779733c86127a1a/artifacts/outputs/result.log",
+        "runs/1ac6e59555ba40bc8779733c86127a1a/artifacts/outputs/table_TK03_car_result.csv",
+        "runs/1ac6e59555ba40bc8779733c86127a1a/artifacts/outputs/table_TK03_daily_ar.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/da/job_dabc045f35fbd1de/runs/1ac6e59555ba40bc8779733c86127a1a/artifacts",
+      "exit_code": 0,
+      "job_id": "job_dabc045f35fbd1de",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "1ac6e59555ba40bc8779733c86127a1a",
+      "status": "passed",
+      "template_id": "TK03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/a7fb3a971a194247a2109a416f048cbc/artifacts/outputs/data_TK04_garch.dta",
+        "runs/a7fb3a971a194247a2109a416f048cbc/artifacts/outputs/fig_TK04_volatility.png",
+        "runs/a7fb3a971a194247a2109a416f048cbc/artifacts/outputs/result.log",
+        "runs/a7fb3a971a194247a2109a416f048cbc/artifacts/outputs/table_TK04_garch_result.csv",
+        "runs/a7fb3a971a194247a2109a416f048cbc/artifacts/outputs/table_TK04_volatility.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/bd/job_bdb131f0a9cfcf8e/runs/a7fb3a971a194247a2109a416f048cbc/artifacts",
+      "exit_code": 0,
+      "job_id": "job_bdb131f0a9cfcf8e",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "a7fb3a971a194247a2109a416f048cbc",
+      "status": "passed",
+      "template_id": "TK04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/cd68401da6a748c795a56b7751aacc1d/artifacts/outputs/data_TK05_var.dta",
+        "runs/cd68401da6a748c795a56b7751aacc1d/artifacts/outputs/fig_TK05_var_plot.png",
+        "runs/cd68401da6a748c795a56b7751aacc1d/artifacts/outputs/result.log",
+        "runs/cd68401da6a748c795a56b7751aacc1d/artifacts/outputs/table_TK05_var_result.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/e4/job_e424b7bc3b0cf576/runs/cd68401da6a748c795a56b7751aacc1d/artifacts",
+      "exit_code": 0,
+      "job_id": "job_e424b7bc3b0cf576",
+      "missing_deps": [],
+      "missing_outputs": [
+        "table_TK05_backtest.csv"
+      ],
+      "run_id": "cd68401da6a748c795a56b7751aacc1d",
+      "status": "passed",
+      "template_id": "TK05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/f8aee4b3f5e74512bee2f120909e6323/artifacts/outputs/data_TK06_portfolio.dta",
+        "runs/f8aee4b3f5e74512bee2f120909e6323/artifacts/outputs/fig_TK06_frontier.png",
+        "runs/f8aee4b3f5e74512bee2f120909e6323/artifacts/outputs/result.log",
+        "runs/f8aee4b3f5e74512bee2f120909e6323/artifacts/outputs/table_TK06_frontier.csv",
+        "runs/f8aee4b3f5e74512bee2f120909e6323/artifacts/outputs/table_TK06_weights.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/95/job_95300c4a18739984/runs/f8aee4b3f5e74512bee2f120909e6323/artifacts",
+      "exit_code": 0,
+      "job_id": "job_95300c4a18739984",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "f8aee4b3f5e74512bee2f120909e6323",
+      "status": "passed",
+      "template_id": "TK06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/5080efa69737452494be10be00d30a11/artifacts/outputs/data_TK07_bond.dta",
+        "runs/5080efa69737452494be10be00d30a11/artifacts/outputs/fig_TK07_price_yield.png",
+        "runs/5080efa69737452494be10be00d30a11/artifacts/outputs/result.log",
+        "runs/5080efa69737452494be10be00d30a11/artifacts/outputs/table_TK07_duration.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/e6/job_e683bfb8602c9972/runs/5080efa69737452494be10be00d30a11/artifacts",
+      "exit_code": 0,
+      "job_id": "job_e683bfb8602c9972",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "5080efa69737452494be10be00d30a11",
+      "status": "passed",
+      "template_id": "TK07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/71563f7af0bb4e05a8b2d1f9df03526f/artifacts/outputs/fig_TK08_payoff.png",
+        "runs/71563f7af0bb4e05a8b2d1f9df03526f/artifacts/outputs/result.log",
+        "runs/71563f7af0bb4e05a8b2d1f9df03526f/artifacts/outputs/table_TK08_greeks.csv",
+        "runs/71563f7af0bb4e05a8b2d1f9df03526f/artifacts/outputs/table_TK08_option_price.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/04/job_045586e4d017d324/runs/71563f7af0bb4e05a8b2d1f9df03526f/artifacts",
+      "exit_code": 0,
+      "job_id": "job_045586e4d017d324",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "71563f7af0bb4e05a8b2d1f9df03526f",
+      "status": "passed",
+      "template_id": "TK08",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/dc85ec9fcf5b4c4ea17161291cbd2690/artifacts/outputs/data_TK09_iv.dta",
+        "runs/dc85ec9fcf5b4c4ea17161291cbd2690/artifacts/outputs/result.log",
+        "runs/dc85ec9fcf5b4c4ea17161291cbd2690/artifacts/outputs/table_TK09_implied_vol.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/a1/job_a1bd43020780cee9/runs/dc85ec9fcf5b4c4ea17161291cbd2690/artifacts",
+      "exit_code": 0,
+      "job_id": "job_a1bd43020780cee9",
+      "missing_deps": [],
+      "missing_outputs": [
+        "fig_TK09_vol_smile.png"
+      ],
+      "run_id": "dc85ec9fcf5b4c4ea17161291cbd2690",
+      "status": "passed",
+      "template_id": "TK09",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/cff463076bc64bb7bfec41cca66bcfbb/artifacts/outputs/data_TK10_credit.dta",
+        "runs/cff463076bc64bb7bfec41cca66bcfbb/artifacts/outputs/fig_TK10_roc.png",
+        "runs/cff463076bc64bb7bfec41cca66bcfbb/artifacts/outputs/result.log",
+        "runs/cff463076bc64bb7bfec41cca66bcfbb/artifacts/outputs/table_TK10_model_result.csv",
+        "runs/cff463076bc64bb7bfec41cca66bcfbb/artifacts/outputs/table_TK10_performance.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/98/job_98804e13f6f1e7b9/runs/cff463076bc64bb7bfec41cca66bcfbb/artifacts",
+      "exit_code": 0,
+      "job_id": "job_98804e13f6f1e7b9",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "cff463076bc64bb7bfec41cca66bcfbb",
+      "status": "passed",
+      "template_id": "TK10",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/18fbf80c63e7409d8ceb2ef16df55d35/artifacts/outputs/data_TK11_micro.dta",
+        "runs/18fbf80c63e7409d8ceb2ef16df55d35/artifacts/outputs/fig_TK11_spread_intraday.png",
+        "runs/18fbf80c63e7409d8ceb2ef16df55d35/artifacts/outputs/result.log",
+        "runs/18fbf80c63e7409d8ceb2ef16df55d35/artifacts/outputs/table_TK11_liquidity.csv",
+        "runs/18fbf80c63e7409d8ceb2ef16df55d35/artifacts/outputs/table_TK11_spread_stats.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/a5/job_a5a5faadbcd82c5f/runs/18fbf80c63e7409d8ceb2ef16df55d35/artifacts",
+      "exit_code": 0,
+      "job_id": "job_a5a5faadbcd82c5f",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "18fbf80c63e7409d8ceb2ef16df55d35",
+      "status": "passed",
+      "template_id": "TK11",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/1a33784d2a5847b09fa9e3f682edab01/artifacts/outputs/data_TK12_copula.dta",
+        "runs/1a33784d2a5847b09fa9e3f682edab01/artifacts/outputs/fig_TK12_scatter.png",
+        "runs/1a33784d2a5847b09fa9e3f682edab01/artifacts/outputs/result.log",
+        "runs/1a33784d2a5847b09fa9e3f682edab01/artifacts/outputs/table_TK12_correlation.csv",
+        "runs/1a33784d2a5847b09fa9e3f682edab01/artifacts/outputs/table_TK12_tail_depend.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/52/job_52c89c1f8f3f40e9/runs/1a33784d2a5847b09fa9e3f682edab01/artifacts",
+      "exit_code": 0,
+      "job_id": "job_52c89c1f8f3f40e9",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "1a33784d2a5847b09fa9e3f682edab01",
+      "status": "passed",
+      "template_id": "TK12",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/1d5cfd263cf54f9b92ceccfb07d8bcaf/artifacts/outputs/data_TK13_perf.dta",
+        "runs/1d5cfd263cf54f9b92ceccfb07d8bcaf/artifacts/outputs/fig_TK13_attribution.png",
+        "runs/1d5cfd263cf54f9b92ceccfb07d8bcaf/artifacts/outputs/result.log",
+        "runs/1d5cfd263cf54f9b92ceccfb07d8bcaf/artifacts/outputs/table_TK13_attribution.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/2e/job_2e46647983e2dd9b/runs/1d5cfd263cf54f9b92ceccfb07d8bcaf/artifacts",
+      "exit_code": 0,
+      "job_id": "job_2e46647983e2dd9b",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "1d5cfd263cf54f9b92ceccfb07d8bcaf",
+      "status": "passed",
+      "template_id": "TK13",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/5a12ad22a9864ba8bcf7165cf815fb3e/artifacts/outputs/data_TK14_risk.dta",
+        "runs/5a12ad22a9864ba8bcf7165cf815fb3e/artifacts/outputs/fig_TK14_drawdown.png",
+        "runs/5a12ad22a9864ba8bcf7165cf815fb3e/artifacts/outputs/result.log",
+        "runs/5a12ad22a9864ba8bcf7165cf815fb3e/artifacts/outputs/table_TK14_metrics.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/6f/job_6f3b6365e0c93999/runs/5a12ad22a9864ba8bcf7165cf815fb3e/artifacts",
+      "exit_code": 0,
+      "job_id": "job_6f3b6365e0c93999",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "5a12ad22a9864ba8bcf7165cf815fb3e",
+      "status": "passed",
+      "template_id": "TK14",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/82500b232f5e4fdfa960be35bbf7c194/artifacts/outputs/result.log",
+        "runs/82500b232f5e4fdfa960be35bbf7c194/artifacts/outputs/table_TK15_momentum.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/db/job_db87ff6f2ad0d3bc/runs/82500b232f5e4fdfa960be35bbf7c194/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(111);"
+      },
+      "exit_code": 0,
+      "job_id": "job_db87ff6f2ad0d3bc",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TK15_mom.dta",
+        "fig_TK15_momentum.png",
+        "table_TK15_factor.csv"
+      ],
+      "run_id": "82500b232f5e4fdfa960be35bbf7c194",
+      "status": "failed",
+      "template_id": "TK15",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/20ce2b2435824ec4962024ab235ed6de/artifacts/outputs/data_TK16_value.dta",
+        "runs/20ce2b2435824ec4962024ab235ed6de/artifacts/outputs/fig_TK16_value.png",
+        "runs/20ce2b2435824ec4962024ab235ed6de/artifacts/outputs/result.log",
+        "runs/20ce2b2435824ec4962024ab235ed6de/artifacts/outputs/table_TK16_factor.csv",
+        "runs/20ce2b2435824ec4962024ab235ed6de/artifacts/outputs/table_TK16_value.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/85/job_857b942684a3107a/runs/20ce2b2435824ec4962024ab235ed6de/artifacts",
+      "exit_code": 0,
+      "job_id": "job_857b942684a3107a",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "20ce2b2435824ec4962024ab235ed6de",
+      "status": "passed",
+      "template_id": "TK16",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/164e4aea14bb48d4a73ff000d3bb6efb/artifacts/outputs/data_TK17_size.dta",
+        "runs/164e4aea14bb48d4a73ff000d3bb6efb/artifacts/outputs/fig_TK17_size.png",
+        "runs/164e4aea14bb48d4a73ff000d3bb6efb/artifacts/outputs/result.log",
+        "runs/164e4aea14bb48d4a73ff000d3bb6efb/artifacts/outputs/table_TK17_factor.csv",
+        "runs/164e4aea14bb48d4a73ff000d3bb6efb/artifacts/outputs/table_TK17_size.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/b5/job_b5ef4312f3e7acb4/runs/164e4aea14bb48d4a73ff000d3bb6efb/artifacts",
+      "exit_code": 0,
+      "job_id": "job_b5ef4312f3e7acb4",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "164e4aea14bb48d4a73ff000d3bb6efb",
+      "status": "passed",
+      "template_id": "TK17",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/ea57e452742f4ec5a61edd9d231bee89/artifacts/outputs/data_TK18_liq.dta",
+        "runs/ea57e452742f4ec5a61edd9d231bee89/artifacts/outputs/fig_TK18_liquidity.png",
+        "runs/ea57e452742f4ec5a61edd9d231bee89/artifacts/outputs/result.log",
+        "runs/ea57e452742f4ec5a61edd9d231bee89/artifacts/outputs/table_TK18_factor.csv",
+        "runs/ea57e452742f4ec5a61edd9d231bee89/artifacts/outputs/table_TK18_liquidity.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/bf/job_bfadb44e2e952103/runs/ea57e452742f4ec5a61edd9d231bee89/artifacts",
+      "exit_code": 0,
+      "job_id": "job_bfadb44e2e952103",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "ea57e452742f4ec5a61edd9d231bee89",
+      "status": "passed",
+      "template_id": "TK18",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/2e8cbd344bf84da4a236cfaea84720f9/artifacts/outputs/data_TK19_beta.dta",
+        "runs/2e8cbd344bf84da4a236cfaea84720f9/artifacts/outputs/fig_TK19_beta_anomaly.png",
+        "runs/2e8cbd344bf84da4a236cfaea84720f9/artifacts/outputs/result.log",
+        "runs/2e8cbd344bf84da4a236cfaea84720f9/artifacts/outputs/table_TK19_bab_factor.csv",
+        "runs/2e8cbd344bf84da4a236cfaea84720f9/artifacts/outputs/table_TK19_beta_sort.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/df/job_dfb14e908719e526/runs/2e8cbd344bf84da4a236cfaea84720f9/artifacts",
+      "exit_code": 0,
+      "job_id": "job_dfb14e908719e526",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "2e8cbd344bf84da4a236cfaea84720f9",
+      "status": "passed",
+      "template_id": "TK19",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/eb9c754aac984b13a576a2117ad1b9a6/artifacts/outputs/data_TK20_fm.dta",
+        "runs/eb9c754aac984b13a576a2117ad1b9a6/artifacts/outputs/fig_TK20_gamma_ts.png",
+        "runs/eb9c754aac984b13a576a2117ad1b9a6/artifacts/outputs/result.log",
+        "runs/eb9c754aac984b13a576a2117ad1b9a6/artifacts/outputs/table_TK20_fm_result.csv",
+        "runs/eb9c754aac984b13a576a2117ad1b9a6/artifacts/outputs/table_TK20_time_series.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-280-phase-4-10-finance-tk/jobs/be/job_be82980967611990/runs/eb9c754aac984b13a576a2117ad1b9a6/artifacts",
+      "exit_code": 0,
+      "job_id": "job_be82980967611990",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "eb9c754aac984b13a576a2117ad1b9a6",
+      "status": "passed",
+      "template_id": "TK20",
+      "timed_out": false
+    }
+  ],
+  "finished_at": "2026-01-10T04:11:01.929705+00:00",
+  "library_dir": "assets/stata_do_library",
+  "schema_version": "1.0",
+  "started_at": "2026-01-10T04:09:39.829764+00:00",
+  "stata_cmd": [
+    "/mnt/c/Program Files/Stata18/StataMP-64.exe"
+  ],
+  "suite_id": "issue_280_tk01_tk20",
+  "summary": {
+    "failed": 1,
+    "passed": 19
+  }
+}

@@ -5,7 +5,7 @@
 * OUTPUTS:
 *   - table_TK11_spread_stats.csv type=table desc="Spread stats"
 *   - table_TK11_liquidity.csv type=table desc="Liquidity metrics"
-*   - fig_TK11_spread_intraday.png type=figure desc="Intraday spread"
+*   - fig_TK11_spread_intraday.png type=graph desc="Intraday spread"
 *   - data_TK11_micro.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -13,7 +13,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -23,9 +27,27 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TK11
+    args code cmd msg detail step
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    if "`step'" != "" & "`step'" != "." {
+        display "SS_STEP_END|step=`step'|status=fail|elapsed_sec=0"
+    }
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|detail=`detail'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TK11|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TK11|level=L2|title=Market_Micro"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+local avg_amihud = .
 
 * ============ 参数设置 ============
 local bid_var = "__BID_VAR__"
@@ -47,10 +69,7 @@ display "    时间: `time_var'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TK11 601 confirm_file file_not_found data.csv S01_load_data
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -63,10 +82,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `bid_var' `ask_var' `price_var' {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
-        log close
-        exit 200
+        ss_fail_TK11 200 confirm_variable var_not_found `var' S02_validate_inputs
     }
 }
 
@@ -149,7 +165,8 @@ if !_rc {
 
 * Roll价差估计
 generate double price_change = `price_var' - `price_var'[_n-1] if _n > 1
-quietly correlate price_change price_change[_n-1], covariance
+generate double price_change_lag = price_change[_n-1] if _n > 2
+quietly correlate price_change price_change_lag, covariance
 local cov = r(cov_12)
 if `cov' < 0 {
     local roll_spread = 2 * sqrt(-`cov')
@@ -176,6 +193,9 @@ if !_rc {
 }
 
 * ============ 导出统计结果 ============
+quietly summarize abs_spread
+local avg_abs_spread = r(mean)
+
 preserve
 clear
 set obs 6
@@ -183,8 +203,7 @@ generate str30 metric = ""
 generate double value = .
 
 replace metric = "平均绝对价差" in 1
-quietly summarize abs_spread
-replace value = r(mean) in 1
+replace value = `avg_abs_spread' in 1
 
 replace metric = "平均相对价差(%)" in 2
 replace value = `avg_rel_spread' in 2
@@ -234,14 +253,16 @@ export delimited using "table_TK11_liquidity.csv", replace
 display "SS_OUTPUT_FILE|file=table_TK11_liquidity.csv|type=table|desc=liquidity"
 
 * 生成日内价差图
+generate double spread_lower = mean_spread - sd_spread
+generate double spread_upper = mean_spread + sd_spread
 twoway (line mean_spread hour, lcolor(navy) lwidth(medium)) ///
-       (rarea `=mean_spread - sd_spread' `=mean_spread + sd_spread' hour, color(navy%20)), ///
+       (rarea spread_lower spread_upper hour, color(navy%20)), ///
        xtitle("小时") ytitle("相对价差 (%)") ///
        title("日内买卖价差模式") ///
        legend(off) ///
        note("阴影=±1标准差")
 graph export "fig_TK11_spread_intraday.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK11_spread_intraday.png|type=figure|desc=intraday_spread"
+display "SS_OUTPUT_FILE|file=fig_TK11_spread_intraday.png|type=graph|desc=intraday_spread"
 restore
 
 * ============ 输出结果 ============

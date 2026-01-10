@@ -1,11 +1,11 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TK19  level=L2  module=K  title="Beta Anomaly"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TK19_beta_sort.csv type=table desc="Beta sorted returns"
 *   - table_TK19_bab_factor.csv type=table desc="BAB factor"
-*   - fig_TK19_beta_anomaly.png type=figure desc="Beta anomaly chart"
+*   - fig_TK19_beta_anomaly.png type=graph desc="Beta anomaly chart"
 *   - data_TK19_beta.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -13,7 +13,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -23,8 +27,24 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TK19
+    args code cmd msg detail step
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    if "`step'" != "" & "`step'" != "." {
+        display "SS_STEP_END|step=`step'|status=fail|elapsed_sec=0"
+    }
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|detail=`detail'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TK19|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TK19|level=L2|title=Beta_Anomaly"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -48,10 +68,7 @@ display "    分组数: `n_groups'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TK19 601 confirm_file file_not_found data.csv S01_load_data
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -64,14 +81,22 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `return_var' `beta_var' `stock_id' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
-        log close
-        exit 200
+        ss_fail_TK19 200 confirm_variable var_not_found `var' S02_validate_inputs
     }
 }
 
-ss_smart_xtset `stock_id' `time_var'
+capture xtset `stock_id' `time_var'
+local rc_xtset = _rc
+if `rc_xtset' != 0 {
+    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed_trying_fallback|severity=warn"
+    sort `stock_id' `time_var'
+    bysort `stock_id': gen long ss_time_index = _n
+    capture xtset `stock_id' ss_time_index
+    local rc_xtset2 = _rc
+    if `rc_xtset2' != 0 {
+        ss_fail_TK19 459 xtset xtset_failed panel_set S02_validate_inputs
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -82,7 +107,44 @@ display "═══════════════════════�
 display "SECTION 1: Beta分组"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-bysort `time_var': egen beta_rank = xtile(`beta_var'), n(`n_groups')
+capture drop beta_rank
+tempvar n_time
+bysort `time_var': gen long `n_time' = _N
+quietly summarize `n_time'
+local max_n_time = r(max)
+drop `n_time'
+
+if `max_n_time' < 2 {
+    capture xtile beta_rank = `beta_var', nq(`n_groups')
+    local rc_tile = _rc
+    if `rc_tile' != 0 {
+        generate int beta_rank = 1
+    }
+}
+else {
+    generate int beta_rank = .
+    tempvar tmp_rank
+    quietly levelsof `time_var', local(times_rank)
+    foreach tt of local times_rank {
+        capture drop `tmp_rank'
+        capture xtile `tmp_rank' = `beta_var' if `time_var' == `tt', nq(`n_groups')
+        local rc_tile = _rc
+        if `rc_tile' == 0 {
+            replace beta_rank = `tmp_rank' if `time_var' == `tt'
+            drop `tmp_rank'
+        }
+    }
+
+    quietly count if !missing(beta_rank)
+    if r(N) == 0 {
+        capture drop beta_rank
+        capture xtile beta_rank = `beta_var', nq(`n_groups')
+        local rc_global = _rc
+        if `rc_global' != 0 {
+            generate int beta_rank = 1
+        }
+    }
+}
 label variable beta_rank "Beta分组(1=低,`n_groups'=高)"
 
 display ""
@@ -192,7 +254,7 @@ twoway (scatter avg_ret avg_beta, mcolor(navy) msize(large)) ///
        title("低Beta异象: 收益与Beta关系") ///
        note("BAB收益=" %6.4f `bab_mean' ", SML斜率=" %6.4f `slope')
 graph export "fig_TK19_beta_anomaly.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK19_beta_anomaly.png|type=figure|desc=beta_anomaly"
+display "SS_OUTPUT_FILE|file=fig_TK19_beta_anomaly.png|type=graph|desc=beta_anomaly"
 restore
 
 preserve
@@ -205,7 +267,11 @@ display "SS_OUTPUT_FILE|file=table_TK19_bab_factor.csv|type=table|desc=bab_facto
 restore
 
 capture erase "temp_beta_returns.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"

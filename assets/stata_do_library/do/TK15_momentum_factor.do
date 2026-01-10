@@ -1,11 +1,11 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TK15  level=L2  module=K  title="Momentum Factor"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TK15_momentum.csv type=table desc="Momentum returns"
 *   - table_TK15_factor.csv type=table desc="Momentum factor"
-*   - fig_TK15_momentum.png type=figure desc="Momentum chart"
+*   - fig_TK15_momentum.png type=graph desc="Momentum chart"
 *   - data_TK15_mom.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -13,7 +13,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -23,8 +27,24 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TK15
+    args code cmd msg detail step
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    if "`step'" != "" & "`step'" != "." {
+        display "SS_STEP_END|step=`step'|status=fail|elapsed_sec=0"
+    }
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|detail=`detail'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TK15|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TK15|level=L2|title=Momentum_Factor"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -58,10 +78,7 @@ display "    分组数: `n_groups'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TK15 601 confirm_file file_not_found data.csv S01_load_data
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -74,14 +91,22 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `return_var' `stock_id' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
-        log close
-        exit 200
+        ss_fail_TK15 200 confirm_variable var_not_found `var' S02_validate_inputs
     }
 }
 
-ss_smart_xtset `stock_id' `time_var'
+capture xtset `stock_id' `time_var'
+local rc_xtset = _rc
+if `rc_xtset' != 0 {
+    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed_trying_fallback|severity=warn"
+    sort `stock_id' `time_var'
+    bysort `stock_id': gen long ss_time_index = _n
+    capture xtset `stock_id' ss_time_index
+    local rc_xtset2 = _rc
+    if `rc_xtset2' != 0 {
+        ss_fail_TK15 459 xtset xtset_failed panel_set S02_validate_inputs
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -120,7 +145,44 @@ display "SECTION 2: 动量分组"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 * 按时间截面分组
-bysort `time_var': egen mom_rank = xtile(momentum), n(`n_groups')
+capture drop mom_rank
+tempvar n_time
+bysort `time_var': gen long `n_time' = _N
+quietly summarize `n_time'
+local max_n_time = r(max)
+drop `n_time'
+
+if `max_n_time' < 2 {
+    capture xtile mom_rank = momentum, nq(`n_groups')
+    local rc_tile = _rc
+    if `rc_tile' != 0 {
+        generate int mom_rank = 1
+    }
+}
+else {
+    generate int mom_rank = .
+    tempvar tmp_rank
+    quietly levelsof `time_var', local(times_rank)
+    foreach tt of local times_rank {
+        capture drop `tmp_rank'
+        capture xtile `tmp_rank' = momentum if `time_var' == `tt', nq(`n_groups')
+        local rc_tile = _rc
+        if `rc_tile' == 0 {
+            replace mom_rank = `tmp_rank' if `time_var' == `tt'
+            drop `tmp_rank'
+        }
+    }
+
+    quietly count if !missing(mom_rank)
+    if r(N) == 0 {
+        capture drop mom_rank
+        capture xtile mom_rank = momentum, nq(`n_groups')
+        local rc_global = _rc
+        if `rc_global' != 0 {
+            generate int mom_rank = 1
+        }
+    }
+}
 label variable mom_rank "动量分组(1=输家,`n_groups'=赢家)"
 
 * 每期各组统计
@@ -207,7 +269,17 @@ restore
 preserve
 use "temp_port_returns.dta", clear
 reshape wide port_ret, i(time) j(group)
-generate double mom_factor = port_ret`n_groups' - port_ret1
+generate double mom_factor = .
+capture confirm variable port_ret`n_groups'
+local rc_top = _rc
+capture confirm variable port_ret1
+local rc_bottom = _rc
+if `rc_top' == 0 & `rc_bottom' == 0 {
+    replace mom_factor = port_ret`n_groups' - port_ret1
+}
+else {
+    display "SS_RC|code=0|cmd=momentum_factor|msg=mom_factor_unavailable_missing_group_returns|detail=mom_factor|severity=warn"
+}
 keep time mom_factor
 export delimited using "table_TK15_factor.csv", replace
 display "SS_OUTPUT_FILE|file=table_TK15_factor.csv|type=table|desc=factor"
@@ -224,11 +296,15 @@ twoway (bar avg_ret group, barwidth(0.6) color(navy)), ///
     title("动量效应: 组合收益") ///
     note("WML收益=" %6.4f `wml_mean' ", t=" %5.2f `wml_t')
 graph export "fig_TK15_momentum.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK15_momentum.png|type=figure|desc=momentum_chart"
+display "SS_OUTPUT_FILE|file=fig_TK15_momentum.png|type=graph|desc=momentum_chart"
 restore
 
 capture erase "temp_port_returns.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 
 * ============ 输出结果 ============
 local n_output = _N

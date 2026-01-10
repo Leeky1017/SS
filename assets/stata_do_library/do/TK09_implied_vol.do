@@ -4,7 +4,7 @@
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TK09_implied_vol.csv type=table desc="IV results"
-*   - fig_TK09_vol_smile.png type=figure desc="Vol smile"
+*   - fig_TK09_vol_smile.png type=graph desc="Vol smile"
 *   - data_TK09_iv.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -12,7 +12,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -22,8 +26,24 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TK09
+    args code cmd msg detail step
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    if "`step'" != "" & "`step'" != "." {
+        display "SS_STEP_END|step=`step'|status=fail|elapsed_sec=0"
+    }
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|detail=`detail'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TK09|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TK09|level=L2|title=Implied_Vol"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -54,10 +74,7 @@ display "    期权类型: `option_type'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TK09 601 confirm_file file_not_found data.csv S01_load_data
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -70,10 +87,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `market_price' `spot_var' `strike_var' `ttm_var' {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
-        log close
-        exit 200
+        ss_fail_TK09 200 confirm_variable var_not_found `var' S02_validate_inputs
     }
 }
 
@@ -182,11 +196,22 @@ display "═══════════════════════�
 display "SECTION 2: 隐含波动率统计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-quietly summarize implied_vol if iv_converged == 1
-local avg_iv = r(mean)
-local sd_iv = r(sd)
-local min_iv = r(min)
-local max_iv = r(max)
+quietly count if iv_converged == 1 & implied_vol < .
+local n_iv = r(N)
+if `n_iv' > 0 {
+    quietly summarize implied_vol if iv_converged == 1
+    local avg_iv = r(mean)
+    local sd_iv = r(sd)
+    local min_iv = r(min)
+    local max_iv = r(max)
+}
+else {
+    display "SS_RC|code=0|cmd=implied_vol_solver|msg=none_converged_skipping_summary|detail=iv|severity=warn"
+    local avg_iv = .
+    local sd_iv = .
+    local min_iv = .
+    local max_iv = .
+}
 
 display ""
 display ">>> 隐含波动率统计:"
@@ -221,7 +246,9 @@ label values moneyness_grp moneyness_lbl
 
 display ""
 display ">>> 按价值状态的隐含波动率:"
-tabstat implied_vol if iv_converged == 1, by(moneyness_grp) statistics(mean sd n)
+if `n_iv' > 0 {
+    tabstat implied_vol if iv_converged == 1, by(moneyness_grp) statistics(mean sd n)
+}
 
 * ============ 导出结果 ============
 preserve
@@ -236,15 +263,17 @@ display "═══════════════════════�
 display "SECTION 4: 生成波动率微笑图"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-twoway (scatter implied_vol moneyness if iv_converged == 1, mcolor(navy%50) msize(small)) ///
-       (lpoly implied_vol moneyness if iv_converged == 1, lcolor(red) lwidth(medium)), ///
-       xline(1, lcolor(gray) lpattern(dash)) ///
-       legend(order(1 "隐含波动率" 2 "拟合曲线") position(6)) ///
-       xtitle("价值状态 (S/K)") ytitle("隐含波动率") ///
-       title("波动率微笑曲线") ///
-       note("ATM=1.0")
-graph export "fig_TK09_vol_smile.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK09_vol_smile.png|type=figure|desc=vol_smile"
+if `n_iv' > 0 {
+    twoway (scatter implied_vol moneyness if iv_converged == 1, mcolor(navy%50) msize(small)) ///
+           (lpoly implied_vol moneyness if iv_converged == 1, lcolor(red) lwidth(medium)), ///
+           xline(1, lcolor(gray) lpattern(dash)) ///
+           legend(order(1 "隐含波动率" 2 "拟合曲线") position(6)) ///
+           xtitle("价值状态 (S/K)") ytitle("隐含波动率") ///
+           title("波动率微笑曲线") ///
+           note("ATM=1.0")
+    graph export "fig_TK09_vol_smile.png", replace width(1200)
+    display "SS_OUTPUT_FILE|file=fig_TK09_vol_smile.png|type=graph|desc=vol_smile"
+}
 
 * ============ 输出结果 ============
 local n_output = _N

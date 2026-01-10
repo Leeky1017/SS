@@ -5,7 +5,7 @@
 * OUTPUTS:
 *   - table_TK05_var_result.csv type=table desc="VaR results"
 *   - table_TK05_backtest.csv type=table desc="Backtest results"
-*   - fig_TK05_var_plot.png type=figure desc="VaR plot"
+*   - fig_TK05_var_plot.png type=graph desc="VaR plot"
 *   - data_TK05_var.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -13,7 +13,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -23,8 +27,24 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TK05
+    args code cmd msg detail step
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    if "`step'" != "" & "`step'" != "." {
+        display "SS_STEP_END|step=`step'|status=fail|elapsed_sec=0"
+    }
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|detail=`detail'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TK05|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TK05|level=L2|title=VaR_Calculate"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -61,10 +81,7 @@ display "    组合价值: " %12.0fc `portfolio_value'
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TK05 601 confirm_file file_not_found data.csv S01_load_data
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -76,10 +93,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 * ============ 变量检查 ============
 capture confirm numeric variable `return_var'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`return_var' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`return_var' not found"
-    log close
-    exit 200
+    ss_fail_TK05 200 confirm_variable var_not_found `return_var' S02_validate_inputs
 }
 
 generate t = _n
@@ -217,11 +231,11 @@ display "═══════════════════════�
 local window = 250
 local n_test = _N - `window'
 
+generate double rolling_var = .
+generate byte var_breach = .
+
 if `n_test' > 50 {
     display ">>> 执行滚动VaR回测 (窗口=`window')..."
-    
-    generate double rolling_var = .
-    generate byte var_breach = .
     
     forvalues i = `=`window'+1'/`=_N' {
         local start = `i' - `window'
@@ -269,7 +283,7 @@ if `n_test' > 50 {
     }
     else {
         display "    结论: VaR模型未通过回测"
-        display "SS_WARNING:VAR_BACKTEST_FAIL:VaR model failed backtest"
+        display "SS_RC|code=0|cmd=var_backtest|msg=var_model_failed_backtest|detail=kupiec|severity=warn"
         local backtest_conclusion = "未通过"
     }
     
@@ -304,7 +318,7 @@ twoway (line `return_var' t, lcolor(navy%50) lwidth(thin)) ///
        title("VaR回测: 实际收益 vs VaR阈值") ///
        note("置信水平=`=`confidence'*100'%")
 graph export "fig_TK05_var_plot.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK05_var_plot.png|type=figure|desc=var_plot"
+display "SS_OUTPUT_FILE|file=fig_TK05_var_plot.png|type=graph|desc=var_plot"
 
 * ============ 输出结果 ============
 local n_output = _N
@@ -315,7 +329,11 @@ display "SS_OUTPUT_FILE|file=data_TK05_var.dta|type=data|desc=var_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 capture erase "temp_var_results.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 
 * ============ 任务完成摘要 ============
 display ""

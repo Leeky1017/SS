@@ -1,0 +1,225 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "issue_280_tk01_tk20",
+  "templates": {
+    "TK01": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK01/sample_data.csv" }],
+      "params": {
+        "__RETURN_VAR__": "y",
+        "__MARKET_VAR__": "x",
+        "__RF_VAR__": "",
+        "__STOCK_ID__": "id",
+        "__TIME_VAR__": "year",
+        "__WINDOW__": "24"
+      }
+    },
+    "TK02": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK02/sample_data.csv" }],
+      "params": {
+        "__RETURN_VAR__": "y",
+        "__MKT_VAR__": "x",
+        "__SMB_VAR__": "treat",
+        "__HML_VAR__": "post",
+        "__RMW_VAR__": "cluster",
+        "__CMA_VAR__": "x",
+        "__STOCK_ID__": "id"
+      }
+    },
+    "TK03": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK03/sample_data.csv" }],
+      "params": {
+        "__RETURN_VAR__": "y",
+        "__MARKET_VAR__": "x",
+        "__STOCK_ID__": "id",
+        "__DATE_VAR__": "year",
+        "__EST_WINDOW__": "30",
+        "__EVENT_WINDOW__": "3"
+      }
+    },
+    "TK04": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK04/sample_data.csv" }],
+      "params": {
+        "__RETURN_VAR__": "y",
+        "__MODEL__": "garch",
+        "__P__": "1",
+        "__Q__": "1",
+        "__DIST__": "gaussian"
+      }
+    },
+    "TK05": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK05/sample_data.csv" }],
+      "params": {
+        "__RETURN_VAR__": "y",
+        "__CONFIDENCE__": "0.95",
+        "__HORIZON__": "1",
+        "__METHOD__": "parametric",
+        "__PORTFOLIO_VALUE__": "1000000"
+      }
+    },
+    "TK06": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK06/sample_data.csv" }],
+      "params": {
+        "__ASSET_VARS__": "y x",
+        "__RF_RATE__": "0.02",
+        "__TARGET_RETURN__": "0.05",
+        "__SHORT_ALLOWED__": "no"
+      }
+    },
+    "TK07": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK07/sample_data.csv" }],
+      "params": {
+        "__COUPON_RATE__": "0.05",
+        "__FACE_VALUE__": "1000",
+        "__YTM__": "0.06",
+        "__MATURITY__": "5",
+        "__FREQUENCY__": "2"
+      }
+    },
+    "TK08": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK08/sample_data.csv" }],
+      "params": {
+        "__SPOT_PRICE__": "100",
+        "__STRIKE_PRICE__": "100",
+        "__TIME_TO_MAT__": "1",
+        "__RISK_FREE__": "0.02",
+        "__VOLATILITY__": "0.20",
+        "__OPTION_TYPE__": "call"
+      }
+    },
+    "TK09": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK09/sample_data.csv" }],
+      "params": {
+        "__MARKET_PRICE__": "y",
+        "__SPOT_VAR__": "y",
+        "__STRIKE_VAR__": "x",
+        "__TTM_VAR__": "x",
+        "__RF_RATE__": "0.05",
+        "__OPTION_TYPE__": "call"
+      }
+    },
+    "TK10": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK10/sample_data.csv" }],
+      "params": {
+        "__DEFAULT_VAR__": "treat",
+        "__PREDICTORS__": "x post",
+        "__MODEL__": "logit"
+      }
+    },
+    "TK11": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK11/sample_data.csv" }],
+      "params": {
+        "__PRICE_VAR__": "y",
+        "__BID_VAR__": "x",
+        "__ASK_VAR__": "y",
+        "__VOLUME_VAR__": "cluster",
+        "__STOCK_ID__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TK12": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK12/sample_data.csv" }],
+      "params": { "__RETURN_VARS__": "y x", "__COPULA_TYPE__": "gaussian" }
+    },
+    "TK13": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK13/sample_data.csv" }],
+      "params": {
+        "__PORT_RETURN__": "y",
+        "__BENCH_RETURN__": "x",
+        "__PORT_WEIGHT__": "treat",
+        "__BENCH_WEIGHT__": "post",
+        "__SECTOR_VAR__": "province"
+      }
+    },
+    "TK14": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK14/sample_data.csv" }],
+      "params": {
+        "__RETURN_VAR__": "y",
+        "__BENCHMARK_VAR__": "x",
+        "__RF_RATE__": "0.02",
+        "__FREQUENCY__": "12"
+      }
+    },
+    "TK15": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK15/sample_data.csv" }],
+      "params": {
+        "__RETURN_VAR__": "y",
+        "__STOCK_ID__": "id",
+        "__TIME_VAR__": "year",
+        "__LOOKBACK__": "12",
+        "__SKIP__": "1",
+        "__N_GROUPS__": "5"
+      }
+    },
+    "TK16": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK16/sample_data.csv" }],
+      "params": {
+        "__RETURN_VAR__": "y",
+        "__BM_VAR__": "x",
+        "__STOCK_ID__": "id",
+        "__TIME_VAR__": "year",
+        "__N_GROUPS__": "5"
+      }
+    },
+    "TK17": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK17/sample_data.csv" }],
+      "params": {
+        "__RETURN_VAR__": "y",
+        "__SIZE_VAR__": "x",
+        "__STOCK_ID__": "id",
+        "__TIME_VAR__": "year",
+        "__N_GROUPS__": "5"
+      }
+    },
+    "TK18": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK18/sample_data.csv" }],
+      "params": {
+        "__RETURN_VAR__": "y",
+        "__TURNOVER_VAR__": "x",
+        "__STOCK_ID__": "id",
+        "__TIME_VAR__": "year",
+        "__N_GROUPS__": "5"
+      }
+    },
+    "TK19": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK19/sample_data.csv" }],
+      "params": {
+        "__RETURN_VAR__": "y",
+        "__BETA_VAR__": "x",
+        "__STOCK_ID__": "id",
+        "__TIME_VAR__": "year",
+        "__N_GROUPS__": "5"
+      }
+    },
+    "TK20": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TK20/sample_data.csv" }],
+      "params": {
+        "__RETURN_VAR__": "y",
+        "__BETA_VAR__": "x",
+        "__OTHER_VARS__": "treat post",
+        "__STOCK_ID__": "id",
+        "__TIME_VAR__": "year"
+      }
+    }
+  }
+}
+

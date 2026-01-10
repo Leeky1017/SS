@@ -4,7 +4,7 @@
 *   - data.csv  role=main_dataset  required=no
 * OUTPUTS:
 *   - table_TK07_duration.csv type=table desc="Duration results"
-*   - fig_TK07_price_yield.png type=figure desc="Price-yield curve"
+*   - fig_TK07_price_yield.png type=graph desc="Price-yield curve"
 *   - data_TK07_bond.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -12,7 +12,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -23,7 +27,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TK07|level=L1|title=Bond_Duration"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
@@ -238,7 +242,7 @@ twoway (line actual_price yield_level, lcolor(navy) lwidth(medium)) ///
        xtitle("到期收益率") ytitle("债券价格") ///
        title("债券价格-收益率关系")
 graph export "fig_TK07_price_yield.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK07_price_yield.png|type=figure|desc=price_yield"
+display "SS_OUTPUT_FILE|file=fig_TK07_price_yield.png|type=graph|desc=price_yield"
 restore
 
 * ============ 导出结果 ============
