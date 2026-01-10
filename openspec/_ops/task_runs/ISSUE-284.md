@@ -1,7 +1,7 @@
 # ISSUE-284
 - Issue: #284
 - Branch: task/284-p5-12-medical-tm
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/286
 
 ## Goal
 - Enhance TM01–TM15 (Medical/Biostats): best practices, SSC deps replacement where feasible, stronger error handling (`SS_RC`), and bilingual comments; keep evidence auditable.
