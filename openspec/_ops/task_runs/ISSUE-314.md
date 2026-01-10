@@ -53,3 +53,12 @@
   - `169 passed, 5 skipped`
 - Evidence:
   - (this file)
+
+### 2026-01-10 Preflight: roadmap + open PR overlap
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - (this file)
