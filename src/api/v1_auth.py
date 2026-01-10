@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from fastapi import Depends, Header, Request
+from fastapi import Depends, Header
 
-from src.api.deps import get_config, get_job_store, get_tenant_id
-from src.config import Config
+from src.api.deps import get_job_store, get_tenant_id
 from src.domain.job_store import JobStore
 from src.domain.upload_session_id import job_id_from_upload_session_id
 from src.infra.auth_exceptions import (
@@ -13,21 +12,8 @@ from src.infra.auth_exceptions import (
     AuthBearerTokenMissingError,
     AuthTokenForbiddenError,
     AuthTokenInvalidError,
-    LegacyPostJobsDisabledError,
 )
 from src.utils.time import utc_now
-
-
-async def enforce_v1_legacy_post_jobs_enabled(
-    request: Request,
-    job_id: str | None = None,
-    config: Config = Depends(get_config),
-) -> None:
-    if request.method != "POST" or job_id is not None:
-        return
-    if config.v1_enable_legacy_post_jobs:
-        return
-    raise LegacyPostJobsDisabledError()
 
 
 async def enforce_v1_job_bearer_auth(

@@ -20,9 +20,13 @@ pytestmark = pytest.mark.stress
 
 def _create_job(*, client: TestClient, recorder: LatencyRecorder, requirement: str) -> str:
     start = time.monotonic()
-    response = client.post("/v1/jobs", json={"requirement": requirement})
+    response = client.post(
+        "/v1/task-codes/redeem",
+        json={"task_code": f"tc_stability_{uuid.uuid4()}", "requirement": requirement},
+    )
     recorder.record(duration_ms=(time.monotonic() - start) * 1000.0, ok=response.status_code == 200)
     assert response.status_code == 200
+    client.headers.update({"Authorization": f"Bearer {response.json()['token']}"})
     return str(response.json()["job_id"])
 
 

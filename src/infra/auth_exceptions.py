@@ -38,16 +38,6 @@ class AuthTokenForbiddenError(SSError):
             status_code=403,
         )
 
-
-class LegacyPostJobsDisabledError(SSError):
-    def __init__(self) -> None:
-        super().__init__(
-            error_code="LEGACY_POST_JOBS_DISABLED",
-            message="POST /v1/jobs is disabled; use POST /v1/task-codes/redeem",
-            status_code=403,
-        )
-
-
 class TaskCodeInvalidError(SSError):
     def __init__(self) -> None:
         super().__init__(

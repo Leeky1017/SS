@@ -22,9 +22,15 @@ from tests.stress._metrics import (
 pytestmark = pytest.mark.stress
 
 
-def _recorded_get(*, client: TestClient, recorder: LatencyRecorder, url: str) -> object:
+def _recorded_get(
+    *,
+    client: TestClient,
+    recorder: LatencyRecorder,
+    url: str,
+    headers: dict[str, str] | None = None,
+) -> object:
     start = time.monotonic()
-    response = client.get(url)
+    response = client.get(url, headers=headers)
     recorder.record(duration_ms=(time.monotonic() - start) * 1000.0, ok=response.status_code < 400)
     return response
 
@@ -35,43 +41,56 @@ def _recorded_post(
     recorder: LatencyRecorder,
     url: str,
     json_payload: dict[str, object],
+    headers: dict[str, str] | None = None,
 ) -> object:
     start = time.monotonic()
-    response = client.post(url, json=json_payload)
+    response = client.post(url, json=json_payload, headers=headers)
     recorder.record(duration_ms=(time.monotonic() - start) * 1000.0, ok=response.status_code < 400)
     return response
 
 
-def _create_job(*, app: FastAPI, recorder: LatencyRecorder) -> str:
+def _create_job(*, app: FastAPI, recorder: LatencyRecorder) -> tuple[str, str]:
     with TestClient(app) as client:
         requirement = f"stress-{uuid.uuid4()}"
         response = _recorded_post(
             client=client,
             recorder=recorder,
-            url="/v1/jobs",
-            json_payload={"requirement": requirement},
+            url="/v1/task-codes/redeem",
+            json_payload={"task_code": f"tc_stress_{uuid.uuid4()}", "requirement": requirement},
         )
-        return str(response.json()["job_id"])
+        payload = response.json()
+        return str(payload["job_id"]), str(payload["token"])
 
 
-def _preview_job(*, app: FastAPI, recorder: LatencyRecorder, job_id: str) -> None:
+def _preview_job(*, app: FastAPI, recorder: LatencyRecorder, job_id: str, token: str) -> None:
     with TestClient(app) as client:
-        _recorded_get(client=client, recorder=recorder, url=f"/v1/jobs/{job_id}/draft/preview")
+        _recorded_get(
+            client=client,
+            recorder=recorder,
+            url=f"/v1/jobs/{job_id}/draft/preview",
+            headers={"Authorization": f"Bearer {token}"},
+        )
 
 
-def _confirm_job(*, app: FastAPI, recorder: LatencyRecorder, job_id: str) -> None:
+def _confirm_job(*, app: FastAPI, recorder: LatencyRecorder, job_id: str, token: str) -> None:
     with TestClient(app) as client:
         _recorded_post(
             client=client,
             recorder=recorder,
             url=f"/v1/jobs/{job_id}/confirm",
             json_payload={"confirmed": True},
+            headers={"Authorization": f"Bearer {token}"},
         )
 
 
-def _poll_job(*, app: FastAPI, recorder: LatencyRecorder, job_id: str) -> None:
+def _poll_job(*, app: FastAPI, recorder: LatencyRecorder, job_id: str, token: str) -> None:
     with TestClient(app) as client:
-        _recorded_get(client=client, recorder=recorder, url=f"/v1/jobs/{job_id}")
+        _recorded_get(
+            client=client,
+            recorder=recorder,
+            url=f"/v1/jobs/{job_id}",
+            headers={"Authorization": f"Bearer {token}"},
+        )
 
 
 def _worker_loop(*, worker, worker_id: str, stop: threading.Event) -> None:
@@ -95,22 +114,33 @@ def _start_workers(*, stress_worker_factory) -> tuple[threading.Event, list[thre
     return stop, threads
 
 
-def _run_users(*, app: FastAPI, recorder: LatencyRecorder, users: int) -> list[str]:
-    job_ids: list[str] = []
+def _run_users(*, app: FastAPI, recorder: LatencyRecorder, users: int) -> list[tuple[str, str]]:
+    jobs: list[tuple[str, str]] = []
     with ThreadPoolExecutor(max_workers=users) as pool:
         futures = [pool.submit(_create_job, app=app, recorder=recorder) for _ in range(users)]
         for f in as_completed(futures):
-            job_ids.append(f.result())
+            jobs.append(f.result())
     with ThreadPoolExecutor(max_workers=min(users, 100)) as pool:
-        futures = [pool.submit(_preview_job, app=app, recorder=recorder, job_id=j) for j in job_ids]
+        futures = [
+            pool.submit(_preview_job, app=app, recorder=recorder, job_id=job_id, token=token)
+            for job_id, token in jobs
+        ]
         for f in as_completed(futures):
             f.result()
-    return job_ids
+    return jobs
 
 
-def _run_confirmations(*, app: FastAPI, recorder: LatencyRecorder, job_ids: list[str]) -> None:
-    with ThreadPoolExecutor(max_workers=min(len(job_ids), 50)) as pool:
-        futures = [pool.submit(_confirm_job, app=app, recorder=recorder, job_id=j) for j in job_ids]
+def _run_confirmations(
+    *,
+    app: FastAPI,
+    recorder: LatencyRecorder,
+    jobs: list[tuple[str, str]],
+) -> None:
+    with ThreadPoolExecutor(max_workers=min(len(jobs), 50)) as pool:
+        futures = [
+            pool.submit(_confirm_job, app=app, recorder=recorder, job_id=job_id, token=token)
+            for job_id, token in jobs
+        ]
         for f in as_completed(futures):
             f.result()
 
@@ -119,12 +149,15 @@ def _run_polls(
     *,
     app: FastAPI,
     recorder: LatencyRecorder,
-    job_ids: list[str],
+    jobs: list[tuple[str, str]],
     queries: int,
 ) -> None:
-    targets = [random.choice(job_ids) for _ in range(queries)]
+    targets = [random.choice(jobs) for _ in range(queries)]
     with ThreadPoolExecutor(max_workers=min(queries, 100)) as pool:
-        futures = [pool.submit(_poll_job, app=app, recorder=recorder, job_id=j) for j in targets]
+        futures = [
+            pool.submit(_poll_job, app=app, recorder=recorder, job_id=job_id, token=token)
+            for job_id, token in targets
+        ]
         for f in as_completed(futures):
             f.result()
 
@@ -133,17 +166,23 @@ def _wait_for_terminal_runs(
     *,
     app: FastAPI,
     recorder: LatencyRecorder,
-    run_job_ids: list[str],
+    run_jobs: list[tuple[str, str]],
     timeout_seconds: float,
 ) -> None:
     terminal = {"succeeded", "failed"}
-    remaining = set(run_job_ids)
+    tokens = {job_id: token for job_id, token in run_jobs}
+    remaining = {job_id for job_id, _token in run_jobs}
     deadline = time.monotonic() + timeout_seconds
     with TestClient(app) as client:
         while remaining and time.monotonic() < deadline:
             done: set[str] = set()
             for job_id in remaining:
-                response = _recorded_get(client=client, recorder=recorder, url=f"/v1/jobs/{job_id}")
+                response = _recorded_get(
+                    client=client,
+                    recorder=recorder,
+                    url=f"/v1/jobs/{job_id}",
+                    headers={"Authorization": f"Bearer {tokens[job_id]}"},
+                )
                 if response.status_code >= 400:
                     continue
                 status = response.json().get("status")
@@ -179,16 +218,16 @@ def test_load_100_concurrent_users_50_runs_200_queries_meets_slo(
     recorder = LatencyRecorder()
     resources_before = take_resource_snapshot()
 
-    job_ids = _run_users(app=stress_app, recorder=recorder, users=users)
-    run_job_ids = job_ids[:runs]
-    _run_confirmations(app=stress_app, recorder=recorder, job_ids=run_job_ids)
+    jobs = _run_users(app=stress_app, recorder=recorder, users=users)
+    run_jobs = jobs[:runs]
+    _run_confirmations(app=stress_app, recorder=recorder, jobs=run_jobs)
 
     stop, threads = _start_workers(stress_worker_factory=stress_worker_factory)
-    _run_polls(app=stress_app, recorder=recorder, job_ids=job_ids, queries=queries)
+    _run_polls(app=stress_app, recorder=recorder, jobs=jobs, queries=queries)
     _wait_for_terminal_runs(
         app=stress_app,
         recorder=recorder,
-        run_job_ids=run_job_ids,
+        run_jobs=run_jobs,
         timeout_seconds=run_timeout_seconds,
     )
     _join_workers(stop=stop, threads=threads)
@@ -218,12 +257,16 @@ def test_load_100_concurrent_users_50_runs_200_queries_meets_slo(
 
 def test_get_job_latency_benchmark(benchmark, stress_app: FastAPI) -> None:
     with TestClient(stress_app) as client:
-        response = client.post("/v1/jobs", json={"requirement": f"bench-{uuid.uuid4()}"})
+        response = client.post(
+            "/v1/task-codes/redeem",
+            json={"task_code": f"tc_bench_{uuid.uuid4()}", "requirement": f"bench-{uuid.uuid4()}"},
+        )
         assert response.status_code == 200
         job_id = response.json()["job_id"]
+        token = response.json()["token"]
 
         def _call() -> None:
-            r = client.get(f"/v1/jobs/{job_id}")
+            r = client.get(f"/v1/jobs/{job_id}", headers={"Authorization": f"Bearer {token}"})
             assert r.status_code == 200
 
         benchmark(_call)

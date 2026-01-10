@@ -6,18 +6,15 @@ import httpx
 import pytest
 
 from src.domain.worker_service import WorkerService
+from tests.v1_redeem import redeem_job
 
 
 async def _create_job_ready_for_submit(*, client: httpx.AsyncClient) -> str:
-    response = await client.post(
-        "/v1/jobs",
-        json={"requirement": "run a regression and export table"},
+    job_id, _token = await redeem_job(
+        client=client,
+        task_code="tc_journey_duplicate_submission",
+        requirement="run a regression and export table",
     )
-    assert response.status_code == 200
-    job_id = str(response.json()["job_id"])
-
-    response = await client.get(f"/v1/jobs/{job_id}/draft/preview")
-    assert response.status_code == 200
     return job_id
 
 
@@ -32,13 +29,31 @@ async def test_duplicate_submission_confirm_is_idempotent_and_queues_once(
 
     journey_attach_sample_inputs(job_id)
 
-    response = await journey_client.post(f"/v1/jobs/{job_id}/plan/freeze", json={})
+    response = await journey_client.get(f"/v1/jobs/{job_id}/draft/preview")
     assert response.status_code == 200
+
+    patched = await journey_client.post(
+        f"/v1/jobs/{job_id}/draft/patch",
+        json={"field_updates": {"outcome_var": "y", "treatment_var": "x", "controls": []}},
+    )
+    assert patched.status_code == 200
+    assert patched.json()["remaining_unknowns_count"] == 0
 
     responses = []
     url = f"/v1/jobs/{job_id}/confirm"
     for _ in range(3):
-        responses.append(await journey_client.post(url, json={"confirmed": True}))
+        responses.append(
+            await journey_client.post(
+                url,
+                json={
+                    "confirmed": True,
+                    "answers": {"analysis_goal": "descriptive"},
+                    "expert_suggestions_feedback": {"analysis_goal": "ok"},
+                    "variable_corrections": {},
+                    "default_overrides": {},
+                },
+            )
+        )
     assert all(resp.status_code == 200 for resp in responses)
     payloads = [resp.json() for resp in responses]
     assert {payload["status"] for payload in payloads} == {"queued"}

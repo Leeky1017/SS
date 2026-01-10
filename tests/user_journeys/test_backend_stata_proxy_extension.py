@@ -9,6 +9,7 @@ import pytest
 from src.domain.models import JobConfirmation, JobInputs
 from src.infra.plan_exceptions import PlanAlreadyFrozenError
 from src.utils.job_workspace import resolve_job_dir
+from tests.v1_redeem import redeem_job
 
 
 def _attach_primary_csv(*, store, jobs_dir, job_id: str, header: str) -> None:  # noqa: ANN001
@@ -90,12 +91,11 @@ async def test_confirm_job_with_variable_corrections_rewrites_effective_dofile_t
     journey_store,
     journey_jobs_dir,
 ) -> None:
-    created = await journey_client.post("/v1/jobs", json={"requirement": "hello"})
-    assert created.status_code == 200
-    job_id = created.json()["job_id"]
-
-    preview = await journey_client.get(f"/v1/jobs/{job_id}/draft/preview")
-    assert preview.status_code == 200
+    job_id, _token = await redeem_job(
+        client=journey_client,
+        task_code="tc_journey_variable_corrections",
+        requirement="hello",
+    )
 
     _attach_primary_csv(
         store=journey_store,
@@ -103,14 +103,26 @@ async def test_confirm_job_with_variable_corrections_rewrites_effective_dofile_t
         job_id=job_id,
         header="col_b,col_a2",
     )
-    job = journey_store.load(job_id)
-    assert job.draft is not None
-    job.draft = job.draft.model_copy(update={"outcome_var": "col_a", "treatment_var": "col_a2"})
-    journey_store.save(job)
+
+    preview = await journey_client.get(f"/v1/jobs/{job_id}/draft/preview")
+    assert preview.status_code == 200
+
+    patched = await journey_client.post(
+        f"/v1/jobs/{job_id}/draft/patch",
+        json={"field_updates": {"outcome_var": "col_a", "treatment_var": "col_a2", "controls": []}},
+    )
+    assert patched.status_code == 200
+    assert patched.json()["remaining_unknowns_count"] == 0
 
     confirmed = await journey_client.post(
         f"/v1/jobs/{job_id}/confirm",
-        json={"confirmed": True, "variable_corrections": {"col_a": "col_b"}},
+        json={
+            "confirmed": True,
+            "answers": {"analysis_goal": "descriptive"},
+            "expert_suggestions_feedback": {"analysis_goal": "ok"},
+            "variable_corrections": {"col_a": "col_b"},
+            "default_overrides": {},
+        },
     )
     assert confirmed.status_code == 200
     assert confirmed.json()["status"] == "queued"
@@ -136,12 +148,11 @@ async def test_confirm_job_when_column_missing_returns_contract_column_not_found
     journey_store,
     journey_jobs_dir,
 ) -> None:
-    created = await journey_client.post("/v1/jobs", json={"requirement": "hello"})
-    assert created.status_code == 200
-    job_id = created.json()["job_id"]
-
-    preview = await journey_client.get(f"/v1/jobs/{job_id}/draft/preview")
-    assert preview.status_code == 200
+    job_id, _token = await redeem_job(
+        client=journey_client,
+        task_code="tc_journey_column_missing",
+        requirement="hello",
+    )
 
     _attach_primary_csv(
         store=journey_store,
@@ -149,14 +160,26 @@ async def test_confirm_job_when_column_missing_returns_contract_column_not_found
         job_id=job_id,
         header="col_ok",
     )
-    job = journey_store.load(job_id)
-    assert job.draft is not None
-    job.draft = job.draft.model_copy(update={"outcome_var": "col_a"})
-    journey_store.save(job)
+
+    preview = await journey_client.get(f"/v1/jobs/{job_id}/draft/preview")
+    assert preview.status_code == 200
+
+    patched = await journey_client.post(
+        f"/v1/jobs/{job_id}/draft/patch",
+        json={"field_updates": {"outcome_var": "col_a", "treatment_var": "col_ok", "controls": []}},
+    )
+    assert patched.status_code == 200
+    assert patched.json()["remaining_unknowns_count"] == 0
 
     confirmed = await journey_client.post(
         f"/v1/jobs/{job_id}/confirm",
-        json={"confirmed": True, "variable_corrections": {"col_a": "col_missing"}},
+        json={
+            "confirmed": True,
+            "answers": {"analysis_goal": "descriptive"},
+            "expert_suggestions_feedback": {"analysis_goal": "ok"},
+            "variable_corrections": {"col_a": "col_missing"},
+            "default_overrides": {},
+        },
     )
     assert confirmed.status_code == 400
     assert confirmed.json()["error_code"] == "CONTRACT_COLUMN_NOT_FOUND"

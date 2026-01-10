@@ -4,8 +4,6 @@ import type {
   ArtifactsIndexResponse,
   ConfirmJobRequest,
   ConfirmJobResponse,
-  CreateJobRequest,
-  CreateJobResponse,
   DraftPatchRequest,
   DraftPatchResponse,
   DraftPreviewResponse,
@@ -32,10 +30,6 @@ function requireTaskCode(): boolean {
   return (import.meta.env.VITE_REQUIRE_TASK_CODE as string | undefined) === '1'
 }
 
-function canFallbackToCreateJob(): boolean {
-  return import.meta.env.DEV && !requireTaskCode()
-}
-
 export class ApiClient {
   private readonly baseUrl: string
   public lastRequestId: string | null = null
@@ -46,10 +40,6 @@ export class ApiClient {
 
   public isDevMockEnabled(): boolean {
     return isDevMockEnabled()
-  }
-
-  public canFallbackToCreateJob(): boolean {
-    return canFallbackToCreateJob()
   }
 
   public requireTaskCode(): boolean {
@@ -63,10 +53,6 @@ export class ApiClient {
       return { ok: true, value: { job_id: `job_mock_${suffix}`, token }, requestId: 'mock' }
     }
     return await this.postJson<RedeemTaskCodeResponse>('/task-codes/redeem', payload, null)
-  }
-
-  public async createJob(payload: CreateJobRequest): Promise<ApiResult<CreateJobResponse>> {
-    return await this.postJson<CreateJobResponse>('/jobs', payload, null)
   }
 
   public async uploadInputs(

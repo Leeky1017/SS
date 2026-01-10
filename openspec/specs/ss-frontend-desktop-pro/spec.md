@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Ship a standalone, maintainable SS Web frontend under `frontend/` that faithfully reproduces the existing Desktop Pro UI (`index.html` + `assets/desktop_pro_*.css`) while integrating the current `/v1` API to complete the minimum user loop: redeem (task code) → upload → preview → blueprint → confirm → status/artifacts (with a dev-only fallback entry path).
+Ship a standalone, maintainable SS Web frontend under `frontend/` that faithfully reproduces the existing Desktop Pro UI (`index.html` + `assets/desktop_pro_*.css`) while integrating the current `/v1` API to complete the minimum user loop: redeem (task code) → upload → preview → blueprint → confirm → status/artifacts.
 
 ## Related specs (normative)
 
@@ -71,18 +71,16 @@ The frontend MUST persist:
 - **WHEN** the user submits `task_code` + `requirement` and the frontend receives `{job_id, token}` from `POST /v1/task-codes/redeem`
 - **THEN** the token is persisted under `ss.auth.v1.{job_id}` and `ss.last_job_id` is updated to that `job_id`
 
-### Requirement: Dev-only fallback to `POST /v1/jobs` MUST be gated by `VITE_REQUIRE_TASK_CODE`
+### Requirement: Task code requirement MUST be gated by `VITE_REQUIRE_TASK_CODE`
 
-The frontend MUST support a dev-only fallback entry path to enable local development and compatibility with existing backends:
-- If `VITE_REQUIRE_TASK_CODE=1`, the UI MUST require a non-empty `task_code` and MUST NOT fall back to `POST /v1/jobs`.
-- If `VITE_REQUIRE_TASK_CODE` is unset or `0`, the frontend MAY fall back to `POST /v1/jobs` when:
-  - the user did not provide `task_code`, or
-  - `POST /v1/task-codes/redeem` responds with `404` (endpoint not available).
+The frontend MUST gate whether the user must provide a task code:
+- If `VITE_REQUIRE_TASK_CODE=1`, the UI MUST require a non-empty `task_code`.
+- If `VITE_REQUIRE_TASK_CODE` is unset or `0`, the UI MAY allow an empty `task_code` and MUST synthesize a non-empty dev task code when calling `POST /v1/task-codes/redeem`.
 
 #### Scenario: Task code is required in production builds
 - **GIVEN** `VITE_REQUIRE_TASK_CODE=1`
 - **WHEN** the user tries to start without a `task_code`
-- **THEN** the UI shows a validation error and no `POST /v1/jobs` request is made
+- **THEN** the UI shows a validation error and no `POST /v1/task-codes/redeem` request is made
 
 ### Requirement: Auth token MUST be attached to all `/v1/**` requests and MUST be cleared on 401/403
 
@@ -103,19 +101,18 @@ If any `/v1/**` request returns `401` or `403`, the frontend MUST:
 
 The frontend MUST implement a minimum usable flow aligned with backend `/v1` endpoints:
 1) Redeem task code (production): `POST /v1/task-codes/redeem` → `{job_id, token}`
-2) Create job (dev-only fallback): `POST /v1/jobs`
-3) Upload dataset: `POST /v1/jobs/{job_id}/inputs/upload`
-4) Inputs preview: `GET /v1/jobs/{job_id}/inputs/preview`
-5) Blueprint precheck: `GET /v1/jobs/{job_id}/draft/preview`
-6) Confirm + enqueue: `POST /v1/jobs/{job_id}/confirm`
-7) Status + artifacts:
+2) Upload dataset: `POST /v1/jobs/{job_id}/inputs/upload`
+3) Inputs preview: `GET /v1/jobs/{job_id}/inputs/preview`
+4) Blueprint precheck: `GET /v1/jobs/{job_id}/draft/preview`
+5) Confirm + enqueue: `POST /v1/jobs/{job_id}/confirm`
+6) Status + artifacts:
    - `GET /v1/jobs/{job_id}`
    - `GET /v1/jobs/{job_id}/artifacts`
    - `GET /v1/jobs/{job_id}/artifacts/{artifact_id:path}`
 
 #### Scenario: User completes the loop and reaches artifacts
 - **GIVEN** the SS backend is running and reachable via `VITE_API_BASE_URL`
-- **WHEN** the user completes redeem (or dev-only create) → upload → preview → blueprint → confirm
+- **WHEN** the user completes redeem → upload → preview → blueprint → confirm
 - **THEN** the frontend can poll `GET /v1/jobs/{job_id}` until a terminal state
 - **AND** the user can list artifacts and download at least one artifact file
 

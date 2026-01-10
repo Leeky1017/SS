@@ -4,7 +4,7 @@ API 必须保持薄：参数校验、响应组装、调用 domain service。
 
 ## 现有端点（骨架）
 
-- `POST /v1/jobs`
+- `POST /v1/task-codes/redeem`
 - `GET /v1/jobs/{job_id}/draft/preview`
 - `POST /v1/jobs/{job_id}/confirm`
 

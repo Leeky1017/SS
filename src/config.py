@@ -51,7 +51,6 @@ class Config:
     worker_retry_backoff_base_seconds: float
     worker_retry_backoff_max_seconds: float
     worker_metrics_port: int = 8001
-    v1_enable_legacy_post_jobs: bool = field(default=True, kw_only=True)
     tracing_enabled: bool = field(default=False, kw_only=True)
     tracing_service_name: str = field(default="ss", kw_only=True)
     tracing_exporter: str = field(default="otlp", kw_only=True)
@@ -242,10 +241,6 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         default=30.0,
     )
     worker_metrics_port = _int_value(str(e.get("SS_WORKER_METRICS_PORT", "8001")), default=8001)
-    v1_enable_legacy_post_jobs = _bool_value(
-        str(e.get("SS_V1_ENABLE_LEGACY_POST_JOBS", "1")),
-        default=True,
-    )
     return Config(
         jobs_dir=jobs_dir,
         job_store_backend=job_store_backend,
@@ -294,5 +289,4 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         worker_retry_backoff_base_seconds=worker_retry_backoff_base_seconds,
         worker_retry_backoff_max_seconds=worker_retry_backoff_max_seconds,
         worker_metrics_port=worker_metrics_port,
-        v1_enable_legacy_post_jobs=v1_enable_legacy_post_jobs,
     )
