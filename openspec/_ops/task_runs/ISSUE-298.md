@@ -1,7 +1,7 @@
 # ISSUE-298
 - Issue: #298 https://github.com/Leeky1017/SS/issues/298
-- Branch: task/298-prod-e2e-r040
-- PR: https://github.com/Leeky1017/SS/pull/301
+- Branch: task/298-prod-e2e-r040-fix-config
+- PR: https://github.com/Leeky1017/SS/pull/304
 
 ## Goal
 - In production mode, enforce a strict readiness gate: missing critical production dependencies (or stub/fake wiring) must make SS not-ready.
@@ -70,3 +70,15 @@
   - `https://github.com/Leeky1017/SS/pull/301`
 - Evidence:
   - PR: https://github.com/Leeky1017/SS/pull/301
+
+### 2026-01-10 Follow-up: enforce `src/config.py` file size limit
+- Command:
+  - `wc -l src/config.py`
+  - `.venv/bin/ruff check .`
+  - `.venv/bin/pytest -q`
+- Key output:
+  - `298 src/config.py`
+  - `All checks passed!`
+  - `167 passed, 5 skipped`
+- Evidence:
+  - `src/config.py` (refactor; keeps file under 300 lines without changing behavior)
