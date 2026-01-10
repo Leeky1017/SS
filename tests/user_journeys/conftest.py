@@ -34,8 +34,8 @@ from src.main import create_app
 from src.utils.job_workspace import resolve_job_dir
 from tests.asgi_client import asgi_client
 from tests.async_overrides import async_override
-from tests.fakes.fake_stata_runner import FakeStataRunner
 from tests.fakes.fake_llm_client import FakeLLMClient
+from tests.fakes.fake_stata_runner import FakeStataRunner
 
 
 @pytest.fixture
