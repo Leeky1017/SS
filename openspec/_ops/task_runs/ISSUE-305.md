@@ -1,7 +1,7 @@
 # ISSUE-305
 - Issue: #305 https://github.com/Leeky1017/SS/issues/305
 - Branch: task/305-controlplane-guard
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/308
 
 ## Goal
 - Add a fail-fast guard to enforce “controlplane main stays clean” in the standard delivery flow, reducing the chance of cross-task contamination when multiple worktrees run in parallel.
