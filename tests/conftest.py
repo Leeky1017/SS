@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from src.domain.do_template_selection_service import DoTemplateSelectionService
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService
@@ -64,7 +65,12 @@ def job_service(
 
 
 @pytest.fixture
-def draft_service(store: JobStore, state_machine: JobStateMachine, jobs_dir: Path) -> DraftService:
+def draft_service(
+    store: JobStore,
+    state_machine: JobStateMachine,
+    jobs_dir: Path,
+    do_template_library_dir: Path,
+) -> DraftService:
     llm = TracedLLMClient(
         inner=FakeLLMClient(),
         jobs_dir=jobs_dir,
@@ -81,6 +87,11 @@ def draft_service(store: JobStore, state_machine: JobStateMachine, jobs_dir: Pat
         llm=llm,
         state_machine=state_machine,
         workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+        do_template_selection=DoTemplateSelectionService(
+            store=store,
+            llm=llm,
+            catalog=FileSystemDoTemplateCatalog(library_dir=do_template_library_dir),
+        ),
     )
 
 

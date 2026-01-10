@@ -38,3 +38,11 @@ class DoTemplateSelectionInvalidTemplateIdError(SSError):
             status_code=502,
         )
 
+
+class DoTemplateSelectionNotWiredError(SSError):
+    def __init__(self) -> None:
+        super().__init__(
+            error_code="DO_TEMPLATE_SELECTION_NOT_WIRED",
+            message="do template selection service is not wired",
+            status_code=500,
+        )

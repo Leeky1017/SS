@@ -232,6 +232,7 @@ class Job(BaseModel):
     inputs: JobInputs | None = None
     draft: Draft | None = None
     llm_plan: LLMPlan | None = None
+    selected_template_id: str | None = None
     runs: list[RunAttempt] = Field(default_factory=list)
     artifacts_index: list[ArtifactRef] = Field(default_factory=list)
     redeem_task_code: str | None = None

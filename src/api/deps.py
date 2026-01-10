@@ -8,6 +8,7 @@ from src.api.audit_context import get_audit_context
 from src.config import Config, load_config
 from src.domain.artifacts_service import ArtifactsService
 from src.domain.audit import AuditContext, AuditLogger
+from src.domain.do_template_selection_service import DoTemplateSelectionService
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_inputs_service import JobInputsService
@@ -174,12 +175,27 @@ async def get_draft_service() -> DraftService:
         llm=_llm_client_cached(),
         state_machine=_job_state_machine_cached(),
         workspace=_job_workspace_store_cached(),
+        do_template_selection=_do_template_selection_service_cached(),
     )
 
 
 @lru_cache
 def _job_workspace_store_cached() -> JobWorkspaceStore:
     return FileJobWorkspaceStore(jobs_dir=_config_cached().jobs_dir)
+
+
+@lru_cache
+def _do_template_catalog_cached() -> FileSystemDoTemplateCatalog:
+    return FileSystemDoTemplateCatalog(library_dir=_config_cached().do_template_library_dir)
+
+
+@lru_cache
+def _do_template_selection_service_cached() -> DoTemplateSelectionService:
+    return DoTemplateSelectionService(
+        store=_job_store_cached(),
+        llm=_llm_client_cached(),
+        catalog=_do_template_catalog_cached(),
+    )
 
 
 @lru_cache
@@ -284,6 +300,8 @@ def clear_dependency_caches() -> None:
     _job_scheduler_cached.cache_clear()
     _artifacts_service_cached.cache_clear()
     _job_workspace_store_cached.cache_clear()
+    _do_template_catalog_cached.cache_clear()
+    _do_template_selection_service_cached.cache_clear()
     _job_inputs_service_cached.cache_clear()
     _upload_bundle_service_cached.cache_clear()
     _object_store_cached.cache_clear()

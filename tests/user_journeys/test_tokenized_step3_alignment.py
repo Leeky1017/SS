@@ -63,6 +63,17 @@ def test_tokenized_step3_journey_with_patch_and_confirm_succeeds(
     assert isinstance(preview_payload["stage1_questions"], list)
     assert isinstance(preview_payload["open_unknowns"], list)
 
+    job = journey_test_client.get(f"/v1/jobs/{job_id}", headers=headers)
+    assert job.status_code == 200
+    assert job.json()["selected_template_id"] not in {None, "", "stub_descriptive_v1"}
+
+    artifacts = journey_test_client.get(f"/v1/jobs/{job_id}/artifacts", headers=headers)
+    assert artifacts.status_code == 200
+    kinds = {item["kind"] for item in artifacts.json()["artifacts"]}
+    assert "do_template.selection.stage1" in kinds
+    assert "do_template.selection.candidates" in kinds
+    assert "do_template.selection.stage2" in kinds
+
     blocked = journey_test_client.post(
         f"/v1/jobs/{job_id}/confirm",
         headers=headers,
@@ -105,4 +116,3 @@ def test_tokenized_step3_journey_with_patch_and_confirm_succeeds(
     assert confirmed_payload["status"] == "queued"
     assert confirmed_payload["message"] != ""
     assert confirmed_payload["scheduled_at"] is not None
-
