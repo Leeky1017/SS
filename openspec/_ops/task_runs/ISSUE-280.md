@@ -14,11 +14,11 @@
 - Normalize anchors to `SS_EVENT|k=v` and unify style within TK templates.
 
 ## Status
-- CURRENT: PR #291 merged; finalize task card completion + controlplane sync + worktree cleanup.
+- CURRENT: Delivered and closed out (PRs merged, controlplane synced, worktree cleaned, Rulebook task archived).
 
 ## Next Actions
-- [ ] Update `openspec/specs/ss-do-template-optimization/task_cards/phase-4.10__finance-TK.md` acceptance + add `## Completion` with PR + run log.
-- [ ] Sync controlplane `main` to `origin/main`, then clean up worktree.
+- [x] Update `openspec/specs/ss-do-template-optimization/task_cards/phase-4.10__finance-TK.md` acceptance + add `## Completion` with PR + run log.
+- [x] Sync controlplane `main` to `origin/main`, then clean up worktree.
 
 ## Decisions Made
 - 2026-01-10: Replace legacy `SS_ERROR:`/`SS_ERR:`/`SS_WARNING:` anchors with `SS_RC|...` (warn/fail) and ensure fail-fast paths emit `SS_TASK_END|...|status=fail` via per-template `ss_fail_TKxx`.
@@ -85,3 +85,32 @@
   - `mergedAt: 2026-01-10T04:43:58Z`
 - Evidence:
   - https://github.com/Leeky1017/SS/pull/291
+
+### 2026-01-10 12:50 PR 292 (run log + task card backfill)
+- Command:
+  - `gh pr merge 292 --auto --squash`
+  - `gh pr checks 292 --watch`
+  - `gh pr view 292 --json mergedAt,state,url`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/292`
+  - `state: MERGED`
+  - `mergedAt: 2026-01-10T04:50:31Z`
+- Evidence:
+  - https://github.com/Leeky1017/SS/pull/292
+
+### 2026-01-10 12:55 controlplane sync + worktree cleanup
+- Command:
+  - `scripts/agent_controlplane_sync.sh`
+  - `scripts/agent_worktree_cleanup.sh "280" "phase-4-10-finance-tk"`
+- Key output:
+  - `controlplane: fast-forwarded to origin/main`
+  - `worktree cleaned: .worktrees/issue-280-phase-4-10-finance-tk`
+- Evidence: n/a
+
+### 2026-01-10 13:05 rulebook task archived in repo
+- Command:
+  - `git mv rulebook/tasks/issue-280-phase-4-10-finance-tk rulebook/tasks/archive/2026-01-10-issue-280-phase-4-10-finance-tk`
+- Key output:
+  - `archived: rulebook/tasks/archive/2026-01-10-issue-280-phase-4-10-finance-tk/`
+- Evidence:
+  - https://github.com/Leeky1017/SS/pull/293
