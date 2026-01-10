@@ -1,18 +1,18 @@
 # ISSUE-269
 - Issue: #269
 - Branch: task/269-ops-e2e-rerun
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/270
 
 ## Goal
 - Re-run the v1 UX loop end-to-end on latest `main`, validating Claude Opus 4.5 draft preview auto-populates `outcome_var` / `treatment_var` / `controls`, and the job runs to `succeeded` with downloadable artifacts.
 
 ## Status
-- CURRENT: Started (worktree created); preparing to run API + worker locally.
+- CURRENT: PR opened; waiting for required checks + auto-merge.
 
 ## Next Actions
-- [ ] Start API + worker with `SS_LLM_PROVIDER=yunwu` and `SS_LLM_MODEL=claude-opus-4-5-20251101`.
-- [ ] Execute redeem → upload → inputs preview → draft preview (auto vars) → confirm → run → poll → artifacts download.
-- [ ] Open PR (Closes #269) and enable auto-merge.
+- [x] Start API + worker with `SS_LLM_PROVIDER=yunwu` and `SS_LLM_MODEL=claude-opus-4-5-20251101`.
+- [x] Execute redeem → upload → inputs preview → draft preview (auto vars) → confirm → run → poll → artifacts download.
+- [ ] Enable auto-merge; verify merged; sync + cleanup worktree.
 
 ## Decisions Made
 - 2026-01-10: Use local Windows Stata via WSL (`SS_STATA_CMD` points to `StataMP-64.exe`) to validate do-file syntax in a real run.
@@ -84,3 +84,13 @@
     - `jobs/tc/job_tc_bf221d4291a9a909/job.json`
     - `jobs/tc/job_tc_bf221d4291a9a909/artifacts/plan.json`
     - `jobs/tc/job_tc_bf221d4291a9a909/runs/84ea9673cb3b43f2b68f589f41d1dbd3/artifacts/`
+
+### 2026-01-10 Preflight + PR
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `gh pr create ...`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `https://github.com/Leeky1017/SS/pull/270`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/270
