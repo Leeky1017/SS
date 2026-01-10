@@ -64,6 +64,7 @@ SS MUST support job-scoped auth via an HTTP header:
 Auth scope (v1, write-locked):
 - For jobs created via redeem, all job-scoped endpoints under `/v1/jobs/{job_id}/...` MUST require a valid Bearer token.
 - `POST /v1/task-codes/redeem` MUST remain unauthenticated.
+  - `POST /v1/task-codes/redeem` MUST be the only v1 job creation entrypoint; `POST /v1/jobs` MUST NOT be routable.
   - The auth requirement MUST apply to at least these v1 routes:
     - `POST /v1/jobs/{job_id}/inputs/upload`
     - `GET /v1/jobs/{job_id}/inputs/preview`
@@ -74,15 +75,6 @@ Auth scope (v1, write-locked):
     - `GET /v1/jobs/{job_id}/artifacts`
     - `GET /v1/jobs/{job_id}/artifacts/{artifact_id:path}`
     - `POST /v1/jobs/{job_id}/run`
-
-Legacy coexistence (v1, configurable):
-- `POST /v1/jobs` MUST remain available by default for compatibility with existing clients.
-- `POST /v1/jobs` MUST be configurable to disable, via a single boolean config value loaded from `src/config.py`:
-  - Env var: `SS_V1_ENABLE_LEGACY_POST_JOBS` (`1`/`0`)
-  - Default: enabled (`1`)
-- When disabled, `POST /v1/jobs` MUST return HTTP `403` with structured error:
-  - `error_code="LEGACY_POST_JOBS_DISABLED"`
-  - `message` explains the endpoint is disabled and redeem must be used.
 
 Auth error codes (v1, fixed set):
 
@@ -223,4 +215,3 @@ Pytest coverage MUST include:
 ## Task cards
 
 Task cards for this spec live under: `openspec/specs/ss-frontend-backend-alignment/task_cards/`.
-

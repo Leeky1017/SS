@@ -48,9 +48,7 @@ async def test_freeze_plan_when_job_not_ready_returns_409(
         do_template_library_dir=do_template_library_dir,
     )
     async with asgi_client(app=app) as client:
-        created = await client.post("/v1/jobs", json={"requirement": "hello"})
-        assert created.status_code == 200
-        job_id = created.json()["job_id"]
+        job_id = job_service.create_job(requirement="hello").job_id
 
         response = await client.post(f"/v1/jobs/{job_id}/plan/freeze", json={})
 
@@ -69,9 +67,7 @@ async def test_freeze_plan_then_get_plan_returns_plan(
         do_template_library_dir=do_template_library_dir,
     )
     async with asgi_client(app=app) as client:
-        created = await client.post("/v1/jobs", json={"requirement": "hello"})
-        assert created.status_code == 200
-        job_id = created.json()["job_id"]
+        job_id = job_service.create_job(requirement="hello").job_id
 
         preview = await client.get(f"/v1/jobs/{job_id}/draft/preview")
         assert preview.status_code == 200
@@ -96,9 +92,7 @@ async def test_confirm_auto_freezes_plan_before_queueing(
         do_template_library_dir=do_template_library_dir,
     )
     async with asgi_client(app=app) as client:
-        created = await client.post("/v1/jobs", json={"requirement": "hello"})
-        assert created.status_code == 200
-        job_id = created.json()["job_id"]
+        job_id = job_service.create_job(requirement="hello").job_id
 
         preview = await client.get(f"/v1/jobs/{job_id}/draft/preview")
         assert preview.status_code == 200
@@ -123,9 +117,7 @@ async def test_freeze_plan_when_called_twice_is_idempotent(
         do_template_library_dir=do_template_library_dir,
     )
     async with asgi_client(app=app) as client:
-        created = await client.post("/v1/jobs", json={"requirement": "hello"})
-        assert created.status_code == 200
-        job_id = created.json()["job_id"]
+        job_id = job_service.create_job(requirement="hello").job_id
 
         preview = await client.get(f"/v1/jobs/{job_id}/draft/preview")
         assert preview.status_code == 200
@@ -154,9 +146,7 @@ async def test_freeze_plan_when_notes_change_returns_conflict(
         do_template_library_dir=do_template_library_dir,
     )
     async with asgi_client(app=app) as client:
-        created = await client.post("/v1/jobs", json={"requirement": "hello"})
-        assert created.status_code == 200
-        job_id = created.json()["job_id"]
+        job_id = job_service.create_job(requirement="hello").job_id
 
         preview = await client.get(f"/v1/jobs/{job_id}/draft/preview")
         assert preview.status_code == 200

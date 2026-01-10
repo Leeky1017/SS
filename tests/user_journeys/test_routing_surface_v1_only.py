@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
+from tests.v1_redeem import redeem_job_sync
+
 
 def test_non_v1_business_paths_return_404(journey_test_client: TestClient) -> None:
     response = journey_test_client.get("/jobs")
@@ -23,5 +25,10 @@ def test_ops_endpoints_remain_reachable(journey_test_client: TestClient) -> None
 
 
 def test_v1_business_paths_remain_routable(journey_test_client: TestClient) -> None:
-    response = journey_test_client.post("/v1/jobs", json={"requirement": "test requirement"})
-    assert response.status_code == 200
+    job_id, token = redeem_job_sync(
+        client=journey_test_client,
+        task_code="tc_journey_routing_01",
+        requirement="test requirement",
+    )
+    assert job_id.startswith("job_tc_")
+    assert token.startswith("ssv1.")

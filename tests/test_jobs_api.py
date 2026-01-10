@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 import pytest
 
 from src.api import deps
 from src.domain.job_query_service import JobQueryService
 from src.domain.models import ArtifactKind, ArtifactRef, Draft, RunAttempt
+from src.domain.task_code_redeem_service import TaskCodeRedeemService
 from src.main import create_app
 from tests.asgi_client import asgi_client
 from tests.async_overrides import async_override
@@ -86,15 +89,22 @@ async def test_get_job_when_cross_tenant_access_returns_404(job_service, store) 
     app.dependency_overrides[deps.get_job_query_service] = async_override(
         JobQueryService(store=store)
     )
+    app.dependency_overrides[deps.get_job_store] = async_override(store)
+    app.dependency_overrides[deps.get_task_code_redeem_service] = async_override(
+        TaskCodeRedeemService(
+            store=store,
+            now=lambda: datetime(2099, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+        )
+    )
 
     async with asgi_client(app=app) as client:
-        created = await client.post(
-            "/v1/jobs",
-            json={"requirement": "hello"},
+        redeemed = await client.post(
+            "/v1/task-codes/redeem",
+            json={"task_code": "tc_tenant_a", "requirement": "hello"},
             headers={"X-SS-Tenant-ID": "tenant-a"},
         )
-    assert created.status_code == 200
-    job_id = created.json()["job_id"]
+        assert redeemed.status_code == 200
+        job_id = redeemed.json()["job_id"]
 
     async with asgi_client(app=app) as client:
         response = await client.get(

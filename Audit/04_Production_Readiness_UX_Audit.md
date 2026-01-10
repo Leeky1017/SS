@@ -41,7 +41,7 @@
 - [ ] 用户能否上传数据文件（CSV、Excel、DTA）？
   - 结论：FAIL（当前 API 未提供上传入口；`src/api/` 未包含相关路由）
 - [x] 用户能否输入自然语言分析需求？
-  - 结论：PASS（`POST /v1/jobs`，见 `src/api/jobs.py` + `src/api/schemas.py`）
+  - 结论：PASS（`POST /v1/task-codes/redeem`，见 `src/api/task_codes.py`）
 - [ ] 上传的文件是否被正确解析（列识别、数据预览）？
   - 结论：FAIL（无上传/解析/预览端点）
 - [ ] 错误输入（空文件、格式错误）是否有清晰提示？

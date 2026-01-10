@@ -34,7 +34,6 @@
 - 统一错误模型（至少包含：`status`、`message`、`requestId`、`details`）
 - 覆盖 v1 闭环 API（typed）：
   - `POST /v1/task-codes/redeem`
-  - `POST /v1/jobs`
   - `POST /v1/jobs/{job_id}/inputs/upload`
   - `GET /v1/jobs/{job_id}/inputs/preview`
   - `GET /v1/jobs/{job_id}/draft/preview`

@@ -38,17 +38,10 @@ async function submitStep1(api: ApiClient, taskCode: string, requirement: string
 
   const trimmedRequirement = requirement.trim()
   const trimmedCode = taskCode.trim()
-  if (trimmedCode === '' && api.canFallbackToCreateJob()) {
-    const created = await api.createJob({ requirement: trimmedRequirement })
-    return created.ok ? { ok: true, jobId: created.value.job_id, token: null } : { ok: false, error: created.error }
-  }
+  const effectiveCode = trimmedCode !== '' ? trimmedCode : `tc_dev_${Date.now().toString(16)}`
 
-  const redeemed = await api.redeemTaskCode({ task_code: trimmedCode, requirement: trimmedRequirement })
+  const redeemed = await api.redeemTaskCode({ task_code: effectiveCode, requirement: trimmedRequirement })
   if (redeemed.ok) return { ok: true, jobId: redeemed.value.job_id, token: redeemed.value.token }
-  if (redeemed.error.status === 404 && api.canFallbackToCreateJob()) {
-    const created = await api.createJob({ requirement: trimmedRequirement })
-    return created.ok ? { ok: true, jobId: created.value.job_id, token: null } : { ok: false, error: created.error }
-  }
   return { ok: false, error: redeemed.error }
 }
 
@@ -71,7 +64,6 @@ function useStep1Model(api: ApiClient): Step1Model {
   const hint = useMemo(() => {
     if (!import.meta.env.DEV) return null
     if (api.isDevMockEnabled()) return 'DEV: Mock redeem 已启用（VITE_API_MOCK=0 可关闭）'
-    if (api.canFallbackToCreateJob()) return 'DEV: 可回退到 POST /v1/jobs（VITE_REQUIRE_TASK_CODE=1 可禁用）'
     return null
   }, [api])
 

@@ -10,16 +10,6 @@ export type RedeemTaskCodeResponse = {
   token: string
 }
 
-export type CreateJobRequest = {
-  requirement: string | null
-}
-
-export type CreateJobResponse = {
-  job_id: string
-  trace_id: string | null
-  status: SSJobStatus
-}
-
 export type ConfirmJobRequest = {
   confirmed: boolean
   notes: string | null

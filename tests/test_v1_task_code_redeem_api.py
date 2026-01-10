@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from types import SimpleNamespace
 
 import pytest
 
@@ -126,18 +125,11 @@ async def test_job_route_when_wrong_token_returns_403_with_stable_error_code(sto
     assert forbidden.json()["error_code"] == "AUTH_TOKEN_FORBIDDEN"
 
 
-async def test_post_v1_jobs_when_disabled_returns_403_with_stable_error_code(
-    job_service, store
-) -> None:
+async def test_post_v1_jobs_returns_404(store) -> None:
     app = create_app()
-    app.dependency_overrides[deps.get_config] = async_override(
-        SimpleNamespace(v1_enable_legacy_post_jobs=False)
-    )
     app.dependency_overrides[deps.get_job_store] = async_override(store)
-    app.dependency_overrides[deps.get_job_service] = async_override(job_service)
 
     async with asgi_client(app=app) as client:
         response = await client.post("/v1/jobs", json={"requirement": "hello"})
 
-    assert response.status_code == 403
-    assert response.json()["error_code"] == "LEGACY_POST_JOBS_DISABLED"
+    assert response.status_code == 404

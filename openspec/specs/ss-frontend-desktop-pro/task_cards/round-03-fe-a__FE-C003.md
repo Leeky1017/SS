@@ -23,9 +23,8 @@
 - Default entry (production)：
   - `POST /v1/task-codes/redeem`（`task_code + requirement`）→ `{job_id, token}`
   - redeem 成功后在 UI 显示 `job_id`（可复制），并进入 Step 2
-- Dev-only fallback（必须显式门控）：
-  - 通过 `VITE_REQUIRE_TASK_CODE=1` 控制：为 `1` 时不允许回退；为空/`0` 时允许回退到 `POST /v1/jobs`
-  - 当用户未填写 `task_code` 或 redeem endpoint 不存在（例如 404）时，允许回退到 `POST /v1/jobs` 便于本地开发
+- Dev-only relaxed input（必须显式门控）：
+  - 通过 `VITE_REQUIRE_TASK_CODE=1` 控制：为 `1` 时要求用户填写 `task_code`；为空/`0` 时允许留空并由前端生成 dev task code 来调用 redeem
 - 本地状态持久化（localStorage，刷新可恢复）：
   - `job_id`
   - requirement 文本
@@ -55,6 +54,6 @@
 - [ ] redeem 成功后 token 被保存到 `ss.auth.v1.{job_id}`，且 `ss.last_job_id` 被更新；刷新页面仍能继续后续步骤
 - [ ] 后续请求确实携带 `Authorization: Bearer ...`（当 token 存在时）
 - [ ] 401/403 时 UI 清理 token 并提示“Task Code 已失效/未授权，需要重新兑换”，引导重新 redeem
-- [ ] `VITE_REQUIRE_TASK_CODE=1` 时未填写 `task_code` 不允许回退到 `POST /v1/jobs`
+- [ ] `VITE_REQUIRE_TASK_CODE=1` 时未填写 `task_code` 不发起 redeem 请求
 - [ ] 失败时展示结构化错误 + request id，并可重试
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-N.md` 记录关键命令与输出

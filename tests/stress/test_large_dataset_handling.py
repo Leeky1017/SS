@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.domain.models import ArtifactKind, ArtifactRef
+from src.utils.job_workspace import resolve_job_dir
 from tests.stress._metrics import env_float, env_int, take_resource_snapshot
 
 pytestmark = pytest.mark.stress
@@ -18,8 +19,12 @@ def _make_wide_csv_header(columns: int) -> str:
 
 
 def _create_job(*, client: TestClient, requirement: str) -> str:
-    response = client.post("/v1/jobs", json={"requirement": requirement})
+    response = client.post(
+        "/v1/task-codes/redeem",
+        json={"task_code": f"tc_large_{int(time.time() * 1000)}", "requirement": requirement},
+    )
     assert response.status_code == 200
+    client.headers.update({"Authorization": f"Bearer {response.json()['token']}"})
     return str(response.json()["job_id"])
 
 
@@ -53,7 +58,8 @@ def test_large_dataset_boundaries_1gb_csv_and_500_cols_are_indexable(
     max_open_fds = env_int("SS_STRESS_MAX_OPEN_FDS", 1024)
 
     job_id = _create_job(client=stress_client, requirement="boundary-dataset")
-    job_dir = stress_jobs_dir / job_id
+    job_dir = resolve_job_dir(jobs_dir=stress_jobs_dir, job_id=job_id)
+    assert job_dir is not None
     artifacts_dir = job_dir / "artifacts" / "data"
     artifacts_dir.mkdir(parents=True, exist_ok=True)
 
@@ -90,4 +96,3 @@ def test_large_dataset_boundaries_1gb_csv_and_500_cols_are_indexable(
 
     if os.name == "posix":
         assert large_csv_path.stat().st_size == 1_073_741_824
-

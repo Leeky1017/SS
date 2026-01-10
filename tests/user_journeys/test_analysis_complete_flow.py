@@ -4,14 +4,16 @@ import httpx
 import pytest
 
 from src.domain.worker_service import WorkerService
+from tests.v1_redeem import redeem_job
 
 
 async def _create_job(*, client: httpx.AsyncClient, requirement: str) -> str:
-    response = await client.post("/v1/jobs", json={"requirement": requirement})
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload["status"] == "created"
-    return str(payload["job_id"])
+    job_id, _token = await redeem_job(
+        client=client,
+        task_code="tc_journey_analysis_complete_flow",
+        requirement=requirement,
+    )
+    return job_id
 
 
 @pytest.mark.anyio
@@ -31,6 +33,8 @@ async def test_analysis_complete_flow_happy_path_transitions_and_downloads(
     assert payload["draft"] is None
     assert payload["artifacts"]["total"] == 0
 
+    journey_attach_sample_inputs(job_id)
+
     response = await journey_client.get(f"/v1/jobs/{job_id}/draft/preview")
     assert response.status_code == 200
     preview = response.json()
@@ -43,27 +47,33 @@ async def test_analysis_complete_flow_happy_path_transitions_and_downloads(
     assert payload["status"] == "draft_ready"
     assert payload["draft"]["text_chars"] > 0
 
-    journey_attach_sample_inputs(job_id)
-
-    response = await journey_client.post(f"/v1/jobs/{job_id}/plan/freeze", json={})
-    assert response.status_code == 200
-    plan_payload = response.json()
-    assert plan_payload["job_id"] == job_id
-    assert plan_payload["plan"]["rel_path"] == "artifacts/plan.json"
-
-    response = await journey_client.get(f"/v1/jobs/{job_id}/plan")
-    assert response.status_code == 200
-    assert response.json()["job_id"] == job_id
+    patched = await journey_client.post(
+        f"/v1/jobs/{job_id}/draft/patch",
+        json={"field_updates": {"outcome_var": "y", "treatment_var": "x", "controls": []}},
+    )
+    assert patched.status_code == 200
+    assert patched.json()["remaining_unknowns_count"] == 0
 
     response = await journey_client.post(
         f"/v1/jobs/{job_id}/confirm",
-        json={"confirmed": True},
+        json={
+            "confirmed": True,
+            "answers": {"analysis_goal": "descriptive"},
+            "expert_suggestions_feedback": {"analysis_goal": "ok"},
+            "variable_corrections": {},
+            "default_overrides": {},
+        },
     )
     assert response.status_code == 200
     confirmed = response.json()
     assert confirmed["job_id"] == job_id
     assert confirmed["status"] == "queued"
     assert confirmed["scheduled_at"] is not None
+
+    response = await journey_client.get(f"/v1/jobs/{job_id}/plan")
+    assert response.status_code == 200
+    assert response.json()["job_id"] == job_id
+    assert response.json()["plan"]["rel_path"] == "artifacts/plan.json"
 
     response = await journey_client.get(f"/v1/jobs/{job_id}")
     assert response.status_code == 200

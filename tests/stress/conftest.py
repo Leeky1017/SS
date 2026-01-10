@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable, Iterator
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -18,6 +19,7 @@ from src.domain.job_service import JobService
 from src.domain.llm_client import StubLLMClient
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
+from src.domain.task_code_redeem_service import TaskCodeRedeemService
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
@@ -168,6 +170,11 @@ def stress_app(
     app = create_app()
     library_dir = Path(__file__).resolve().parents[2] / "assets" / "stata_do_library"
     app.dependency_overrides[deps.get_job_service] = lambda: stress_job_service
+    app.dependency_overrides[deps.get_job_store] = lambda: stress_store
+    app.dependency_overrides[deps.get_task_code_redeem_service] = lambda: TaskCodeRedeemService(
+        store=stress_store,
+        now=lambda: datetime(2099, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+    )
     app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(
         store=stress_store
     )

@@ -4,7 +4,6 @@ from collections.abc import Sequence
 
 from fastapi import APIRouter, Body, Depends, File, Form, Query, UploadFile
 from fastapi.responses import Response
-from opentelemetry.trace import get_tracer
 
 from src.api.deps import (
     get_artifacts_service,
@@ -19,8 +18,6 @@ from src.api.schemas import (
     ArtifactsIndexResponse,
     ConfirmJobRequest,
     ConfirmJobResponse,
-    CreateJobRequest,
-    CreateJobResponse,
     FreezePlanRequest,
     FreezePlanResponse,
     GetJobResponse,
@@ -38,24 +35,8 @@ from src.domain.job_service import JobService
 from src.domain.models import JobConfirmation
 from src.domain.plan_service import PlanService
 from src.infra.input_exceptions import InputFilenameCountMismatchError, InputRoleCountMismatchError
-from src.infra.tracing import synthetic_parent_context_for_trace_id
 
 router = APIRouter(tags=["jobs"])
-
-
-@router.post("/jobs", response_model=CreateJobResponse)
-async def create_job(
-    payload: CreateJobRequest = Body(default_factory=CreateJobRequest),
-    tenant_id: str = Depends(get_tenant_id),
-    svc: JobService = Depends(get_job_service),
-) -> CreateJobResponse:
-    job = svc.create_job(tenant_id=tenant_id, requirement=payload.requirement)
-    if job.trace_id is not None:
-        context = synthetic_parent_context_for_trace_id(trace_id=job.trace_id, sampled=True)
-        tracer = get_tracer(__name__)
-        with tracer.start_as_current_span("ss.job.create", context=context) as span:
-            span.set_attribute("ss.job_id", job.job_id)
-    return CreateJobResponse(job_id=job.job_id, trace_id=job.trace_id, status=job.status.value)
 
 
 @router.get("/jobs/{job_id}", response_model=GetJobResponse)

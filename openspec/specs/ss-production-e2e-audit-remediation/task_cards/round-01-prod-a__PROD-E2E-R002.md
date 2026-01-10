@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P1
-- Issue: TBD
+- Issue: #314
 - Spec: `openspec/specs/ss-production-e2e-audit-remediation/spec.md`
 - Audit evidence: `openspec/_ops/task_runs/ISSUE-274.md` (F006 context)
 - Related specs:
@@ -33,4 +33,3 @@
 - [ ] `/v1` 下不存在 `POST /jobs` 的业务入口（路由/测试证据）
 - [ ] E2E 审计旅程仍可通过 redeem → upload → preview → draft → freeze → run → artifacts 完成
 - [ ] `openspec/_ops/task_runs/ISSUE-<N>.md` 记录移除与验证证据
-

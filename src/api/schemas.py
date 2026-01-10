@@ -17,17 +17,6 @@ class HealthResponse(BaseModel):
     checks: dict[str, HealthCheck] = Field(default_factory=dict)
     checked_at: str
 
-
-class CreateJobRequest(BaseModel):
-    requirement: str | None = Field(default=None, description="User requirement text")
-
-
-class CreateJobResponse(BaseModel):
-    job_id: str
-    trace_id: str | None = None
-    status: str
-
-
 class ConfirmJobRequest(BaseModel):
     confirmed: bool = True
     notes: str | None = None

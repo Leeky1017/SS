@@ -13,16 +13,19 @@ from tests.async_overrides import async_override
 
 @pytest.mark.anyio
 async def test_create_job_when_oom_returns_user_friendly_error(caplog) -> None:
-    class OOMJobService:
-        def create_job(self, *, tenant_id: str = DEFAULT_TENANT_ID, requirement: str | None):  # noqa: ANN001
+    class OOMRedeemService:
+        def redeem(self, *, tenant_id: str = DEFAULT_TENANT_ID, task_code: str, requirement: str):  # noqa: ANN001
             raise MemoryError("simulated oom")
 
     app = create_app()
-    app.dependency_overrides[deps.get_job_service] = async_override(OOMJobService())
+    app.dependency_overrides[deps.get_task_code_redeem_service] = async_override(OOMRedeemService())
 
     with caplog.at_level(logging.ERROR):
         async with asgi_client(app=app) as client:
-            response = await client.post("/v1/jobs", json={"requirement": "hello"})
+            response = await client.post(
+                "/v1/task-codes/redeem",
+                json={"task_code": "tc_oom", "requirement": "hello"},
+            )
 
     assert response.status_code == 503
     payload = response.json()
