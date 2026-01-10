@@ -1,7 +1,7 @@
 # ISSUE-334
 - Issue: #334
 - Branch: task/334-deploy-minio-r002
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/335
 
 ## Plan
 - Add reusable `docker-compose` assets (MinIO + SS + bucket init).
@@ -33,3 +33,13 @@
 - Command: `openspec validate --specs --strict --no-interactive`
 - Key output: `Totals: 28 passed, 0 failed (28 items)`
 - Evidence: `openspec/specs/ss-deployment-docker-minio/assets/docker-compose.yml`
+
+### 2026-01-10 pr preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs; OK: no hard dependencies found in execution plan`
+- Evidence: `scripts/agent_pr_preflight.sh`
+
+### 2026-01-10 pr + auto-merge
+- Command: `gh pr create ... && gh pr merge 335 --auto --squash`
+- Key output: `https://github.com/Leeky1017/SS/pull/335 (auto-merge enabled)`
+- Evidence: `openspec/_ops/task_runs/ISSUE-334.md`
