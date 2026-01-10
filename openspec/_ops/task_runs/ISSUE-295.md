@@ -1,7 +1,7 @@
 # ISSUE-295
 - Issue: #295
 - Branch: task/295-phase-5-9-ti-tj
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/302
 
 ## Plan
 - Add best-practice review blocks to TI/TJ templates
