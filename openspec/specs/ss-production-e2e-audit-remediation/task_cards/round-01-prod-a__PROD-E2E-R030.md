@@ -38,6 +38,14 @@
 
 ## Acceptance checklist
 
-- [ ] 构造缺参输入时，plan freeze 必定失败且返回结构化错误（单元测试 + 集成测试）
-- [ ] 修复缺参后，plan freeze 成功且 plan 契约完整
-- [ ] 审计 spec 的 “Missing parameters yield structured errors” 场景可 PASS
+- [x] 构造缺参输入时，plan freeze 必定失败且返回结构化错误（单元测试 + 集成测试）
+- [x] 修复缺参后，plan freeze 成功且 plan 契约完整
+- [x] 审计 spec 的 “Missing parameters yield structured errors” 场景可 PASS
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/345
+- Run log: `openspec/_ops/task_runs/ISSUE-341.md`
+- Plan freeze hard-gates on v1 draft blockers + template required params (missing → fail)
+- Failure payload includes `error_code`, `missing_fields`/`missing_params`, and retryable `next_actions`
+- Adds unit + integration coverage for missing-param scenarios
