@@ -7,14 +7,14 @@
 - Remove runtime support for `SS_LLM_PROVIDER=stub` and any `StubLLMClient` wiring; require explicit real LLM provider configuration; keep tests using injected fakes only.
 
 ## Status
-- CURRENT: Local validation green; preparing PR.
+- CURRENT: PR merged; backfilling task card.
 
 ## Next Actions
 - [x] Remove runtime stub provider branch and StubLLMClient wiring.
 - [x] Make `SS_LLM_PROVIDER` explicit (no stub default) and reject `SS_LLM_PROVIDER=stub` with stable error code.
 - [x] Update tests to use injected `tests/**` fake LLM.
 - [x] Run `ruff check .` and `pytest -q`.
-- [ ] Run `scripts/agent_pr_preflight.sh`, open PR, enable auto-merge, verify `MERGED`.
+- [x] Run `scripts/agent_pr_preflight.sh`, open PR, enable auto-merge, verify `MERGED`.
 
 ## Decisions Made
 - 2026-01-10: Runtime stub LLM is removed; tests use injected fakes in `tests/**` only.
@@ -49,3 +49,15 @@
   - `171 passed, 5 skipped`
 - Evidence:
   - (this file)
+
+### 2026-01-10 PR: preflight + auto-merge
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `gh pr create ...` → https://github.com/Leeky1017/SS/pull/324
+  - `gh pr merge 324 --auto --squash`
+  - `gh pr checks 324 --watch`
+  - `gh pr view 324 --json mergedAt`
+- Key output:
+  - `MERGED` (`mergedAt=2026-01-10T08:30:04Z`)
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/324
