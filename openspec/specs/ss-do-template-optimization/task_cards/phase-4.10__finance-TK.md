@@ -37,6 +37,6 @@ Make finance templates run on **Stata 18** with fixtures, emit **contract-compli
 ## Completion
 
 - PR: https://github.com/Leeky1017/SS/pull/291
-- Smoke suite: `rulebook/tasks/issue-280-phase-4-10-finance-tk/evidence/smoke_suite_report.issue-280.rerun11.json` (`passed: 20`)
+- Smoke suite: `rulebook/tasks/archive/2026-01-10-issue-280-phase-4-10-finance-tk/evidence/smoke_suite_report.issue-280.rerun11.json` (`passed: 20`)
 - Anchors: removed legacy `SS_*:` / `SS_WARNING:` / `SS_ERROR:` in TK01–TK20; standardized to `SS_EVENT|k=v`
 - Run log: `openspec/_ops/task_runs/ISSUE-280.md`
