@@ -1,7 +1,7 @@
 # ISSUE-316
 - Issue: #316 https://github.com/Leeky1017/SS/issues/316
 - Branch: task/316-prod-e2e-r041-remove-stub-llm
-- PR: <fill>
+- PR: https://github.com/Leeky1017/SS/pull/324
 
 ## Goal
 - Remove runtime support for `SS_LLM_PROVIDER=stub` and any `StubLLMClient` wiring; require explicit real LLM provider configuration; keep tests using injected fakes only.
