@@ -125,7 +125,7 @@ async def test_get_job_with_corrupted_job_json_returns_500(job_service, store, j
     assert response.json()["error_code"] == "JOB_DATA_CORRUPTED"
 
 
-async def test_get_job_with_legacy_route_sets_deprecation_headers(job_service, store):
+async def test_get_job_with_legacy_route_returns_404(job_service, store):
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = async_override(job_service)
     app.dependency_overrides[deps.get_job_query_service] = async_override(
@@ -137,9 +137,7 @@ async def test_get_job_with_legacy_route_sets_deprecation_headers(job_service, s
     async with asgi_client(app=app) as client:
         response = await client.get(f"/jobs/{job.job_id}")
 
-    assert response.status_code == 200
-    assert response.headers["Deprecation"] == "true"
-    assert response.headers["Sunset"] == "2026-06-01"
+    assert response.status_code == 404
 
 
 async def test_get_job_includes_request_id_header(job_service, store) -> None:
