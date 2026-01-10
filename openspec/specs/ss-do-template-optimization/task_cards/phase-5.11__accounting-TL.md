@@ -30,8 +30,16 @@ Enhance accounting/audit templates with best practices (最佳实践), Stata 18-
 
 ## Acceptance checklist
 
-- [ ] Each `TL*` template has a best-practice review record
-- [ ] SSC deps removed/replaced where feasible (exceptions justified)
-- [ ] Error handling and diagnostics are strengthened (no silent failure)
-- [ ] Key steps have bilingual comments (中英文注释)
-- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Each `TL*` template has a best-practice review record
+- [x] SSC deps removed/replaced where feasible (exceptions justified)
+- [x] Error handling and diagnostics are strengthened (no silent failure)
+- [x] Key steps have bilingual comments (中英文注释)
+- [x] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-283.md`
+
+## Completion
+- PR: https://github.com/Leeky1017/SS/pull/285
+- Run log: `openspec/_ops/task_runs/ISSUE-283.md`
+- Summary:
+  - TL01–TL15 add best-practice review notes (EN/ZH) and bilingual step comments
+  - Strengthen validation and explicit `SS_RC` handling (fail-fast on model/predict failures)
+  - Verified via `ruff` and `pytest` (see run log)

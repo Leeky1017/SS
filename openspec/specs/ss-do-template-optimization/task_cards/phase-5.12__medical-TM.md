@@ -30,8 +30,16 @@ Enhance medical/biostats templates with best practices (最佳实践), Stata 18-
 
 ## Acceptance checklist
 
-- [ ] Each `TM*` template has a best-practice review record
-- [ ] SSC deps removed/replaced where feasible (exceptions justified)
-- [ ] Error handling and diagnostics are strengthened (no silent failure)
-- [ ] Key steps have bilingual comments (中英文注释)
-- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Each `TM*` template has a best-practice review record
+- [x] SSC deps removed/replaced where feasible (exceptions justified)
+- [x] Error handling and diagnostics are strengthened (no silent failure)
+- [x] Key steps have bilingual comments (中英文注释)
+- [x] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-284.md`
+
+## Completion
+- PR: https://github.com/Leeky1017/SS/pull/286
+- Run log: `openspec/_ops/task_runs/ISSUE-284.md`
+- Summary:
+  - TM01–TM15 add best-practice review notes (EN/ZH) and bilingual step comments
+  - Remove SSC deps (TM02/TM06/TM07) and align meta + smoke-suite manifest
+  - Strengthen validation/error handling for non-binary inputs, nonpositive SE/exposure, and non-convergence
