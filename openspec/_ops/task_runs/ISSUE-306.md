@@ -1,7 +1,7 @@
 # ISSUE-306
 - Issue: #306
 - Branch: task/306-phase-5-task-card-closure
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/307
 
 ## Plan
 - Backfill task card acceptance checklists
