@@ -7,12 +7,10 @@
 - Audit TL01–TL15 templates: Stata 18 harness 0 fail, anchors `SS_EVENT|k=v`, unified style.
 
 ## Status
-- CURRENT: PR #275 is open; next commit + push this run log update, then enable auto-merge and watch required checks.
+- CURRENT: MERGED: PR #275; control plane `main` synced and worktree cleaned.
 
 ## Next Actions
-- [ ] Commit + push updated run log (PR link + status)
-- [ ] Enable auto-merge on PR #275
-- [ ] Watch checks until merged
+- (none)
 
 ## Decisions Made
 - 2026-01-10 Split delivery into two Issues/PRs: #272 (TL*) and #273 (TM*) to keep scope and evidence isolated.
