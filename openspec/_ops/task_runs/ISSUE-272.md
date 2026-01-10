@@ -1,19 +1,18 @@
 # ISSUE-272
 - Issue: #272
 - Branch: task/272-p4-11-accounting-tl
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/275
 
 ## Goal
 - Audit TL01–TL15 templates: Stata 18 harness 0 fail, anchors `SS_EVENT|k=v`, unified style.
 
 ## Status
-- CURRENT: TL smoke suite is 15/15 passed; next run `ruff` + `pytest`, then open PR with auto-merge.
+- CURRENT: PR #275 is open; next commit + push this run log update, then enable auto-merge and watch required checks.
 
 ## Next Actions
-- [ ] Fill Rulebook proposal/tasks (minimal)
-- [ ] Run `ruff check .` + `pytest -q`
-- [ ] Commit + push branch
-- [ ] Run PR preflight, open PR, enable auto-merge
+- [ ] Commit + push updated run log (PR link + status)
+- [ ] Enable auto-merge on PR #275
+- [ ] Watch checks until merged
 
 ## Decisions Made
 - 2026-01-10 Split delivery into two Issues/PRs: #272 (TL*) and #273 (TM*) to keep scope and evidence isolated.
