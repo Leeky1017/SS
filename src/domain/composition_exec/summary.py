@@ -105,6 +105,8 @@ def write_pipeline_error(
         "timed_out": False,
         "exit_code": None,
     }
+    if error.details is not None:
+        payload["details"] = error.details
     path = pipeline_dirs.artifacts_dir / "run.error.json"
     try:
         write_json(path, payload)

@@ -7,6 +7,7 @@ from src.domain.audit import AuditContext, AuditLogger, NoopAuditLogger
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_confirm_validation import validate_confirm_not_blocked
 from src.domain.job_plan_freeze import freeze_plan_for_run
+from src.domain.job_retry import retry_failed_job
 from src.domain.job_store import JobStore
 from src.domain.job_support import JobScheduler, emit_job_audit, new_trace_id
 from src.domain.metrics import NoopMetrics, RuntimeMetrics
@@ -162,13 +163,18 @@ class JobService:
         expert_suggestions_feedback: dict[str, JsonValue] | None = None,
     ) -> Job:
         job = self._store.load(tenant_id=tenant_id, job_id=job_id)
-        if job.status in {
-            JobStatus.QUEUED,
-            JobStatus.RUNNING,
-            JobStatus.SUCCEEDED,
-            JobStatus.FAILED,
-        }:
+        if job.status in {JobStatus.QUEUED, JobStatus.RUNNING, JobStatus.SUCCEEDED}:
             return self._run_idempotent_noop(job=job, tenant_id=tenant_id)
+        if job.status == JobStatus.FAILED:
+            return retry_failed_job(
+                store=self._store,
+                scheduler=self._scheduler,
+                state_machine=self._state_machine,
+                audit=self._audit,
+                audit_context=self._audit_context,
+                tenant_id=tenant_id,
+                job=job,
+            )
         self._state_machine.ensure_transition(
             job_id=job_id,
             from_status=job.status,

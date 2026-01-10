@@ -20,6 +20,7 @@ from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
 from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store_factory import build_job_store
+from src.infra.local_stata_dependency_checker import LocalStataDependencyChecker
 from src.infra.local_stata_runner import LocalStataRunner
 from src.infra.logging_config import configure_logging
 from src.infra.prometheus_metrics import PrometheusMetrics
@@ -128,12 +129,17 @@ def _build_worker_service(
         jobs_dir=config.jobs_dir,
         stata_cmd=config.stata_cmd,
     )
+    dependency_checker = LocalStataDependencyChecker(
+        jobs_dir=config.jobs_dir,
+        stata_cmd=_require_stata_cmd(worker_id=config.worker_id, stata_cmd=config.stata_cmd),
+    )
     do_template_repo = _wire_do_template_library(library_dir=config.do_template_library_dir)
     service = WorkerService(
         store=store,
         queue=queue,
         jobs_dir=config.jobs_dir,
         runner=runner,
+        dependency_checker=dependency_checker,
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(
             max_attempts=config.worker_max_attempts,
