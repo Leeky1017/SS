@@ -1,7 +1,7 @@
 # ISSUE-329
 - Issue: #329
 - Branch: task/329-deploy-minio
-- PR: (pending)
+- PR: https://github.com/Leeky1017/SS/pull/330
 
 ## Plan
 - Add OpenSpec for Docker + MinIO (S3-compatible) uploads deployment.
@@ -33,3 +33,8 @@
 - Command: `. .venv/bin/activate && pytest -q`
 - Key output: `176 passed, 5 skipped`
 - Evidence: `tests/`
+
+### 2026-01-10 pr + merge
+- Command: `scripts/agent_pr_preflight.sh && gh pr create ... && gh pr merge --auto --squash && gh pr checks --watch`
+- Key output: `PR 330 merged; checks ci/openspec-log-guard/merge-serial all successful`
+- Evidence: `https://github.com/Leeky1017/SS/pull/330`
