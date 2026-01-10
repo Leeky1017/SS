@@ -28,3 +28,10 @@
 - Key output:
   - `All checks passed!`
   - `173 passed, 5 skipped`
+
+### 2026-01-10 Preflight: roadmap + open PR overlap
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
