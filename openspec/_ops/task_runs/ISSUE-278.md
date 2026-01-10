@@ -7,12 +7,10 @@
 - Backfill P4.11 (TL*) and P4.12 (TM*) task cards with acceptance + completion, update run logs to reflect merged state, and archive completed Rulebook tasks.
 
 ## Status
-- CURRENT: PR #279 is open; next commit + push updated run log, then enable auto-merge and watch required checks.
+- CURRENT: Auto-merge is enabled for PR #279; waiting for required checks/merge queue.
 
 ## Next Actions
 - [ ] Fill Rulebook proposal/tasks (minimal)
-- [ ] Commit + push updated run log (PR link + preflight)
-- [ ] Enable auto-merge on PR #279
 - [ ] Watch checks until merged
 
 ## Runs
@@ -67,3 +65,8 @@
 - Command: `gh pr create --title \"chore: close out P4.11/P4.12 artifacts (#278)\" --body \"Closes #278 ...\"`
 - Key output: `https://github.com/Leeky1017/SS/pull/279`
 - Evidence: PR body + run log
+
+### 2026-01-10 10:45 Enable auto-merge
+- Command: `gh pr merge 279 --auto --squash`
+- Key output: `will be automatically merged via squash when all requirements are met`
+- Evidence: PR timeline
