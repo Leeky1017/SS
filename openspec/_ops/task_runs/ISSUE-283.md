@@ -1,7 +1,7 @@
 # ISSUE-283
 - Issue: #283
 - Branch: task/283-p5-11-accounting-tl
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/285
 
 ## Goal
 - Enhance TL01–TL15 (Accounting/Audit): best practices, SSC deps replacement where feasible, stronger error handling (`SS_RC`), and bilingual comments; keep evidence auditable.
