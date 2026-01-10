@@ -16,11 +16,11 @@ from src.domain.models import (
 )
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
-from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.job_store import JobStore
 from src.utils.job_workspace import resolve_job_dir
 from src.utils.time import utc_now
+from tests.fakes.fake_stata_runner import FakeStataRunner
 
 
 def _write_inputs_manifest(*, job_dir: Path, datasets: list[dict[str, str]]) -> None:

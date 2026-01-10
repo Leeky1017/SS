@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #317
 - Spec: `openspec/specs/ss-production-e2e-audit-remediation/spec.md`
 - Audit evidence: `openspec/_ops/task_runs/ISSUE-274.md` (F004)
 - Related specs:
@@ -33,4 +33,3 @@
 - [ ] worker 启动时若未配置 `SS_STATA_CMD`：明确失败且可诊断（日志/错误码）
 - [ ] E2E 审计证据中可审计真实 Stata cmd 与 exit_code
 - [ ] tests 不依赖 runtime fake runner（通过注入实现）
-

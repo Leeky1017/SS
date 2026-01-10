@@ -4,11 +4,9 @@ import logging
 from pathlib import Path
 from typing import Sequence
 
-from opentelemetry.trace import get_tracer
-
-from src.domain.models import is_safe_job_rel_path
+from src.domain.do_file_generator import DEFAULT_SUMMARY_TABLE_FILENAME
+from src.domain.models import ArtifactKind, ArtifactRef, is_safe_job_rel_path
 from src.domain.stata_runner import RunError, RunResult, StataRunner
-from src.infra.fake_stata_outputs import export_table_ref
 from src.infra.stata_run_support import (
     DO_FILENAME,
     Execution,
@@ -49,45 +47,28 @@ class FakeStataRunner(StataRunner):
         timeout_seconds: int | None = None,
         inputs_dir_rel: str | None = None,
     ) -> RunResult:
-        tracer = get_tracer(__name__)
-        with tracer.start_as_current_span("ss.stata.run") as span:
-            span.set_attribute("ss.tenant_id", tenant_id)
-            span.set_attribute("ss.job_id", job_id)
-            span.set_attribute("ss.run_id", run_id)
-            if timeout_seconds is not None:
-                span.set_attribute("ss.timeout_seconds", timeout_seconds)
-            result = self._run_impl(
-                tenant_id=tenant_id,
+        dirs = resolve_run_dirs(
+            jobs_dir=self._jobs_dir,
+            tenant_id=tenant_id,
+            job_id=job_id,
+            run_id=run_id,
+        )
+        if dirs is None:
+            logger.warning(
+                "SS_FAKE_STATA_INVALID_WORKSPACE",
+                extra={"tenant_id": tenant_id, "job_id": job_id, "run_id": run_id},
+            )
+            return result_without_artifacts(
                 job_id=job_id,
                 run_id=run_id,
-                do_file=do_file,
-                timeout_seconds=timeout_seconds,
-                inputs_dir_rel=inputs_dir_rel,
+                error_code="STATA_WORKSPACE_INVALID",
+                message="invalid job_id/run_id workspace",
             )
-            span.set_attribute("ss.ok", result.ok)
-            if result.exit_code is not None:
-                span.set_attribute("ss.exit_code", result.exit_code)
-            return result
-
-    def _run_impl(
-        self,
-        *,
-        tenant_id: str,
-        job_id: str,
-        run_id: str,
-        do_file: str,
-        timeout_seconds: int | None,
-        inputs_dir_rel: str | None,
-    ) -> RunResult:
-        resolved = self._resolve_dirs(tenant_id=tenant_id, job_id=job_id, run_id=run_id)
-        if isinstance(resolved, RunResult):
-            return resolved
 
         ok = self._next_ok()
         execution = self._execution_for(ok=ok)
-
-        do_artifact_path = self._write_do_files(
-            dirs=resolved,
+        do_artifact_path = self._write_workspace_files(
+            dirs=dirs,
             job_id=job_id,
             run_id=run_id,
             do_file=do_file,
@@ -97,14 +78,14 @@ class FakeStataRunner(StataRunner):
             return do_artifact_path
 
         meta = self._meta_for(
-            dirs=resolved,
+            dirs=dirs,
             job_id=job_id,
             run_id=run_id,
             timeout_seconds=timeout_seconds,
             execution=execution,
         )
         written = self._write_run_artifacts(
-            dirs=resolved,
+            dirs=dirs,
             job_id=job_id,
             run_id=run_id,
             meta=meta,
@@ -113,7 +94,7 @@ class FakeStataRunner(StataRunner):
         if isinstance(written, RunResult):
             return written
         return self._build_result(
-            dirs=resolved,
+            dirs=dirs,
             job_id=job_id,
             run_id=run_id,
             do_artifact_path=do_artifact_path,
@@ -121,74 +102,14 @@ class FakeStataRunner(StataRunner):
             written=written,
         )
 
-    def _build_result(
-        self,
-        *,
-        dirs: RunDirs,
-        job_id: str,
-        run_id: str,
-        do_artifact_path: Path,
-        execution: Execution,
-        written: tuple[Path, Path, Path, Path, Path],
-    ) -> RunResult:
-        stdout_path, stderr_path, log_path, meta_path, error_path = written
-        artifacts = artifact_refs(
-            job_dir=dirs.job_dir,
-            do_artifact_path=do_artifact_path,
-            stdout_path=stdout_path,
-            stderr_path=stderr_path,
-            log_path=log_path,
-            meta_path=meta_path,
-            error_path=error_path,
-            include_error=execution.error is not None,
-        )
-        export_ref = export_table_ref(
-            job_dir=dirs.job_dir,
-            artifacts_dir=dirs.artifacts_dir,
-            job_id=job_id,
-            run_id=run_id,
-            ok=execution.error is None,
-        )
-        if export_ref is not None:
-            artifacts = (*artifacts, export_ref)
-        return RunResult(
-            job_id=job_id,
-            run_id=run_id,
-            ok=execution.error is None,
-            exit_code=execution.exit_code,
-            timed_out=execution.timed_out,
-            artifacts=artifacts,
-            error=execution.error,
-        )
-
     def _next_ok(self) -> bool:
         if self._scripted_ok is None:
             return True
         if self._cursor >= len(self._scripted_ok):
-            return self._scripted_ok[-1]
+            return bool(self._scripted_ok[-1])
         ok = bool(self._scripted_ok[self._cursor])
         self._cursor += 1
         return ok
-
-    def _resolve_dirs(self, *, tenant_id: str, job_id: str, run_id: str) -> RunDirs | RunResult:
-        dirs = resolve_run_dirs(
-            jobs_dir=self._jobs_dir,
-            tenant_id=tenant_id,
-            job_id=job_id,
-            run_id=run_id,
-        )
-        if dirs is not None:
-            return dirs
-        logger.warning(
-            "SS_FAKE_STATA_INVALID_WORKSPACE",
-            extra={"tenant_id": tenant_id, "job_id": job_id, "run_id": run_id},
-        )
-        return result_without_artifacts(
-            job_id=job_id,
-            run_id=run_id,
-            error_code="STATA_WORKSPACE_INVALID",
-            message="invalid job_id/run_id workspace",
-        )
 
     def _execution_for(self, *, ok: bool) -> Execution:
         if ok:
@@ -210,7 +131,7 @@ class FakeStataRunner(StataRunner):
             error=error,
         )
 
-    def _write_do_files(
+    def _write_workspace_files(
         self,
         *,
         dirs: RunDirs,
@@ -245,6 +166,7 @@ class FakeStataRunner(StataRunner):
                 error_code="STATA_INPUTS_COPY_FAILED",
                 message=str(e),
             )
+
         do_work_path = dirs.work_dir / DO_FILENAME
         do_artifact_path = dirs.artifacts_dir / DO_FILENAME
         try:
@@ -322,3 +244,68 @@ class FakeStataRunner(StataRunner):
                 error_code="STATA_ARTIFACTS_WRITE_FAILED",
                 message=str(e),
             )
+
+    def _build_result(
+        self,
+        *,
+        dirs: RunDirs,
+        job_id: str,
+        run_id: str,
+        do_artifact_path: Path,
+        execution: Execution,
+        written: tuple[Path, Path, Path, Path, Path],
+    ) -> RunResult:
+        artifacts = artifact_refs(
+            job_dir=dirs.job_dir,
+            do_artifact_path=do_artifact_path,
+            stdout_path=written[0],
+            stderr_path=written[1],
+            log_path=written[2],
+            meta_path=written[3],
+            error_path=written[4],
+            include_error=execution.error is not None,
+        )
+        export_ref = self._write_export_table(
+            job_dir=dirs.job_dir,
+            artifacts_dir=dirs.artifacts_dir,
+            job_id=job_id,
+            run_id=run_id,
+            ok=execution.error is None,
+        )
+        if export_ref is not None:
+            artifacts = (*artifacts, export_ref)
+        return RunResult(
+            job_id=job_id,
+            run_id=run_id,
+            ok=execution.error is None,
+            exit_code=execution.exit_code,
+            timed_out=execution.timed_out,
+            artifacts=artifacts,
+            error=execution.error,
+        )
+
+    def _write_export_table(
+        self,
+        *,
+        job_dir: Path,
+        artifacts_dir: Path,
+        job_id: str,
+        run_id: str,
+        ok: bool,
+    ) -> ArtifactRef | None:
+        if not ok:
+            return None
+        path = artifacts_dir / DEFAULT_SUMMARY_TABLE_FILENAME
+        try:
+            write_text(path, "metric,value\nN,0\nk,0\n")
+        except OSError as e:
+            logger.warning(
+                "SS_FAKE_STATA_WRITE_EXPORT_TABLE_FAILED",
+                extra={"job_id": job_id, "run_id": run_id, "path": str(path), "reason": str(e)},
+            )
+            return None
+        return ArtifactRef(
+            kind=ArtifactKind.STATA_EXPORT_TABLE,
+            rel_path=job_rel_path(job_dir=job_dir, path=path),
+        )
+
