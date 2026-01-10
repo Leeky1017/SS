@@ -43,3 +43,13 @@
 - Command: `/home/leeky/work/SS/.venv/bin/mypy`
 - Key output: `Success: no issues found in 168 source files`
 - Evidence: `pyproject.toml`
+
+### 2026-01-10 20:49 pr auto-merge
+- Command: `gh pr merge 350 --auto --squash`
+- Key output: `will be automatically merged via squash when all requirements are met`
+- Evidence: https://github.com/Leeky1017/SS/pull/350
+
+### 2026-01-10 20:49 verify merged
+- Command: `gh pr view 350 --json state,mergedAt`
+- Key output: `state=MERGED mergedAt=2026-01-10T12:48:31Z`
+- Evidence: https://github.com/Leeky1017/SS/pull/350
