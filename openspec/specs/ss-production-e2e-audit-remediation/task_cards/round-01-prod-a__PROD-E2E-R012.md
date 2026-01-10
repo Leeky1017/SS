@@ -41,7 +41,7 @@
 
 ## Completion
 
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/337
 - `POST /v1/jobs/{job_id}/plan/freeze` 在 `generate_do` step params 写入 `template_contract`（params/deps/outputs contract）并落盘到 `artifacts/plan.json`
 - 模板选择链路收敛到 v1 可执行子集（保证 `template_params` 可生成并避免缺参崩溃）
 - 新增单测：模板 meta 缺失/损坏时返回 `PLAN_TEMPLATE_META_*` 结构化错误（含 job_id/template_id 上下文）
