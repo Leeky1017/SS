@@ -55,7 +55,7 @@ The v1 error code set is frozen (UPLOAD-C001) and MUST include at least:
 ## Limits & config keys (v1)
 
 All configuration MUST be loaded from `src/config.py` and MUST use these fixed env keys:
-- `SS_UPLOAD_OBJECT_STORE_BACKEND` = `s3` | `fake`
+- `SS_UPLOAD_OBJECT_STORE_BACKEND` = `s3` (runtime; tests may inject a fake `ObjectStore`)
 - `SS_UPLOAD_S3_ENDPOINT` / `SS_UPLOAD_S3_REGION` / `SS_UPLOAD_S3_BUCKET`
 - `SS_UPLOAD_S3_ACCESS_KEY_ID` / `SS_UPLOAD_S3_SECRET_ACCESS_KEY`
 - `SS_UPLOAD_PRESIGNED_URL_TTL_SECONDS` (default 900, max 900)

@@ -12,12 +12,12 @@ from src.config import Config, load_config
 from src.domain.job_inputs_service import JobInputsService
 from src.domain.upload_bundle_service import UploadBundleService
 from src.domain.upload_sessions_service import UploadSessionsService
-from src.infra.fake_object_store import FakeObjectStore
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_upload_session_store import FileUploadSessionStore
 from src.main import create_app
 from tests.asgi_client import asgi_client
 from tests.async_overrides import async_override
+from tests.fakes.fake_object_store import FakeObjectStore
 
 pytestmark = pytest.mark.anyio
 
@@ -27,11 +27,11 @@ def _sha256_hex(data: bytes) -> str:
 
 
 def _test_config(*, jobs_dir: Path) -> Config:
-    raw = load_config(env={"SS_JOBS_DIR": str(jobs_dir), "SS_UPLOAD_OBJECT_STORE_BACKEND": "fake"})
+    raw = load_config(env={"SS_JOBS_DIR": str(jobs_dir)})
     return replace(
         raw,
         jobs_dir=jobs_dir,
-        upload_object_store_backend="fake",
+        upload_object_store_backend="s3",
         upload_max_sessions_per_job=10_000,
         upload_multipart_threshold_bytes=16,
         upload_multipart_min_part_size_bytes=4,
