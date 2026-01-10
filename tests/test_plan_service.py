@@ -104,7 +104,10 @@ def test_freeze_plan_for_single_file_job_builds_simple_sequential_plan(
     run = next(step for step in plan.steps if step.step_id == "run_stata")
     assert generate.params.get("composition_mode") == "sequential"
     assert run.params.get("composition_mode") == "sequential"
-    assert generate.params.get("template_id") == "stub_descriptive_v1"
+    assert generate.params.get("template_id") == "TA14"
+    params = generate.params.get("template_params")
+    assert isinstance(params, dict)
+    assert params.get("__QUALITY_THRESHOLD__") == "0.8"
     bindings = generate.params.get("input_bindings")
     assert isinstance(bindings, dict)
     assert bindings.get("primary_dataset") == "input:primary"

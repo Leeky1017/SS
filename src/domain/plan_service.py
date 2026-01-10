@@ -7,7 +7,10 @@ import re
 from collections.abc import Mapping
 from typing import cast
 
+from src.domain import do_template_plan_support
 from src.domain.composition_plan import validate_composition_plan
+from src.domain.do_template_catalog import DoTemplateCatalog
+from src.domain.do_template_repository import DoTemplateRepository
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.models import (
@@ -71,9 +74,11 @@ def _plan_id(
 class PlanService:
     """Plan service: freeze a schema-bound plan and persist it as an artifact."""
 
-    def __init__(self, *, store: JobStore, workspace: JobWorkspaceStore):
+    def __init__(self, *, store: JobStore, workspace: JobWorkspaceStore, do_template_catalog: DoTemplateCatalog, do_template_repo: DoTemplateRepository):  # noqa: E501
         self._store = store
         self._workspace = workspace
+        self._do_template_catalog = do_template_catalog
+        self._do_template_repo = do_template_repo
 
     def freeze_plan(
         self,
@@ -180,6 +185,14 @@ class PlanService:
         requirement = confirmation.requirement if confirmation.requirement is not None else ""
         requirement_norm = _normalize_whitespace(requirement)
         requirement_fingerprint = _sha256_hex(requirement_norm)
+        analysis_spec = analysis_spec_from_draft(job=job)
+        analysis_vars = do_template_plan_support.analysis_vars_from_analysis_spec(analysis_spec)
+        template_id = do_template_plan_support.select_template_id(
+            catalog=self._do_template_catalog,
+            repo=self._do_template_repo,
+            analysis_vars=analysis_vars,
+        )
+        template_params = do_template_plan_support.template_params_for(template_id=template_id, analysis_vars=analysis_vars)  # noqa: E501
         input_keys = self._known_input_keys(job=job)
         primary_key = "primary"
         if primary_key not in input_keys:
@@ -195,11 +208,12 @@ class PlanService:
                 type=PlanStepType.GENERATE_STATA_DO,
                 params={
                     "composition_mode": composition_mode.value,
-                    "template_id": "stub_descriptive_v1",
+                    "template_id": template_id,
+                    "template_params": template_params,
                     "input_bindings": {"primary_dataset": f"input:{primary_key}"},
                     "products": [],
                     "requirement_fingerprint": requirement_fingerprint,
-                    "analysis_spec": analysis_spec_from_draft(job=job),
+                    "analysis_spec": analysis_spec,
                 },
                 depends_on=[],
                 produces=[ArtifactKind.STATA_DO],

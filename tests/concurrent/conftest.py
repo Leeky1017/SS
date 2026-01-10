@@ -13,6 +13,8 @@ from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
+from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
+from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store import JobStore
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.utils.job_workspace import resolve_job_dir
@@ -62,7 +64,13 @@ def job_service(
 
 @pytest.fixture
 def plan_service(store: JobStore, jobs_dir: Path) -> PlanService:
-    return PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
+    library_dir = Path(__file__).resolve().parents[2] / "assets" / "stata_do_library"
+    return PlanService(
+        store=store,
+        workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=library_dir),
+        do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir),
+    )
 
 
 @pytest.fixture

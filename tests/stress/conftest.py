@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 
 from src.api import deps
 from src.domain.artifacts_service import ArtifactsService
+from src.domain.do_file_generator import DoFileGenerator
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_query_service import JobQueryService
@@ -21,6 +22,8 @@ from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
+from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
+from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
 from src.infra.queue_job_scheduler import QueueJobScheduler
@@ -79,12 +82,15 @@ def stress_job_service(
     stress_jobs_dir: Path,
 ) -> JobService:
     scheduler = QueueJobScheduler(queue=stress_queue)
+    library_dir = Path(__file__).resolve().parents[2] / "assets" / "stata_do_library"
     return JobService(
         store=stress_store,
         scheduler=scheduler,
         plan_service=PlanService(
             store=stress_store,
             workspace=FileJobWorkspaceStore(jobs_dir=stress_jobs_dir),
+            do_template_catalog=FileSystemDoTemplateCatalog(library_dir=library_dir),
+            do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir),
         ),
         state_machine=stress_state_machine,
         idempotency=stress_idempotency,
@@ -130,6 +136,7 @@ def stress_worker_factory(
 ) -> Callable[[], WorkerService]:
     def _factory() -> WorkerService:
         runner = FakeStataRunner(jobs_dir=stress_jobs_dir)
+        library_dir = Path(__file__).resolve().parents[2] / "assets" / "stata_do_library"
         return WorkerService(
             store=stress_store,
             queue=stress_queue,
@@ -140,6 +147,9 @@ def stress_worker_factory(
                 max_attempts=1,
                 backoff_base_seconds=0.0,
                 backoff_max_seconds=0.0,
+            ),
+            do_file_generator=DoFileGenerator(
+                do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir)
             ),
             sleep=lambda _seconds: None,
         )
@@ -156,6 +166,7 @@ def stress_app(
     stress_jobs_dir: Path,
 ) -> Iterator[FastAPI]:
     app = create_app()
+    library_dir = Path(__file__).resolve().parents[2] / "assets" / "stata_do_library"
     app.dependency_overrides[deps.get_job_service] = lambda: stress_job_service
     app.dependency_overrides[deps.get_job_query_service] = lambda: JobQueryService(
         store=stress_store
@@ -165,6 +176,8 @@ def stress_app(
     app.dependency_overrides[deps.get_plan_service] = lambda: PlanService(
         store=stress_store,
         workspace=FileJobWorkspaceStore(jobs_dir=stress_jobs_dir),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=library_dir),
+        do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir),
     )
     yield app
 

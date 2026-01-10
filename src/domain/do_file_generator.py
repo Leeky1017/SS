@@ -5,11 +5,14 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 
+from src.domain.do_template_rendering import render_do_text, template_param_specs
+from src.domain.do_template_repository import DoTemplateRepository
 from src.domain.models import ArtifactKind, LLMPlan, PlanStep, PlanStepType, is_safe_job_rel_path
 from src.infra.exceptions import (
     DoFileInputsManifestInvalidError,
     DoFilePlanInvalidError,
     DoFileTemplateUnsupportedError,
+    DoTemplateNotFoundError,
 )
 
 logger = logging.getLogger(__name__)
@@ -49,6 +52,23 @@ def _extract_template(step: PlanStep) -> str:
     if isinstance(legacy_template, str) and legacy_template.strip() != "":
         return legacy_template
     raise DoFilePlanInvalidError(reason="missing_template_id")
+
+
+def _extract_template_params(step: PlanStep) -> dict[str, str]:
+    raw = step.params.get("template_params", {})
+    if raw is None:
+        return {}
+    if not isinstance(raw, Mapping):
+        raise DoFilePlanInvalidError(reason="template_params_invalid")
+    params: dict[str, str] = {}
+    for key_obj, value_obj in raw.items():
+        key = key_obj if isinstance(key_obj, str) else ""
+        if key.strip() == "":
+            continue
+        if not isinstance(value_obj, str):
+            raise DoFilePlanInvalidError(reason="template_params_value_not_string")
+        params[key] = value_obj
+    return params
 
 
 def _infer_dataset_format_from_rel_path(rel_path: str) -> str | None:
@@ -129,6 +149,35 @@ def _dataset_load_line(*, dataset_format: str, dataset_job_rel_path: str) -> str
     return f"use {_stata_quote(dataset_job_rel_path)}, clear"
 
 
+def _stage_primary_dataset_as_library_inputs(
+    *,
+    dataset_job_rel_path: str,
+    dataset_format: str,
+) -> str:
+    quoted_src = _stata_quote(dataset_job_rel_path)
+    lines = [
+        "* SS_DO_LIBRARY_INPUTS_STAGE (generated)",
+        f"capture confirm file {quoted_src}",
+        "if _rc {",
+        f"    display as error \"ERROR: primary dataset not found: {dataset_job_rel_path}\"",
+        "    exit 601",
+        "}",
+    ]
+    if dataset_format == "csv":
+        lines.append(f"copy {quoted_src} \"data.csv\", replace")
+    elif dataset_format == "dta":
+        lines.append(f"copy {quoted_src} \"data.dta\", replace")
+    else:
+        lines.extend(
+            [
+                f"import excel {quoted_src}, firstrow clear",
+                "save \"data.dta\", replace",
+            ]
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def _render_stub_descriptive_v1(
     *,
     plan_id: str,
@@ -179,7 +228,10 @@ def _render_stub_descriptive_v1(
     return "\n".join(lines)
 
 
+@dataclass(frozen=True)
 class DoFileGenerator:
+    do_template_repo: DoTemplateRepository | None = None
+
     def generate(self, *, plan: LLMPlan, inputs_manifest: Mapping[str, object]) -> GeneratedDoFile:
         logger.info("SS_DOFILE_GENERATE_START", extra={"plan_id": plan.plan_id})
         step = _extract_generate_step(plan)
@@ -187,21 +239,41 @@ class DoFileGenerator:
         dataset_rel_path, dataset_format = _extract_primary_dataset_info(inputs_manifest)
         analysis_vars = _extract_analysis_vars(step)
 
-        if template != "stub_descriptive_v1":
-            raise DoFileTemplateUnsupportedError(template=template)
-
-        do_file = _render_stub_descriptive_v1(
-            plan_id=plan.plan_id,
-            dataset_job_rel_path=dataset_rel_path,
-            dataset_format=dataset_format,
-            analysis_vars=analysis_vars,
-        )
-        outputs = (
-            ExpectedOutput(
-                kind=ArtifactKind.STATA_EXPORT_TABLE,
-                filename=DEFAULT_SUMMARY_TABLE_FILENAME,
-            ),
-        )
+        if template == "stub_descriptive_v1":
+            do_file = _render_stub_descriptive_v1(
+                plan_id=plan.plan_id,
+                dataset_job_rel_path=dataset_rel_path,
+                dataset_format=dataset_format,
+                analysis_vars=analysis_vars,
+            )
+            outputs = (
+                ExpectedOutput(
+                    kind=ArtifactKind.STATA_EXPORT_TABLE,
+                    filename=DEFAULT_SUMMARY_TABLE_FILENAME,
+                ),
+            )
+        else:
+            repo = self.do_template_repo
+            if repo is None:
+                raise DoFileTemplateUnsupportedError(template=template)
+            params = _extract_template_params(step)
+            try:
+                tpl = repo.get_template(template_id=template)
+            except DoTemplateNotFoundError as e:
+                raise DoFileTemplateUnsupportedError(template=template) from e
+            specs = template_param_specs(template_id=template, meta=tpl.meta)
+            rendered, _resolved = render_do_text(
+                template_id=template,
+                do_text=tpl.do_text,
+                specs=specs,
+                params=params,
+            )
+            staged = _stage_primary_dataset_as_library_inputs(
+                dataset_job_rel_path=dataset_rel_path,
+                dataset_format=dataset_format,
+            )
+            do_file = staged + "\n" + rendered
+            outputs = tuple()
         logger.info(
             "SS_DOFILE_GENERATE_DONE",
             extra={"plan_id": plan.plan_id, "template": template, "outputs": len(outputs)},

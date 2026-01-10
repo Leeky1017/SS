@@ -5,9 +5,11 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+from src.domain.do_file_generator import DoFileGenerator
 from src.domain.models import JobStatus
 from src.domain.stata_runner import RunResult, StataRunner
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
+from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store import JobStore
 
 
@@ -50,6 +52,8 @@ def test_worker_progress_is_visible_while_user_polls_status(
     job_id = create_queued_job("hello")
     allow_finish = threading.Event()
     started = threading.Event()
+    library_dir = Path(__file__).resolve().parents[2] / "assets" / "stata_do_library"
+    repo = FileSystemDoTemplateRepository(library_dir=library_dir)
 
     service = WorkerService(
         store=store,
@@ -58,6 +62,7 @@ def test_worker_progress_is_visible_while_user_polls_status(
         runner=BlockingStataRunner(allow_finish=allow_finish, started=started),
         state_machine=state_machine,
         retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
+        do_file_generator=DoFileGenerator(do_template_repo=repo),
         sleep=noop_sleep,
     )
 

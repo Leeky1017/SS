@@ -9,12 +9,15 @@ from types import FrameType
 from opentelemetry.trace import get_tracer
 
 from src.config import load_config
+from src.domain.do_file_generator import DoFileGenerator
 from src.domain.stata_runner import StataRunner
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.audit_logger import LoggingAuditLogger
 from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_worker_queue import FileWorkerQueue
+from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
+from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store_factory import build_job_store
 from src.infra.local_stata_runner import LocalStataRunner
 from src.infra.logging_config import configure_logging
@@ -86,6 +89,17 @@ def main() -> None:
             "SS_WORKER_RUNNER_SELECTED",
             extra={"worker_id": config.worker_id, "runner": "fake"},
         )
+
+    do_template_catalog = FileSystemDoTemplateCatalog(library_dir=config.do_template_library_dir)
+    do_template_repo = FileSystemDoTemplateRepository(library_dir=config.do_template_library_dir)
+    logger.info(
+        "SS_DO_TEMPLATE_LIBRARY_WIRED",
+        extra={
+            "library_dir": str(config.do_template_library_dir),
+            "families": len(do_template_catalog.list_families()),
+            "templates": len(do_template_repo.list_template_ids()),
+        },
+    )
     service = WorkerService(
         store=store,
         queue=queue,
@@ -97,6 +111,7 @@ def main() -> None:
             backoff_base_seconds=config.worker_retry_backoff_base_seconds,
             backoff_max_seconds=config.worker_retry_backoff_max_seconds,
         ),
+        do_file_generator=DoFileGenerator(do_template_repo=do_template_repo),
         metrics=metrics,
         audit=LoggingAuditLogger(),
     )
