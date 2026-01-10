@@ -30,9 +30,17 @@ Enhance survival and multivariate templates with best practices (最佳实践), 
 
 ## Acceptance checklist
 
-- [ ] Each template has a best-practice review record
-- [ ] SSC deps removed/replaced where feasible (exceptions justified)
-- [ ] Error handling and diagnostics are strengthened (no silent failure)
-- [ ] Key steps have bilingual comments (中英文注释)
-- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Each template has a best-practice review record
+- [x] SSC deps removed/replaced where feasible (exceptions justified)
+- [x] Error handling and diagnostics are strengthened (no silent failure)
+- [x] Key steps have bilingual comments (中英文注释)
+- [x] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-295.md`
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/302
+- Summary:
+  - Added `SS_BEST_PRACTICE_REVIEW` blocks to TI01–TI11 and TJ01–TJ06
+  - Strengthened PH/competing-risk diagnostics and guardrails
+  - Ran Stata 18 smoke-suite; only missing dep is SSC `stcure` for TI09
+- Run log: `openspec/_ops/task_runs/ISSUE-295.md`
