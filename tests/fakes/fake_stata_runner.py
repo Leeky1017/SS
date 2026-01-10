@@ -4,8 +4,7 @@ import logging
 from pathlib import Path
 from typing import Sequence
 
-from src.domain.do_file_generator import DEFAULT_SUMMARY_TABLE_FILENAME
-from src.domain.models import ArtifactKind, ArtifactRef, is_safe_job_rel_path
+from src.domain.models import is_safe_job_rel_path
 from src.domain.stata_runner import RunError, RunResult, StataRunner
 from src.infra.stata_run_support import (
     DO_FILENAME,
@@ -76,6 +75,8 @@ class FakeStataRunner(StataRunner):
         )
         if isinstance(do_artifact_path, RunResult):
             return do_artifact_path
+        if ok:
+            self._write_fake_outputs(dirs=dirs, job_id=job_id, run_id=run_id)
 
         meta = self._meta_for(
             dirs=dirs,
@@ -185,6 +186,21 @@ class FakeStataRunner(StataRunner):
             )
         return do_artifact_path
 
+    def _write_fake_outputs(self, *, dirs: RunDirs, job_id: str, run_id: str) -> None:
+        try:
+            write_text(dirs.work_dir / "result.log", "fake template result\n")
+            write_text(dirs.work_dir / "table_T01_desc_stats.csv", "metric,value\nN,1\n")
+            write_text(dirs.work_dir / "table_T01_missing_pattern.csv", "metric,value\nk,2\n")
+            write_text(dirs.work_dir / "table_TA14_quality_summary.csv", "metric,value\nN,1\n")
+            write_text(dirs.work_dir / "table_TA14_var_diagnostics.csv", "var,ok\nx,1\n")
+            write_text(dirs.work_dir / "table_TA14_issues.csv", "issue\nnone\n")
+            write_text(dirs.work_dir / "fig_TA14_quality_heatmap.png", "not-a-real-png\n")
+        except OSError as e:
+            logger.warning(
+                "SS_FAKE_STATA_WRITE_OUTPUTS_FAILED",
+                extra={"job_id": job_id, "run_id": run_id, "reason": str(e)},
+            )
+
     def _inputs_source_dir(self, *, job_dir: Path, inputs_dir_rel: str | None) -> Path | None:
         if inputs_dir_rel is None:
             return job_dir / "inputs"
@@ -265,15 +281,6 @@ class FakeStataRunner(StataRunner):
             error_path=written[4],
             include_error=execution.error is not None,
         )
-        export_ref = self._write_export_table(
-            job_dir=dirs.job_dir,
-            artifacts_dir=dirs.artifacts_dir,
-            job_id=job_id,
-            run_id=run_id,
-            ok=execution.error is None,
-        )
-        if export_ref is not None:
-            artifacts = (*artifacts, export_ref)
         return RunResult(
             job_id=job_id,
             run_id=run_id,
@@ -283,29 +290,3 @@ class FakeStataRunner(StataRunner):
             artifacts=artifacts,
             error=execution.error,
         )
-
-    def _write_export_table(
-        self,
-        *,
-        job_dir: Path,
-        artifacts_dir: Path,
-        job_id: str,
-        run_id: str,
-        ok: bool,
-    ) -> ArtifactRef | None:
-        if not ok:
-            return None
-        path = artifacts_dir / DEFAULT_SUMMARY_TABLE_FILENAME
-        try:
-            write_text(path, "metric,value\nN,0\nk,0\n")
-        except OSError as e:
-            logger.warning(
-                "SS_FAKE_STATA_WRITE_EXPORT_TABLE_FAILED",
-                extra={"job_id": job_id, "run_id": run_id, "path": str(path), "reason": str(e)},
-            )
-            return None
-        return ArtifactRef(
-            kind=ArtifactKind.STATA_EXPORT_TABLE,
-            rel_path=job_rel_path(job_dir=job_dir, path=path),
-        )
-

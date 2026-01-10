@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import logging
-import shutil
 import subprocess
 from pathlib import Path
 from typing import Callable, Sequence
 
-from src.domain.do_file_generator import DEFAULT_SUMMARY_TABLE_FILENAME
-from src.domain.models import ArtifactKind, ArtifactRef, is_safe_job_rel_path
+from src.domain.models import is_safe_job_rel_path
 from src.domain.stata_runner import RunError, RunResult
 from src.infra.stata_cmd import build_stata_batch_cmd
 from src.infra.stata_run_support import (
@@ -27,34 +25,6 @@ from src.infra.stata_safety import copy_inputs_dir, find_unsafe_dofile_reason
 from src.utils.json_types import JsonObject
 
 logger = logging.getLogger(__name__)
-
-
-def _collect_exported_table(*, dirs: RunDirs, job_id: str, run_id: str) -> ArtifactRef | None:
-    source = dirs.work_dir / DEFAULT_SUMMARY_TABLE_FILENAME
-    if not source.exists():
-        return None
-
-    dest = dirs.artifacts_dir / DEFAULT_SUMMARY_TABLE_FILENAME
-    try:
-        shutil.copy2(source, dest)
-    except OSError as e:
-        logger.warning(
-            "SS_STATA_RUN_EXPORT_TABLE_COPY_FAILED",
-            extra={
-                "job_id": job_id,
-                "run_id": run_id,
-                "src": str(source),
-                "dst": str(dest),
-                "reason": str(e),
-            },
-        )
-        return None
-
-    return ArtifactRef(
-        kind=ArtifactKind.STATA_EXPORT_TABLE,
-        rel_path=job_rel_path(job_dir=dirs.job_dir, path=dest),
-    )
-
 
 def _prepare_workspace(
     *,
@@ -228,9 +198,6 @@ def _persist_run(
         error_path=error_path,
         include_error=execution.error is not None,
     )
-    export_table_ref = _collect_exported_table(dirs=dirs, job_id=job_id, run_id=run_id)
-    if export_table_ref is not None:
-        artifacts = (*artifacts, export_table_ref)
     _log_completion(job_id=job_id, run_id=run_id, execution=execution)
     return RunResult(
         job_id=job_id,

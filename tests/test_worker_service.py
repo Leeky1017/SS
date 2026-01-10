@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from src.domain.do_file_generator import DEFAULT_SUMMARY_TABLE_FILENAME, DoFileGenerator
+from src.domain.do_file_generator import DoFileGenerator
 from src.domain.models import ArtifactKind, JobStatus
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
@@ -46,12 +46,23 @@ def test_worker_service_with_success_once_marks_job_succeeded(tmp_path: Path) ->
     assert len(job.runs) == 1
     assert job.runs[0].status == "succeeded"
     assert any(ref.kind == ArtifactKind.RUN_META_JSON for ref in job.artifacts_index)
+    assert any(ref.kind == ArtifactKind.DO_TEMPLATE_SOURCE for ref in job.artifacts_index)
+    assert any(ref.kind == ArtifactKind.DO_TEMPLATE_META for ref in job.artifacts_index)
+    assert any(ref.kind == ArtifactKind.DO_TEMPLATE_PARAMS for ref in job.artifacts_index)
+    assert any(ref.kind == ArtifactKind.DO_TEMPLATE_RUN_META_JSON for ref in job.artifacts_index)
+    assert any(ref.kind == ArtifactKind.STATA_RESULT_LOG for ref in job.artifacts_index)
     assert any(ref.kind == ArtifactKind.STATA_EXPORT_TABLE for ref in job.artifacts_index)
     run_id = job.runs[0].run_id
     job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
     assert job_dir is not None
     assert (job_dir / "runs" / run_id / "artifacts" / META_FILENAME).exists()
-    assert (job_dir / "runs" / run_id / "artifacts" / DEFAULT_SUMMARY_TABLE_FILENAME).exists()
+    assert (job_dir / "runs" / run_id / "artifacts" / "template" / "source.do").exists()
+    assert (job_dir / "runs" / run_id / "artifacts" / "template" / "meta.json").exists()
+    assert (job_dir / "runs" / run_id / "artifacts" / "template" / "params.json").exists()
+    assert (job_dir / "runs" / run_id / "artifacts" / "do_template_run.meta.json").exists()
+    outputs_dir = job_dir / "runs" / run_id / "artifacts" / "outputs"
+    assert (outputs_dir / "result.log").exists()
+    assert (outputs_dir / "table_TA14_quality_summary.csv").exists()
     assert list((queue_dir / "queued").glob("*.json")) == []
     assert list((queue_dir / "claimed").glob("*.json")) == []
 

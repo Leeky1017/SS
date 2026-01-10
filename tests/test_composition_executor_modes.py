@@ -4,6 +4,7 @@ import json
 import uuid
 from pathlib import Path
 
+from src.domain.do_file_generator import DoFileGenerator
 from src.domain.models import (
     JOB_SCHEMA_VERSION_CURRENT,
     ArtifactKind,
@@ -17,6 +18,7 @@ from src.domain.models import (
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.file_worker_queue import FileWorkerQueue
+from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store import JobStore
 from src.utils.job_workspace import resolve_job_dir
 from src.utils.time import utc_now
@@ -65,6 +67,7 @@ def _queued_job_with_plan(
 
 
 def _worker(*, jobs_dir: Path, queue: FileWorkerQueue) -> WorkerService:
+    library_dir = Path(__file__).resolve().parents[1] / "assets" / "stata_do_library"
     return WorkerService(
         store=JobStore(jobs_dir=jobs_dir),
         queue=queue,
@@ -72,6 +75,9 @@ def _worker(*, jobs_dir: Path, queue: FileWorkerQueue) -> WorkerService:
         runner=FakeStataRunner(jobs_dir=jobs_dir),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=2, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
+        do_file_generator=DoFileGenerator(
+            do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir)
+        ),
         sleep=lambda _s: None,
     )
 
@@ -92,7 +98,7 @@ def test_composition_executor_merge_then_sequential_writes_merged_product_and_su
                 type=PlanStepType.GENERATE_STATA_DO,
                 params={
                     "composition_mode": "merge_then_sequential",
-                    "template_id": "stub_descriptive_v1",
+                    "template_id": "TA14",
                     "input_bindings": {
                         "primary_dataset": "input:main",
                         "secondary_dataset": "input:controls",
@@ -108,7 +114,7 @@ def test_composition_executor_merge_then_sequential_writes_merged_product_and_su
                 type=PlanStepType.GENERATE_STATA_DO,
                 params={
                     "composition_mode": "merge_then_sequential",
-                    "template_id": "stub_descriptive_v1",
+                    "template_id": "TA14",
                     "input_bindings": {"primary_dataset": "prod:merge:merged"},
                     "products": [],
                 },
@@ -173,7 +179,7 @@ def test_composition_executor_parallel_then_aggregate_writes_products_and_summar
                 type=PlanStepType.GENERATE_STATA_DO,
                 params={
                     "composition_mode": "parallel_then_aggregate",
-                    "template_id": "stub_descriptive_v1",
+                    "template_id": "TA14",
                     "input_bindings": {"primary_dataset": "input:a"},
                     "products": [{"product_id": "summary", "kind": "table"}],
                 },
@@ -185,7 +191,7 @@ def test_composition_executor_parallel_then_aggregate_writes_products_and_summar
                 type=PlanStepType.GENERATE_STATA_DO,
                 params={
                     "composition_mode": "parallel_then_aggregate",
-                    "template_id": "stub_descriptive_v1",
+                    "template_id": "TA14",
                     "input_bindings": {"primary_dataset": "input:b"},
                     "products": [{"product_id": "summary", "kind": "table"}],
                 },
@@ -197,7 +203,7 @@ def test_composition_executor_parallel_then_aggregate_writes_products_and_summar
                 type=PlanStepType.GENERATE_STATA_DO,
                 params={
                     "composition_mode": "parallel_then_aggregate",
-                    "template_id": "stub_descriptive_v1",
+                    "template_id": "TA14",
                     "input_bindings": {
                         "primary_dataset": "prod:analyze_a:summary",
                         "secondary_dataset": "prod:analyze_b:summary",
@@ -270,7 +276,7 @@ def test_composition_executor_conditional_executes_one_branch_and_records_decisi
                 type=PlanStepType.GENERATE_STATA_DO,
                 params={
                     "composition_mode": "conditional",
-                    "template_id": "stub_descriptive_v1",
+                    "template_id": "TA14",
                     "input_bindings": {"primary_dataset": "input:main"},
                     "condition": {
                         "predicate": {"op": "always_true"},
@@ -287,7 +293,7 @@ def test_composition_executor_conditional_executes_one_branch_and_records_decisi
                 type=PlanStepType.GENERATE_STATA_DO,
                 params={
                     "composition_mode": "conditional",
-                    "template_id": "stub_descriptive_v1",
+                    "template_id": "TA14",
                     "input_bindings": {"primary_dataset": "input:main"},
                     "products": [],
                 },
@@ -299,7 +305,7 @@ def test_composition_executor_conditional_executes_one_branch_and_records_decisi
                 type=PlanStepType.GENERATE_STATA_DO,
                 params={
                     "composition_mode": "conditional",
-                    "template_id": "stub_descriptive_v1",
+                    "template_id": "TA14",
                     "input_bindings": {"primary_dataset": "input:main"},
                     "products": [],
                 },
@@ -352,7 +358,7 @@ def test_composition_executor_with_unknown_dataset_ref_fails_and_writes_error_ar
                 type=PlanStepType.GENERATE_STATA_DO,
                 params={
                     "composition_mode": "sequential",
-                    "template_id": "stub_descriptive_v1",
+                    "template_id": "TA14",
                     "input_bindings": {"primary_dataset": "input:unknown"},
                     "products": [],
                 },

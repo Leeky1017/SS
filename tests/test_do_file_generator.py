@@ -39,7 +39,15 @@ def test_generate_when_called_twice_with_same_inputs_is_deterministic(
     assert 'copy "inputs/data.dta" "data.dta", replace' in first.do_file
     assert 'display "SS_TASK_BEGIN|id=TA14|level=L1|title=Data_Quality"' in first.do_file
     assert "local quality_threshold 0.8" in first.do_file
-    assert len(first.expected_outputs) == 0
+    assert len(first.expected_outputs) == 5
+    filenames = {output.filename for output in first.expected_outputs}
+    assert filenames == {
+        "fig_TA14_quality_heatmap.png",
+        "result.log",
+        "table_TA14_issues.csv",
+        "table_TA14_quality_summary.csv",
+        "table_TA14_var_diagnostics.csv",
+    }
 
 
 def test_generate_with_missing_manifest_raises_inputs_manifest_invalid_error(
