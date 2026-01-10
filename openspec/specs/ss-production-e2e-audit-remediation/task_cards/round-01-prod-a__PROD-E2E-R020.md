@@ -35,6 +35,13 @@
 
 ## Acceptance checklist
 
-- [ ] 对缺失 SSC/ado 的场景：错误可被稳定识别并产出结构化错误（含缺失项列表）
-- [ ] 修复依赖后可重试同一 job 并成功（状态机与重试语义正确）
-- [ ] `openspec/_ops/task_runs/ISSUE-<N>.md` 记录一次缺失依赖→修复→重试成功的证据
+- [x] 对缺失 SSC/ado 的场景：错误可被稳定识别并产出结构化错误（含缺失项列表）
+- [x] 修复依赖后可重试同一 job 并成功（状态机与重试语义正确）
+- [x] `openspec/_ops/task_runs/ISSUE-342.md` 记录一次缺失依赖→修复→重试成功的证据
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/347
+- Adds worker dependency preflight and `STATA_DEPENDENCY_MISSING` structured run errors with missing list
+- Allows retrying `failed` jobs via `POST /v1/jobs/{job_id}/run` after environment fix (no runtime auto-install)
+- Run log: `openspec/_ops/task_runs/ISSUE-342.md`
