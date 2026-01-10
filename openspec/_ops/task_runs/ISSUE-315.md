@@ -2,6 +2,7 @@
 - Issue: #315 https://github.com/Leeky1017/SS/issues/315
 - Branch: task/315-prod-e2e-r043
 - PR: https://github.com/Leeky1017/SS/pull/318
+- Closeout PR: https://github.com/Leeky1017/SS/pull/320
 
 ## Plan
 - Remove runtime FakeObjectStore wiring; enforce S3-only backend.
@@ -35,3 +36,10 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-10 Closeout: task card completion
+- Command:
+  - Open PR: https://github.com/Leeky1017/SS/pull/320
+- Key output:
+  - Task card `round-01-prod-a__PROD-E2E-R043.md` acceptance checklist marked complete
+  - `## Completion` added with PR + run log reference
