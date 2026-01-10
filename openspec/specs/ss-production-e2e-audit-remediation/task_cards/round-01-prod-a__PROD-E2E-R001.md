@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #297
 - Spec: `openspec/specs/ss-production-e2e-audit-remediation/spec.md`
 - Audit evidence: `openspec/_ops/task_runs/ISSUE-274.md` (inventory + F005)
 - Related specs:
@@ -31,7 +31,15 @@
 
 ## Acceptance checklist
 
-- [ ] 运行时不再存在非 `/v1` 的 jobs/draft/bundle/upload-session 等业务 endpoints（代码与路由证据）
-- [ ] `openspec/_ops/task_runs/ISSUE-<N>.md` 记录路由清单与验证命令输出（含 `rg`/`curl`/OpenAPI 证据）
-- [ ] `openspec/specs/ss-production-e2e-audit/spec.md` 的 inventory 任务在新的现实下仍可执行并产出清晰证据
+- [x] 运行时不再存在非 `/v1` 的 jobs/draft/bundle/upload-session 等业务 endpoints（代码与路由证据）
+- [x] `openspec/_ops/task_runs/ISSUE-297.md` 记录路由清单与验证命令输出（含 `rg`/`curl`/OpenAPI 证据）
+- [x] `openspec/specs/ss-production-e2e-audit/spec.md` 的 inventory 任务在新的现实下仍可执行并产出清晰证据
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/300
+- Run log: `openspec/_ops/task_runs/ISSUE-297.md`
+- Summary:
+  - Remove legacy unversioned `/jobs/**` business surface at runtime.
+  - Keep ops endpoints (`/health/*`, `/metrics`) mounted separately from business routers.
+  - Add tests to prevent reintroducing non-`/v1` business routes.

@@ -73,6 +73,7 @@
     - `GET /metrics`
     - `GET /jobs`
     - `GET /jobs/anything`
+    - `GET /openapi.json` (assert only `/v1` business paths exist)
 - Key output:
   - `ruff`: `All checks passed!`
   - `pytest`: `165 passed, 5 skipped`
@@ -81,6 +82,9 @@
     - `/metrics=200`
     - `/jobs=404`
     - `/jobs/anything=404`
+  - `openapi.json`:
+    - `has_unversioned_jobs=False`
+    - `has_v1_jobs=True`
 - Evidence:
   - (this file)
 
