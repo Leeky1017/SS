@@ -42,8 +42,15 @@
 
 ## Acceptance checklist
 
-- [ ] 新增可复用 docker-compose 资产（含 MinIO 独立服务与 bucket 初始化）
-- [ ] `docker compose up` 后 MinIO console 可访问，bucket 已存在
-- [ ] SS 可启动并能返回 `/health/live`
-- [ ] 资产与规范均由 `openspec/specs/**` 管理；`docs/` 如新增仅为指针入口
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-334.md`
+- [x] 新增可复用 docker-compose 资产（含 MinIO 独立服务与 bucket 初始化）
+- [x] `docker compose up` 后 MinIO console 可访问，bucket 已存在
+- [x] SS 可启动并能返回 `/health/live`
+- [x] 资产与规范均由 `openspec/specs/**` 管理；`docs/` 如新增仅为指针入口
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-334.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/335
+- Added reusable `docker-compose.yml` (MinIO + SS) and `.env.example` under `openspec/specs/ss-deployment-docker-minio/assets/`.
+- Included a bucket init service to auto-create `SS_UPLOAD_S3_BUCKET`.
+- Run log: `openspec/_ops/task_runs/ISSUE-334.md`
