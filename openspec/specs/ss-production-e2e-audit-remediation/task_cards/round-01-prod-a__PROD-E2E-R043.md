@@ -31,6 +31,14 @@
 
 ## Acceptance checklist
 
-- [ ] runtime 不再支持 `fake` object store backend（错误码稳定、可诊断）
-- [ ] upload sessions 流程在生产配置下可用（至少 direct/multipart 的 presign + finalize 核心路径）
-- [ ] tests 不依赖 runtime fake object store（注入 fake）
+- [x] runtime 不再支持 `fake` object store backend（错误码稳定、可诊断）
+- [x] upload sessions 流程在生产配置下可用（至少 direct/multipart 的 presign + finalize 核心路径）
+- [x] tests 不依赖 runtime fake object store（注入 fake）
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/318
+- runtime 仅支持 `SS_UPLOAD_OBJECT_STORE_BACKEND=s3`，并默认使用 S3
+- production 启动时验证 S3 配置；缺失则 fail-fast（`OBJECT_STORE_CONFIG_INVALID`）
+- FakeObjectStore 移至 `tests/**` 并通过注入使用；runtime 实现已移除
+- Run log: `openspec/_ops/task_runs/ISSUE-315.md`
