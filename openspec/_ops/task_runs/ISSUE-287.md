@@ -1,7 +1,7 @@
 # ISSUE-287
 - Issue: #287
 - Branch: task/287-p5-11-12-closeout
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/288
 
 ## Goal
 - Backfill task card completion for Phase 5.11/5.12 and archive completed Rulebook tasks (post-merge hygiene).
