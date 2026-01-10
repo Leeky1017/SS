@@ -8,6 +8,15 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.9) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Model intent / 模型目的: SEM via `sem __MODEL_SPEC__` / 结构方程模型（模型由 __MODEL_SPEC__ 指定）
+* - Diagnostics / 诊断: report GOF (chi2/RMSEA/CFI/SRMR) + standardized solution / 输出拟合优度与标准化结果
+* - Data caveats / 数据注意: SEM is sensitive to sample size, scaling, and missingness / 需关注样本量、尺度与缺失
+* - SSC deps / SSC 依赖: none / 无
+* - Guardrails / 防御: warn on small N; fail-fast only on missing input file
+* ------------------------------------------------------------------------------
 capture log close _all
 local rc_log_close = _rc
 if `rc_log_close' != 0 {
@@ -55,6 +64,10 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* Basic sanity checks / 基础校验（样本量过小会导致不收敛/不稳定）
+if _N < 30 {
+    display "SS_RC|code=SMALL_SAMPLE_SIZE|n=`=_N'|severity=warn"
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"

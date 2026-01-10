@@ -8,6 +8,15 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.9) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Model intent / 模型目的: LDA classification via `discrim lda` / 线性判别分析分类
+* - Assumptions / 假设: within-class normality + equal covariance; check group sizes / 组内正态与协方差齐性假设，需关注组内样本量
+* - Diagnostics / 诊断: emit classification table when available / 尝试输出分类表指标
+* - SSC deps / SSC 依赖: none / 无
+* - Guardrails / 防御: validate group var + var list + warn on tiny groups
+* ------------------------------------------------------------------------------
 capture log close _all
 local rc_log_close = _rc
 if `rc_log_close' != 0 {
@@ -58,6 +67,40 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* Validate group + predictors / 校验分组变量与自变量列表
+capture confirm variable `group_var'
+if _rc {
+    ss_fail TJ03 200 "confirm variable `group_var'" "group_var_not_found"
+}
+local n_vars : word count `vars'
+display "SS_METRIC|name=n_vars|value=`n_vars'"
+if `n_vars' < 1 {
+    ss_fail TJ03 200 "vars" "vars_empty"
+}
+foreach v of local vars {
+    capture confirm variable `v'
+    if _rc {
+        ss_fail TJ03 200 "confirm variable `v'" "var_not_found"
+    }
+}
+quietly levelsof `group_var', local(ss_groups)
+local rc_groups = _rc
+if `rc_groups' != 0 {
+    ss_fail TJ03 `rc_groups' "levelsof" "group_levels_failed"
+}
+local n_groups : word count `ss_groups'
+display "SS_METRIC|name=n_groups|value=`n_groups'"
+if `n_groups' < 2 {
+    ss_fail TJ03 200 "levelsof" "need_at_least_two_groups"
+}
+tempvar ss_gsize
+bysort `group_var': gen long `ss_gsize' = _N
+quietly summarize `ss_gsize'
+local min_g = r(min)
+if `min_g' < 5 {
+    display "SS_RC|code=SMALL_GROUP|min_group_n=`min_g'|severity=warn"
+}
+drop `ss_gsize'
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"

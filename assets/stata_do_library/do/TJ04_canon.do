@@ -8,6 +8,15 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.9) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Model intent / 模型目的: canonical correlation between two variable sets / 两组变量的典型相关分析
+* - Data caveats / 数据注意: requires enough observations vs dimensionality / 样本量需足够（避免维度过高导致不稳定）
+* - Diagnostics / 诊断: record first canonical correlation / 记录第一典型相关系数
+* - SSC deps / SSC 依赖: none / 无
+* - Guardrails / 防御: validate var lists + warn if N is small relative to dimensions
+* ------------------------------------------------------------------------------
 capture log close _all
 local rc_log_close = _rc
 if `rc_log_close' != 0 {
@@ -58,6 +67,30 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* Validate variable sets / 校验两组变量列表
+local k1 : word count `vars1'
+local k2 : word count `vars2'
+display "SS_METRIC|name=k1|value=`k1'"
+display "SS_METRIC|name=k2|value=`k2'"
+if `k1' < 1 | `k2' < 1 {
+    ss_fail TJ04 200 "vars1/vars2" "vars_empty"
+}
+foreach v of local vars1 {
+    capture confirm variable `v'
+    if _rc {
+        ss_fail TJ04 200 "confirm variable `v'" "var_not_found"
+    }
+}
+foreach v of local vars2 {
+    capture confirm variable `v'
+    if _rc {
+        ss_fail TJ04 200 "confirm variable `v'" "var_not_found"
+    }
+}
+local k_total = `k1' + `k2'
+if _N < (`k_total' + 10) {
+    display "SS_RC|code=SMALL_SAMPLE_FOR_DIMENSION|n=`=_N'|k_total=`k_total'|severity=warn"
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"

@@ -9,6 +9,15 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.9) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Model intent / 模型目的: correspondence analysis for two categorical variables / 两个分类变量的对应分析
+* - Data caveats / 数据注意: avoid extremely sparse/high-cardinality tables / 避免过稀疏或类别过多的列联表
+* - Diagnostics / 诊断: record total inertia and export plot / 记录总惯量并导出图形
+* - SSC deps / SSC 依赖: none / 无
+* - Guardrails / 防御: validate vars + warn on many categories or missing pairs
+* ------------------------------------------------------------------------------
 capture log close _all
 local rc_log_close = _rc
 if `rc_log_close' != 0 {
@@ -59,6 +68,29 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+capture confirm variable `var1'
+if _rc {
+    ss_fail TJ06 200 "confirm variable `var1'" "var_not_found"
+}
+capture confirm variable `var2'
+if _rc {
+    ss_fail TJ06 200 "confirm variable `var2'" "var_not_found"
+}
+quietly count if !missing(`var1') & !missing(`var2')
+local n_pairs = r(N)
+display "SS_METRIC|name=n_nonmissing_pairs|value=`n_pairs'"
+if `n_pairs' == 0 {
+    ss_fail TJ06 200 "validate_inputs" "no_nonmissing_pairs"
+}
+quietly tab `var1'
+local k1 = r(r)
+quietly tab `var2'
+local k2 = r(r)
+display "SS_METRIC|name=k1|value=`k1'"
+display "SS_METRIC|name=k2|value=`k2'"
+if `k1' > 50 | `k2' > 50 {
+    display "SS_RC|code=HIGH_CARDINALITY|k1=`k1'|k2=`k2'|severity=warn"
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"

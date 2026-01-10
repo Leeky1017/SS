@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #295
 - Parent: #125
 - Superphase: Phase 5 (content enhancement)
 - Templates: `TI*` + `TJ*` (~17 templates, current inventory)
