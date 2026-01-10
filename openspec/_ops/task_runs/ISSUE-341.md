@@ -20,3 +20,11 @@
 ### 2026-01-10 tests
 - Command: `.venv/bin/pytest -q`
 - Key output: `182 passed, 5 skipped`
+
+### 2026-01-10 merge + cleanup
+- Command: `gh pr view 345 --json state,mergedAt`
+- Key output: `state=MERGED mergedAt=2026-01-10T11:53:13Z`
+- Command: `scripts/agent_controlplane_sync.sh`
+- Key output: `Fast-forward ... [ROUND-01-PROD-A] PROD-E2E-R030 ... (#345)`
+- Command: `scripts/agent_worktree_cleanup.sh 341 prod-e2e-r030`
+- Key output: `OK: cleaned worktree .worktrees/issue-341-prod-e2e-r030 ...`
