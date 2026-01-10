@@ -7,7 +7,7 @@ import pytest
 
 from src.api import deps
 from src.domain.draft_service import DraftService
-from src.domain.llm_client import LLMClient, StubLLMClient
+from src.domain.llm_client import LLMClient
 from src.domain.models import Draft, Job
 from src.domain.state_machine import JobStateMachine
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
@@ -17,6 +17,7 @@ from src.infra.llm_tracing import TracedLLMClient
 from src.main import create_app
 from tests.asgi_client import asgi_client
 from tests.async_overrides import async_override
+from tests.fakes.fake_llm_client import FakeLLMClient
 
 
 @pytest.mark.anyio
@@ -35,7 +36,7 @@ async def test_draft_preview_when_llm_times_out_uses_fallback(
     llm = TracedLLMClient(
         inner=FailoverLLMClient(
             primary=SlowLLMClient(),
-            fallback=StubLLMClient(),
+            fallback=FakeLLMClient(),
             primary_timeout_seconds=0.05,
         ),
         jobs_dir=jobs_dir,
@@ -65,7 +66,7 @@ async def test_draft_preview_when_llm_times_out_uses_fallback(
             response = await client.get(f"/v1/jobs/{job.job_id}/draft/preview")
 
     assert response.status_code == 200
-    assert response.json()["draft_text"].startswith("[stub-draft:")
+    assert response.json()["draft_text"].startswith("[fake-draft:")
 
     failover_records = [r for r in caplog.records if r.msg == "SS_LLM_FAILOVER_USED"]
     assert len(failover_records) == 1

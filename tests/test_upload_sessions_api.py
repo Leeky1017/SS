@@ -30,7 +30,13 @@ def _sha256_hex(data: bytes) -> str:
 
 
 def _test_config(*, jobs_dir: Path) -> Config:
-    raw = load_config(env={"SS_JOBS_DIR": str(jobs_dir)})
+    raw = load_config(
+        env={
+            "SS_LLM_PROVIDER": "yunwu",
+            "SS_LLM_API_KEY": "test-key",
+            "SS_JOBS_DIR": str(jobs_dir),
+        }
+    )
     return replace(
         raw,
         jobs_dir=jobs_dir,

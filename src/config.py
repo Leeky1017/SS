@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Mapping
 
+from src.infra.exceptions import LLMConfigurationError
+
 
 @dataclass(frozen=True)
 class Config:
@@ -34,7 +36,7 @@ class Config:
     upload_multipart_max_parts: int
     upload_max_bundle_files: int
     ss_env: str = field(default="development", kw_only=True)
-    llm_provider: str = field(default="stub", kw_only=True)
+    llm_provider: str = field(default="", kw_only=True)
     llm_base_url: str = field(default="https://yunwu.ai/v1", kw_only=True)
     llm_api_key: str = field(default="", kw_only=True)
     llm_model: str = field(default="claude-opus-4-5-20251101", kw_only=True)
@@ -60,20 +62,17 @@ class Config:
     def is_production(self) -> bool:
         return self.ss_env in {"production", "prod"}
 
-
 def _int_value(raw: str, *, default: int) -> int:
     try:
         return int(raw)
     except (TypeError, ValueError):
         return default
 
-
 def _float_value(raw: str, *, default: float) -> float:
     try:
         return float(raw)
     except (TypeError, ValueError):
         return default
-
 
 def _bool_value(raw: str, *, default: bool) -> bool:
     value = str(raw).strip().lower()
@@ -82,7 +81,6 @@ def _bool_value(raw: str, *, default: bool) -> bool:
     if value in {"0", "false", "no", "n", "off"}:
         return False
     return default
-
 
 def _clamped_ratio(raw: str, *, default: float) -> float:
     ratio = _float_value(raw, default=default)
@@ -195,9 +193,13 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         default=64,
         min_value=1,
     )
-    llm_provider = str(e.get("SS_LLM_PROVIDER", "stub")).strip().lower()
+    llm_provider = str(e.get("SS_LLM_PROVIDER", "")).strip().lower()
+    if llm_provider in {"", "stub"}:
+        raise LLMConfigurationError(message="SS_LLM_PROVIDER is required and must not be 'stub'")
     llm_base_url = str(e.get("SS_LLM_BASE_URL", "https://yunwu.ai/v1")).strip()
     llm_api_key = str(e.get("SS_LLM_API_KEY", "")).strip()
+    if llm_provider in {"openai", "openai_compatible", "yunwu"} and llm_api_key == "":
+        raise LLMConfigurationError(message="SS_LLM_API_KEY is required for SS_LLM_PROVIDER")
     llm_model = str(e.get("SS_LLM_MODEL", "claude-opus-4-5-20251101")).strip()
     if llm_model == "claude-opus-4-5":
         llm_model = "claude-opus-4-5-20251101"

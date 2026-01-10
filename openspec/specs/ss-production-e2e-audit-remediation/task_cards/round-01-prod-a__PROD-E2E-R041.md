@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #316
 - Spec: `openspec/specs/ss-production-e2e-audit-remediation/spec.md`
 - Audit evidence: `openspec/_ops/task_runs/ISSUE-274.md` (F004)
 - Related specs:
@@ -33,4 +33,3 @@
 - [ ] `SS_LLM_PROVIDER=stub` 不再被支持（启动/运行时明确失败且错误码稳定）
 - [ ] 生产 E2E 审计证据中 LLM meta 仍可审计并包含真实 model 名
 - [ ] 单元测试与集成测试不依赖 runtime stub（使用显式注入的 fake）
-
