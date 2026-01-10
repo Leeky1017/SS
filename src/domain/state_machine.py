@@ -15,7 +15,7 @@ _ALLOWED_TRANSITIONS: dict[JobStatus, frozenset[JobStatus]] = {
     JobStatus.QUEUED: frozenset({JobStatus.RUNNING}),
     JobStatus.RUNNING: frozenset({JobStatus.SUCCEEDED, JobStatus.FAILED}),
     JobStatus.SUCCEEDED: frozenset(),
-    JobStatus.FAILED: frozenset(),
+    JobStatus.FAILED: frozenset({JobStatus.QUEUED}),
 }
 
 

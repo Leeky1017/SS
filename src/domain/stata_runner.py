@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from src.domain.models import ArtifactRef
+from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID
 
 
@@ -11,6 +12,7 @@ from src.utils.tenancy import DEFAULT_TENANT_ID
 class RunError:
     error_code: str
     message: str
+    details: JsonObject | None = None
 
 
 @dataclass(frozen=True)

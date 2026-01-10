@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #342
 - Spec: `openspec/specs/ss-production-e2e-audit-remediation/spec.md`
 - Audit evidence: `openspec/_ops/task_runs/ISSUE-274.md` (F002)
 - Related specs:
@@ -38,4 +38,3 @@
 - [ ] 对缺失 SSC/ado 的场景：错误可被稳定识别并产出结构化错误（含缺失项列表）
 - [ ] 修复依赖后可重试同一 job 并成功（状态机与重试语义正确）
 - [ ] `openspec/_ops/task_runs/ISSUE-<N>.md` 记录一次缺失依赖→修复→重试成功的证据
-

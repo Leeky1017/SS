@@ -24,6 +24,7 @@ Define the SS job state machine, allowed transitions, and idempotency strategy a
 - `queued` → `running`
 - `running` → `succeeded`
 - `running` → `failed`
+- `failed` → `queued` (explicit retry)
 
 ### Idempotency key inputs
 

@@ -14,6 +14,7 @@ from src.domain.do_file_generator import DoFileGenerator
 from src.domain.job_store import JobStore
 from src.domain.metrics import NoopMetrics, RuntimeMetrics
 from src.domain.models import Job, JobStatus
+from src.domain.stata_dependency_checker import StataDependencyChecker
 from src.domain.stata_runner import RunResult, StataRunner
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_claim_handling import ensure_job_claimable, load_job_or_handle
@@ -27,18 +28,16 @@ from src.utils.time import utc_now
 logger = logging.getLogger(__name__)
 
 _SHUTDOWN_RELEASE_CLAIM_EVENT = "SS_WORKER_SHUTDOWN_RELEASE_CLAIM"
-_NON_RETRIABLE_ERROR_CODES = {"PLAN_MISSING", "PLAN_INVALID", "INPUTS_MANIFEST_MISSING", "INPUTS_MANIFEST_UNSAFE", "INPUTS_MANIFEST_INVALID", "INPUTS_MANIFEST_READ_FAILED", "DOFILE_PLAN_INVALID", "DOFILE_TEMPLATE_UNSUPPORTED", "DOFILE_INPUTS_MANIFEST_INVALID", "STATA_WORKSPACE_INVALID", "PLAN_COMPOSITION_INVALID", "STATA_INPUTS_UNSAFE"}  # noqa: E501
+_NON_RETRIABLE_ERROR_CODES = {"PLAN_MISSING", "PLAN_INVALID", "INPUTS_MANIFEST_MISSING", "INPUTS_MANIFEST_UNSAFE", "INPUTS_MANIFEST_INVALID", "INPUTS_MANIFEST_READ_FAILED", "DOFILE_PLAN_INVALID", "DOFILE_TEMPLATE_UNSUPPORTED", "DOFILE_INPUTS_MANIFEST_INVALID", "STATA_WORKSPACE_INVALID", "PLAN_COMPOSITION_INVALID", "STATA_INPUTS_UNSAFE", "STATA_DEPENDENCY_MISSING"}  # noqa: E501
 
 _NEVER_STOP = repeat(False).__next__
 _NO_DEADLINE = repeat(None).__next__
-
 
 @dataclass(frozen=True)
 class WorkerRetryPolicy:
     max_attempts: int
     backoff_base_seconds: float
     backoff_max_seconds: float
-
 
 class WorkerService:
     def __init__(
@@ -51,6 +50,7 @@ class WorkerService:
         state_machine: JobStateMachine,
         retry: WorkerRetryPolicy,
         do_file_generator: DoFileGenerator | None = None,
+        dependency_checker: StataDependencyChecker | None = None,
         metrics: RuntimeMetrics | None = None,
         audit: AuditLogger | None = None,
         clock: Callable[[], datetime] = utc_now,
@@ -63,6 +63,7 @@ class WorkerService:
         self._state_machine = state_machine
         self._retry = retry
         self._do_file_generator = do_file_generator
+        self._dependency_checker = dependency_checker
         self._metrics = NoopMetrics() if metrics is None else metrics
         self._audit = NoopAuditLogger() if audit is None else audit
         self._clock = clock
@@ -191,6 +192,7 @@ class WorkerService:
                 run_id=run_id,
                 jobs_dir=self._jobs_dir,
                 runner=self._runner,
+                dependency_checker=self._dependency_checker,
                 shutdown_deadline=shutdown_deadline(),
                 clock=self._clock,
                 do_file_generator=self._do_file_generator,
