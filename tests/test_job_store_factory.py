@@ -9,7 +9,7 @@ from src.infra.job_store_factory import build_job_store
 
 
 def test_build_job_store_with_default_config_returns_file_job_store() -> None:
-    config = load_config(env={})
+    config = load_config(env={"SS_LLM_PROVIDER": "yunwu", "SS_LLM_API_KEY": "test-key"})
 
     store = build_job_store(config=config)
 
@@ -17,7 +17,13 @@ def test_build_job_store_with_default_config_returns_file_job_store() -> None:
 
 
 def test_build_job_store_with_unsupported_backend_raises_unsupported_error() -> None:
-    config = load_config(env={"SS_JOB_STORE_BACKEND": "redis"})
+    config = load_config(
+        env={
+            "SS_LLM_PROVIDER": "yunwu",
+            "SS_LLM_API_KEY": "test-key",
+            "SS_JOB_STORE_BACKEND": "redis",
+        }
+    )
 
     with pytest.raises(JobStoreBackendUnsupportedError) as exc:
         build_job_store(config=config)

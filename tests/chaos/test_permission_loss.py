@@ -5,12 +5,12 @@ from pathlib import Path
 
 import pytest
 
-from src.domain.llm_client import StubLLMClient
 from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job
 from src.infra.exceptions import LLMArtifactsWriteError
 from src.infra.llm_tracing import TracedLLMClient
 from src.utils.job_workspace import shard_for_job_id
 from src.utils.time import utc_now
+from tests.fakes.fake_llm_client import FakeLLMClient
 
 
 @pytest.mark.anyio
@@ -47,7 +47,7 @@ def test_llm_tracing_when_artifacts_dir_not_writable_raises_llm_artifacts_write_
     artifacts_dir.chmod(0o500)
 
     llm = TracedLLMClient(
-        inner=StubLLMClient(),
+        inner=FakeLLMClient(),
         jobs_dir=jobs_dir,
         model="fake",
         temperature=None,

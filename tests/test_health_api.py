@@ -6,10 +6,10 @@ import pytest
 
 from src.api import deps
 from src.config import Config
-from src.domain.llm_client import StubLLMClient
 from src.main import create_app
 from tests.asgi_client import asgi_client
 from tests.async_overrides import async_override
+from tests.fakes.fake_llm_client import FakeLLMClient
 
 
 def _test_config(
@@ -92,7 +92,7 @@ async def test_health_ready_with_writable_dirs_returns_200(tmp_path: Path):
     app.dependency_overrides[deps.get_config] = async_override(
         _test_config(jobs_dir=jobs_dir, queue_dir=queue_dir)
     )
-    app.dependency_overrides[deps.get_llm_client] = async_override(StubLLMClient())
+    app.dependency_overrides[deps.get_llm_client] = async_override(FakeLLMClient())
 
     async with asgi_client(app=app) as client:
         response = await client.get("/health/ready")
@@ -114,7 +114,7 @@ async def test_health_ready_with_unwritable_jobs_dir_returns_503(tmp_path: Path)
     app.dependency_overrides[deps.get_config] = async_override(
         _test_config(jobs_dir=jobs_dir, queue_dir=queue_dir)
     )
-    app.dependency_overrides[deps.get_llm_client] = async_override(StubLLMClient())
+    app.dependency_overrides[deps.get_llm_client] = async_override(FakeLLMClient())
 
     async with asgi_client(app=app) as client:
         response = await client.get("/health/ready")
@@ -148,7 +148,7 @@ async def test_health_ready_in_production_with_stub_llm_returns_503_and_logs_rea
             upload_s3_secret_access_key="secret",
         )
     )
-    app.dependency_overrides[deps.get_llm_client] = async_override(StubLLMClient())
+    app.dependency_overrides[deps.get_llm_client] = async_override(FakeLLMClient())
 
     async with asgi_client(app=app) as client:
         response = await client.get("/health/ready")
@@ -185,7 +185,7 @@ async def test_health_ready_in_production_when_upload_store_config_missing_retur
             upload_s3_secret_access_key="",
         )
     )
-    app.dependency_overrides[deps.get_llm_client] = async_override(StubLLMClient())
+    app.dependency_overrides[deps.get_llm_client] = async_override(FakeLLMClient())
 
     async with asgi_client(app=app) as client:
         response = await client.get("/health/ready")
@@ -218,7 +218,7 @@ async def test_health_ready_in_production_with_real_config_returns_200(tmp_path:
             upload_s3_secret_access_key="secret",
         )
     )
-    app.dependency_overrides[deps.get_llm_client] = async_override(StubLLMClient())
+    app.dependency_overrides[deps.get_llm_client] = async_override(FakeLLMClient())
 
     async with asgi_client(app=app) as client:
         response = await client.get("/health/ready")

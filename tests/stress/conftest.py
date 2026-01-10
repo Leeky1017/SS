@@ -16,7 +16,6 @@ from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobService
-from src.domain.llm_client import StubLLMClient
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.domain.task_code_redeem_service import TaskCodeRedeemService
@@ -29,6 +28,7 @@ from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.main import create_app
+from tests.fakes.fake_llm_client import FakeLLMClient
 from tests.fakes.fake_stata_runner import FakeStataRunner
 
 
@@ -106,9 +106,9 @@ def stress_draft_service(
     stress_jobs_dir: Path,
 ) -> DraftService:
     llm = TracedLLMClient(
-        inner=StubLLMClient(),
+        inner=FakeLLMClient(),
         jobs_dir=stress_jobs_dir,
-        model="stub",
+        model="fake",
         temperature=0.0,
         seed=None,
         timeout_seconds=30.0,

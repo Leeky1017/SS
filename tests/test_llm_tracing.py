@@ -75,7 +75,7 @@ def test_preview_when_llm_succeeds_writes_llm_artifacts_and_redacts_secrets(
     assert "sk-<REDACTED>" in prompt_text
     assert "sk-<REDACTED>" in response_text
     assert meta["ok"] is True
-    assert meta["model"] == "stub"
+    assert meta["model"] == "fake"
 
 
 def test_preview_when_llm_fails_persists_llm_artifacts_and_raises_llm_call_failed_error(

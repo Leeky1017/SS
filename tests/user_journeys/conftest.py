@@ -18,7 +18,6 @@ from src.domain.idempotency import JobIdempotency
 from src.domain.job_inputs_service import JobInputsService
 from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobService
-from src.domain.llm_client import StubLLMClient
 from src.domain.models import JobInputs
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
@@ -35,6 +34,7 @@ from src.main import create_app
 from src.utils.job_workspace import resolve_job_dir
 from tests.asgi_client import asgi_client
 from tests.async_overrides import async_override
+from tests.fakes.fake_llm_client import FakeLLMClient
 from tests.fakes.fake_stata_runner import FakeStataRunner
 
 
@@ -100,9 +100,9 @@ def journey_draft_service(
     journey_jobs_dir: Path,
 ) -> DraftService:
     llm = TracedLLMClient(
-        inner=StubLLMClient(),
+        inner=FakeLLMClient(),
         jobs_dir=journey_jobs_dir,
-        model="stub",
+        model="fake",
         temperature=0.0,
         seed=None,
         timeout_seconds=30.0,

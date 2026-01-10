@@ -3,7 +3,7 @@ from __future__ import annotations
 from openai import AsyncOpenAI
 
 from src.config import Config
-from src.domain.llm_client import LLMClient, StubLLMClient
+from src.domain.llm_client import LLMClient
 from src.infra.exceptions import LLMConfigurationError
 from src.infra.llm_tracing import TracedLLMClient
 from src.infra.openai_compatible_llm_client import OpenAICompatibleLLMClient
@@ -11,25 +11,11 @@ from src.infra.openai_compatible_llm_client import OpenAICompatibleLLMClient
 
 def build_llm_client(*, config: Config) -> LLMClient:
     provider = config.llm_provider
-    if provider == "stub":
-        return _build_stub(config=config)
+    if provider in {"", "stub"}:
+        raise LLMConfigurationError(message="SS_LLM_PROVIDER is required and must not be 'stub'")
     if provider in {"openai", "openai_compatible", "yunwu"}:
         return _build_openai_compatible(config=config)
     raise LLMConfigurationError(message=f"unsupported SS_LLM_PROVIDER: {provider}")
-
-
-def _build_stub(*, config: Config) -> LLMClient:
-    return TracedLLMClient(
-        inner=StubLLMClient(),
-        jobs_dir=config.jobs_dir,
-        model="stub",
-        temperature=0.0,
-        seed=None,
-        timeout_seconds=config.llm_timeout_seconds,
-        max_attempts=config.llm_max_attempts,
-        retry_backoff_base_seconds=config.llm_retry_backoff_base_seconds,
-        retry_backoff_max_seconds=config.llm_retry_backoff_max_seconds,
-    )
 
 
 def _build_openai_compatible(*, config: Config) -> LLMClient:
@@ -57,4 +43,3 @@ def _build_openai_compatible(*, config: Config) -> LLMClient:
         retry_backoff_base_seconds=config.llm_retry_backoff_base_seconds,
         retry_backoff_max_seconds=config.llm_retry_backoff_max_seconds,
     )
-

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -8,7 +9,6 @@ from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService
 from src.domain.job_support import NoopJobScheduler
-from src.domain.llm_client import StubLLMClient
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
@@ -16,6 +16,10 @@ from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
 from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
+from tests.fakes.fake_llm_client import FakeLLMClient
+
+os.environ.setdefault("SS_LLM_PROVIDER", "yunwu")
+os.environ.setdefault("SS_LLM_API_KEY", "test-key")
 
 
 @pytest.fixture
@@ -62,9 +66,9 @@ def job_service(
 @pytest.fixture
 def draft_service(store: JobStore, state_machine: JobStateMachine, jobs_dir: Path) -> DraftService:
     llm = TracedLLMClient(
-        inner=StubLLMClient(),
+        inner=FakeLLMClient(),
         jobs_dir=jobs_dir,
-        model="stub",
+        model="fake",
         temperature=0.0,
         seed=None,
         timeout_seconds=30.0,
