@@ -1,17 +1,19 @@
 # ISSUE-278
 - Issue: #278
 - Branch: task/278-p4-11-12-closeout
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/279
 
 ## Goal
 - Backfill P4.11 (TL*) and P4.12 (TM*) task cards with acceptance + completion, update run logs to reflect merged state, and archive completed Rulebook tasks.
 
 ## Status
-- CURRENT: Task cards/run logs updated and Rulebook tasks archived; next commit + push and open PR with auto-merge.
+- CURRENT: PR #279 is open; next commit + push updated run log, then enable auto-merge and watch required checks.
 
 ## Next Actions
 - [ ] Fill Rulebook proposal/tasks (minimal)
-- [ ] Commit + push; preflight; PR; auto-merge
+- [ ] Commit + push updated run log (PR link + preflight)
+- [ ] Enable auto-merge on PR #279
+- [ ] Watch checks until merged
 
 ## Runs
 ### 2026-01-10 10:35 Setup worktree
@@ -53,3 +55,15 @@
   - `✅ Task issue-273-p4-12-medical-tm archived successfully`
 - Evidence:
   - `rulebook/tasks/archive/`
+
+### 2026-01-10 10:41 PR preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence: (terminal transcript)
+
+### 2026-01-10 10:42 Create PR
+- Command: `gh pr create --title \"chore: close out P4.11/P4.12 artifacts (#278)\" --body \"Closes #278 ...\"`
+- Key output: `https://github.com/Leeky1017/SS/pull/279`
+- Evidence: PR body + run log
