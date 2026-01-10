@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: #N
+- Issue: #339
 - Spec: `openspec/specs/ss-deployment-docker-minio/spec.md`
 - Related specs:
   - `openspec/specs/ss-inputs-upload-sessions/spec.md`
@@ -40,7 +40,14 @@ Docker 场景最容易踩坑的是 “presign endpoint 对外可达性” 与 �
 
 ## Acceptance checklist
 
-- [ ] 给出最小可复现步骤：启动 → 创建 bundle → presign → PUT 上传（direct/multipart）→ finalize → preview/manifest 验证
-- [ ] 覆盖 direct 与 multipart 两条链路（multipart 包含 refresh + finalize）
-- [ ] 明确记录如何收集 multipart `ETag` 并传回 finalize
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-329.md`
+- [x] 给出最小可复现步骤：启动 → 创建 bundle → presign → PUT 上传（direct/multipart）→ finalize → preview/manifest 验证
+- [x] 覆盖 direct 与 multipart 两条链路（multipart 包含 refresh + finalize）
+- [x] 明确记录如何收集 multipart `ETag` 并传回 finalize
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-339.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/343
+- Added Docker+MinIO uploads self-check assets under `openspec/specs/ss-deployment-docker-minio/assets/` (direct + multipart, includes refresh + finalize + ETag capture).
+- Verified inputs invariants via `inputs/preview` plus `job.json.inputs.*`/`inputs/manifest.json` reads (inside container in the self-check flow).
+- Run log: `openspec/_ops/task_runs/ISSUE-339.md`

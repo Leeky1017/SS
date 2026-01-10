@@ -116,3 +116,50 @@ def test_tokenized_step3_journey_with_patch_and_confirm_succeeds(
     assert confirmed_payload["status"] == "queued"
     assert confirmed_payload["message"] != ""
     assert confirmed_payload["scheduled_at"] is not None
+
+
+def test_tokenized_plan_freeze_when_missing_inputs_returns_structured_error(
+    journey_test_client: TestClient,
+) -> None:
+    redeemed = journey_test_client.post(
+        "/v1/task-codes/redeem",
+        json={"task_code": "tc_demo_01", "requirement": "estimate the effect of x on y"},
+    )
+    assert redeemed.status_code == 200
+    job_id = redeemed.json()["job_id"]
+    token = redeemed.json()["token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    uploaded = journey_test_client.post(
+        f"/v1/jobs/{job_id}/inputs/upload",
+        headers=headers,
+        files={"file": ("data.csv", b"y,x\n1,2\n2,3\n", "text/csv")},
+    )
+    assert uploaded.status_code == 200
+
+    preview = journey_test_client.get(f"/v1/jobs/{job_id}/draft/preview", headers=headers)
+    assert preview.status_code == 200
+
+    blocked = journey_test_client.post(f"/v1/jobs/{job_id}/plan/freeze", headers=headers, json={})
+    assert blocked.status_code == 400
+    payload = blocked.json()
+    assert payload["error_code"] == "PLAN_FREEZE_MISSING_REQUIRED"
+    assert "stage1_questions.analysis_goal" in payload.get("missing_fields", [])
+    assert "open_unknowns.outcome_var" in payload.get("missing_fields", [])
+    assert "open_unknowns.treatment_var" in payload.get("missing_fields", [])
+    assert isinstance(payload.get("next_actions"), list)
+
+    patched = journey_test_client.post(
+        f"/v1/jobs/{job_id}/draft/patch",
+        headers=headers,
+        json={"field_updates": {"outcome_var": "y", "treatment_var": "x", "controls": []}},
+    )
+    assert patched.status_code == 200
+
+    frozen = journey_test_client.post(
+        f"/v1/jobs/{job_id}/plan/freeze",
+        headers=headers,
+        json={"answers": {"analysis_goal": "descriptive"}},
+    )
+    assert frozen.status_code == 200
+    assert frozen.json()["plan"]["rel_path"] == "artifacts/plan.json"

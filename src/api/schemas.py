@@ -50,6 +50,7 @@ class LLMPlanResponse(BaseModel):
 
 class FreezePlanRequest(BaseModel):
     notes: str | None = None
+    answers: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class FreezePlanResponse(BaseModel):

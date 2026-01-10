@@ -16,7 +16,7 @@ services:
     depends_on:
       - minio
     env_file:
-      - .env
+      - ${SS_DOCKER_ENV_FILE:-.env}
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
@@ -32,7 +32,7 @@ services:
     image: python:3.12-slim
     working_dir: /app
     env_file:
-      - .env
+      - ${SS_DOCKER_ENV_FILE:-.env}
     environment:
       SS_JOBS_DIR: "/var/lib/ss/jobs"
       SS_QUEUE_DIR: "/var/lib/ss/queue"

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from src.infra.exceptions import SSError
+from src.infra.structured_errors import StructuredSSError
 
 
 class PlanMissingError(SSError):
@@ -37,6 +38,7 @@ class PlanArtifactsWriteError(SSError):
             message=f"plan artifacts write failed: {job_id}",
             status_code=500,
         )
+
 
 class PlanTemplateMetaNotFoundError(SSError):
     def __init__(self, *, job_id: str, template_id: str):
@@ -97,3 +99,28 @@ class ContractColumnNotFoundError(SSError):
             ),
             status_code=400,
         )
+
+
+class PlanFreezeMissingRequiredError(StructuredSSError):
+    def __init__(
+        self,
+        *,
+        job_id: str,
+        template_id: str,
+        missing_fields: list[str],
+        missing_params: list[str],
+        next_actions: list[dict[str, object]],
+    ) -> None:
+        super().__init__(
+            error_code="PLAN_FREEZE_MISSING_REQUIRED",
+            message=f"plan freeze missing required inputs: {job_id}",
+            status_code=400,
+            details={
+                "job_id": job_id,
+                "template_id": template_id,
+                "missing_fields": sorted(set(missing_fields)),
+                "missing_params": sorted(set(missing_params)),
+                "next_actions": list(next_actions),
+            },
+        )
+

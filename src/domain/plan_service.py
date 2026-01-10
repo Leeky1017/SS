@@ -10,49 +10,53 @@ from src.domain.do_template_repository import DoTemplateRepository
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.models import (
-    ArtifactKind,
     Job,
     JobConfirmation,
     JobStatus,
     LLMPlan,
-    PlanStep,
-    PlanStepType,
 )
 from src.domain.plan_contract import (
     analysis_spec_from_draft,
     apply_confirmation_effects,
     validate_contract_columns,
 )
-from src.domain.plan_freeze_contract import build_plan_freeze_contract
+from src.domain.plan_contract_extract import missing_required_template_params
+from src.domain.plan_freeze_gate import (
+    missing_draft_fields_for_plan_freeze,
+    next_actions_for_plan_freeze_missing,
+)
 from src.domain.plan_id_support import build_plan_id, normalize_whitespace, sha256_hex
 from src.domain.plan_routing import choose_composition_mode
 from src.domain.plan_service_support import (
-    RUN_STATA_PRODUCES,
     ensure_plan_artifact_index,
     known_input_keys,
     write_plan_artifact,
 )
-from src.infra.exceptions import (
-    DoTemplateContractInvalidError,
-    DoTemplateIndexCorruptedError,
-    DoTemplateMetaNotFoundError,
-)
+from src.domain.plan_steps import build_plan_steps
+from src.domain.plan_template_contract_builder import build_plan_template_contract
 from src.infra.plan_exceptions import (
     PlanAlreadyFrozenError,
+    PlanFreezeMissingRequiredError,
     PlanFreezeNotAllowedError,
     PlanMissingError,
-    PlanTemplateMetaInvalidError,
-    PlanTemplateMetaNotFoundError,
 )
 from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID
 
 logger = logging.getLogger(__name__)
 
+
 class PlanService:
     """Plan service: freeze a schema-bound plan and persist it as an artifact."""
 
-    def __init__(self, *, store: JobStore, workspace: JobWorkspaceStore, do_template_catalog: DoTemplateCatalog, do_template_repo: DoTemplateRepository):  # noqa: E501
+    def __init__(
+        self,
+        *,
+        store: JobStore,
+        workspace: JobWorkspaceStore,
+        do_template_catalog: DoTemplateCatalog,
+        do_template_repo: DoTemplateRepository,
+    ):
         self._store = store
         self._workspace = workspace
         self._do_template_catalog = do_template_catalog
@@ -118,6 +122,7 @@ class PlanService:
             return existing
         self._ensure_freeze_allowed(job=job)
 
+        self._ensure_required_inputs_present(job=job, confirmation=confirmation)
         validate_contract_columns(workspace=self._workspace, tenant_id=tenant_id, job=job)
         plan = self._build_plan(job=job, confirmation=confirmation, plan_id=expected_plan_id)
         write_plan_artifact(store=self._store, tenant_id=tenant_id, job_id=job_id, plan=plan)
@@ -184,6 +189,51 @@ class PlanService:
             confirmation=confirmation_payload,
         )
 
+    def _ensure_required_inputs_present(self, *, job: Job, confirmation: JobConfirmation) -> None:
+        missing_fields = missing_draft_fields_for_plan_freeze(
+            draft=job.draft,
+            answers=confirmation.answers,
+        )
+
+        analysis_spec = analysis_spec_from_draft(job=job)
+        analysis_vars = do_template_plan_support.analysis_vars_from_analysis_spec(analysis_spec)
+        template_id = self._resolve_template_id(job=job, analysis_vars=analysis_vars)
+        template_params = do_template_plan_support.template_params_for(
+            template_id=template_id, analysis_vars=analysis_vars
+        )
+        template_contract = build_plan_template_contract(
+            repo=self._do_template_repo,
+            job_id=job.job_id,
+            template_id=template_id,
+            template_params=template_params,
+        )
+        missing_params = missing_required_template_params(template_contract=template_contract)
+
+        if len(missing_fields) == 0 and len(missing_params) == 0:
+            return
+
+        next_actions = next_actions_for_plan_freeze_missing(
+            job_id=job.job_id,
+            missing_fields=missing_fields,
+            missing_params=missing_params,
+        )
+        logger.info(
+            "SS_PLAN_FREEZE_MISSING_REQUIRED",
+            extra={
+                "job_id": job.job_id,
+                "template_id": template_id,
+                "missing_fields": ",".join(missing_fields),
+                "missing_params": ",".join(missing_params),
+            },
+        )
+        raise PlanFreezeMissingRequiredError(
+            job_id=job.job_id,
+            template_id=template_id,
+            missing_fields=missing_fields,
+            missing_params=missing_params,
+            next_actions=next_actions,
+        )
+
     def _resolve_template_id(self, *, job: Job, analysis_vars: list[str]) -> str:
         template_id = job.selected_template_id
         if template_id is not None and template_id.strip() != "":
@@ -200,79 +250,6 @@ class PlanService:
         job.selected_template_id = selected
         return selected
 
-    def _build_template_contract(
-        self, *, job_id: str, template_id: str, template_params: JsonObject
-    ) -> JsonObject:
-        try:
-            tpl = self._do_template_repo.get_template(template_id=template_id)
-            bound_values = {k: v for k, v in template_params.items() if isinstance(v, str)}
-            return build_plan_freeze_contract(
-                template_id=template_id,
-                meta=tpl.meta,
-                bound_values=bound_values,
-            )
-        except DoTemplateMetaNotFoundError as e:
-            logger.warning(
-                "SS_PLAN_TEMPLATE_META_NOT_FOUND",
-                extra={"job_id": job_id, "template_id": template_id, "error_code": e.error_code},
-            )
-            raise PlanTemplateMetaNotFoundError(job_id=job_id, template_id=template_id) from e
-        except (DoTemplateIndexCorruptedError, DoTemplateContractInvalidError) as e:
-            logger.warning(
-                "SS_PLAN_TEMPLATE_META_INVALID",
-                extra={
-                    "job_id": job_id,
-                    "template_id": template_id,
-                    "error_code": e.error_code,
-                    "error_message": e.message,
-                },
-            )
-            raise PlanTemplateMetaInvalidError(
-                job_id=job_id,
-                template_id=template_id,
-                reason=e.error_code,
-            ) from e
-
-    def _build_steps(
-        self,
-        *,
-        composition_mode: str,
-        template_id: str,
-        template_params: JsonObject,
-        template_contract: JsonObject,
-        primary_key: str,
-        requirement_fingerprint: str,
-        analysis_spec: JsonObject,
-    ) -> list[PlanStep]:
-        generate_step = PlanStep(
-            step_id="generate_do",
-            type=PlanStepType.GENERATE_STATA_DO,
-            params={
-                "composition_mode": composition_mode,
-                "template_id": template_id,
-                "template_params": template_params,
-                "template_contract": template_contract,
-                "input_bindings": {"primary_dataset": f"input:{primary_key}"},
-                "products": [],
-                "requirement_fingerprint": requirement_fingerprint,
-                "analysis_spec": analysis_spec,
-            },
-            depends_on=[],
-            produces=[ArtifactKind.STATA_DO],
-        )
-        run_step = PlanStep(
-            step_id="run_stata",
-            type=PlanStepType.RUN_STATA,
-            params={
-                "composition_mode": composition_mode,
-                "timeout_seconds": 300,
-                "products": [{"product_id": "summary_table", "kind": "table"}],
-            },
-            depends_on=["generate_do"],
-            produces=RUN_STATA_PRODUCES,
-        )
-        return [generate_step, run_step]
-
     def _build_plan(self, *, job: Job, confirmation: JobConfirmation, plan_id: str) -> LLMPlan:
         requirement = confirmation.requirement if confirmation.requirement is not None else ""
         requirement_norm = normalize_whitespace(requirement)
@@ -283,7 +260,8 @@ class PlanService:
         template_params = do_template_plan_support.template_params_for(
             template_id=template_id, analysis_vars=analysis_vars
         )
-        contract = self._build_template_contract(
+        contract = build_plan_template_contract(
+            repo=self._do_template_repo,
             job_id=job.job_id,
             template_id=template_id,
             template_params=template_params,
@@ -294,7 +272,7 @@ class PlanService:
             requirement=requirement_norm,
             input_keys=input_keys,
         )
-        steps = self._build_steps(
+        steps = build_plan_steps(
             composition_mode=composition_mode.value,
             template_id=template_id,
             template_params=template_params,

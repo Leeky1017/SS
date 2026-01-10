@@ -157,3 +157,40 @@ async def test_freeze_plan_when_notes_change_returns_conflict(
         conflict = await client.post(f"/v1/jobs/{job_id}/plan/freeze", json={"notes": "v2"})
         assert conflict.status_code == 409
         assert conflict.json()["error_code"] == "PLAN_ALREADY_FROZEN_CONFLICT"
+
+
+async def test_freeze_plan_when_required_template_params_missing_returns_structured_error(
+    job_service, draft_service, store, jobs_dir, do_template_library_dir
+) -> None:
+    app = _test_app(
+        job_service=job_service,
+        draft_service=draft_service,
+        store=store,
+        jobs_dir=jobs_dir,
+        do_template_library_dir=do_template_library_dir,
+    )
+    async with asgi_client(app=app) as client:
+        job_id = job_service.create_job(requirement="hello").job_id
+
+        preview = await client.get(f"/v1/jobs/{job_id}/draft/preview")
+        assert preview.status_code == 200
+
+        loaded = store.load(job_id)
+        loaded.selected_template_id = "T01"
+        store.save(loaded)
+
+        missing = await client.post(f"/v1/jobs/{job_id}/plan/freeze", json={})
+
+        assert missing.status_code == 400
+        payload = missing.json()
+        assert payload["error_code"] == "PLAN_FREEZE_MISSING_REQUIRED"
+        assert "__NUMERIC_VARS__" in payload.get("missing_params", [])
+        assert isinstance(payload.get("next_actions"), list)
+
+        loaded = store.load(job_id)
+        assert loaded.draft is not None
+        loaded.draft = loaded.draft.model_copy(update={"outcome_var": "x"})
+        store.save(loaded)
+
+        fixed = await client.post(f"/v1/jobs/{job_id}/plan/freeze", json={})
+        assert fixed.status_code == 200
