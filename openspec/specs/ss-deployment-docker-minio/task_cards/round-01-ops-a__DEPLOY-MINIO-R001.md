@@ -41,9 +41,15 @@
 
 ## Acceptance checklist
 
-- [ ] 新增 `openspec/specs/ss-deployment-docker-minio/spec.md` 且通过 `openspec validate --specs --strict --no-interactive`
-- [ ] spec 明确列出 upload 相关 env keys（以 `src/config.py` 为权威来源）
-- [ ] spec 明确强调 presigned URL host 必须客户端可达且不可改写的约束
-- [ ] spec 包含 direct + multipart 两个 E2E 场景与一个生产缺配置失败场景
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-329.md`
+- [x] 新增 `openspec/specs/ss-deployment-docker-minio/spec.md` 且通过 `openspec validate --specs --strict --no-interactive`
+- [x] spec 明确列出 upload 相关 env keys（以 `src/config.py` 为权威来源）
+- [x] spec 明确强调 presigned URL host 必须客户端可达且不可改写的约束
+- [x] spec 包含 direct + multipart 两个 E2E 场景与一个生产缺配置失败场景
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-329.md`
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/330
+- Added `ss-deployment-docker-minio` OpenSpec with direct/multipart scenarios and a production missing-config failure scenario.
+- Added task cards R001–R003 to drive deploy assets and a manual e2e self-check workflow.
+- Run log: `openspec/_ops/task_runs/ISSUE-329.md`

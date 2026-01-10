@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: #329
+- Issue: #N
 - Spec: `openspec/specs/ss-deployment-docker-minio/spec.md`
 - Related specs:
   - `openspec/specs/ss-inputs-upload-sessions/spec.md`
@@ -44,4 +44,3 @@ Docker 场景最容易踩坑的是 “presign endpoint 对外可达性” 与 �
 - [ ] 覆盖 direct 与 multipart 两条链路（multipart 包含 refresh + finalize）
 - [ ] 明确记录如何收集 multipart `ETag` 并传回 finalize
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-329.md`
-

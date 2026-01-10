@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: #329
+- Issue: #N
 - Spec: `openspec/specs/ss-deployment-docker-minio/spec.md`
 - Related specs:
   - `openspec/specs/ss-inputs-upload-sessions/spec.md`
@@ -47,4 +47,3 @@
 - [ ] SS 可启动并能返回 `/health/live`
 - [ ] 资产与规范均由 `openspec/specs/**` 管理；`docs/` 如新增仅为指针入口
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-329.md`
-
