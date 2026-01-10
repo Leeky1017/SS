@@ -1,7 +1,7 @@
 # ISSUE-298
 - Issue: #298 https://github.com/Leeky1017/SS/issues/298
 - Branch: task/298-prod-e2e-r040
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/301
 
 ## Goal
 - In production mode, enforce a strict readiness gate: missing critical production dependencies (or stub/fake wiring) must make SS not-ready.
@@ -59,3 +59,14 @@
   - `167 passed, 5 skipped`
 - Evidence:
   - (this file)
+
+### 2026-01-10 PR: preflight + open PR
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `gh pr create ...`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+  - `https://github.com/Leeky1017/SS/pull/301`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/301
