@@ -39,3 +39,20 @@
 - Evidence:
   - `.worktrees/issue-283-p5-11-accounting-tl`
 
+### 2026-01-10 00:00 TL template upgrades + lint
+- Command:
+  - `for f in assets/stata_do_library/do/TL*.do; do python3 assets/stata_do_library/DO_LINT_RULES.py --file "$f" --strict >/dev/null; done`
+- Key output:
+  - `TL lint OK`
+- Evidence:
+  - Updated templates: `assets/stata_do_library/do/TL01_jones_model.do` … `TL15_icw.do`
+
+### 2026-01-10 00:00 Python checks (venv)
+- Command:
+  - `/home/leeky/work/SS/.venv/bin/ruff check .`
+  - `/home/leeky/work/SS/.venv/bin/python -m pytest -q`
+- Key output:
+  - `All checks passed!`
+  - `162 passed, 5 skipped`
+- Evidence:
+  - `.venv` (repo-local, gitignored)
