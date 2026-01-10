@@ -114,3 +114,8 @@
   - `archived: rulebook/tasks/archive/2026-01-10-issue-280-phase-4-10-finance-tk/`
 - Evidence:
   - https://github.com/Leeky1017/SS/pull/293
+
+### 2026-01-10 13:12 task card evidence link updated (post-archive)
+- Command: (file updated)
+- Key output: `phase-4.10__finance-TK.md` now points smoke-suite evidence to the archived Rulebook path.
+- Evidence: n/a
