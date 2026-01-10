@@ -28,3 +28,8 @@
 - Key output: `Fast-forward ... [ROUND-01-PROD-A] PROD-E2E-R030 ... (#345)`
 - Command: `scripts/agent_worktree_cleanup.sh 341 prod-e2e-r030`
 - Key output: `OK: cleaned worktree .worktrees/issue-341-prod-e2e-r030 ...`
+
+### 2026-01-10 rulebook archive
+- Command: `rulebook_task_archive issue-341-prod-e2e-r030`
+- Key output: `archived successfully`
+- Evidence: `rulebook/tasks/archive/2026-01-10-issue-341-prod-e2e-r030/`
