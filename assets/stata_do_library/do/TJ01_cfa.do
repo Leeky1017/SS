@@ -8,6 +8,15 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.9) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Model intent / 模型目的: CFA via `sem` (single-factor example) / 使用 sem 做验证性因子分析（单因子示例）
+* - Diagnostics / 诊断: report GOF (chi2/RMSEA/CFI) and check convergence / 输出拟合优度并关注收敛
+* - Missing data / 缺失值: consider MLR/MLMV strategies where appropriate / 需要时考虑更稳健的缺失处理策略
+* - SSC deps / SSC 依赖: none / 无
+* - Guardrails / 防御: validate var list + warn on missing rows
+* ------------------------------------------------------------------------------
 capture log close _all
 local rc_log_close = _rc
 if `rc_log_close' != 0 {
@@ -57,6 +66,32 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* Validate variable list / 校验变量列表（观测指标必须存在）
+local n_vars : word count `vars'
+display "SS_METRIC|name=n_vars|value=`n_vars'"
+if `n_vars' < 2 {
+    ss_fail TJ01 200 "vars" "vars_empty_or_too_short"
+}
+foreach v of local vars {
+    capture confirm variable `v'
+    if _rc {
+        ss_fail TJ01 200 "confirm variable `v'" "var_not_found"
+    }
+}
+capture egen byte ss_rowmiss = rowmiss(`vars')
+local rc_rowmiss = _rc
+if `rc_rowmiss' == 0 {
+    quietly count if ss_rowmiss > 0
+    local n_missing_rows = r(N)
+    display "SS_METRIC|name=n_missing_rows|value=`n_missing_rows'"
+    if `n_missing_rows' > 0 {
+        display "SS_RC|code=MISSING_INPUT_ROWS|n=`n_missing_rows'|severity=warn"
+    }
+    drop ss_rowmiss
+}
+else {
+    display "SS_RC|code=`rc_rowmiss'|cmd=egen rowmiss|msg=rowmiss_unavailable|severity=warn"
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"

@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.9) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Intent / 目的: power/sample-size planning for log-rank test / log-rank 检验的功效/样本量规划
+* - Caveat / 注意: assumptions must be justified (HR, allocation, alpha, power) / 参数假设需有依据
+* - SSC deps / SSC 依赖: none / 无
+* - Guardrails / 防御: out-of-range params emit warnings before defaulting
+* ------------------------------------------------------------------------------
 capture log close _all
 local rc_log_close = _rc
 if `rc_log_close' != 0 {
@@ -58,15 +66,19 @@ local alpha = __ALPHA__
 local power = __POWER__
 
 if `hr' <= 0 {
+    display "SS_RC|code=PARAM_OUT_OF_RANGE|param=hr|value=`hr'|severity=warn"
     local hr 0.7
 }
 if `p1' <= 0 | `p1' >= 1 {
+    display "SS_RC|code=PARAM_OUT_OF_RANGE|param=p1|value=`p1'|severity=warn"
     local p1 0.5
 }
 if `alpha' <= 0 | `alpha' >= 1 {
+    display "SS_RC|code=PARAM_OUT_OF_RANGE|param=alpha|value=`alpha'|severity=warn"
     local alpha 0.05
 }
 if `power' <= 0 | `power' >= 1 {
+    display "SS_RC|code=PARAM_OUT_OF_RANGE|param=power|value=`power'|severity=warn"
     local power 0.8
 }
 

@@ -8,6 +8,15 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.9) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Model assumptions / 模型假设: AFT (lognormal here); compare distributions + check residual fit / AFT 模型建议对比分布并做拟合诊断
+* - PH assumption / 比例风险: N/A (not Cox) / 不适用（非 Cox）
+* - Competing risks / 竞争风险: N/A / 不适用
+* - SSC deps / SSC 依赖: none / 无
+* - Guardrails / 防御: stset fail-fast + small-events + convergence warning
+* ------------------------------------------------------------------------------
 capture log close _all
 local rc_log_close = _rc
 if `rc_log_close' != 0 {
@@ -59,6 +68,30 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* Core validation / 核心校验: time/failure vars must exist and be numeric.
+capture confirm numeric variable `timevar'
+local rc_time = _rc
+if `rc_time' != 0 {
+    ss_fail TI03 200 "confirm numeric variable `timevar'" "timevar_missing_or_not_numeric"
+}
+capture confirm numeric variable `failvar'
+local rc_fail = _rc
+if `rc_fail' != 0 {
+    ss_fail TI03 200 "confirm numeric variable `failvar'" "failvar_missing_or_not_numeric"
+}
+quietly count if missing(`timevar')
+local n_miss_time = r(N)
+if `n_miss_time' > 0 {
+    display "SS_RC|code=MISSING_TIMEVAR|n=`n_miss_time'|severity=warn"
+}
+quietly count if `timevar' < 0 & !missing(`timevar')
+if r(N) > 0 {
+    display "SS_RC|code=NEGATIVE_TIMEVAR|n=`=r(N)'|severity=warn"
+}
+quietly count if !inlist(`failvar', 0, 1) & !missing(`failvar')
+if r(N) > 0 {
+    display "SS_RC|code=FAILVAR_NOT_BINARY|n=`=r(N)'|severity=warn"
+}
 capture stset `timevar', failure(`failvar')
 local rc_stset = _rc
 if `rc_stset' != 0 {
