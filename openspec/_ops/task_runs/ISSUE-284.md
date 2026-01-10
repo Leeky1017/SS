@@ -49,3 +49,14 @@
 - Evidence:
   - Updated templates: `assets/stata_do_library/do/TM01_roc_analysis.do` … `TM15_sample_size_clinical.do`
   - Updated meta: `assets/stata_do_library/do/meta/TM02_diagnostic_test.meta.json`, `TM06_meta_analysis.meta.json`, `TM07_funnel_plot.meta.json`
+
+### 2026-01-10 00:00 Fix smoke-suite manifest deps + tests
+- Command:
+  - `/home/leeky/work/SS/.venv/bin/python -m pytest -q`
+  - `apply_patch (update assets/stata_do_library/smoke_suite/manifest.issue-273.tm01-tm15.1.0.json: TM06/TM07 deps)`
+  - `/home/leeky/work/SS/.venv/bin/python -m pytest -q`
+- Key output:
+  - `FAILED tests/test_smoke_suite_manifest.py::... TM06 dependency not declared in meta: metan:ssc`
+  - `162 passed, 5 skipped`
+- Evidence:
+  - `assets/stata_do_library/smoke_suite/manifest.issue-273.tm01-tm15.1.0.json`
