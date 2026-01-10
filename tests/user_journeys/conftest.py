@@ -24,7 +24,6 @@ from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.domain.task_code_redeem_service import TaskCodeRedeemService
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
-from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
@@ -36,6 +35,7 @@ from src.main import create_app
 from src.utils.job_workspace import resolve_job_dir
 from tests.asgi_client import asgi_client
 from tests.async_overrides import async_override
+from tests.fakes.fake_stata_runner import FakeStataRunner
 
 
 @pytest.fixture

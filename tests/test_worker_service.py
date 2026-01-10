@@ -10,7 +10,6 @@ from src.domain.models import ArtifactKind, JobConfirmation, JobInputs, JobStatu
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
-from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
@@ -19,6 +18,7 @@ from src.infra.job_store import JobStore
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.infra.stata_run_support import ERROR_FILENAME, META_FILENAME
 from src.utils.job_workspace import resolve_job_dir
+from tests.fakes.fake_stata_runner import FakeStataRunner
 
 
 def _write_job_inputs(*, jobs_dir: Path, job_id: str) -> None:

@@ -19,7 +19,6 @@ from src.domain.llm_client import StubLLMClient
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
-from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
@@ -28,6 +27,7 @@ from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.main import create_app
+from tests.fakes.fake_stata_runner import FakeStataRunner
 
 
 def pytest_configure(config: pytest.Config) -> None:
