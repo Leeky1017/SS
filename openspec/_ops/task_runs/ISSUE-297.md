@@ -7,7 +7,7 @@
 - In runtime, keep only one authoritative business HTTP surface: `/v1/**` (jobs/draft/bundle/upload-session), removing all non-`/v1` business endpoints (legacy `/jobs/**`), while retaining ops endpoints (`/health/*`, `/metrics`) without business capability.
 
 ## Status
-- CURRENT: Unversioned business surface removed; adding regression tests + validation runs.
+- CURRENT: Changes committed; preparing PR + auto-merge.
 
 ## Next Actions
 - [ ] Inventory current router mounts and endpoint list (v1 vs non-v1).
@@ -80,5 +80,13 @@
     - `/metrics=200`
     - `/jobs=404`
     - `/jobs/anything=404`
+- Evidence:
+  - (this file)
+
+### 2026-01-10 Commit
+- Command:
+  - `git commit -m "fix: remove non-v1 business routes (#297)"`
+- Key output:
+  - `6a07599 fix: remove non-v1 business routes (#297)`
 - Evidence:
   - (this file)
