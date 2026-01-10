@@ -3,7 +3,7 @@
 - Issue: #271
 - Parent: #125
 - Branch: task/271-phase-4-9-survival-multivariate-ti-tj
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/277
 
 ## Goal
 - Make TI/TJ survival + multivariate templates run on Stata 18 with fixtures, and emit contract-compliant anchors.
@@ -14,12 +14,13 @@
 - Normalize anchors to `SS_EVENT|k=v` and unify style within TI/TJ templates.
 
 ## Status
-- CURRENT: Changes committed + pushed; run preflight, open PR, and enable auto-merge.
+- CURRENT: PR opened; enable auto-merge, watch checks, verify merge, then sync main and cleanup worktree.
 
 ## Next Actions
 - [x] Run `ruff` + `pytest` + `openspec validate` and record outputs.
 - [x] Commit changes with `(#271)` and push branch.
-- [ ] Run PR preflight and open PR with `Closes #271` + enable auto-merge.
+- [x] Run PR preflight and open PR with `Closes #271`.
+- [ ] Enable auto-merge, watch checks, verify merged, then sync + cleanup.
 
 ## Decisions Made
 - (append as made)
@@ -79,4 +80,16 @@
 - Key output:
   - `[task/271-phase-4-9-survival-multivariate-ti-tj 8a6d90d] fix: audit TI/TJ templates (Stata 18 + anchors) (#271)`
   - `* [new branch]      HEAD -> task/271-phase-4-9-survival-multivariate-ti-tj`
+- Evidence: n/a
+
+### 2026-01-10 10:26 PR preflight — ok
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence: n/a
+
+### 2026-01-10 10:27 PR created
+- Command: `gh pr create --base main --head task/271-phase-4-9-survival-multivariate-ti-tj --title "[PHASE-4.9] TI/TJ: Stata 18 audit + anchors (#271)" --body "Closes #271 ..."`
+- Key output: `https://github.com/Leeky1017/SS/pull/277`
 - Evidence: n/a
