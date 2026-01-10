@@ -1,7 +1,7 @@
 # ISSUE-328
 - Issue: #328 https://github.com/Leeky1017/SS/issues/328
 - Branch: task/328-prod-e2e-r011-template-selection
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/332
 
 ## Goal
 - In `GET /v1/jobs/{job_id}/draft/preview`, select a real do-template via `DoTemplateSelectionService`, archive auditable selection evidence (stage1/candidates/stage2), and persist `selected_template_id` onto the job record (no hard-coded template ids).
@@ -23,7 +23,7 @@
 - 2026-01-10: Keep plan freeze template selection unchanged for now; persist + evidence v1 selection on draft preview, and leave plan consumption to follow-up remediation tasks.
 
 ## Errors Encountered
-- (none)
+- 2026-01-10: `scripts/agent_pr_preflight.sh` blocked by dirty controlplane (unrelated Issue #329 files) → restored + removed untracked archive; reran preflight OK.
 
 ## Runs
 ### 2026-01-10 Setup: issue + worktree
@@ -61,3 +61,20 @@
     - `/tmp/ss_e2e_328/20260110T094501Z/jobs/tc/job_tc_eb24329f5ff81720/artifacts/llm/do_template.select_template-20260110T094501452076Z-b9e7af26c47a/meta.json` (`model=fake`, `operation=do_template.select_template`)
 - Evidence:
   - `/tmp/ss_e2e_328/20260110T094501Z/`
+
+### 2026-01-10 Preflight: roadmap + open PR overlap
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - (this file)
+
+### 2026-01-10 PR: open
+- Command:
+  - `gh pr create --title \"[ROUND-01-PROD-A] PROD-E2E-R011: v1 draft preview selects template (#328)\" --body \"Closes #328 ...\"`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/332`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/332
