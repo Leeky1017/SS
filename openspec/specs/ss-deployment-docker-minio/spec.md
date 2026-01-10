@@ -110,3 +110,8 @@ Verification tips:
 #### Scenario: Docker + MinIO multipart upload session works end-to-end
 - **WHEN** a client uploads all multipart parts via presigned URLs (using refreshed URLs if needed) and calls finalize
 - **THEN** finalize succeeds and `inputs/preview` reflects the uploaded primary dataset
+
+## Verification assets
+
+- End-to-end self-check script (direct + multipart, includes multipart `ETag` capture and `finalize` parts payload):
+  - `openspec/specs/ss-deployment-docker-minio/assets/uploads_e2e_selfcheck.sh`
