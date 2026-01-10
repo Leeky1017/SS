@@ -12,6 +12,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Inference / 推断: event-study stats depend on cross-sectional correlation; consider clustered SE in extensions
+* - Data checks / 数据校验: verify date scale, event-time construction, missing returns
+* - Design / 设计: ensure estimation window excludes event window (no leakage)
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -125,6 +134,29 @@ foreach var in `return_var' `market_var' `stock_id' `date_var' {
     capture confirm variable `var'
     if _rc {
         ss_fail_TK03 200 confirm_variable var_not_found `var' S02_validate_inputs
+    }
+}
+
+* Missingness + scaling checks / 缺失值与尺度检查（提示性）
+foreach var in `return_var' `market_var' {
+    capture confirm numeric variable `var'
+    if !_rc {
+        quietly count if missing(`var')
+        local n_miss = r(N)
+        if `n_miss' > 0 {
+            display "SS_RC|code=MISSING_VALUES|var=`var'|n=`n_miss'|severity=warn"
+        }
+        capture quietly summarize `var', detail
+        local rc_sum = _rc
+        if `rc_sum' == 0 {
+            local p1 = r(p1)
+            local p99 = r(p99)
+            if `p1' < . & `p99' < . {
+                if abs(`p1') > 5 | abs(`p99') > 5 {
+                    display "SS_RC|code=CHECK_SCALE|var=`var'|p1=`p1'|p99=`p99'|severity=warn"
+                }
+            }
+        }
     }
 }
 

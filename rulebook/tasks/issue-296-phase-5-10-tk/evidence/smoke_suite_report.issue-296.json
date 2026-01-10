@@ -1,0 +1,372 @@
+{
+  "cases": [
+    {
+      "archived_outputs": [
+        "runs/4c3673799dda4ade8b10eade18779804/artifacts/outputs/table_TK01_capm_result.csv",
+        "runs/4c3673799dda4ade8b10eade18779804/artifacts/outputs/table_TK01_rolling_beta.csv",
+        "runs/4c3673799dda4ade8b10eade18779804/artifacts/outputs/fig_TK01_sml.png",
+        "runs/4c3673799dda4ade8b10eade18779804/artifacts/outputs/data_TK01_capm.dta",
+        "runs/4c3673799dda4ade8b10eade18779804/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/59/job_59b9b7c422a890ce/runs/4c3673799dda4ade8b10eade18779804/artifacts",
+      "exit_code": 0,
+      "job_id": "job_59b9b7c422a890ce",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "4c3673799dda4ade8b10eade18779804",
+      "status": "passed",
+      "template_id": "TK01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/2c5a8d5793fb4fd295acda785caf0ecb/artifacts/outputs/data_TK02_ff.dta",
+        "runs/2c5a8d5793fb4fd295acda785caf0ecb/artifacts/outputs/fig_TK02_alpha_dist.png",
+        "runs/2c5a8d5793fb4fd295acda785caf0ecb/artifacts/outputs/result.log",
+        "runs/2c5a8d5793fb4fd295acda785caf0ecb/artifacts/outputs/table_TK02_factor_loadings.csv",
+        "runs/2c5a8d5793fb4fd295acda785caf0ecb/artifacts/outputs/table_TK02_ff_result.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/36/job_368a59dfb3c7347a/runs/2c5a8d5793fb4fd295acda785caf0ecb/artifacts",
+      "exit_code": 0,
+      "job_id": "job_368a59dfb3c7347a",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "2c5a8d5793fb4fd295acda785caf0ecb",
+      "status": "passed",
+      "template_id": "TK02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/261e1e20c44f408d864a8bbf93fc45af/artifacts/outputs/data_TK03_event.dta",
+        "runs/261e1e20c44f408d864a8bbf93fc45af/artifacts/outputs/fig_TK03_car_plot.png",
+        "runs/261e1e20c44f408d864a8bbf93fc45af/artifacts/outputs/result.log",
+        "runs/261e1e20c44f408d864a8bbf93fc45af/artifacts/outputs/table_TK03_car_result.csv",
+        "runs/261e1e20c44f408d864a8bbf93fc45af/artifacts/outputs/table_TK03_daily_ar.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/8e/job_8ea1a5609992bd87/runs/261e1e20c44f408d864a8bbf93fc45af/artifacts",
+      "exit_code": 0,
+      "job_id": "job_8ea1a5609992bd87",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "261e1e20c44f408d864a8bbf93fc45af",
+      "status": "passed",
+      "template_id": "TK03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/130be82d942e4f8baae7180c047bbeb6/artifacts/outputs/data_TK04_garch.dta",
+        "runs/130be82d942e4f8baae7180c047bbeb6/artifacts/outputs/fig_TK04_volatility.png",
+        "runs/130be82d942e4f8baae7180c047bbeb6/artifacts/outputs/result.log",
+        "runs/130be82d942e4f8baae7180c047bbeb6/artifacts/outputs/table_TK04_garch_result.csv",
+        "runs/130be82d942e4f8baae7180c047bbeb6/artifacts/outputs/table_TK04_volatility.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/77/job_771c8091c4238d92/runs/130be82d942e4f8baae7180c047bbeb6/artifacts",
+      "exit_code": 0,
+      "job_id": "job_771c8091c4238d92",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "130be82d942e4f8baae7180c047bbeb6",
+      "status": "passed",
+      "template_id": "TK04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/db86195b56554ef694a386c7779eeac6/artifacts/outputs/data_TK05_var.dta",
+        "runs/db86195b56554ef694a386c7779eeac6/artifacts/outputs/fig_TK05_var_plot.png",
+        "runs/db86195b56554ef694a386c7779eeac6/artifacts/outputs/result.log",
+        "runs/db86195b56554ef694a386c7779eeac6/artifacts/outputs/table_TK05_var_result.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/49/job_49b9c72fdd976bd6/runs/db86195b56554ef694a386c7779eeac6/artifacts",
+      "exit_code": 0,
+      "job_id": "job_49b9c72fdd976bd6",
+      "missing_deps": [],
+      "missing_outputs": [
+        "table_TK05_backtest.csv"
+      ],
+      "run_id": "db86195b56554ef694a386c7779eeac6",
+      "status": "passed",
+      "template_id": "TK05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/0981397c149245fcb234624dad0700e7/artifacts/outputs/data_TK06_portfolio.dta",
+        "runs/0981397c149245fcb234624dad0700e7/artifacts/outputs/fig_TK06_frontier.png",
+        "runs/0981397c149245fcb234624dad0700e7/artifacts/outputs/result.log",
+        "runs/0981397c149245fcb234624dad0700e7/artifacts/outputs/table_TK06_frontier.csv",
+        "runs/0981397c149245fcb234624dad0700e7/artifacts/outputs/table_TK06_weights.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/4e/job_4ea93c5635b58481/runs/0981397c149245fcb234624dad0700e7/artifacts",
+      "exit_code": 0,
+      "job_id": "job_4ea93c5635b58481",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "0981397c149245fcb234624dad0700e7",
+      "status": "passed",
+      "template_id": "TK06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/9a976e2a084b42cbbd63b5d4eec16b87/artifacts/outputs/data_TK07_bond.dta",
+        "runs/9a976e2a084b42cbbd63b5d4eec16b87/artifacts/outputs/fig_TK07_price_yield.png",
+        "runs/9a976e2a084b42cbbd63b5d4eec16b87/artifacts/outputs/result.log",
+        "runs/9a976e2a084b42cbbd63b5d4eec16b87/artifacts/outputs/table_TK07_duration.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/e4/job_e4e5b1012d74c403/runs/9a976e2a084b42cbbd63b5d4eec16b87/artifacts",
+      "exit_code": 0,
+      "job_id": "job_e4e5b1012d74c403",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "9a976e2a084b42cbbd63b5d4eec16b87",
+      "status": "passed",
+      "template_id": "TK07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/0ec6f9ea9af147f7b522f6cb8ac40eb5/artifacts/outputs/fig_TK08_payoff.png",
+        "runs/0ec6f9ea9af147f7b522f6cb8ac40eb5/artifacts/outputs/result.log",
+        "runs/0ec6f9ea9af147f7b522f6cb8ac40eb5/artifacts/outputs/table_TK08_greeks.csv",
+        "runs/0ec6f9ea9af147f7b522f6cb8ac40eb5/artifacts/outputs/table_TK08_option_price.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/49/job_49a91dcedcc2aee0/runs/0ec6f9ea9af147f7b522f6cb8ac40eb5/artifacts",
+      "exit_code": 0,
+      "job_id": "job_49a91dcedcc2aee0",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "0ec6f9ea9af147f7b522f6cb8ac40eb5",
+      "status": "passed",
+      "template_id": "TK08",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/6e46dbcd88ab4d558e60e9b86d619223/artifacts/outputs/data_TK09_iv.dta",
+        "runs/6e46dbcd88ab4d558e60e9b86d619223/artifacts/outputs/result.log",
+        "runs/6e46dbcd88ab4d558e60e9b86d619223/artifacts/outputs/table_TK09_implied_vol.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/7d/job_7db2a70ad6e863e3/runs/6e46dbcd88ab4d558e60e9b86d619223/artifacts",
+      "exit_code": 0,
+      "job_id": "job_7db2a70ad6e863e3",
+      "missing_deps": [],
+      "missing_outputs": [
+        "fig_TK09_vol_smile.png"
+      ],
+      "run_id": "6e46dbcd88ab4d558e60e9b86d619223",
+      "status": "passed",
+      "template_id": "TK09",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/b15a889200cf450d9de44bb30c1410d9/artifacts/outputs/data_TK10_credit.dta",
+        "runs/b15a889200cf450d9de44bb30c1410d9/artifacts/outputs/fig_TK10_roc.png",
+        "runs/b15a889200cf450d9de44bb30c1410d9/artifacts/outputs/result.log",
+        "runs/b15a889200cf450d9de44bb30c1410d9/artifacts/outputs/table_TK10_model_result.csv",
+        "runs/b15a889200cf450d9de44bb30c1410d9/artifacts/outputs/table_TK10_performance.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/fb/job_fb1676da4d4abcbe/runs/b15a889200cf450d9de44bb30c1410d9/artifacts",
+      "exit_code": 0,
+      "job_id": "job_fb1676da4d4abcbe",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "b15a889200cf450d9de44bb30c1410d9",
+      "status": "passed",
+      "template_id": "TK10",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/e54416da394d45be90b5589c7b1e0e35/artifacts/outputs/data_TK11_micro.dta",
+        "runs/e54416da394d45be90b5589c7b1e0e35/artifacts/outputs/fig_TK11_spread_intraday.png",
+        "runs/e54416da394d45be90b5589c7b1e0e35/artifacts/outputs/result.log",
+        "runs/e54416da394d45be90b5589c7b1e0e35/artifacts/outputs/table_TK11_liquidity.csv",
+        "runs/e54416da394d45be90b5589c7b1e0e35/artifacts/outputs/table_TK11_spread_stats.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/a9/job_a904b01bcf83fa78/runs/e54416da394d45be90b5589c7b1e0e35/artifacts",
+      "exit_code": 0,
+      "job_id": "job_a904b01bcf83fa78",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "e54416da394d45be90b5589c7b1e0e35",
+      "status": "passed",
+      "template_id": "TK11",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/6b6ead7b43934cac9debdd1da0b6cf81/artifacts/outputs/data_TK12_copula.dta",
+        "runs/6b6ead7b43934cac9debdd1da0b6cf81/artifacts/outputs/fig_TK12_scatter.png",
+        "runs/6b6ead7b43934cac9debdd1da0b6cf81/artifacts/outputs/result.log",
+        "runs/6b6ead7b43934cac9debdd1da0b6cf81/artifacts/outputs/table_TK12_correlation.csv",
+        "runs/6b6ead7b43934cac9debdd1da0b6cf81/artifacts/outputs/table_TK12_tail_depend.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/2a/job_2a45041856b0ae34/runs/6b6ead7b43934cac9debdd1da0b6cf81/artifacts",
+      "exit_code": 0,
+      "job_id": "job_2a45041856b0ae34",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "6b6ead7b43934cac9debdd1da0b6cf81",
+      "status": "passed",
+      "template_id": "TK12",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/c263e4aedca74811ab469152d2c27d69/artifacts/outputs/data_TK13_perf.dta",
+        "runs/c263e4aedca74811ab469152d2c27d69/artifacts/outputs/fig_TK13_attribution.png",
+        "runs/c263e4aedca74811ab469152d2c27d69/artifacts/outputs/result.log",
+        "runs/c263e4aedca74811ab469152d2c27d69/artifacts/outputs/table_TK13_attribution.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/36/job_36aadcc2c50b1f98/runs/c263e4aedca74811ab469152d2c27d69/artifacts",
+      "exit_code": 0,
+      "job_id": "job_36aadcc2c50b1f98",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "c263e4aedca74811ab469152d2c27d69",
+      "status": "passed",
+      "template_id": "TK13",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/ba783cd6ff8741b6b086d2983ae63293/artifacts/outputs/data_TK14_risk.dta",
+        "runs/ba783cd6ff8741b6b086d2983ae63293/artifacts/outputs/fig_TK14_drawdown.png",
+        "runs/ba783cd6ff8741b6b086d2983ae63293/artifacts/outputs/result.log",
+        "runs/ba783cd6ff8741b6b086d2983ae63293/artifacts/outputs/table_TK14_metrics.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/2a/job_2a2051d2c374a930/runs/ba783cd6ff8741b6b086d2983ae63293/artifacts",
+      "exit_code": 0,
+      "job_id": "job_2a2051d2c374a930",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "ba783cd6ff8741b6b086d2983ae63293",
+      "status": "passed",
+      "template_id": "TK14",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/619d0e5806464072b54f578c9943a467/artifacts/outputs/data_TK15_mom.dta",
+        "runs/619d0e5806464072b54f578c9943a467/artifacts/outputs/fig_TK15_momentum.png",
+        "runs/619d0e5806464072b54f578c9943a467/artifacts/outputs/result.log",
+        "runs/619d0e5806464072b54f578c9943a467/artifacts/outputs/table_TK15_factor.csv",
+        "runs/619d0e5806464072b54f578c9943a467/artifacts/outputs/table_TK15_momentum.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/39/job_3930dc1c6ec05b7d/runs/619d0e5806464072b54f578c9943a467/artifacts",
+      "exit_code": 0,
+      "job_id": "job_3930dc1c6ec05b7d",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "619d0e5806464072b54f578c9943a467",
+      "status": "passed",
+      "template_id": "TK15",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/69cb5640b966453dbb3c58e68b87d9df/artifacts/outputs/data_TK16_value.dta",
+        "runs/69cb5640b966453dbb3c58e68b87d9df/artifacts/outputs/fig_TK16_value.png",
+        "runs/69cb5640b966453dbb3c58e68b87d9df/artifacts/outputs/result.log",
+        "runs/69cb5640b966453dbb3c58e68b87d9df/artifacts/outputs/table_TK16_factor.csv",
+        "runs/69cb5640b966453dbb3c58e68b87d9df/artifacts/outputs/table_TK16_value.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/d5/job_d52e4784182cee51/runs/69cb5640b966453dbb3c58e68b87d9df/artifacts",
+      "exit_code": 0,
+      "job_id": "job_d52e4784182cee51",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "69cb5640b966453dbb3c58e68b87d9df",
+      "status": "passed",
+      "template_id": "TK16",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/9d39251f7f5248f8afdc9bcf644e6df7/artifacts/outputs/data_TK17_size.dta",
+        "runs/9d39251f7f5248f8afdc9bcf644e6df7/artifacts/outputs/fig_TK17_size.png",
+        "runs/9d39251f7f5248f8afdc9bcf644e6df7/artifacts/outputs/result.log",
+        "runs/9d39251f7f5248f8afdc9bcf644e6df7/artifacts/outputs/table_TK17_factor.csv",
+        "runs/9d39251f7f5248f8afdc9bcf644e6df7/artifacts/outputs/table_TK17_size.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/f9/job_f9f780aa2ed7d4eb/runs/9d39251f7f5248f8afdc9bcf644e6df7/artifacts",
+      "exit_code": 0,
+      "job_id": "job_f9f780aa2ed7d4eb",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "9d39251f7f5248f8afdc9bcf644e6df7",
+      "status": "passed",
+      "template_id": "TK17",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/31bf30a54f8449e1b4eb1db72caa0bc9/artifacts/outputs/data_TK18_liq.dta",
+        "runs/31bf30a54f8449e1b4eb1db72caa0bc9/artifacts/outputs/fig_TK18_liquidity.png",
+        "runs/31bf30a54f8449e1b4eb1db72caa0bc9/artifacts/outputs/result.log",
+        "runs/31bf30a54f8449e1b4eb1db72caa0bc9/artifacts/outputs/table_TK18_factor.csv",
+        "runs/31bf30a54f8449e1b4eb1db72caa0bc9/artifacts/outputs/table_TK18_liquidity.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/24/job_24b900c673d2bdde/runs/31bf30a54f8449e1b4eb1db72caa0bc9/artifacts",
+      "exit_code": 0,
+      "job_id": "job_24b900c673d2bdde",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "31bf30a54f8449e1b4eb1db72caa0bc9",
+      "status": "passed",
+      "template_id": "TK18",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/3f3565b9a09247d39666f0b6ff8e33de/artifacts/outputs/data_TK19_beta.dta",
+        "runs/3f3565b9a09247d39666f0b6ff8e33de/artifacts/outputs/fig_TK19_beta_anomaly.png",
+        "runs/3f3565b9a09247d39666f0b6ff8e33de/artifacts/outputs/result.log",
+        "runs/3f3565b9a09247d39666f0b6ff8e33de/artifacts/outputs/table_TK19_bab_factor.csv",
+        "runs/3f3565b9a09247d39666f0b6ff8e33de/artifacts/outputs/table_TK19_beta_sort.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/bd/job_bd55d58af6041263/runs/3f3565b9a09247d39666f0b6ff8e33de/artifacts",
+      "exit_code": 0,
+      "job_id": "job_bd55d58af6041263",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "3f3565b9a09247d39666f0b6ff8e33de",
+      "status": "passed",
+      "template_id": "TK19",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/523ff6bb3d654795a465bcc202b5f4f7/artifacts/outputs/data_TK20_fm.dta",
+        "runs/523ff6bb3d654795a465bcc202b5f4f7/artifacts/outputs/fig_TK20_gamma_ts.png",
+        "runs/523ff6bb3d654795a465bcc202b5f4f7/artifacts/outputs/result.log",
+        "runs/523ff6bb3d654795a465bcc202b5f4f7/artifacts/outputs/table_TK20_fm_result.csv",
+        "runs/523ff6bb3d654795a465bcc202b5f4f7/artifacts/outputs/table_TK20_time_series.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-296-phase-5-10-tk/jobs/9f/job_9f33c2f578de8d54/runs/523ff6bb3d654795a465bcc202b5f4f7/artifacts",
+      "exit_code": 0,
+      "job_id": "job_9f33c2f578de8d54",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "523ff6bb3d654795a465bcc202b5f4f7",
+      "status": "passed",
+      "template_id": "TK20",
+      "timed_out": false
+    }
+  ],
+  "finished_at": "2026-01-10T06:38:53.347678+00:00",
+  "library_dir": "assets/stata_do_library",
+  "schema_version": "1.0",
+  "started_at": "2026-01-10T06:37:29.788892+00:00",
+  "stata_cmd": [
+    "/mnt/c/Program Files/Stata18/StataMP-64.exe"
+  ],
+  "suite_id": "issue_280_tk01_tk20",
+  "summary": {
+    "passed": 20
+  }
+}

@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Interpretation / 解释: dependence measures depend on marginals and tail behavior / 依赖度量依赖边际分布与尾部行为
+* - Data checks / 数据校验: missingness across series; ensure aligned time index
+* - Diagnostics / 诊断: compare Pearson/Spearman/Kendall; tail dependence is sample-sensitive
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -52,6 +61,7 @@ local return_vars = "__RETURN_VARS__"
 local copula_type = "__COPULA_TYPE__"
 
 if "`copula_type'" == "" {
+    display "SS_RC|code=PARAM_DEFAULTED|param=copula_type|default=gaussian|severity=warn"
     local copula_type = "gaussian"
 }
 
@@ -86,6 +96,15 @@ foreach var of local return_vars {
 
 if `n_vars' < 2 {
     ss_fail_TK12 198 validate_variables too_few_variables n_vars_lt_2 S02_validate_inputs
+}
+
+* Missingness checks / 缺失值检查（提示性）
+foreach var of local valid_vars {
+    quietly count if missing(`var')
+    local n_miss = r(N)
+    if `n_miss' > 0 {
+        display "SS_RC|code=MISSING_VALUES|var=`var'|n=`n_miss'|severity=warn"
+    }
 }
 
 display ">>> 有效变量数: `n_vars'"

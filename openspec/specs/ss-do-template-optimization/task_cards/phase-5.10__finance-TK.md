@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #296
 - Parent: #125
 - Superphase: Phase 5 (content enhancement)
 - Templates: `TK*` (~20 templates, current inventory)

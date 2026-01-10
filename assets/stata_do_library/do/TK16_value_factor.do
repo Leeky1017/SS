@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Design / 设计: HML depends on book-to-market definition and sorting frequency
+* - Data checks / 数据校验: missing BM/returns; extreme BM values can dominate sorts
+* - Diagnostics / 诊断: inspect group sizes each period
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -55,6 +64,7 @@ local time_var = "__TIME_VAR__"
 local n_groups = __N_GROUPS__
 
 if `n_groups' < 3 | `n_groups' > 10 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=n_groups|default=5|severity=warn"
     local n_groups = 5
 }
 
@@ -83,6 +93,22 @@ foreach var in `return_var' `bm_var' `stock_id' `time_var' {
     capture confirm variable `var'
     if _rc {
         ss_fail_TK16 200 confirm_variable var_not_found `var' S02_validate_inputs
+    }
+}
+
+capture confirm numeric variable `return_var'
+if _rc {
+    ss_fail_TK16 200 confirm_numeric return_not_numeric `return_var' S02_validate_inputs
+}
+capture confirm numeric variable `bm_var'
+if _rc {
+    ss_fail_TK16 200 confirm_numeric bm_not_numeric `bm_var' S02_validate_inputs
+}
+foreach var in `return_var' `bm_var' {
+    quietly count if missing(`var')
+    local n_miss = r(N)
+    if `n_miss' > 0 {
+        display "SS_RC|code=MISSING_VALUES|var=`var'|n=`n_miss'|severity=warn"
     }
 }
 

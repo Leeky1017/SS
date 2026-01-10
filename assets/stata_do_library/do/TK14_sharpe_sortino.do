@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Inference / 推断: annualization depends on frequency; document assumptions
+* - Data checks / 数据校验: missingness + return scaling; handle non-trading days appropriately
+* - Diagnostics / 诊断: drawdown paths can be outlier sensitive
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -53,10 +62,15 @@ local rf_rate = __RF_RATE__
 local frequency = "__FREQUENCY__"
 
 if `rf_rate' < 0 | `rf_rate' > 0.5 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=rf_rate|default=0.02|severity=warn"
     local rf_rate = 0.02
 }
 if "`frequency'" == "" {
+    display "SS_RC|code=PARAM_DEFAULTED|param=frequency|default=daily|severity=warn"
     local frequency = "daily"
+}
+if "`frequency'" != "daily" & "`frequency'" != "monthly" & "`frequency'" != "yearly" {
+    display "SS_RC|code=PARAM_UNRECOGNIZED|param=frequency|value=`frequency'|severity=warn"
 }
 
 * 年化因子
@@ -99,6 +113,38 @@ tsset t
 capture confirm numeric variable `return_var'
 if _rc {
     ss_fail_TK14 200 confirm_variable var_not_found `return_var' S02_validate_inputs
+}
+
+* Missingness + scaling checks / 缺失值与尺度检查（提示性）
+quietly count if missing(`return_var')
+local n_miss = r(N)
+if `n_miss' > 0 {
+    display "SS_RC|code=MISSING_VALUES|var=`return_var'|n=`n_miss'|severity=warn"
+}
+capture quietly summarize `return_var', detail
+local rc_sum = _rc
+if `rc_sum' == 0 {
+    local p1 = r(p1)
+    local p99 = r(p99)
+    if `p1' < . & `p99' < . {
+        if abs(`p1') > 5 | abs(`p99') > 5 {
+            display "SS_RC|code=CHECK_SCALE|var=`return_var'|p1=`p1'|p99=`p99'|severity=warn"
+        }
+    }
+}
+if "`benchmark_var'" != "" {
+    capture confirm numeric variable `benchmark_var'
+    local rc_b = _rc
+    if `rc_b' != 0 {
+        display "SS_RC|code=`rc_b'|cmd=confirm numeric benchmark|msg=benchmark_not_numeric|severity=warn"
+    }
+    else {
+        quietly count if missing(`benchmark_var')
+        local n_miss_b = r(N)
+        if `n_miss_b' > 0 {
+            display "SS_RC|code=MISSING_VALUES|var=`benchmark_var'|n=`n_miss_b'|severity=warn"
+        }
+    }
 }
 
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"

@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Inference / 推断: backtest exception counts; avoid over-interpreting in small samples
+* - Data checks / 数据校验: missingness + return scaling; volatility clustering common
+* - Method choice / 方法: parametric assumes normality; consider historical/filtered in extensions
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -55,15 +64,19 @@ local method = "__METHOD__"
 local portfolio_value = __PORTFOLIO_VALUE__
 
 if `confidence' <= 0.5 | `confidence' >= 1 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=confidence|default=0.95|severity=warn"
     local confidence = 0.95
 }
 if `horizon' < 1 | `horizon' > 252 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=horizon|default=1|severity=warn"
     local horizon = 1
 }
 if "`method'" == "" {
+    display "SS_RC|code=PARAM_DEFAULTED|param=method|default=parametric|severity=warn"
     local method = "parametric"
 }
 if `portfolio_value' <= 0 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=portfolio_value|default=1000000|severity=warn"
     local portfolio_value = 1000000
 }
 
@@ -94,6 +107,24 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 capture confirm numeric variable `return_var'
 if _rc {
     ss_fail_TK05 200 confirm_variable var_not_found `return_var' S02_validate_inputs
+}
+
+* Missingness + scaling checks / 缺失值与尺度检查（提示性）
+quietly count if missing(`return_var')
+local n_miss = r(N)
+if `n_miss' > 0 {
+    display "SS_RC|code=MISSING_VALUES|var=`return_var'|n=`n_miss'|severity=warn"
+}
+capture quietly summarize `return_var', detail
+local rc_sum = _rc
+if `rc_sum' == 0 {
+    local p1 = r(p1)
+    local p99 = r(p99)
+    if `p1' < . & `p99' < . {
+        if abs(`p1') > 5 | abs(`p99') > 5 {
+            display "SS_RC|code=CHECK_SCALE|var=`return_var'|p1=`p1'|p99=`p99'|severity=warn"
+        }
+    }
 }
 
 generate t = _n

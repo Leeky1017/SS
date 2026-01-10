@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Inference / 推断: default events are rare; prefer robust/clustered SE and calibration checks
+* - Data checks / 数据校验: target must be binary; handle class imbalance and missing predictors
+* - Diagnostics / 诊断: report ROC/AUC and threshold sensitivity
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -53,6 +62,7 @@ local predictors = "__PREDICTORS__"
 local model = "__MODEL__"
 
 if "`model'" == "" | ("`model'" != "logit" & "`model'" != "probit") {
+    display "SS_RC|code=PARAM_DEFAULTED|param=model|default=logit|severity=warn"
     local model = "logit"
 }
 
@@ -81,6 +91,16 @@ if _rc {
     ss_fail_TK10 200 confirm_variable var_not_found `default_var' S02_validate_inputs
 }
 
+quietly count if !inlist(`default_var', 0, 1) & !missing(`default_var')
+if r(N) > 0 {
+    display "SS_RC|code=TARGET_NOT_BINARY|n=`=r(N)'|severity=warn"
+}
+quietly count if missing(`default_var')
+local n_miss_y = r(N)
+if `n_miss_y' > 0 {
+    display "SS_RC|code=MISSING_VALUES|var=`default_var'|n=`n_miss_y'|severity=warn"
+}
+
 local valid_predictors ""
 foreach var of local predictors {
     capture confirm numeric variable `var'
@@ -88,11 +108,21 @@ foreach var of local predictors {
         local valid_predictors "`valid_predictors' `var'"
     }
 }
+foreach var of local valid_predictors {
+    quietly count if missing(`var')
+    local n_miss = r(N)
+    if `n_miss' > 0 {
+        display "SS_RC|code=MISSING_VALUES|var=`var'|n=`n_miss'|severity=warn"
+    }
+}
 
 * 违约率统计
 quietly count if `default_var' == 1
 local n_default = r(N)
 local default_rate = `n_default' / `n_input'
+if `n_default' == 0 | `n_default' == `n_input' {
+    display "SS_RC|code=DEGENERATE_TARGET|n_default=`n_default'|n_total=`n_input'|severity=warn"
+}
 
 display ""
 display ">>> 样本统计:"

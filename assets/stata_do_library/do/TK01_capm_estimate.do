@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Inference / 推断: use robust SE by default; consider clustering by firm/time when appropriate
+* - Data checks / 数据校验: missingness + return scaling + panel balance
+* - Model caveat / 注意: CAPM is a benchmark; interpret alpha cautiously
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -91,6 +100,26 @@ foreach var in `return_var' `market_var' `stock_id' `time_var' {
     }
 }
 
+* Missingness + scaling checks / 缺失值与尺度检查（提示性）
+foreach var in `return_var' `market_var' {
+    quietly count if missing(`var')
+    local n_miss = r(N)
+    if `n_miss' > 0 {
+        display "SS_RC|code=MISSING_VALUES|var=`var'|n=`n_miss'|severity=warn"
+    }
+    capture quietly summarize `var', detail
+    local rc_sum = _rc
+    if `rc_sum' == 0 {
+        local p1 = r(p1)
+        local p99 = r(p99)
+        if `p1' < . & `p99' < . {
+            if abs(`p1') > 5 | abs(`p99') > 5 {
+                display "SS_RC|code=CHECK_SCALE|var=`var'|p1=`p1'|p99=`p99'|severity=warn"
+            }
+        }
+    }
+}
+
 * 计算超额收益
 if "`rf_var'" != "" {
     capture confirm numeric variable `rf_var'
@@ -101,6 +130,14 @@ if "`rf_var'" != "" {
     else {
         generate double excess_ret = `return_var'
         generate double excess_mkt = `market_var'
+    }
+    capture confirm numeric variable `rf_var'
+    if !_rc {
+        quietly count if missing(`rf_var')
+        local n_miss_rf = r(N)
+        if `n_miss_rf' > 0 {
+            display "SS_RC|code=MISSING_VALUES|var=`rf_var'|n=`n_miss_rf'|severity=warn"
+        }
     }
 }
 else {
