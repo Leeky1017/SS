@@ -238,6 +238,7 @@ class DoFileGenerator:
         template = _extract_template(step)
         dataset_rel_path, dataset_format = _extract_primary_dataset_info(inputs_manifest)
         analysis_vars = _extract_analysis_vars(step)
+        outputs: tuple[ExpectedOutput, ...]
 
         if template == "stub_descriptive_v1":
             do_file = _render_stub_descriptive_v1(
@@ -273,7 +274,7 @@ class DoFileGenerator:
                 dataset_format=dataset_format,
             )
             do_file = staged + "\n" + rendered
-            outputs = tuple()
+            outputs = ()
         logger.info(
             "SS_DOFILE_GENERATE_DONE",
             extra={"plan_id": plan.plan_id, "template": template, "outputs": len(outputs)},
