@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "issue_273_tm01_tm15",
+  "templates": {
+    "TM01": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__OUTCOME__": "outcome", "__PREDICTOR__": "predictor" }
+    },
+    "TM02": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__TEST__": "test", "__GOLD__": "gold" }
+    },
+    "TM03": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__RATER1__": "rater1", "__RATER2__": "rater2" }
+    },
+    "TM04": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__VARS__": "measure1 measure2", "__ID_VAR__": "id" }
+    },
+    "TM05": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__OUTCOME__": "outcome", "__TREATMENT__": "treatment" }
+    },
+    "TM06": {
+      "dependencies": [{ "pkg": "metan", "purpose": "Meta-analysis forest plot", "source": "ssc" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__EFFECT__": "effect", "__SE__": "se", "__STUDY__": "study" }
+    },
+    "TM07": {
+      "dependencies": [{ "pkg": "metafunnel", "purpose": "Funnel plot", "source": "ssc" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__EFFECT__": "effect", "__SE__": "se" }
+    },
+    "TM08": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__CASE__": "case", "__EXPOSURE__": "exposure" }
+    },
+    "TM09": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__OUTCOME__": "outcome", "__EXPOSURE__": "exposure" }
+    },
+    "TM10": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__CASE__": "case", "__EXPOSURE__": "exposure", "__MATCH_ID__": "match_id" }
+    },
+    "TM11": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__CASES__": "cases", "__PYEARS__": "pyears", "__GROUP__": "group" }
+    },
+    "TM12": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__OUTCOME__": "outcome", "__EXPOSURE__": "exposure", "__STRATA__": "strata" }
+    },
+    "TM13": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__OUTCOME__": "outcome", "__INDEPVARS__": "predictor exposure" }
+    },
+    "TM14": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__OUTCOME__": "cases", "__INDEPVARS__": "exposure predictor", "__EXPOSURE__": "pyears" }
+    },
+    "TM15": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
+      "params": { "__P1__": "0.30", "__P2__": "0.50", "__ALPHA__": "0.05", "__POWER__": "0.80", "__RATIO__": "1" }
+    }
+  }
+}
