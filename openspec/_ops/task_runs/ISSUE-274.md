@@ -1,7 +1,7 @@
 # ISSUE-274
 - Issue: #274 https://github.com/Leeky1017/SS/issues/274
 - Branch: task/274-production-e2e-audit
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/281
 
 ## Goal
 - Perform a production-grade E2E audit of SS: confirm the real runtime chain, run the `/v1` journey end-to-end with a real Stata runner and a real (non-stub) LLM using `SS_LLM_MODEL=claude-opus-4-5-20251101`, and produce a go/no-go verdict with evidence.
@@ -184,6 +184,14 @@
   - `OK: no hard dependencies found in execution plan`
 - Evidence:
   - (this file)
+
+### 2026-01-10 PR: open and enable auto-merge
+- Command:
+  - `gh pr create --title "[AUDIT] SS production E2E audit spec + run log (#274)" --body "Closes #274 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/281`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/281
 
 ## Audit Conclusions (this Issue)
 
