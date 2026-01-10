@@ -48,3 +48,13 @@
 - Command: `/home/leeky/work/SS/.venv/bin/pytest -q`
 - Key output: `178 passed, 5 skipped in 8.88s`
 - Evidence: `.worktrees/issue-339-deploy-minio-r003`
+
+### 2026-01-10 19:33 closeout (task card + rulebook archive)
+- Command: `gh pr create ... (closeout PR)`
+- Key output: `https://github.com/Leeky1017/SS/pull/344`
+- Evidence: `openspec/specs/ss-deployment-docker-minio/task_cards/round-01-ops-a__DEPLOY-MINIO-R003.md`
+
+### 2026-01-10 19:34 closeout PR guard fix
+- Command: `openspec-log-guard required the run log file to be included in PR #344`
+- Key output: `Added this entry to openspec/_ops/task_runs/ISSUE-339.md`
+- Evidence: `openspec/_ops/task_runs/ISSUE-339.md`
