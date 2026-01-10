@@ -1,7 +1,7 @@
 # ISSUE-342
 - Issue: #342
 - Branch: task/342-prod-e2e-r020
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/347
 
 ## Plan
 - Add dependency preflight + structured run error details
