@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "metafunnel",
-      "purpose": "Funnel plots",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "funnel plot + Egger regression",
+      "source": "built-in"
     }
   ],
   "description": "Funnel plot for publication bias assessment",

@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - NNT is derived from absolute risk reduction; report baseline risk and direction (benefit vs harm).
+* - Ensure outcome and treatment are binary and coded consistently; zero cells can make ARR/NN T undefined.
+* - Consider confidence intervals for ARR/NNT, especially in small samples.
+* 最佳实践审查（ZH）:
+* - NNT 来自绝对风险差（ARR）；建议同时报告基线风险与方向（获益/伤害）。
+* - 请确保结局与处理变量为二分类且编码一致；零单元格会导致 ARR/NNT 不可定义。
+* - 小样本建议报告 ARR/NNT 的置信区间。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -30,6 +38,8 @@ local outcome = "__OUTCOME__"
 local treatment = "__TREATMENT__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -56,10 +66,73 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate binary variables and non-missingness for 2x2 table.
+* ZH: 校验二分类变量并确保可形成四格表。
+capture confirm variable `outcome'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `outcome'|msg=var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm variable `treatment'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `treatment'|msg=var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `outcome'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `outcome'|msg=var_not_numeric|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `treatment'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `treatment'|msg=var_not_numeric|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+quietly levelsof `outcome' if !missing(`outcome'), local(o_levels)
+quietly levelsof `treatment' if !missing(`treatment'), local(t_levels)
+local n_o : word count `o_levels'
+local n_t : word count `t_levels'
+display "SS_METRIC|name=n_outcome_levels|value=`n_o'"
+display "SS_METRIC|name=n_treatment_levels|value=`n_t'"
+if (`n_o' != 2) | (`n_t' != 2) {
+    display "SS_RC|code=2002|cmd=validate_binary_vars|msg=non_binary_detected|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM05|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 2002
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
+* EN: Build 2x2 table and derive CER/EER/ARR/NNT/RR.
+* ZH: 构建四格表并计算 CER/EER/ARR/NNT/RR。
 tabulate `treatment' `outcome', matcell(freq)
 local a = freq[2,2]
 local b = freq[2,1]
@@ -69,7 +142,13 @@ local d = freq[1,1]
 local cer = `c' / (`c' + `d')
 local eer = `a' / (`a' + `b')
 local arr = `cer' - `eer'
-local nnt = 1 / abs(`arr')
+local nnt = .
+if abs(`arr') > 0 {
+    local nnt = 1 / abs(`arr')
+}
+if abs(`arr') == 0 {
+    display "SS_RC|code=2004|cmd=calc_nnt|msg=undefined_due_to_zero_arr|severity=warn"
+}
 local rr = `eer' / `cer'
 
 display "SS_METRIC|name=nnt|value=`nnt'"

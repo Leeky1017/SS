@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - ICC depends on model choice (one-way/random/mixed); this minimal template uses a simple one-way approach via `loneway`.
+* - Ensure repeated measurements are aligned within subject ID and that variables are comparable (same scale/units).
+* - Consider reporting confidence intervals and checking for systematic rater/measurement bias.
+* 最佳实践审查（ZH）:
+* - ICC 的结果依赖模型设定；本模板用 `loneway` 给出简化的一元方差法 ICC。
+* - 请确保同一受试者 ID 下的重复测量对齐，且各测量变量可比（同尺度/单位）。
+* - 建议报告置信区间，并关注系统性测量偏差。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -30,6 +38,8 @@ local vars = "__VARS__"
 local id_var = "__ID_VAR__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -56,6 +66,54 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate subject ID and measurement variables exist.
+* ZH: 校验受试者 ID 与测量变量存在。
+capture confirm variable `id_var'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `id_var'|msg=var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM04|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+local n_vars : word count `vars'
+display "SS_METRIC|name=n_measure_vars|value=`n_vars'"
+if `n_vars' < 2 {
+    display "SS_RC|code=2008|cmd=validate_vars_list|msg=need_at_least_two_vars|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM04|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 2008
+}
+foreach v of local vars {
+    capture confirm variable `v'
+    if _rc {
+        local rc = _rc
+        display "SS_RC|code=`rc'|cmd=confirm variable `v'|msg=var_not_found|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = r(t1)
+        display "SS_TASK_END|id=TM04|status=fail|elapsed_sec=`elapsed'"
+        log close
+        exit `rc'
+    }
+    capture confirm numeric variable `v'
+    if _rc {
+        local rc = _rc
+        display "SS_RC|code=`rc'|cmd=confirm numeric variable `v'|msg=var_not_numeric|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = r(t1)
+        display "SS_TASK_END|id=TM04|status=fail|elapsed_sec=`elapsed'"
+        log close
+        exit `rc'
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"

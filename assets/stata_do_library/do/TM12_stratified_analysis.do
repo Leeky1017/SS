@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Mantel-Haenszel pooled estimates assume a common effect across strata; check for interaction/heterogeneity when plausible.
+* - Ensure stratification variable is meaningful and not too sparse; sparse strata can destabilize estimates.
+* - Report stratum-specific counts/effects when needed for transparency.
+* 最佳实践审查（ZH）:
+* - MH 汇总假设各层效应一致；若存在交互/异质性，应先检验或分层报告。
+* - 分层变量不宜过于稀疏；稀疏层会导致估计不稳定。
+* - 建议在需要时报告各层计数/效应以增强透明度。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -31,6 +39,8 @@ local exposure = "__EXPOSURE__"
 local strata = "__STRATA__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -57,11 +67,76 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate binary outcome/exposure and strata existence.
+* ZH: 校验结局/暴露为二分类，且分层变量存在。
+local required_vars "`outcome' `exposure' `strata'"
+foreach v of local required_vars {
+    capture confirm variable `v'
+    if _rc {
+        local rc = _rc
+        display "SS_RC|code=`rc'|cmd=confirm variable `v'|msg=var_not_found|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = r(t1)
+        display "SS_TASK_END|id=TM12|status=fail|elapsed_sec=`elapsed'"
+        log close
+        exit `rc'
+    }
+}
+capture confirm numeric variable `outcome'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `outcome'|msg=var_not_numeric|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM12|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `exposure'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `exposure'|msg=var_not_numeric|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM12|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+quietly levelsof `outcome' if !missing(`outcome'), local(o_levels)
+quietly levelsof `exposure' if !missing(`exposure'), local(e_levels)
+local n_o : word count `o_levels'
+local n_e : word count `e_levels'
+display "SS_METRIC|name=n_outcome_levels|value=`n_o'"
+display "SS_METRIC|name=n_exposure_levels|value=`n_e'"
+if (`n_o' != 2) | (`n_e' != 2) {
+    display "SS_RC|code=2002|cmd=validate_binary_vars|msg=non_binary_detected|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM12|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 2002
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
-cc `outcome' `exposure', by(`strata')
+* EN: Mantel-Haenszel pooled estimate via cc, by(strata).
+* ZH: 使用 cc 按 strata 分层并给出 MH 汇总。
+capture noisily cc `outcome' `exposure', by(`strata')
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=cc_by|msg=mh_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM12|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 local or_mh = r(or_mh)
 local chi2_mh = r(chi2_mh)
 local p_mh = r(p_mh)
