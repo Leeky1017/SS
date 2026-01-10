@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Inference / 推断: Fama-MacBeth needs time-series SE; consider Newey-West for gamma series in extensions
+* - Data checks / 数据校验: panel alignment + missing regressors; avoid too many regressors per time slice
+* - Diagnostics / 诊断: inspect coefficient stability over time
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -83,11 +92,37 @@ foreach var in `return_var' `beta_var' `stock_id' `time_var' {
     }
 }
 
+capture confirm numeric variable `return_var'
+if _rc {
+    ss_fail_TK20 200 confirm_numeric return_not_numeric `return_var' S02_validate_inputs
+}
+capture confirm numeric variable `beta_var'
+if _rc {
+    ss_fail_TK20 200 confirm_numeric beta_not_numeric `beta_var' S02_validate_inputs
+}
+quietly count if missing(`return_var')
+local n_miss_y = r(N)
+if `n_miss_y' > 0 {
+    display "SS_RC|code=MISSING_VALUES|var=`return_var'|n=`n_miss_y'|severity=warn"
+}
+quietly count if missing(`beta_var')
+local n_miss_b = r(N)
+if `n_miss_b' > 0 {
+    display "SS_RC|code=MISSING_VALUES|var=`beta_var'|n=`n_miss_b'|severity=warn"
+}
+
 local valid_other ""
 foreach var of local other_vars {
     capture confirm numeric variable `var'
     if !_rc {
         local valid_other "`valid_other' `var'"
+    }
+}
+foreach var of local valid_other {
+    quietly count if missing(`var')
+    local n_miss = r(N)
+    if `n_miss' > 0 {
+        display "SS_RC|code=MISSING_VALUES|var=`var'|n=`n_miss'|severity=warn"
     }
 }
 

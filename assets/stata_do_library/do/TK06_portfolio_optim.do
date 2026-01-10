@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Inference / 推断: mean-variance is estimation-error sensitive; consider shrinkage in extensions
+* - Data checks / 数据校验: missingness across assets can break covariance estimation
+* - Constraints / 约束: short-selling flag changes feasible set; record explicitly
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -54,9 +63,11 @@ local target_return = __TARGET_RETURN__
 local short_allowed = "__SHORT_ALLOWED__"
 
 if `rf_rate' < 0 | `rf_rate' > 0.2 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=rf_rate|default=0.02|severity=warn"
     local rf_rate = 0.02
 }
 if "`short_allowed'" == "" {
+    display "SS_RC|code=PARAM_DEFAULTED|param=short_allowed|default=no|severity=warn"
     local short_allowed = "no"
 }
 
@@ -95,6 +106,15 @@ foreach var of local asset_vars {
 
 if `n_assets' < 2 {
     ss_fail_TK06 198 validate_assets too_few_assets n_assets_lt_2 S02_validate_inputs
+}
+
+* Missingness checks / 缺失值检查（提示性）
+foreach var of local valid_assets {
+    quietly count if missing(`var')
+    local n_miss = r(N)
+    if `n_miss' > 0 {
+        display "SS_RC|code=MISSING_VALUES|var=`var'|n=`n_miss'|severity=warn"
+    }
 }
 
 display ">>> 有效资产数: `n_assets'"

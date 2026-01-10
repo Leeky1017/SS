@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Interpretation / 解释: BS assumes lognormal price + constant vol + frictionless market / BS 假设对数正态、常数波动、无摩擦
+* - Data checks / 数据校验: validate units (rates/vol in decimals) / 校验单位（利率/波动率为小数）
+* - Diagnostics / 诊断: sanity-check put-call parity, extreme parameter values / 检查平价关系与极端参数
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -34,6 +43,7 @@ display "SS_STEP_BEGIN|step=S01_load_data"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* Parameter defaults are emitted as warnings in S03 / 参数默认在 S03 中以告警形式记录
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -47,21 +57,27 @@ local sigma = __VOLATILITY__
 local option_type = "__OPTION_TYPE__"
 
 if `S' <= 0 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=S|default=100|severity=warn"
     local S = 100
 }
 if `K' <= 0 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=K|default=100|severity=warn"
     local K = 100
 }
 if `T' <= 0 | `T' > 10 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=T|default=1|severity=warn"
     local T = 1
 }
 if `r' < 0 | `r' > 0.5 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=r|default=0.05|severity=warn"
     local r = 0.05
 }
 if `sigma' <= 0 | `sigma' > 2 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=sigma|default=0.2|severity=warn"
     local sigma = 0.2
 }
 if "`option_type'" == "" | ("`option_type'" != "call" & "`option_type'" != "put") {
+    display "SS_RC|code=PARAM_DEFAULTED|param=option_type|default=call|severity=warn"
     local option_type = "call"
 }
 

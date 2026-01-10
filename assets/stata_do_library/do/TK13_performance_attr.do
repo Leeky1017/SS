@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Interpretation / 解释: attribution depends on weights definition and benchmark construction / 归因依赖权重与基准定义
+* - Data checks / 数据校验: returns numeric; weights non-negative and comparable scale
+* - Diagnostics / 诊断: verify weights sum (within sector/overall) in extensions
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -80,6 +89,27 @@ foreach var in `port_return' `bench_return' `port_weight' `bench_weight' `sector
     if _rc {
         ss_fail_TK13 200 confirm_variable var_not_found `var' S02_validate_inputs
     }
+}
+
+* Numeric checks + missingness / 数值校验与缺失值检查（提示性）
+foreach var in `port_return' `bench_return' `port_weight' `bench_weight' {
+    capture confirm numeric variable `var'
+    if _rc {
+        ss_fail_TK13 200 confirm_numeric var_not_numeric `var' S02_validate_inputs
+    }
+    quietly count if missing(`var')
+    local n_miss = r(N)
+    if `n_miss' > 0 {
+        display "SS_RC|code=MISSING_VALUES|var=`var'|n=`n_miss'|severity=warn"
+    }
+}
+quietly count if `port_weight' < 0 & !missing(`port_weight')
+if r(N) > 0 {
+    display "SS_RC|code=NEGATIVE_WEIGHT|var=`port_weight'|n=`=r(N)'|severity=warn"
+}
+quietly count if `bench_weight' < 0 & !missing(`bench_weight')
+if r(N) > 0 {
+    display "SS_RC|code=NEGATIVE_WEIGHT|var=`bench_weight'|n=`=r(N)'|severity=warn"
 }
 
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"

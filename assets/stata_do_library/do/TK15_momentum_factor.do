@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Design / 设计: momentum needs skip window to avoid microstructure reversal / 动量通常跳过最近期避免短期反转
+* - Data checks / 数据校验: panel alignment + missing returns; extreme returns can dominate signals
+* - Diagnostics / 诊断: inspect group sizes and turnover
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -56,12 +65,15 @@ local skip = __SKIP__
 local n_groups = __N_GROUPS__
 
 if `lookback' < 1 | `lookback' > 36 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=lookback|default=12|severity=warn"
     local lookback = 12
 }
 if `skip' < 0 | `skip' > 3 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=skip|default=1|severity=warn"
     local skip = 1
 }
 if `n_groups' < 3 | `n_groups' > 10 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=n_groups|default=5|severity=warn"
     local n_groups = 5
 }
 
@@ -92,6 +104,27 @@ foreach var in `return_var' `stock_id' `time_var' {
     capture confirm variable `var'
     if _rc {
         ss_fail_TK15 200 confirm_variable var_not_found `var' S02_validate_inputs
+    }
+}
+
+capture confirm numeric variable `return_var'
+if _rc {
+    ss_fail_TK15 200 confirm_numeric return_not_numeric `return_var' S02_validate_inputs
+}
+quietly count if missing(`return_var')
+local n_miss = r(N)
+if `n_miss' > 0 {
+    display "SS_RC|code=MISSING_VALUES|var=`return_var'|n=`n_miss'|severity=warn"
+}
+capture quietly summarize `return_var', detail
+local rc_sum = _rc
+if `rc_sum' == 0 {
+    local p1 = r(p1)
+    local p99 = r(p99)
+    if `p1' < . & `p99' < . {
+        if abs(`p1') > 5 | abs(`p99') > 5 {
+            display "SS_RC|code=CHECK_SCALE|var=`return_var'|p1=`p1'|p99=`p99'|severity=warn"
+        }
     }
 }
 

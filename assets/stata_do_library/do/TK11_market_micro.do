@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Interpretation / 解释: spreads/liquidity are microstructure-noise sensitive / 价差与流动性受微观结构噪声影响
+* - Data checks / 数据校验: ask>=bid, positive prices/volume, time ordering per stock
+* - Diagnostics / 诊断: inspect intraday patterns; handle outliers
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -84,6 +93,23 @@ foreach var in `bid_var' `ask_var' `price_var' {
     if _rc {
         ss_fail_TK11 200 confirm_variable var_not_found `var' S02_validate_inputs
     }
+}
+
+* Missingness + sanity checks / 缺失值与一致性检查（提示性）
+foreach var in `bid_var' `ask_var' `price_var' {
+    quietly count if missing(`var')
+    local n_miss = r(N)
+    if `n_miss' > 0 {
+        display "SS_RC|code=MISSING_VALUES|var=`var'|n=`n_miss'|severity=warn"
+    }
+}
+quietly count if `ask_var' < `bid_var' & !missing(`ask_var') & !missing(`bid_var')
+if r(N) > 0 {
+    display "SS_RC|code=ASK_LT_BID|n=`=r(N)'|severity=warn"
+}
+quietly count if `price_var' <= 0 & !missing(`price_var')
+if r(N) > 0 {
+    display "SS_RC|code=NONPOSITIVE_PRICE|n=`=r(N)'|severity=warn"
 }
 
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"

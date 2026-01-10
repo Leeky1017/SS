@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Inference / 推断: volatility models are sensitive to outliers; consider robust pre-processing
+* - Data checks / 数据校验: missingness + scaling; avoid large gaps and extreme spikes
+* - Diagnostics / 诊断: check residuals/standardized residuals in extensions
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -55,15 +64,19 @@ local q = __Q__
 local dist = "__DIST__"
 
 if "`model'" == "" | ("`model'" != "garch" & "`model'" != "egarch" & "`model'" != "gjr") {
+    display "SS_RC|code=PARAM_DEFAULTED|param=model|default=garch|severity=warn"
     local model = "garch"
 }
 if `p' < 1 | `p' > 5 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=p|default=1|severity=warn"
     local p = 1
 }
 if `q' < 1 | `q' > 5 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=q|default=1|severity=warn"
     local q = 1
 }
 if "`dist'" == "" | ("`dist'" != "gaussian" & "`dist'" != "t") {
+    display "SS_RC|code=PARAM_DEFAULTED|param=dist|default=gaussian|severity=warn"
     local dist = "gaussian"
 }
 
@@ -90,6 +103,24 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 capture confirm numeric variable `return_var'
 if _rc {
     ss_fail_TK04 200 confirm_variable var_not_found `return_var' S02_validate_inputs
+}
+
+* Missingness + scaling checks / 缺失值与尺度检查（提示性）
+quietly count if missing(`return_var')
+local n_miss = r(N)
+if `n_miss' > 0 {
+    display "SS_RC|code=MISSING_VALUES|var=`return_var'|n=`n_miss'|severity=warn"
+}
+capture quietly summarize `return_var', detail
+local rc_sum = _rc
+if `rc_sum' == 0 {
+    local p1 = r(p1)
+    local p99 = r(p99)
+    if `p1' < . & `p99' < . {
+        if abs(`p1') > 5 | abs(`p99') > 5 {
+            display "SS_RC|code=CHECK_SCALE|var=`return_var'|p1=`p1'|p99=`p99'|severity=warn"
+        }
+    }
 }
 
 * 设置时间序列

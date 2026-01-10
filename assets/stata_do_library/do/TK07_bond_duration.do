@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* ------------------------------------------------------------------------------
+* SS_BEST_PRACTICE_REVIEW (Phase 5.10) / 最佳实践审查记录
+* - Date: 2026-01-10
+* - Interpretation / 解释: duration/convexity are local approximations around YTM / 久期与凸度是围绕收益率的局部近似
+* - Data checks / 数据校验: validate coupon/ytm units (decimal vs %) / 校验利率单位（小数还是百分比）
+* - Diagnostics / 诊断: verify price monotonicity vs yield / 检查价格-收益率关系
+* - SSC deps / SSC 依赖: none / 无
+* ------------------------------------------------------------------------------
+
 * ============ 初始化 ============
 capture log close _all
 local rc_last = _rc
@@ -40,18 +49,23 @@ local maturity = __MATURITY__
 local frequency = __FREQUENCY__
 
 if `face_value' <= 0 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=face_value|default=1000|severity=warn"
     local face_value = 1000
 }
 if `coupon_rate' < 0 | `coupon_rate' > 0.5 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=coupon_rate|default=0.05|severity=warn"
     local coupon_rate = 0.05
 }
 if `ytm' < 0 | `ytm' > 0.5 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=ytm|default=0.05|severity=warn"
     local ytm = 0.05
 }
 if `maturity' <= 0 | `maturity' > 100 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=maturity|default=10|severity=warn"
     local maturity = 10
 }
 if `frequency' < 1 | `frequency' > 12 {
+    display "SS_RC|code=PARAM_DEFAULTED|param=frequency|default=2|severity=warn"
     local frequency = 2
 }
 
@@ -89,6 +103,10 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* Basic sanity / 基础校验（提示性）
+if `coupon_rate' > 0.2 | `ytm' > 0.2 {
+    display "SS_RC|code=CHECK_SCALE|msg=rate_may_be_percent_not_decimal|severity=warn"
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
