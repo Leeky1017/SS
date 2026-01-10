@@ -38,6 +38,26 @@ class PlanArtifactsWriteError(SSError):
             status_code=500,
         )
 
+class PlanTemplateMetaNotFoundError(SSError):
+    def __init__(self, *, job_id: str, template_id: str):
+        super().__init__(
+            error_code="PLAN_TEMPLATE_META_NOT_FOUND",
+            message=f"plan template meta not found: {job_id} (template_id={template_id})",
+            status_code=500,
+        )
+
+
+class PlanTemplateMetaInvalidError(SSError):
+    def __init__(self, *, job_id: str, template_id: str, reason: str):
+        super().__init__(
+            error_code="PLAN_TEMPLATE_META_INVALID",
+            message=(
+                f"plan template meta invalid: {job_id} "
+                f"(template_id={template_id}, reason={reason})"
+            ),
+            status_code=500,
+        )
+
 
 class PlanCompositionInvalidError(SSError):
     def __init__(

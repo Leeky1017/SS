@@ -42,6 +42,8 @@ from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
 
+_V1_SUPPORTED_TEMPLATE_IDS = frozenset({"T01", "T05", "T07", "T09", "T30", "TA14"})
+
 
 @dataclass(frozen=True)
 class DoTemplateSelectionService:
@@ -93,20 +95,38 @@ class DoTemplateSelectionService:
         )
         return result
 
+    def _v1_families_for_prompt(
+        self, *, families: tuple[FamilySummary, ...]
+    ) -> tuple[FamilySummary, ...]:
+        eligible = tuple(
+            family
+            for family in families
+            if any(tid in _V1_SUPPORTED_TEMPLATE_IDS for tid in family.template_ids)
+        )
+        return eligible if eligible else families
+
+    def _filter_v1_supported_templates(
+        self, *, templates: tuple[TemplateSummary, ...]
+    ) -> tuple[TemplateSummary, ...]:
+        filtered = tuple(t for t in templates if t.template_id in _V1_SUPPORTED_TEMPLATE_IDS)
+        return filtered if filtered else templates
+
     async def _select_for_job(self, *, job: Job) -> DoTemplateSelectionResult:
         requirement = job.requirement if job.requirement is not None else ""
         families = self.catalog.list_families()
         if not families:
             raise DoTemplateSelectionNoCandidatesError(stage="stage1")
 
+        families_for_prompt = self._v1_families_for_prompt(families=families)
         stage1, selected_family_ids = await self._select_families(
-            job=job, requirement=requirement, families=families
+            job=job, requirement=requirement, families=families_for_prompt
         )
 
         templates = self.catalog.list_templates(family_ids=selected_family_ids)
         if not templates:
             raise DoTemplateSelectionNoCandidatesError(stage="stage2_templates")
 
+        templates = self._filter_v1_supported_templates(templates=templates)
         ranked = rank_templates(requirement=requirement, templates=templates)
         candidates = trim_templates(
             templates=ranked,

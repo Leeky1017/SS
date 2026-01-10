@@ -301,4 +301,6 @@ from src.infra.plan_exceptions import (  # noqa: E402,F401
     PlanArtifactsWriteError,
     PlanFreezeNotAllowedError,
     PlanMissingError,
+    PlanTemplateMetaInvalidError,
+    PlanTemplateMetaNotFoundError,
 )
