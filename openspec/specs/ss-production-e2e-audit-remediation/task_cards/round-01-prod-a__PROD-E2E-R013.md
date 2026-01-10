@@ -34,6 +34,14 @@
 
 ## Acceptance checklist
 
-- [ ] 成功 run 的 artifacts 中包含：template source/meta/params + stata.do + stata.log + run meta
-- [ ] 缺参时返回结构化错误（不生成错误的 do-file 进入 runner）
-- [ ] E2E 审计旅程可跑通并确认 `template_id != stub_descriptive_v1`
+- [x] 成功 run 的 artifacts 中包含：template source/meta/params + stata.do + stata.log + run meta
+- [x] 缺参时返回结构化错误（不生成错误的 do-file 进入 runner）
+- [x] E2E 审计旅程可跑通并确认 `template_id != stub_descriptive_v1`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/350
+- Deterministic do-template rendering replaces stub do-file path (template library is sole source).
+- Missing required params fails fast with structured error; runner is not invoked.
+- Artifacts archived: template source/meta/params + `stata.do` + `stata.log` + run meta (+ declared outputs).
+- Run log: `openspec/_ops/task_runs/ISSUE-340.md`
