@@ -3,7 +3,7 @@
 - Issue: #280
 - Parent: #125
 - Branch: task/280-phase-4-10-finance-tk
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/291
 
 ## Goal
 - Make TK finance templates run on Stata 18 with fixtures, emit contract-compliant anchors, and follow unified style.
@@ -14,12 +14,11 @@
 - Normalize anchors to `SS_EVENT|k=v` and unify style within TK templates.
 
 ## Status
-- CURRENT: TK01–TK20 smoke suite passes (0 fail); anchors normalized; ready for repo validations + PR delivery.
+- CURRENT: PR #291 merged; finalize task card completion + controlplane sync + worktree cleanup.
 
 ## Next Actions
-- [ ] Run `ruff check .`, `pytest -q`, `openspec validate --specs --strict --no-interactive`.
-- [ ] Run `scripts/agent_pr_preflight.sh`, then commit + push.
-- [ ] Create PR (Closes #280), enable auto-merge, verify merged.
+- [ ] Update `openspec/specs/ss-do-template-optimization/task_cards/phase-4.10__finance-TK.md` acceptance + add `## Completion` with PR + run log.
+- [ ] Sync controlplane `main` to `origin/main`, then clean up worktree.
 
 ## Decisions Made
 - 2026-01-10: Replace legacy `SS_ERROR:`/`SS_ERR:`/`SS_WARNING:` anchors with `SS_RC|...` (warn/fail) and ensure fail-fast paths emit `SS_TASK_END|...|status=fail` via per-template `ss_fail_TKxx`.
@@ -69,3 +68,20 @@
   - `pytest: 162 passed, 5 skipped`
   - `openspec: Totals: 25 passed, 0 failed`
 - Evidence: n/a
+
+### 2026-01-10 12:43 PR 291 (preflight + merge)
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `git push -u origin HEAD`
+  - `gh pr create --title "[PHASE-4.10] TK: Stata 18 audit + anchors (#280)" --body "Closes #280 ..."`
+  - `gh pr edit 291 --body-file /tmp/pr-291-body.md`
+  - `gh pr merge 291 --auto --squash`
+  - `gh pr checks 291 --watch`
+  - `gh pr view 291 --json mergedAt,state,url`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/291`
+  - `checks: ci/openspec-log-guard/merge-serial all successful`
+  - `state: MERGED`
+  - `mergedAt: 2026-01-10T04:43:58Z`
+- Evidence:
+  - https://github.com/Leeky1017/SS/pull/291
