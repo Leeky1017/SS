@@ -1,7 +1,7 @@
 # ISSUE-297
 - Issue: #297 https://github.com/Leeky1017/SS/issues/297
 - Branch: task/297-prod-e2e-r001
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/300
 
 ## Goal
 - In runtime, keep only one authoritative business HTTP surface: `/v1/**` (jobs/draft/bundle/upload-session), removing all non-`/v1` business endpoints (legacy `/jobs/**`), while retaining ops endpoints (`/health/*`, `/metrics`) without business capability.
@@ -20,6 +20,7 @@
 - 2026-01-10: Implement minimal routing change: remove unversioned `api_router` business surface, introduce a dedicated ops router for `/health/*` and `/metrics`.
 
 ## Errors Encountered
+- 2026-01-10: `git push` failed once with `gnutls_handshake() failed: The TLS connection was non-properly terminated.` → retried and it succeeded.
 
 ## Runs
 ### 2026-01-10 Setup: Issue + worktree
@@ -90,3 +91,16 @@
   - `6a07599 fix: remove non-v1 business routes (#297)`
 - Evidence:
   - (this file)
+
+### 2026-01-10 PR: push + preflight + open PR
+- Command:
+  - `git push -u origin HEAD` (retry on transient TLS failure)
+  - `scripts/agent_pr_preflight.sh`
+  - `gh pr create --title "[ROUND-01-PROD-A] PROD-E2E-R001: remove non-/v1 business routes (#297)" --body "Closes #297 ..."`
+- Key output:
+  - `branch 'task/297-prod-e2e-r001' set up to track 'origin/task/297-prod-e2e-r001'.`
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+  - `https://github.com/Leeky1017/SS/pull/300`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/300
