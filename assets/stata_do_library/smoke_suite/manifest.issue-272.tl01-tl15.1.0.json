@@ -1,0 +1,196 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "issue_272_tl01_tl15",
+  "templates": {
+    "TL01": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__TA__": "y",
+        "__REV__": "x",
+        "__PPE__": "x",
+        "__ASSETS__": "y",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TL02": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__TA__": "y",
+        "__REV__": "x",
+        "__REC__": "x",
+        "__PPE__": "x",
+        "__ASSETS__": "y",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TL03": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__TA__": "y",
+        "__REV__": "x",
+        "__REC__": "x",
+        "__PPE__": "x",
+        "__ROA__": "x",
+        "__ASSETS__": "y",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TL04": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__WCA__": "y",
+        "__CFO__": "x",
+        "__ASSETS__": "y",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TL05": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__CFO__": "y",
+        "__PROD__": "x",
+        "__DISEXP__": "x",
+        "__REV__": "x",
+        "__ASSETS__": "y",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TL06": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__CFO__": "y",
+        "__REV__": "x",
+        "__ASSETS__": "y",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TL07": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__PROD__": "y",
+        "__REV__": "x",
+        "__ASSETS__": "y",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TL08": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__DISEXP__": "y",
+        "__REV__": "x",
+        "__ASSETS__": "y",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TL09": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__DSRI__": "y",
+        "__GMI__": "x",
+        "__AQI__": "y",
+        "__SGI__": "x",
+        "__DEPI__": "y",
+        "__SGAI__": "x",
+        "__LVGI__": "y",
+        "__TATA__": "x"
+      }
+    },
+    "TL10": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__RSST__": "y",
+        "__CHG_REC__": "x",
+        "__CHG_INV__": "x",
+        "__SOFT__": "y",
+        "__CHG_CASH__": "x",
+        "__CHG_ROA__": "x",
+        "__ISSUE__": "treat"
+      }
+    },
+    "TL11": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__WC__": "y",
+        "__RE__": "x",
+        "__EBIT__": "y",
+        "__MVE__": "x",
+        "__TL__": "y",
+        "__SALES__": "x",
+        "__TA__": "y"
+      }
+    },
+    "TL12": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__SIZE__": "y",
+        "__TLTA__": "x",
+        "__WCTA__": "y",
+        "__CLCA__": "x",
+        "__OENEG__": "treat",
+        "__NITA__": "y",
+        "__FUTL__": "x",
+        "__INTWO__": "post",
+        "__CHIN__": "x"
+      }
+    },
+    "TL13": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__LNFEE__": "y",
+        "__LNTA__": "x",
+        "__INVREC__": "x",
+        "__LEVERAGE__": "x",
+        "__ROA__": "y",
+        "__LOSS__": "treat",
+        "__BIG4__": "post"
+      }
+    },
+    "TL14": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__GC__": "treat",
+        "__ZSCORE__": "x",
+        "__LOSS__": "post",
+        "__LAGGC__": "post",
+        "__LNTA__": "x",
+        "__LEVERAGE__": "x"
+      }
+    },
+    "TL15": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TL_common/sample_data.csv" }],
+      "params": {
+        "__ICW__": "treat",
+        "__LNTA__": "x",
+        "__SEGMENTS__": "y",
+        "__FOREIGN__": "post",
+        "__GROWTH__": "x",
+        "__RESTRUCTURE__": "post",
+        "__LOSS__": "treat"
+      }
+    }
+  }
+}
+
