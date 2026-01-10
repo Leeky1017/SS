@@ -1,19 +1,19 @@
 # ISSUE-267
 - Issue: #267
 - Branch: task/267-llm-draft-vars
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/268
 
 ## Goal
 - Make `/v1/jobs/{job_id}/draft/preview` populate `outcome_var` / `treatment_var` / `controls` from Claude Opus 4.5 output (while keeping stub/non-JSON fallback behavior).
 
 ## Status
-- CURRENT: Started (worktree + task scaffold).
+- CURRENT: PR opened; waiting for required checks + auto-merge.
 
 ## Next Actions
-- [ ] Add draft-preview prompt builder (requirement + column candidates) and JSON parser into Draft fields.
-- [ ] Add unit tests for JSON parsing + persistence.
-- [ ] Run `ruff check .` and `pytest -q`.
-- [ ] Open PR (Closes #267) and enable auto-merge.
+- [x] Add draft-preview prompt builder (requirement + column candidates) and JSON parser into Draft fields.
+- [x] Add unit tests for JSON parsing + persistence.
+- [x] Run `ruff check .` and `pytest -q`.
+- [ ] Enable auto-merge; verify merged; sync + cleanup worktree.
 
 ## Decisions Made
 - 2026-01-10: Prefer "JSON-only" LLM output for structured draft fields, but keep non-JSON compatibility for stub/fallback.
@@ -56,3 +56,13 @@
   - `162 passed, 5 skipped`
 - Evidence:
   - N/A
+
+### 2026-01-10 Preflight + PR
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+  - `gh pr create ...`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `https://github.com/Leeky1017/SS/pull/268`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/268
