@@ -1,7 +1,7 @@
 # ISSUE-313
 - Issue: #313
 - Branch: task/313-ssc-stcure-deps
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/321
 
 ## Plan
 - Add Stata SSC dependency list for remote servers
