@@ -33,6 +33,14 @@
 
 ## Acceptance checklist
 
-- [ ] `/v1` 链路中存在被注入并实际使用的 `DoTemplateCatalog` 与 `DoTemplateRepository`
-- [ ] 配置路径仅来自 `src/config.py`（无散落 env 读取）
-- [ ] 增加单元测试：给定一个 library_dir，可列出 templates 且可读取 template+meta（不依赖网络）
+- [x] `/v1` 链路中存在被注入并实际使用的 `DoTemplateCatalog` 与 `DoTemplateRepository`
+- [x] 配置路径仅来自 `src/config.py`（无散落 env 读取）
+- [x] 增加单元测试：给定一个 library_dir，可列出 templates 且可读取 template+meta（不依赖网络）
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/309
+- `/v1`（API deps）与 worker 组装层通过显式 DI 接入 `FileSystemDoTemplateCatalog` / `FileSystemDoTemplateRepository`
+- `SS_DO_TEMPLATE_LIBRARY_DIR` 仅从 `src/config.py` 读取作为唯一库路径来源
+- 增加 FS catalog/repo 单元测试：可列出 templates 且可读取 template + meta
+- Run log: `openspec/_ops/task_runs/ISSUE-299.md`
