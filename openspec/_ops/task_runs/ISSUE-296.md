@@ -1,7 +1,7 @@
 # ISSUE-296
 - Issue: #296
 - Branch: task/296-phase-5-10-tk
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/303
 
 ## Plan
 - Add best-practice review blocks to TK templates
