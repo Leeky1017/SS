@@ -1,7 +1,7 @@
 # ISSUE-314
 - Issue: #314 https://github.com/Leeky1017/SS/issues/314
 - Branch: task/314-prod-e2e-r002-redeem-only
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/322
 
 ## Goal
 - Make `POST /v1/task-codes/redeem` the only v1 job creation entrypoint by removing legacy `POST /v1/jobs` and its config toggle `v1_enable_legacy_post_jobs`, and updating all callers.
@@ -62,3 +62,11 @@
   - `OK: no hard dependencies found in execution plan`
 - Evidence:
   - (this file)
+
+### 2026-01-10 PR: open
+- Command:
+  - `gh pr create --title "[ROUND-01-PROD-A] PROD-E2E-R002: redeem-only job creation (#314)" --body "Closes #314 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/322`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/322
