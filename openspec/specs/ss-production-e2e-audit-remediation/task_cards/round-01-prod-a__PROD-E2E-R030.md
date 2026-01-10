@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #341
 - Spec: `openspec/specs/ss-production-e2e-audit-remediation/spec.md`
 - Audit evidence: `openspec/_ops/task_runs/ISSUE-274.md` (F003)
 - Related specs:
@@ -41,4 +41,3 @@
 - [ ] 构造缺参输入时，plan freeze 必定失败且返回结构化错误（单元测试 + 集成测试）
 - [ ] 修复缺参后，plan freeze 成功且 plan 契约完整
 - [ ] 审计 spec 的 “Missing parameters yield structured errors” 场景可 PASS
-
