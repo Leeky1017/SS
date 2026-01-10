@@ -1,7 +1,7 @@
 # ISSUE-339
 - Issue: #339
 - Branch: task/339-deploy-minio-r003
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/343
 
 ## Plan
 - Add repeatable Docker+MinIO uploads selfcheck (direct + multipart).
@@ -28,3 +28,13 @@
 - Command: `cd openspec/specs/ss-deployment-docker-minio/assets && cp -f .env.example .env && bash uploads_e2e_selfcheck.sh`
 - Key output: `ERROR: command failed: docker compose version (docker not available in this environment)`
 - Evidence: `openspec/specs/ss-deployment-docker-minio/assets/uploads_e2e_selfcheck.sh`
+
+### 2026-01-10 19:20 pr preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs; OK: no hard dependencies found in execution plan`
+- Evidence: `scripts/agent_pr_preflight.sh`
+
+### 2026-01-10 19:22 pr create
+- Command: `gh pr create --title "[ROUND-01-OPS-A] DEPLOY-MINIO-R003: Docker+MinIO uploads selfcheck (#339)" --body "Closes #339 ..."`
+- Key output: `https://github.com/Leeky1017/SS/pull/343`
+- Evidence: `openspec/_ops/task_runs/ISSUE-339.md`
