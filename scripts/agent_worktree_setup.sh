@@ -9,6 +9,14 @@ if [[ -z "$N" || -z "$SLUG" ]]; then
   exit 2
 fi
 
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+if [[ "$(pwd -P)" != "$(cd "$REPO_ROOT" && pwd -P)" ]]; then
+  echo "ERROR: run this script from the repo root: $REPO_ROOT" >&2
+  exit 2
+fi
+
+scripts/agent_controlplane_sync.sh
+
 if [[ ! "$N" =~ ^[0-9]+$ ]]; then
   echo "ERROR: issue-number must be numeric, got: $N" >&2
   exit 2
