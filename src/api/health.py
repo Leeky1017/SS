@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from src.api.deps import get_config, get_llm_client
 from src.api.schemas import HealthCheck, HealthResponse
 from src.config import Config
-from src.domain.health_service import HealthService
+from src.domain.health_service import HealthService, ProductionGateConfig
 from src.domain.llm_client import LLMClient
 from src.utils.time import utc_now
 
@@ -32,7 +32,25 @@ async def health_ready(
     config: Config = Depends(get_config),
     llm: LLMClient = Depends(get_llm_client),
 ) -> HealthResponse | JSONResponse:
-    service = HealthService(jobs_dir=config.jobs_dir, queue_dir=config.queue_dir, llm=llm)
+    gate = ProductionGateConfig(
+        is_production=config.is_production(),
+        ss_env=config.ss_env,
+        llm_provider=config.llm_provider,
+        llm_api_key=config.llm_api_key,
+        llm_base_url=config.llm_base_url,
+        llm_model=config.llm_model,
+        stata_cmd=config.stata_cmd,
+        upload_object_store_backend=config.upload_object_store_backend,
+        upload_s3_bucket=config.upload_s3_bucket,
+        upload_s3_access_key_id=config.upload_s3_access_key_id,
+        upload_s3_secret_access_key=config.upload_s3_secret_access_key,
+    )
+    service = HealthService(
+        jobs_dir=config.jobs_dir,
+        queue_dir=config.queue_dir,
+        llm=llm,
+        production_gate=gate,
+    )
     report = service.readiness(
         shutting_down=bool(getattr(request.app.state, "shutting_down", False))
     )
