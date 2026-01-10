@@ -1,7 +1,7 @@
 # ISSUE-315
 - Issue: #315 https://github.com/Leeky1017/SS/issues/315
 - Branch: task/315-prod-e2e-r043
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/318
 
 ## Plan
 - Remove runtime FakeObjectStore wiring; enforce S3-only backend.
