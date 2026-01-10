@@ -4,7 +4,7 @@
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TK14_metrics.csv type=table desc="Risk metrics"
-*   - fig_TK14_drawdown.png type=figure desc="Drawdown chart"
+*   - fig_TK14_drawdown.png type=graph desc="Drawdown chart"
 *   - data_TK14_risk.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -12,7 +12,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -22,8 +26,24 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TK14
+    args code cmd msg detail step
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    if "`step'" != "" & "`step'" != "." {
+        display "SS_STEP_END|step=`step'|status=fail|elapsed_sec=0"
+    }
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|detail=`detail'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TK14|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TK14|level=L1|title=Sharpe_Sortino"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -63,10 +83,7 @@ display "    频率: `frequency' (年化因子=`ann_factor')"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TK14 601 confirm_file file_not_found data.csv S01_load_data
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -81,10 +98,7 @@ tsset t
 * ============ 变量检查 ============
 capture confirm numeric variable `return_var'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`return_var' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`return_var' not found"
-    log close
-    exit 200
+    ss_fail_TK14 200 confirm_variable var_not_found `return_var' S02_validate_inputs
 }
 
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
@@ -233,7 +247,7 @@ twoway (area drawdown t, color(red%50)), ///
     title("投资组合回撤") ///
     note("最大回撤=" %5.2f `=`max_drawdown'*100' "%")
 graph export "fig_TK14_drawdown.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK14_drawdown.png|type=figure|desc=drawdown_chart"
+display "SS_OUTPUT_FILE|file=fig_TK14_drawdown.png|type=graph|desc=drawdown_chart"
 
 * ============ 输出结果 ============
 local n_output = _N

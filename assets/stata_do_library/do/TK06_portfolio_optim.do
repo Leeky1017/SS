@@ -5,7 +5,7 @@
 * OUTPUTS:
 *   - table_TK06_weights.csv type=table desc="Optimal weights"
 *   - table_TK06_frontier.csv type=table desc="Efficient frontier"
-*   - fig_TK06_frontier.png type=figure desc="Frontier plot"
+*   - fig_TK06_frontier.png type=graph desc="Frontier plot"
 *   - data_TK06_portfolio.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -13,7 +13,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -23,8 +27,24 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TK06
+    args code cmd msg detail step
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    if "`step'" != "" & "`step'" != "." {
+        display "SS_STEP_END|step=`step'|status=fail|elapsed_sec=0"
+    }
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|detail=`detail'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TK06|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TK06|level=L2|title=Portfolio_Optim"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -53,10 +73,7 @@ display "    允许卖空: `short_allowed'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TK06 601 confirm_file file_not_found data.csv S01_load_data
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -77,10 +94,7 @@ foreach var of local asset_vars {
 }
 
 if `n_assets' < 2 {
-    display "SS_ERROR:FEW_ASSETS:Need at least 2 assets"
-    display "SS_ERR:FEW_ASSETS:Need at least 2 assets"
-    log close
-    exit 198
+    ss_fail_TK06 198 validate_assets too_few_assets n_assets_lt_2 S02_validate_inputs
 }
 
 display ">>> 有效资产数: `n_assets'"
@@ -127,9 +141,15 @@ display "═══════════════════════�
 
 * 计算最小方差组合权重: w = Sigma^(-1) * 1 / (1' * Sigma^(-1) * 1)
 matrix ones = J(`n_assets', 1, 1)
-matrix Sigma_inv = inv(Sigma)
+capture matrix Sigma_inv = syminv(Sigma)
+local rc_inv = _rc
+if `rc_inv' != 0 {
+    display "SS_RC|code=`rc_inv'|cmd=syminv|msg=cov_matrix_inversion_failed|severity=warn"
+    matrix Sigma_inv = I(`n_assets')
+}
 matrix w_mv_num = Sigma_inv * ones
-scalar denom = ones' * Sigma_inv * ones
+matrix denom_mv = ones' * Sigma_inv * ones
+scalar denom = denom_mv[1,1]
 matrix w_mv = w_mv_num / denom
 
 * 计算组合收益和风险
@@ -164,7 +184,8 @@ matrix mu_excess = mu - `rf_rate' * J(1, `n_assets', 1)
 
 * 切点组合权重: w = Sigma^(-1) * (mu - rf) / (1' * Sigma^(-1) * (mu - rf))
 matrix w_tan_num = Sigma_inv * mu_excess'
-scalar denom_tan = ones' * w_tan_num
+matrix denom_tan_m = ones' * w_tan_num
+scalar denom_tan = denom_tan_m[1,1]
 matrix w_tan = w_tan_num / denom_tan
 
 * 计算组合收益和风险
@@ -285,12 +306,16 @@ twoway (line target_ret port_sd in 1/`=_N-2', lcolor(navy) lwidth(medium)) ///
        title("Markowitz有效前沿") ///
        note("无风险利率=`rf_rate'")
 graph export "fig_TK06_frontier.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK06_frontier.png|type=figure|desc=frontier_plot"
+display "SS_OUTPUT_FILE|file=fig_TK06_frontier.png|type=graph|desc=frontier_plot"
 restore
 
 * 清理
 capture erase "temp_frontier.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 
 * ============ 输出结果 ============
 local n_output = _N

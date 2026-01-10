@@ -1,4 +1,4 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TK03  level=L2  module=K  title="Event Study"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -6,7 +6,7 @@
 * OUTPUTS:
 *   - table_TK03_car_result.csv type=table desc="CAR results"
 *   - table_TK03_daily_ar.csv type=table desc="Daily AR"
-*   - fig_TK03_car_plot.png type=figure desc="CAR plot"
+*   - fig_TK03_car_plot.png type=graph desc="CAR plot"
 *   - data_TK03_event.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -14,7 +14,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -24,8 +28,24 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TK03
+    args code cmd msg detail step
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    if "`step'" != "" & "`step'" != "." {
+        display "SS_STEP_END|step=`step'|status=fail|elapsed_sec=0"
+    }
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|detail=`detail'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TK03|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TK03|level=L2|title=Event_Study"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -64,10 +84,7 @@ display "    估计窗口: `est_window' 天"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TK03 601 confirm_file file_not_found data.csv S01_load_data
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -82,14 +99,13 @@ save `returns_data'
 * 加载事件数据
 capture confirm file "events.csv"
 if _rc {
-    display "SS_WARNING:NO_EVENTS:events.csv not found, using sample events"
-    * 创建示例事件
+    display "SS_RC|code=0|cmd=confirm_file|msg=events_not_found_using_sample|detail=events.csv|severity=warn"
+    * 创建示例事件：每只股票取样本中位时点（与 `date_var' 同尺度）
     preserve
-    clear
-    set obs 10
-    generate `stock_id' = _n
-    generate event_date = date("2020-06-15", "YMD")
-    format event_date %td
+    use `returns_data', clear
+    keep `stock_id' `date_var'
+    bysort `stock_id' (`date_var'): keep if _n == ceil(_N/2)
+    rename `date_var' event_date
     tempfile events_data
     save `events_data'
     restore
@@ -108,15 +124,23 @@ use `returns_data', clear
 foreach var in `return_var' `market_var' `stock_id' `date_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
-        log close
-        exit 200
+        ss_fail_TK03 200 confirm_variable var_not_found `var' S02_validate_inputs
     }
 }
 
-* 设置面板
-ss_smart_xtset `stock_id' `date_var'
+* 设置面板/时间序列（供 L. 等运算）
+capture xtset `stock_id' `date_var'
+local rc_xtset = _rc
+if `rc_xtset' != 0 {
+    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed_trying_fallback|severity=warn"
+    sort `stock_id' `date_var'
+    bysort `stock_id': gen long ss_time_index = _n
+    capture xtset `stock_id' ss_time_index
+    local rc_xtset2 = _rc
+    if `rc_xtset2' != 0 {
+        ss_fail_TK03 459 xtset xtset_failed panel_set S02_validate_inputs
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -154,15 +178,19 @@ local n_events : word count `event_stocks'
 
 foreach s of local event_stocks {
     * 估计窗口：事件前est_window天到事件前pre_event-1天
-    quietly regress `return_var' `market_var' if `stock_id' == `s' & ///
+    capture quietly regress `return_var' `market_var' if `stock_id' == `s' & ///
         event_time < `pre_event' & event_time >= (`pre_event' - `est_window')
-    
-    if e(N) >= 30 {
+    local rc_reg = _rc
+
+    if `rc_reg' == 0 & e(N) >= 30 {
         * 预测正常收益
-        predict double temp_pred if `stock_id' == `s', xb
-        replace predicted_ret = temp_pred if `stock_id' == `s'
-        drop temp_pred
-        
+        capture predict double temp_pred if `stock_id' == `s', xb
+        local rc_pred = _rc
+        if `rc_pred' == 0 {
+            replace predicted_ret = temp_pred if `stock_id' == `s'
+            drop temp_pred
+        }
+
         * 计算异常收益
         replace ar = `return_var' - predicted_ret if `stock_id' == `s'
     }
@@ -223,29 +251,56 @@ display "窗口              CAR        标准误      t值      p值"
 display "───────────────────────────────────────────────────────"
 
 * CAR[-1,1]
-quietly summarize car if event_time == 1
-local car_11 = r(mean)
-local se_11 = r(sd) / sqrt(r(N))
-local t_11 = `car_11' / `se_11'
-local p_11 = 2 * (1 - normal(abs(`t_11')))
+quietly count if event_time == 1 & car < .
+if r(N) > 1 {
+    quietly summarize car if event_time == 1
+    local car_11 = r(mean)
+    local se_11 = r(sd) / sqrt(r(N))
+    local t_11 = `car_11' / `se_11'
+    local p_11 = 2 * (1 - normal(abs(`t_11')))
+}
+else {
+    local car_11 = .
+    local se_11 = .
+    local t_11 = .
+    local p_11 = .
+}
 post `car_results' ("[-1,1]") (`car_11') (`se_11') (`t_11') (`p_11') (`n_events')
 display "CAR[-1,1]      " %10.6f `car_11' "  " %10.6f `se_11' "  " %6.2f `t_11' "  " %6.4f `p_11'
 
 * CAR[-5,5]
-quietly summarize car if event_time == 5
-local car_55 = r(mean)
-local se_55 = r(sd) / sqrt(r(N))
-local t_55 = `car_55' / `se_55'
-local p_55 = 2 * (1 - normal(abs(`t_55')))
+quietly count if event_time == 5 & car < .
+if r(N) > 1 {
+    quietly summarize car if event_time == 5
+    local car_55 = r(mean)
+    local se_55 = r(sd) / sqrt(r(N))
+    local t_55 = `car_55' / `se_55'
+    local p_55 = 2 * (1 - normal(abs(`t_55')))
+}
+else {
+    local car_55 = .
+    local se_55 = .
+    local t_55 = .
+    local p_55 = .
+}
 post `car_results' ("[-5,5]") (`car_55') (`se_55') (`t_55') (`p_55') (`n_events')
 display "CAR[-5,5]      " %10.6f `car_55' "  " %10.6f `se_55' "  " %6.2f `t_55' "  " %6.4f `p_55'
 
 * CAR[0,10]
-quietly summarize car if event_time == `post_event'
-local car_full = r(mean)
-local se_full = r(sd) / sqrt(r(N))
-local t_full = `car_full' / `se_full'
-local p_full = 2 * (1 - normal(abs(`t_full')))
+quietly count if event_time == `post_event' & car < .
+if r(N) > 1 {
+    quietly summarize car if event_time == `post_event'
+    local car_full = r(mean)
+    local se_full = r(sd) / sqrt(r(N))
+    local t_full = `car_full' / `se_full'
+    local p_full = 2 * (1 - normal(abs(`t_full')))
+}
+else {
+    local car_full = .
+    local se_full = .
+    local t_full = .
+    local p_full = .
+}
 post `car_results' ("[`pre_event',`post_event']") (`car_full') (`se_full') (`t_full') (`p_full') (`n_events')
 display "CAR[`pre_event',`post_event']     " %10.6f `car_full' "  " %10.6f `se_full' "  " %6.2f `t_full' "  " %6.4f `p_full'
 
@@ -285,7 +340,7 @@ twoway (rarea ci_lower ci_upper event_time, color(navy%20)) ///
        legend(off) ///
        note("红色虚线=事件日, 阴影=95%置信区间")
 graph export "fig_TK03_car_plot.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK03_car_plot.png|type=figure|desc=car_plot"
+display "SS_OUTPUT_FILE|file=fig_TK03_car_plot.png|type=graph|desc=car_plot"
 restore
 
 * ============ 输出结果 ============
@@ -297,9 +352,17 @@ display "SS_OUTPUT_FILE|file=data_TK03_event.dta|type=data|desc=event_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 capture erase "temp_daily_ar.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 capture erase "temp_car_results.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 
 * ============ 任务完成摘要 ============
 display ""

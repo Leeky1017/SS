@@ -5,7 +5,7 @@
 * OUTPUTS:
 *   - table_TK04_garch_result.csv type=table desc="GARCH results"
 *   - table_TK04_volatility.csv type=table desc="Volatility series"
-*   - fig_TK04_volatility.png type=figure desc="Volatility plot"
+*   - fig_TK04_volatility.png type=graph desc="Volatility plot"
 *   - data_TK04_garch.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -13,7 +13,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -23,8 +27,24 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TK04
+    args code cmd msg detail step
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    if "`step'" != "" & "`step'" != "." {
+        display "SS_STEP_END|step=`step'|status=fail|elapsed_sec=0"
+    }
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|detail=`detail'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TK04|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TK04|level=L2|title=GARCH_Model"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -57,10 +77,7 @@ display "    分布: `dist'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TK04 601 confirm_file file_not_found data.csv S01_load_data
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -72,10 +89,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 * ============ 变量检查 ============
 capture confirm numeric variable `return_var'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`return_var' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`return_var' not found"
-    log close
-    exit 200
+    ss_fail_TK04 200 confirm_variable var_not_found `return_var' S02_validate_inputs
 }
 
 * 设置时间序列
@@ -105,27 +119,56 @@ display "    偏度: " %12.4f `skew'
 display "    峰度: " %12.4f `kurt'
 
 * 检验ARCH效应
-quietly regress `return_var' L.`return_var'
-predict resid, residuals
-generate resid2 = resid^2
+capture quietly regress `return_var' L.`return_var'
+local rc_arch_reg = _rc
+if `rc_arch_reg' != 0 {
+    display "SS_RC|code=`rc_arch_reg'|cmd=regress|msg=arch_test_regression_failed|severity=warn"
+    local arch_f = .
+    local arch_p = .
+}
+else {
+    capture predict double resid, residuals
+    generate double resid2 = resid^2
 
-quietly regress resid2 L(1/5).resid2
-local arch_f = e(F)
-local arch_p = Ftail(5, e(df_r), `arch_f')
+    quietly count if resid2 < . & L1.resid2 < . & L2.resid2 < . & L3.resid2 < . & L4.resid2 < . & L5.resid2 < .
+    if r(N) >= 10 {
+        capture quietly regress resid2 L(1/5).resid2
+        local rc_arch_lm = _rc
+        if `rc_arch_lm' != 0 {
+            display "SS_RC|code=`rc_arch_lm'|cmd=regress|msg=arch_lm_failed|severity=warn"
+            local arch_f = .
+            local arch_p = .
+        }
+        else {
+            local arch_f = e(F)
+            local arch_p = Ftail(5, e(df_r), `arch_f')
+        }
+    }
+    else {
+        display "SS_RC|code=0|cmd=arch_lm_test|msg=arch_test_skipped_insufficient_obs|detail=arch_lm|severity=warn"
+        local arch_f = .
+        local arch_p = .
+    }
+
+    drop resid resid2
+}
 
 display ""
 display ">>> ARCH效应检验:"
-display "    LM统计量(5阶): " %10.4f `arch_f'
-display "    p值: " %10.4f `arch_p'
-
-if `arch_p' < 0.05 {
-    display "    结论: 存在显著ARCH效应"
+if missing(`arch_p') {
+    display "SS_RC|code=0|cmd=arch_lm_test|msg=arch_test_unavailable|detail=arch_lm|severity=warn"
 }
 else {
-    display "SS_WARNING:NO_ARCH:No significant ARCH effect detected"
-}
+    display "    LM统计量(5阶): " %10.4f `arch_f'
+    display "    p值: " %10.4f `arch_p'
 
-drop resid resid2
+    if `arch_p' < 0.05 {
+        display "    结论: 存在显著ARCH效应"
+    }
+    else {
+        display "SS_RC|code=0|cmd=arch_lm_test|msg=no_significant_arch_detected|detail=arch_lm|severity=warn"
+    }
+}
 
 * ============ GARCH模型估计 ============
 display ""
@@ -133,76 +176,106 @@ display "═══════════════════════�
 display "SECTION 2: GARCH模型估计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
+local arch_ok = 1
+local rc_arch = 0
+
 * 构建模型命令
 if "`model'" == "garch" {
     display ">>> 估计GARCH(`p',`q')模型..."
     if "`dist'" == "t" {
-        arch `return_var', arch(`p') garch(`q') distribution(t)
+        capture quietly arch `return_var', arch(`p') garch(`q') distribution(t)
     }
     else {
-        arch `return_var', arch(`p') garch(`q')
+        capture quietly arch `return_var', arch(`p') garch(`q')
     }
+    local rc_arch = _rc
 }
 else if "`model'" == "egarch" {
     display ">>> 估计EGARCH(`p',`q')模型..."
     if "`dist'" == "t" {
-        arch `return_var', earch(`p') egarch(`q') distribution(t)
+        capture quietly arch `return_var', earch(`p') egarch(`q') distribution(t)
     }
     else {
-        arch `return_var', earch(`p') egarch(`q')
+        capture quietly arch `return_var', earch(`p') egarch(`q')
     }
+    local rc_arch = _rc
 }
 else {
     display ">>> 估计GJR-GARCH(`p',`q')模型..."
     if "`dist'" == "t" {
-        arch `return_var', arch(`p') garch(`q') tarch(`p') distribution(t)
+        capture quietly arch `return_var', arch(`p') garch(`q') tarch(`p') distribution(t)
     }
     else {
-        arch `return_var', arch(`p') garch(`q') tarch(`p')
+        capture quietly arch `return_var', arch(`p') garch(`q') tarch(`p')
     }
+    local rc_arch = _rc
 }
 
-* 提取参数
-local ll = e(ll)
-local aic = -2 * `ll' + 2 * e(k)
-local bic = -2 * `ll' + ln(e(N)) * e(k)
-
-display ""
-display ">>> 模型拟合统计:"
-display "    对数似然: " %12.4f `ll'
-display "    AIC: " %12.4f `aic'
-display "    BIC: " %12.4f `bic'
-
-display "SS_METRIC|name=ll|value=`ll'"
-display "SS_METRIC|name=aic|value=`aic'"
-display "SS_METRIC|name=bic|value=`bic'"
-
-* 保存参数估计
-tempname garch_params
-postfile `garch_params' str20 parameter double estimate double se double z double p ///
-    using "temp_garch_params.dta", replace
-
-matrix b = e(b)
-matrix V = e(V)
-local varnames : colnames b
-local nvars : word count `varnames'
-
-forvalues i = 1/`nvars' {
-    local vname : word `i' of `varnames'
-    local coef = b[1, `i']
-    local se = sqrt(V[`i', `i'])
-    local z = `coef' / `se'
-    local p = 2 * (1 - normal(abs(`z')))
-    post `garch_params' ("`vname'") (`coef') (`se') (`z') (`p')
+if `rc_arch' != 0 {
+    local arch_ok = 0
+    display "SS_RC|code=`rc_arch'|cmd=arch|msg=arch_failed|severity=warn"
 }
 
-postclose `garch_params'
+if `arch_ok' {
+    * 提取参数
+    local ll = e(ll)
+    local aic = -2 * `ll' + 2 * e(k)
+    local bic = -2 * `ll' + ln(e(N)) * e(k)
 
-preserve
-use "temp_garch_params.dta", clear
-export delimited using "table_TK04_garch_result.csv", replace
-display "SS_OUTPUT_FILE|file=table_TK04_garch_result.csv|type=table|desc=garch_results"
-restore
+    display ""
+    display ">>> 模型拟合统计:"
+    display "    对数似然: " %12.4f `ll'
+    display "    AIC: " %12.4f `aic'
+    display "    BIC: " %12.4f `bic'
+
+    display "SS_METRIC|name=ll|value=`ll'"
+    display "SS_METRIC|name=aic|value=`aic'"
+    display "SS_METRIC|name=bic|value=`bic'"
+
+    * 保存参数估计
+    tempname garch_params
+    postfile `garch_params' str20 parameter double estimate double se double z double p ///
+        using "temp_garch_params.dta", replace
+
+    matrix b = e(b)
+    matrix V = e(V)
+    local varnames : colnames b
+    local nvars : word count `varnames'
+
+    forvalues i = 1/`nvars' {
+        local vname : word `i' of `varnames'
+        local coef = b[1, `i']
+        local se = sqrt(V[`i', `i'])
+        local z = `coef' / `se'
+        local p = 2 * (1 - normal(abs(`z')))
+        post `garch_params' ("`vname'") (`coef') (`se') (`z') (`p')
+    }
+
+    postclose `garch_params'
+
+    preserve
+    use "temp_garch_params.dta", clear
+    export delimited using "table_TK04_garch_result.csv", replace
+    display "SS_OUTPUT_FILE|file=table_TK04_garch_result.csv|type=table|desc=garch_results"
+    restore
+}
+else {
+    local ll = .
+    local aic = .
+    local bic = .
+
+    preserve
+    clear
+    set obs 1
+    generate str20 parameter = "arch_failed"
+    generate double estimate = .
+    generate double se = .
+    generate double z = .
+    generate double p = .
+    export delimited using "table_TK04_garch_result.csv", replace
+    display "SS_OUTPUT_FILE|file=table_TK04_garch_result.csv|type=table|desc=garch_results"
+    restore
+}
 
 * ============ 计算条件波动率 ============
 display ""
@@ -210,8 +283,16 @@ display "═══════════════════════�
 display "SECTION 3: 条件波动率"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-predict double cond_var, variance
-generate double cond_vol = sqrt(cond_var)
+capture drop cond_var
+capture drop cond_vol
+if `arch_ok' {
+    predict double cond_var, variance
+    generate double cond_vol = sqrt(cond_var)
+}
+else {
+    generate double cond_vol = abs(`return_var' - `mean_ret')
+    generate double cond_var = cond_vol^2
+}
 label variable cond_vol "条件波动率"
 
 quietly summarize cond_vol
@@ -245,37 +326,45 @@ twoway (line cond_vol t, lcolor(navy) lwidth(thin)), ///
     title("`model'(`p',`q')条件波动率") ///
     note("分布: `dist'")
 graph export "fig_TK04_volatility.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK04_volatility.png|type=figure|desc=volatility_plot"
+display "SS_OUTPUT_FILE|file=fig_TK04_volatility.png|type=graph|desc=volatility_plot"
 
-* ============ 模型诊断 ============
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
-display "SECTION 5: 模型诊断"
-display "═══════════════════════════════════════════════════════════════════════════════"
+if `arch_ok' {
+    * ============ 模型诊断 ============
+    display ""
+    display "═══════════════════════════════════════════════════════════════════════════════"
+    display "SECTION 5: 模型诊断"
+    display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 标准化残差
-predict double std_resid, residuals
-replace std_resid = std_resid / cond_vol
+    * 标准化残差
+    predict double std_resid, residuals
+    replace std_resid = std_resid / cond_vol
 
-* 检验标准化残差的ARCH效应
-generate std_resid2 = std_resid^2
-quietly regress std_resid2 L(1/5).std_resid2
-local arch_f_post = e(F)
-local arch_p_post = Ftail(5, e(df_r), `arch_f_post')
+    * 检验标准化残差的ARCH效应
+    generate std_resid2 = std_resid^2
+    capture quietly regress std_resid2 L(1/5).std_resid2
+    local rc_arch_post = _rc
+    if `rc_arch_post' == 0 {
+        local arch_f_post = e(F)
+        local arch_p_post = Ftail(5, e(df_r), `arch_f_post')
 
-display ""
-display ">>> 标准化残差ARCH检验:"
-display "    LM统计量(5阶): " %10.4f `arch_f_post'
-display "    p值: " %10.4f `arch_p_post'
+        display ""
+        display ">>> 标准化残差ARCH检验:"
+        display "    LM统计量(5阶): " %10.4f `arch_f_post'
+        display "    p值: " %10.4f `arch_p_post'
 
-if `arch_p_post' >= 0.05 {
-    display "    结论: 模型充分捕获了ARCH效应"
+        if `arch_p_post' >= 0.05 {
+            display "    结论: 模型充分捕获了ARCH效应"
+        }
+        else {
+            display "SS_RC|code=0|cmd=arch_lm_test|msg=residual_arch_effect_remains|detail=arch_lm|severity=warn"
+        }
+    }
+    else {
+        display "SS_RC|code=`rc_arch_post'|cmd=regress|msg=residual_arch_test_failed|severity=warn"
+    }
+
+    drop std_resid std_resid2
 }
-else {
-    display "SS_WARNING:RESIDUAL_ARCH:Residual ARCH effect remains"
-}
-
-drop std_resid std_resid2
 
 * ============ 输出结果 ============
 local n_output = _N
@@ -286,7 +375,11 @@ display "SS_OUTPUT_FILE|file=data_TK04_garch.dta|type=data|desc=garch_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 capture erase "temp_garch_params.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 
 * ============ 任务完成摘要 ============
 display ""

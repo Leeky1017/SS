@@ -5,7 +5,7 @@
 * OUTPUTS:
 *   - table_TK02_ff_result.csv type=table desc="FF results"
 *   - table_TK02_factor_loadings.csv type=table desc="Factor loadings"
-*   - fig_TK02_alpha_dist.png type=figure desc="Alpha distribution"
+*   - fig_TK02_alpha_dist.png type=graph desc="Alpha distribution"
 *   - data_TK02_ff.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -13,7 +13,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -23,8 +27,24 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TK02
+    args code cmd msg detail step
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    if "`step'" != "" & "`step'" != "." {
+        display "SS_STEP_END|step=`step'|status=fail|elapsed_sec=0"
+    }
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|detail=`detail'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TK02|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TK02|level=L2|title=FF_Model"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -59,10 +79,7 @@ else {
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TK02 601 confirm_file file_not_found data.csv S01_load_data
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -75,10 +92,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `return_var' `mkt_var' `smb_var' `hml_var' `stock_id' {
     capture confirm numeric variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
-        log close
-        exit 200
+        ss_fail_TK02 200 confirm_variable var_not_found `var' S02_validate_inputs
     }
 }
 
@@ -86,14 +100,14 @@ if `is_five_factor' {
     foreach var in `rmw_var' `cma_var' {
         capture confirm numeric variable `var'
         if _rc {
-            display "SS_WARNING:FACTOR_NOT_FOUND:`var' not found, using 3-factor"
+            display "SS_RC|code=0|cmd=confirm_variable|msg=factor_not_found_fallback_to_3_factor|detail=`var'|severity=warn"
             local is_five_factor = 0
         }
     }
 }
 
-quietly distinct `stock_id'
-local n_stocks = r(ndistinct)
+quietly levelsof `stock_id', local(stocks)
+local n_stocks : word count `stocks'
 display ">>> 股票数: `n_stocks'"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
@@ -118,8 +132,6 @@ else {
         double r2 double adj_r2 long n_obs ///
         using "temp_ff_results.dta", replace
 }
-
-quietly levelsof `stock_id', local(stocks)
 
 display ""
 if `is_five_factor' {
@@ -226,7 +238,6 @@ export delimited using "table_TK02_ff_result.csv", replace
 display "SS_OUTPUT_FILE|file=table_TK02_ff_result.csv|type=table|desc=ff_results"
 
 * 导出因子载荷摘要
-preserve
 clear
 set obs 5
 generate str10 factor = ""
@@ -249,7 +260,7 @@ if `is_five_factor' {
 
 export delimited using "table_TK02_factor_loadings.csv", replace
 display "SS_OUTPUT_FILE|file=table_TK02_factor_loadings.csv|type=table|desc=factor_loadings"
-restore
+use "temp_ff_results.dta", clear
 
 * 生成Alpha分布图
 histogram alpha, bin(20) normal ///
@@ -258,7 +269,7 @@ histogram alpha, bin(20) normal ///
     xline(0, lcolor(red) lpattern(dash)) ///
     note("红线=零Alpha")
 graph export "fig_TK02_alpha_dist.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK02_alpha_dist.png|type=figure|desc=alpha_dist"
+display "SS_OUTPUT_FILE|file=fig_TK02_alpha_dist.png|type=graph|desc=alpha_dist"
 
 restore
 
@@ -271,7 +282,11 @@ display "SS_OUTPUT_FILE|file=data_TK02_ff.dta|type=data|desc=ff_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 capture erase "temp_ff_results.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 
 * ============ 任务完成摘要 ============
 display ""

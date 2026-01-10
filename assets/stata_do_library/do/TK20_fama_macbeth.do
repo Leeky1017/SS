@@ -1,11 +1,11 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TK20  level=L2  module=K  title="Fama MacBeth"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TK20_fm_result.csv type=table desc="FM results"
 *   - table_TK20_time_series.csv type=table desc="Time series coefs"
-*   - fig_TK20_gamma_ts.png type=figure desc="Risk premium chart"
+*   - fig_TK20_gamma_ts.png type=graph desc="Risk premium chart"
 *   - data_TK20_fm.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -13,7 +13,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -23,8 +27,24 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TK20
+    args code cmd msg detail step
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    if "`step'" != "" & "`step'" != "." {
+        display "SS_STEP_END|step=`step'|status=fail|elapsed_sec=0"
+    }
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|detail=`detail'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TK20|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TK20|level=L2|title=Fama_MacBeth"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -46,10 +66,7 @@ display "    时间变量: `time_var'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TK20 601 confirm_file file_not_found data.csv S01_load_data
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -62,10 +79,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `return_var' `beta_var' `stock_id' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
-        log close
-        exit 200
+        ss_fail_TK20 200 confirm_variable var_not_found `var' S02_validate_inputs
     }
 }
 
@@ -80,7 +94,18 @@ foreach var of local other_vars {
 local all_regressors "`beta_var' `valid_other'"
 local n_regressors : word count `all_regressors'
 
-ss_smart_xtset `stock_id' `time_var'
+capture xtset `stock_id' `time_var'
+local rc_xtset = _rc
+if `rc_xtset' != 0 {
+    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed_trying_fallback|severity=warn"
+    sort `stock_id' `time_var'
+    bysort `stock_id': gen long ss_time_index = _n
+    capture xtset `stock_id' ss_time_index
+    local rc_xtset2 = _rc
+    if `rc_xtset2' != 0 {
+        ss_fail_TK20 459 xtset xtset_failed panel_set S02_validate_inputs
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -183,7 +208,10 @@ postclose `fm_results'
 * 市场风险溢价
 quietly summarize gamma1
 local risk_premium = r(mean)
-local rp_t = r(mean) / (r(sd) / sqrt(r(N)))
+local rp_t = .
+if r(N) > 1 & r(sd) > 0 {
+    local rp_t = r(mean) / (r(sd) / sqrt(r(N)))
+}
 
 display "───────────────────────────────────────────────────────"
 display ""
@@ -198,16 +226,20 @@ display "SS_OUTPUT_FILE|file=table_TK20_time_series.csv|type=table|desc=time_ser
 
 * 生成风险溢价时序图
 tsset time
+local rp_line = ""
+if `risk_premium' < . {
+    local rp_line "yline(`risk_premium', lcolor(green) lpattern(shortdash))"
+}
 twoway (line gamma1 time, lcolor(navy) lwidth(thin)) ///
        (lowess gamma1 time, lcolor(red) lwidth(medium)), ///
        yline(0, lcolor(gray) lpattern(dash)) ///
-       yline(`risk_premium', lcolor(green) lpattern(shortdash)) ///
+       `rp_line' ///
        legend(order(1 "截面系数" 2 "趋势") position(6)) ///
        xtitle("时间") ytitle("Beta风险溢价") ///
        title("Fama-MacBeth: 风险溢价时间序列") ///
        note("绿线=均值`=round(`risk_premium',0.0001)'")
 graph export "fig_TK20_gamma_ts.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK20_gamma_ts.png|type=figure|desc=risk_premium"
+display "SS_OUTPUT_FILE|file=fig_TK20_gamma_ts.png|type=graph|desc=risk_premium"
 
 restore
 
@@ -219,9 +251,17 @@ display "SS_OUTPUT_FILE|file=table_TK20_fm_result.csv|type=table|desc=fm_results
 restore
 
 capture erase "temp_cs_coefs.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 capture erase "temp_fm_results.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 
 * ============ 输出结果 ============
 local n_output = _N

@@ -1,11 +1,11 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TK01  level=L2  module=K  title="CAPM Estimate"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
 *   - table_TK01_capm_result.csv type=table desc="CAPM results"
 *   - table_TK01_rolling_beta.csv type=table desc="Rolling beta"
-*   - fig_TK01_sml.png type=figure desc="SML plot"
+*   - fig_TK01_sml.png type=graph desc="SML plot"
 *   - data_TK01_capm.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
@@ -13,7 +13,11 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -23,8 +27,24 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TK01
+    args code cmd msg detail step
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    if "`step'" != "" & "`step'" != "." {
+        display "SS_STEP_END|step=`step'|status=fail|elapsed_sec=0"
+    }
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|detail=`detail'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TK01|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TK01|level=L2|title=CAPM_Estimate"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -54,10 +74,7 @@ display "    滚动窗口: `window'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TK01 601 confirm_file file_not_found data.csv S01_load_data
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -70,10 +87,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `return_var' `market_var' `stock_id' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
-        log close
-        exit 200
+        ss_fail_TK01 200 confirm_variable var_not_found `var' S02_validate_inputs
     }
 }
 
@@ -95,14 +109,25 @@ else {
 }
 
 * 设置面板
-ss_smart_xtset `stock_id' `time_var'
+capture xtset `stock_id' `time_var'
+local rc_xtset = _rc
+if `rc_xtset' != 0 {
+    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed_trying_fallback|severity=warn"
+    sort `stock_id' `time_var'
+    bysort `stock_id': gen long ss_time_index = _n
+    capture xtset `stock_id' ss_time_index
+    local rc_xtset2 = _rc
+    if `rc_xtset2' != 0 {
+        ss_fail_TK01 459 xtset xtset_failed panel_set S02_validate_inputs
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
 * 获取股票数量
-quietly distinct `stock_id'
-local n_stocks = r(ndistinct)
+quietly levelsof `stock_id', local(stocks)
+local n_stocks : word count `stocks'
 display ">>> 股票数: `n_stocks'"
 
 * ============ CAPM时间序列估计 ============
@@ -120,8 +145,6 @@ postfile `capm_results' long stock_id double alpha double alpha_se double beta d
 display ""
 display "股票ID      Alpha       t(Alpha)    Beta        t(Beta)     R2"
 display "─────────────────────────────────────────────────────────────────"
-
-quietly levelsof `stock_id', local(stocks)
 
 foreach s of local stocks {
     quietly regress excess_ret excess_mkt if `stock_id' == `s', robust
@@ -218,19 +241,9 @@ display "SECTION 3: 生成证券市场线图"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 preserve
-use "temp_capm_results.dta", clear
-
-* 计算平均收益
-merge 1:1 stock_id using `"`c(tmpdir)'/stock_returns.dta"', nogenerate
-
-* 如果没有平均收益数据，使用原始数据计算
-restore
-preserve
-
 collapse (mean) avg_ret = excess_ret, by(`stock_id')
 tempfile avg_returns
 save `avg_returns'
-
 restore
 
 preserve
@@ -245,7 +258,7 @@ twoway (scatter avg_ret beta, mcolor(navy%70) msize(small)) ///
        title("证券市场线 (SML)") ///
        legend(order(1 "股票" 2 "拟合线") position(6))
 graph export "fig_TK01_sml.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK01_sml.png|type=figure|desc=sml_plot"
+display "SS_OUTPUT_FILE|file=fig_TK01_sml.png|type=graph|desc=sml_plot"
 restore
 
 * ============ 输出结果 ============
@@ -258,9 +271,17 @@ display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 * 清理
 capture erase "temp_capm_results.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 capture erase "temp_rolling_beta.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 
 * ============ 任务完成摘要 ============
 display ""

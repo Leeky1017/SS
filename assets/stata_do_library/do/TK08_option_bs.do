@@ -5,14 +5,18 @@
 * OUTPUTS:
 *   - table_TK08_option_price.csv type=table desc="Option price"
 *   - table_TK08_greeks.csv type=table desc="Greeks"
-*   - fig_TK08_payoff.png type=figure desc="Payoff diagram"
+*   - fig_TK08_payoff.png type=graph desc="Payoff diagram"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 clear all
 set more off
 version 18
@@ -23,7 +27,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TK08|level=L1|title=Option_BS"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
@@ -278,7 +282,7 @@ twoway (line payoff spot_price, lcolor(navy) lwidth(medium)) ///
        title("`=proper("`option_type'")'期权损益图") ///
        note("K=`K' (灰线), S=`S' (绿线), 期权费=`=round(`price',0.01)'")
 graph export "fig_TK08_payoff.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TK08_payoff.png|type=figure|desc=payoff_diagram"
+display "SS_OUTPUT_FILE|file=fig_TK08_payoff.png|type=graph|desc=payoff_diagram"
 restore
 
 * ============ 输出结果 ============
