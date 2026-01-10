@@ -73,11 +73,13 @@ def assert_resolvable_endpoint(endpoint: str) -> None:
     try:
         socket.gethostbyname(host)
     except OSError as exc:
-        raise SystemExit(
+        message = (
             "ERROR: SS_UPLOAD_S3_ENDPOINT host is not resolvable from this machine.\n\n"
-            "For Linux hosts, if you keep the default `http://host.docker.internal:9000`, add a hosts entry:\n"
+            "For Linux hosts, if you keep the default "
+            "`http://host.docker.internal:9000`, add a hosts entry:\n"
             "  127.0.0.1 host.docker.internal\n"
-        ) from exc
+        )
+        raise SystemExit(message) from exc
 
 
 def http_json(
@@ -98,7 +100,8 @@ def http_json(
             raw = resp.read()
     except urllib.error.HTTPError as exc:
         raw = exc.read()
-        raise SystemExit(f"ERROR: HTTP {exc.code} {method} {url}\n{raw.decode('utf-8', 'replace')}") from exc
+        body = raw.decode("utf-8", "replace")
+        raise SystemExit(f"ERROR: HTTP {exc.code} {method} {url}\n{body}") from exc
     if raw.strip() == b"":
         return {}
     return json.loads(raw.decode("utf-8"))
@@ -190,7 +193,11 @@ def verify_inputs(
     if not isinstance(datasets, list) or len(datasets) != 1:
         die(f"manifest datasets mismatch: {manifest}")
     ds0 = datasets[0]
-    if ds0.get("original_name") != original_name or ds0.get("role") != "primary_dataset" or ds0.get("format") != "csv":
+    if (
+        ds0.get("original_name") != original_name
+        or ds0.get("role") != "primary_dataset"
+        or ds0.get("format") != "csv"
+    ):
         die(f"manifest dataset mismatch: {ds0}")
 
     return row_count
@@ -201,4 +208,3 @@ def slice_part_bytes(*, file_path: Path, part_size: int, part_number: int) -> by
     with file_path.open("rb") as f:
         f.seek(offset)
         return f.read(part_size)
-

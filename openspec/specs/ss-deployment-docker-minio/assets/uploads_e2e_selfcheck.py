@@ -21,19 +21,31 @@ from uploads_e2e_selfcheck_flows import direct_flow, multipart_flow
 
 
 def _parse_args() -> argparse.Namespace:
+    epilog = (
+        "Multipart ETag note: each part PUT returns an ETag header; pass it back to finalize as "
+        "{part_number, etag}.\n"
+        "Manual example:\n"
+        "  curl -sS -o /dev/null -D headers.txt -X PUT --data-binary @part.bin "
+        "\"$PRESIGNED_URL\"\n"
+        "  grep -i '^etag:' headers.txt"
+    )
     parser = argparse.ArgumentParser(
         description="Docker + MinIO uploads E2E self-check (direct + multipart).",
-        epilog=(
-            "Multipart ETag note: each part PUT returns an ETag header; pass it back to finalize as {part_number, etag}.\n"
-            "Manual example:\n"
-            "  curl -sS -o /dev/null -D headers.txt -X PUT --data-binary @part.bin \"$PRESIGNED_URL\"\n"
-            "  grep -i '^etag:' headers.txt"
-        ),
+        epilog=epilog,
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    parser.add_argument("--project-name", default=os.environ.get("SS_SELFTEST_PROJECT_NAME", "ss-minio-selfcheck"))
-    parser.add_argument("--env-file", default=os.environ.get("SS_SELFTEST_ENV_FILE", str(Path(".env").resolve())))
-    parser.add_argument("--api-base-url", default=os.environ.get("SS_SELFTEST_API_BASE_URL", ""))
+    parser.add_argument(
+        "--project-name",
+        default=os.environ.get("SS_SELFTEST_PROJECT_NAME", "ss-minio-selfcheck"),
+    )
+    parser.add_argument(
+        "--env-file",
+        default=os.environ.get("SS_SELFTEST_ENV_FILE", str(Path(".env").resolve())),
+    )
+    parser.add_argument(
+        "--api-base-url",
+        default=os.environ.get("SS_SELFTEST_API_BASE_URL", ""),
+    )
     return parser.parse_args()
 
 
@@ -44,8 +56,18 @@ def _ensure_env_file(env_file: Path, *, assets_dir: Path) -> None:
     die(f"missing env file: {env_file} (copy {example} -> {assets_dir / '.env'})")
 
 
-def _run_selfcheck(*, base_url: str, base_env_file: Path, compose_file: Path, project_name: str) -> None:
-    compose_direct = ComposeConfig(project_name=project_name, compose_file=compose_file, env_file=base_env_file)
+def _run_selfcheck(
+    *,
+    base_url: str,
+    base_env_file: Path,
+    compose_file: Path,
+    project_name: str,
+) -> None:
+    compose_direct = ComposeConfig(
+        project_name=project_name,
+        compose_file=compose_file,
+        env_file=base_env_file,
+    )
     with tempfile.TemporaryDirectory() as tmp:
         tmp_dir = Path(tmp)
         direct_file = tmp_dir / "direct.csv"
@@ -59,13 +81,26 @@ def _run_selfcheck(*, base_url: str, base_env_file: Path, compose_file: Path, pr
         print("Restarting stack with SS_UPLOAD_MULTIPART_THRESHOLD_BYTES=1")
         compose(compose_direct, ["down"])
         multipart_env_file = tmp_dir / ".env.multipart"
-        write_env_with_multipart_threshold(base_env_file=base_env_file, dst_env_file=multipart_env_file)
+        write_env_with_multipart_threshold(
+            base_env_file=base_env_file,
+            dst_env_file=multipart_env_file,
+        )
 
-        part_size = int(env_value(multipart_env_file, "SS_UPLOAD_MULTIPART_PART_SIZE_BYTES", "8388608"))
+        part_size = int(
+            env_value(
+                multipart_env_file,
+                "SS_UPLOAD_MULTIPART_PART_SIZE_BYTES",
+                "8388608",
+            )
+        )
         multipart_file = tmp_dir / "multipart.csv"
         make_csv(multipart_file, target_bytes=part_size + 1024)
 
-        compose_multipart = ComposeConfig(project_name=project_name, compose_file=compose_file, env_file=multipart_env_file)
+        compose_multipart = ComposeConfig(
+            project_name=project_name,
+            compose_file=compose_file,
+            env_file=multipart_env_file,
+        )
         compose(compose_multipart, ["up", "-d"])
         wait_for_live(base_url=base_url)
         multipart_flow(base_url=base_url, compose_cfg=compose_multipart, file_path=multipart_file)
@@ -95,10 +130,12 @@ def main() -> int:
         project_name=args.project_name,
     )
     print("DONE. To stop containers:")
-    print(f"  docker compose --project-name {args.project_name} -f {compose_file} --env-file {base_env_file} down")
+    print(
+        f"  docker compose --project-name {args.project_name} -f {compose_file} "
+        f"--env-file {base_env_file} down"
+    )
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

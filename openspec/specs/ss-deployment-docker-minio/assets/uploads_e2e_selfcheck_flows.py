@@ -17,7 +17,10 @@ def create_job(*, base_url: str, label: str) -> tuple[str, str]:
     payload = http_json(
         method="POST",
         url=f"{base_url}/v1/task-codes/redeem",
-        payload={"task_code": f"selfcheck-{label}-{int(time.time())}", "requirement": f"uploads selfcheck {label}"},
+        payload={
+            "task_code": f"selfcheck-{label}-{int(time.time())}",
+            "requirement": f"uploads selfcheck {label}",
+        },
     )
     return str(payload["job_id"]), str(payload["token"])
 
@@ -92,7 +95,8 @@ def _upload_multipart_parts(
         url = str(item["url"])
         if part_number == 1:
             url = refreshed_part1_url
-        etag = put_bytes(url=url, data=slice_part_bytes(file_path=file_path, part_size=part_size, part_number=part_number))
+        data = slice_part_bytes(file_path=file_path, part_size=part_size, part_number=part_number)
+        etag = put_bytes(url=url, data=data)
         if etag is None or etag.strip() == "":
             die(f"missing ETag for part {part_number}")
         parts.append({"part_number": part_number, "etag": etag})
@@ -163,7 +167,11 @@ def multipart_flow(*, base_url: str, compose_cfg: ComposeConfig, file_path: Path
     if not isinstance(presigned_urls, list) or len(presigned_urls) < 1:
         die(f"multipart presigned_urls missing: {session}")
 
-    refreshed_part1_url = _refresh_part1_url(base_url=base_url, token=token, upload_session_id=upload_session_id)
+    refreshed_part1_url = _refresh_part1_url(
+        base_url=base_url,
+        token=token,
+        upload_session_id=upload_session_id,
+    )
     parts = _upload_multipart_parts(
         file_path=file_path,
         part_size=part_size,
@@ -186,4 +194,3 @@ def multipart_flow(*, base_url: str, compose_cfg: ComposeConfig, file_path: Path
         original_name="multipart.csv",
     )
     print(f"Multipart OK: job_id={job_id} parts={len(parts)} row_count={row_count}")
-

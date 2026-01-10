@@ -38,3 +38,13 @@
 - Command: `gh pr create --title "[ROUND-01-OPS-A] DEPLOY-MINIO-R003: Docker+MinIO uploads selfcheck (#339)" --body "Closes #339 ..."`
 - Key output: `https://github.com/Leeky1017/SS/pull/343`
 - Evidence: `openspec/_ops/task_runs/ISSUE-339.md`
+
+### 2026-01-10 19:30 ci fix (ruff E501) + re-run local checks
+- Command: `/home/leeky/work/SS/.venv/bin/ruff check .`
+- Key output: `All checks passed!`
+- Evidence: `openspec/specs/ss-deployment-docker-minio/assets/uploads_e2e_selfcheck.py`
+
+### 2026-01-10 19:31 tests (post-fix)
+- Command: `/home/leeky/work/SS/.venv/bin/pytest -q`
+- Key output: `178 passed, 5 skipped in 8.88s`
+- Evidence: `.worktrees/issue-339-deploy-minio-r003`
