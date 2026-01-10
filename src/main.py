@@ -21,6 +21,7 @@ from src.infra.exceptions import OutOfMemoryError, ServiceShuttingDownError, SSE
 from src.infra.logging_config import build_logging_config
 from src.infra.object_store_exceptions import ObjectStoreConfigurationError
 from src.infra.object_store_factory import build_object_store
+from src.infra.structured_errors import StructuredSSError
 from src.infra.tracing import configure_tracing
 
 logger = logging.getLogger(__name__)
@@ -113,7 +114,10 @@ def create_app() -> FastAPI:
 
 async def _handle_ss_error(_request: Request, exc: Exception) -> Response:
     ss_error = cast(SSError, exc)
-    return JSONResponse(status_code=ss_error.status_code, content=ss_error.to_dict())
+    payload: dict[str, object] = dict(ss_error.to_dict())
+    if isinstance(ss_error, StructuredSSError):
+        payload.update(ss_error.details)
+    return JSONResponse(status_code=ss_error.status_code, content=payload)
 
 
 async def _handle_oom_error(request: Request, _exc: Exception) -> Response:

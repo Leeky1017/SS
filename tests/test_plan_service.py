@@ -17,6 +17,7 @@ from src.infra.exceptions import (
 )
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
+from src.infra.plan_exceptions import PlanFreezeMissingRequiredError
 from src.utils.job_workspace import resolve_job_dir
 
 
@@ -242,3 +243,46 @@ def test_freeze_plan_when_template_meta_corrupt_raises_plan_template_meta_invali
     assert excinfo.value.error_code == "PLAN_TEMPLATE_META_INVALID"
     assert job.job_id in excinfo.value.message
     assert "template_id=T01" in excinfo.value.message
+
+
+def test_freeze_plan_when_required_template_param_missing_raises_plan_freeze_missing_required_error(
+    job_service,
+    draft_service,
+    plan_service,
+    store,
+) -> None:
+    # Arrange
+    job = job_service.create_job(requirement="need a descriptive analysis")
+    asyncio.run(draft_service.preview(job_id=job.job_id))
+    loaded = store.load(job.job_id)
+    loaded.selected_template_id = "T01"
+    store.save(loaded)
+
+    # Act / Assert
+    with pytest.raises(PlanFreezeMissingRequiredError) as excinfo:
+        plan_service.freeze_plan(job_id=job.job_id, confirmation=JobConfirmation())
+    assert excinfo.value.error_code == "PLAN_FREEZE_MISSING_REQUIRED"
+    assert "__NUMERIC_VARS__" in excinfo.value.details.get("missing_params", [])
+
+
+def test_freeze_plan_when_missing_template_param_fixed_allows_freeze(
+    job_service,
+    draft_service,
+    plan_service,
+    store,
+) -> None:
+    # Arrange
+    job = job_service.create_job(requirement="need a descriptive analysis")
+    asyncio.run(draft_service.preview(job_id=job.job_id))
+    loaded = store.load(job.job_id)
+    loaded.selected_template_id = "T01"
+    assert loaded.draft is not None
+    loaded.draft = loaded.draft.model_copy(update={"outcome_var": "x"})
+    store.save(loaded)
+
+    # Act
+    plan = plan_service.freeze_plan(job_id=job.job_id, confirmation=JobConfirmation())
+
+    # Assert
+    generate = next(step for step in plan.steps if step.step_id == "generate_do")
+    assert generate.params.get("template_id") == "T01"
