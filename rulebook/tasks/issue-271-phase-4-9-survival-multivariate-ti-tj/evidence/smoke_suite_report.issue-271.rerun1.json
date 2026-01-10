@@ -1,0 +1,343 @@
+{
+  "cases": [
+    {
+      "archived_outputs": [
+        "runs/a88a908fbed043ebbf5de24ff7099afb/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/7e/job_7e1cdc91b7305fd8/runs/a88a908fbed043ebbf5de24ff7099afb/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(430);"
+      },
+      "exit_code": 0,
+      "job_id": "job_7e1cdc91b7305fd8",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TI01_weibull.dta",
+        "table_TI01_weibull.csv"
+      ],
+      "run_id": "a88a908fbed043ebbf5de24ff7099afb",
+      "status": "failed",
+      "template_id": "TI01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/0401debae7e046e2bf9b3d9660329233/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/c1/job_c18c031bee512972/runs/0401debae7e046e2bf9b3d9660329233/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_c18c031bee512972",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TI02_exp.dta",
+        "table_TI02_exp.csv"
+      ],
+      "run_id": "0401debae7e046e2bf9b3d9660329233",
+      "status": "failed",
+      "template_id": "TI02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/feaffbbbf00041c2b94d4c26149371ca/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/d1/job_d1b21061639862b9/runs/feaffbbbf00041c2b94d4c26149371ca/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(430);"
+      },
+      "exit_code": 0,
+      "job_id": "job_d1b21061639862b9",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TI03_aft.dta",
+        "table_TI03_aft.csv"
+      ],
+      "run_id": "feaffbbbf00041c2b94d4c26149371ca",
+      "status": "failed",
+      "template_id": "TI03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/1c3603068d33423491dddc5e915cf071/artifacts/outputs/data_TI04_cr.dta",
+        "runs/1c3603068d33423491dddc5e915cf071/artifacts/outputs/result.log",
+        "runs/1c3603068d33423491dddc5e915cf071/artifacts/outputs/table_TI04_cr.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/f6/job_f6f1513d2e4aed33/runs/1c3603068d33423491dddc5e915cf071/artifacts",
+      "exit_code": 0,
+      "job_id": "job_f6f1513d2e4aed33",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "1c3603068d33423491dddc5e915cf071",
+      "status": "passed",
+      "template_id": "TI04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/742a745101f440378b19d4b254d2ff1f/artifacts/outputs/data_TI05_stratacox.dta",
+        "runs/742a745101f440378b19d4b254d2ff1f/artifacts/outputs/result.log",
+        "runs/742a745101f440378b19d4b254d2ff1f/artifacts/outputs/table_TI05_stratacox.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/d2/job_d2751393f18a26c3/runs/742a745101f440378b19d4b254d2ff1f/artifacts",
+      "exit_code": 0,
+      "job_id": "job_d2751393f18a26c3",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "742a745101f440378b19d4b254d2ff1f",
+      "status": "passed",
+      "template_id": "TI05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/6bd324827c6441d4a173bc1d5e1ba9e7/artifacts/outputs/data_TI06_phtest.dta",
+        "runs/6bd324827c6441d4a173bc1d5e1ba9e7/artifacts/outputs/fig_TI06_ph.png",
+        "runs/6bd324827c6441d4a173bc1d5e1ba9e7/artifacts/outputs/result.log",
+        "runs/6bd324827c6441d4a173bc1d5e1ba9e7/artifacts/outputs/table_TI06_phtest.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/f9/job_f9182e4c29717e57/runs/6bd324827c6441d4a173bc1d5e1ba9e7/artifacts",
+      "exit_code": 0,
+      "job_id": "job_f9182e4c29717e57",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "6bd324827c6441d4a173bc1d5e1ba9e7",
+      "status": "passed",
+      "template_id": "TI06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/cceb363316c5469a9f02937c0659844f/artifacts/outputs/table_TI07_frailty.csv",
+        "runs/cceb363316c5469a9f02937c0659844f/artifacts/outputs/data_TI07_frailty.dta",
+        "runs/cceb363316c5469a9f02937c0659844f/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/22/job_2230b4069150fcb8/runs/cceb363316c5469a9f02937c0659844f/artifacts",
+      "exit_code": 0,
+      "job_id": "job_2230b4069150fcb8",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "cceb363316c5469a9f02937c0659844f",
+      "status": "passed",
+      "template_id": "TI07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/59dd88c09ed74d01b40bceda0acc17e3/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/7c/job_7c9550a2b7e1f419/runs/59dd88c09ed74d01b40bceda0acc17e3/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_7c9550a2b7e1f419",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TI08_piecewise.dta",
+        "table_TI08_piecewise.csv"
+      ],
+      "run_id": "59dd88c09ed74d01b40bceda0acc17e3",
+      "status": "failed",
+      "template_id": "TI08",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/68a13b63389744ac8f53fb59f35a5163/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/63/job_63dcccf2f4d735b8/runs/68a13b63389744ac8f53fb59f35a5163/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(199);"
+      },
+      "exit_code": 0,
+      "job_id": "job_63dcccf2f4d735b8",
+      "missing_deps": [
+        "stcure"
+      ],
+      "missing_outputs": [
+        "data_TI09_cure.dta",
+        "table_TI09_cure.csv"
+      ],
+      "run_id": "68a13b63389744ac8f53fb59f35a5163",
+      "status": "missing_deps",
+      "template_id": "TI09",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/f750e5874dc047b8b7f77a8b0f6f058d/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/2f/job_2fc2ea96306f38ec/runs/f750e5874dc047b8b7f77a8b0f6f058d/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(430);"
+      },
+      "exit_code": 0,
+      "job_id": "job_2fc2ea96306f38ec",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TI10_predict.dta",
+        "table_TI10_predict.csv"
+      ],
+      "run_id": "f750e5874dc047b8b7f77a8b0f6f058d",
+      "status": "failed",
+      "template_id": "TI10",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/46168998fd4b4d709c7b0373d679f6f6/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/9a/job_9afbda64c52463d3/runs/46168998fd4b4d709c7b0373d679f6f6/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_9afbda64c52463d3",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TI11_power.dta",
+        "table_TI11_power.csv"
+      ],
+      "run_id": "46168998fd4b4d709c7b0373d679f6f6",
+      "status": "failed",
+      "template_id": "TI11",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/cb4fa1d5ef4941fd90be70096d70daf4/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/02/job_02f53b33e929d6b2/runs/cb4fa1d5ef4941fd90be70096d70daf4/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(430);"
+      },
+      "exit_code": 0,
+      "job_id": "job_02f53b33e929d6b2",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TJ01_cfa.dta",
+        "table_TJ01_cfa.csv"
+      ],
+      "run_id": "cb4fa1d5ef4941fd90be70096d70daf4",
+      "status": "failed",
+      "template_id": "TJ01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/4c8a797331df467da3c2c05d94b85781/artifacts/outputs/table_TJ02_sem.csv",
+        "runs/4c8a797331df467da3c2c05d94b85781/artifacts/outputs/data_TJ02_sem.dta",
+        "runs/4c8a797331df467da3c2c05d94b85781/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/db/job_db87cd37300129d0/runs/4c8a797331df467da3c2c05d94b85781/artifacts",
+      "exit_code": 0,
+      "job_id": "job_db87cd37300129d0",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "4c8a797331df467da3c2c05d94b85781",
+      "status": "passed",
+      "template_id": "TJ02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/b34fdba3355d49b49bbddce27bc97ed0/artifacts/outputs/table_TJ03_discrim.csv",
+        "runs/b34fdba3355d49b49bbddce27bc97ed0/artifacts/outputs/data_TJ03_discrim.dta",
+        "runs/b34fdba3355d49b49bbddce27bc97ed0/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/ab/job_ab590d84097f6950/runs/b34fdba3355d49b49bbddce27bc97ed0/artifacts",
+      "exit_code": 0,
+      "job_id": "job_ab590d84097f6950",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "b34fdba3355d49b49bbddce27bc97ed0",
+      "status": "passed",
+      "template_id": "TJ03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/b79c75de73f844fca0b2f40de96f2bdf/artifacts/outputs/table_TJ04_canon.csv",
+        "runs/b79c75de73f844fca0b2f40de96f2bdf/artifacts/outputs/data_TJ04_canon.dta",
+        "runs/b79c75de73f844fca0b2f40de96f2bdf/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/d7/job_d764cc96147735d8/runs/b79c75de73f844fca0b2f40de96f2bdf/artifacts",
+      "exit_code": 0,
+      "job_id": "job_d764cc96147735d8",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "b79c75de73f844fca0b2f40de96f2bdf",
+      "status": "passed",
+      "template_id": "TJ04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/ec59edc5ce8a4baa817632cd63b0a56f/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/26/job_26b6592f68fbc852/runs/ec59edc5ce8a4baa817632cd63b0a56f/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_26b6592f68fbc852",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TJ05_mds.dta",
+        "fig_TJ05_mds.png"
+      ],
+      "run_id": "ec59edc5ce8a4baa817632cd63b0a56f",
+      "status": "failed",
+      "template_id": "TJ05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/616da841fe0641c6b64ee2ac2e7cb14d/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-271-phase-4-9-survival-multivariate-ti-tj/jobs/19/job_19f2c46d2b7e5476/runs/616da841fe0641c6b64ee2ac2e7cb14d/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(693);"
+      },
+      "exit_code": 0,
+      "job_id": "job_19f2c46d2b7e5476",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TJ06_ca.dta",
+        "fig_TJ06_ca.png",
+        "table_TJ06_ca.csv"
+      ],
+      "run_id": "616da841fe0641c6b64ee2ac2e7cb14d",
+      "status": "failed",
+      "template_id": "TJ06",
+      "timed_out": false
+    }
+  ],
+  "finished_at": "2026-01-10T01:45:48.773455+00:00",
+  "library_dir": "assets/stata_do_library",
+  "schema_version": "1.0",
+  "started_at": "2026-01-10T01:44:44.475212+00:00",
+  "stata_cmd": [
+    "/mnt/c/Program Files/Stata18/StataMP-64.exe"
+  ],
+  "suite_id": "issue_271_ti01_ti11_tj01_tj06",
+  "summary": {
+    "failed": 9,
+    "missing_deps": 1,
+    "passed": 7
+  }
+}

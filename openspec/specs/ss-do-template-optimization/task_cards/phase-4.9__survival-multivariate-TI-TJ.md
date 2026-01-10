@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #271
 - Parent: #125
 - Superphase: Phase 4 (full-library Stata 18 audit)
 - Templates: `TI*` + `TJ*` (~17 templates, current inventory)
@@ -29,8 +29,14 @@ Make survival and multivariate templates run on **Stata 18** with fixtures, emit
 
 ## Acceptance checklist
 
-- [ ] Stata 18 baseline run: 0 `fail` across `TI*` + `TJ*`
-- [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
-- [ ] Common failure modes yield explicit `warn/fail` with `SS_RC` context
-- [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Stata 18 baseline run: 0 `fail` across `TI*` + `TJ*`
+- [x] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
+- [x] Common failure modes yield explicit `warn/fail` with `SS_RC` context
+- [x] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/277
+- Smoke suite: `TI01-TI11` + `TJ01-TJ06` on Stata 18 reached 0 `fail` (TI09 reports `missing_deps` if `stcure` is not installed).
+- Anchors normalized to `SS_EVENT|k=v` with explicit `SS_RC` warn/fail context and fail-fast `ss_fail`.
+- Evidence: `openspec/_ops/task_runs/ISSUE-271.md`
