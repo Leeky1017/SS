@@ -62,6 +62,21 @@ class DoTemplateSelectionService:
     ) -> DoTemplateSelectionResult:
         logger.info("SS_DO_TEMPLATE_SELECT_START", extra={"tenant_id": tenant_id, "job_id": job_id})
         job = self.store.load(tenant_id=tenant_id, job_id=job_id)
+        existing_template_id = job.selected_template_id
+        if isinstance(existing_template_id, str) and existing_template_id.strip() != "":
+            logger.info(
+                "SS_DO_TEMPLATE_SELECT_IDEMPOTENT",
+                extra={
+                    "tenant_id": tenant_id,
+                    "job_id": job_id,
+                    "template_id": existing_template_id,
+                },
+            )
+            return DoTemplateSelectionResult(
+                selected_family_ids=tuple(),
+                candidate_template_ids=tuple(),
+                selected_template_id=existing_template_id,
+            )
         try:
             result = await self._select_for_job(job=job)
         except SSError as e:
@@ -117,6 +132,7 @@ class DoTemplateSelectionService:
             stage2=stage2,
             selected_template_id=template_id,
         )
+        job.selected_template_id = template_id
         return DoTemplateSelectionResult(
             selected_family_ids=selected_family_ids,
             candidate_template_ids=tuple(t.template_id for t in candidates),

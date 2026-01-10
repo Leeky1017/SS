@@ -90,6 +90,7 @@ class GetJobResponse(BaseModel):
     job_id: str
     trace_id: str | None = None
     status: str
+    selected_template_id: str | None = None
     timestamps: JobTimestamps
     draft: DraftSummary | None = None
     artifacts: ArtifactsSummary

@@ -5,6 +5,7 @@ from json import JSONDecodeError
 from typing import cast
 
 from src.domain.dataset_preview import dataset_preview
+from src.domain.do_template_selection_service import DoTemplateSelectionService
 from src.domain.draft_preview_llm import (
     apply_structured_fields_from_llm_text,
     build_draft_preview_prompt,
@@ -24,6 +25,7 @@ from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.llm_client import LLMClient
 from src.domain.models import Draft, DraftDataSource, DraftVariableType, Job, JobStatus
 from src.domain.state_machine import JobStateMachine
+from src.infra.do_template_selection_exceptions import DoTemplateSelectionNotWiredError
 from src.infra.exceptions import JobStoreIOError, LLMArtifactsWriteError, LLMCallFailedError
 from src.infra.input_exceptions import InputPathUnsafeError
 from src.utils.json_types import JsonValue
@@ -43,11 +45,13 @@ class DraftService:
         llm: LLMClient,
         state_machine: JobStateMachine,
         workspace: JobWorkspaceStore,
+        do_template_selection: DoTemplateSelectionService | None = None,
     ):
         self._store = store
         self._llm = llm
         self._state_machine = state_machine
         self._workspace = workspace
+        self._do_template_selection = do_template_selection
 
     async def preview(self, *, tenant_id: str = DEFAULT_TENANT_ID, job_id: str) -> Draft:
         job = self._store.load(tenant_id=tenant_id, job_id=job_id)
@@ -60,6 +64,15 @@ class DraftService:
         if is_v1_redeem_job(job_id) and not has_inputs(job):
             return pending_inputs_upload_result()
         draft = await self._preview_for_loaded_job(tenant_id=tenant_id, job=job)
+        if is_v1_redeem_job(job_id):
+            selector = self._do_template_selection
+            if selector is None:
+                logger.warning(
+                    "SS_DRAFT_PREVIEW_DO_TEMPLATE_SELECTION_NOT_WIRED",
+                    extra={"tenant_id": tenant_id, "job_id": job_id},
+                )
+                raise DoTemplateSelectionNotWiredError()
+            await selector.select_template_id(tenant_id=tenant_id, job_id=job_id)
         return DraftPreviewResult(draft=draft, pending=None)
 
     def patch_v1(

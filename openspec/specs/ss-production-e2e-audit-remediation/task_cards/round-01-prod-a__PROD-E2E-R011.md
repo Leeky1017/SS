@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #328
 - Spec: `openspec/specs/ss-production-e2e-audit-remediation/spec.md`
 - Audit evidence: `openspec/_ops/task_runs/ISSUE-274.md` (F001)
 - Related specs:
@@ -34,4 +34,3 @@
 - [ ] `draft/preview` 之后，job 进入可 plan-freeze 的状态且包含 `selected_template_id`
 - [ ] artifacts 中可见 selection 证据（stage1/candidates/stage2）且模型信息可审计
 - [ ] `openspec/_ops/task_runs/ISSUE-<N>.md` 记录一次真实运行的证据（下载 artifacts 截图/路径即可）
-

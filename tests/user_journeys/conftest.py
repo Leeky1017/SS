@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient
 from src.api import deps
 from src.domain.artifacts_service import ArtifactsService
 from src.domain.do_file_generator import DoFileGenerator
+from src.domain.do_template_selection_service import DoTemplateSelectionService
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_inputs_service import JobInputsService
@@ -110,11 +111,17 @@ def journey_draft_service(
         retry_backoff_base_seconds=1.0,
         retry_backoff_max_seconds=30.0,
     )
+    library_dir = Path(__file__).resolve().parents[2] / "assets" / "stata_do_library"
     return DraftService(
         store=journey_store,
         llm=llm,
         state_machine=journey_state_machine,
         workspace=FileJobWorkspaceStore(jobs_dir=journey_jobs_dir),
+        do_template_selection=DoTemplateSelectionService(
+            store=journey_store,
+            llm=llm,
+            catalog=FileSystemDoTemplateCatalog(library_dir=library_dir),
+        ),
     )
 
 

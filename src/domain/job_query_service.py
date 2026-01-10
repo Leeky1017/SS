@@ -28,6 +28,7 @@ def _build_job_summary(*, job: Job) -> JsonObject:
             "job_id": job.job_id,
             "trace_id": job.trace_id,
             "status": job.status.value,
+            "selected_template_id": job.selected_template_id,
             "timestamps": {"created_at": job.created_at, "scheduled_at": job.scheduled_at},
             "draft": draft_summary,
             "artifacts": artifacts_summary,
