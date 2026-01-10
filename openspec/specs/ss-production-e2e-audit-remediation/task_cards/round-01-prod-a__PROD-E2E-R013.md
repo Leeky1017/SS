@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #340
 - Spec: `openspec/specs/ss-production-e2e-audit-remediation/spec.md`
 - Audit evidence: `openspec/_ops/task_runs/ISSUE-274.md` (F001, F003)
 - Related specs:
@@ -37,4 +37,3 @@
 - [ ] 成功 run 的 artifacts 中包含：template source/meta/params + stata.do + stata.log + run meta
 - [ ] 缺参时返回结构化错误（不生成错误的 do-file 进入 runner）
 - [ ] E2E 审计旅程可跑通并确认 `template_id != stub_descriptive_v1`
-
