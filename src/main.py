@@ -16,12 +16,27 @@ from starlette.responses import Response
 
 from src.api.routes import api_v1_router, ops_router
 from src.api.versioning import add_legacy_deprecation_headers, is_legacy_unversioned_path
-from src.config import load_config
+from src.config import Config, load_config
 from src.infra.exceptions import OutOfMemoryError, ServiceShuttingDownError, SSError
 from src.infra.logging_config import build_logging_config
+from src.infra.object_store_exceptions import ObjectStoreConfigurationError
+from src.infra.object_store_factory import build_object_store
 from src.infra.tracing import configure_tracing
 
 logger = logging.getLogger(__name__)
+
+
+def _validate_production_upload_object_store(*, config: Config) -> None:
+    if not config.is_production():
+        return
+    try:
+        build_object_store(config=config)
+    except ObjectStoreConfigurationError as exc:
+        logger.error(
+            "SS_PRODUCTION_GATE_UPLOAD_OBJECT_STORE_INVALID",
+            extra={"error_code": exc.error_code, "error_message": exc.message},
+        )
+        raise
 
 
 def _clear_dependency_caches() -> None:
@@ -36,6 +51,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     config = app.state.config
     configure_tracing(config=config, component="api")
     logger.info("SS_API_STARTUP", extra={"pid": os.getpid(), "log_level": config.log_level})
+    _validate_production_upload_object_store(config=config)
     try:
         yield
     finally:

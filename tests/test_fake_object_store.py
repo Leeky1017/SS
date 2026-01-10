@@ -3,7 +3,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 
 from src.domain.object_store import CompletedPart
-from src.infra.fake_object_store import FakeObjectStore
+from tests.fakes.fake_object_store import FakeObjectStore
 
 
 def test_fake_object_store_direct_put_roundtrip() -> None:
