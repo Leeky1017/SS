@@ -1,0 +1,156 @@
+
+  ___  ____  ____  ____  ____ ®
+ /__    /   ____/   /   ____/      18.0
+___/   /   /___/   /   /___/       MP—Parallel Edition
+
+ Statistics and Data Science       Copyright 1985-2023 StataCorp LLC
+                                   StataCorp
+                                   4905 Lakeway Drive
+                                   College Station, Texas 77845 USA
+                                   800-STATA-PC        https://www.stata.com
+                                   979-696-4600        stata@stata.com
+
+Stata license: 114514-student 64-core lab perpetual
+Serial number: 9223372036854775807
+  Licensed to: LEEKY
+               1138
+
+Notes:
+      1. Stata is running in batch mode.
+      2. Unicode is supported; see help unicode_advice.
+      3. More than 2 billion observations are allowed; see help obs_advice.
+      4. Maximum number of variables is set to 5,000 but can be increased;
+          see help set_maxvar.
+
+. do /tmp/ss-net-search-sj-stcure-issue-313/net_search_sj_stcure.do 
+
+. version 18.0
+
+. clear all
+
+. set more off
+
+. noi di "SS_NET_SEARCH_SJ_START|query=stcure"
+SS_NET_SEARCH_SJ_START|query=stcure
+
+. net from https://www.stata-journal.com/software/
+-------------------------------------------------------------------------------
+https://www.stata-journal.com/software/
+The Stata Journal
+-------------------------------------------------------------------------------
+
+PLACES you could -net link- to:
+    stata             StataCorp website
+    stb               Historical materials published in the Stata Technical
+                        Bulletin
+
+DIRECTORIES you could -net cd- to:
+    sj25-4            volume 25, issue 4
+    sj25-3            volume 25, issue 3
+    sj25-2            volume 25, issue 2
+    sj25-1            volume 25, issue 1
+    sj24-4            volume 24, issue 4
+    sj24-3            volume 24, issue 3
+    sj24-2            volume 24, issue 2
+    sj24-1            volume 24, issue 1
+    sj23-4            volume 23, issue 4
+    sj23-3            volume 23, issue 3
+    sj23-2            volume 23, issue 2
+    sj23-1            volume 23, issue 1
+    sj22-4            volume 22, issue 4
+    sj22-3            volume 22, issue 3
+    sj22-2            volume 22, issue 2
+    sj22-1            volume 22, issue 1
+    sj21-4            volume 21, issue 4
+    sj21-3            volume 21, issue 3
+    sj21-2            volume 21, issue 2
+    sj21-1            volume 21, issue 1
+    sj20-4            volume 20, issue 4
+    sj20-3            volume 20, issue 3
+    sj20-2            volume 20, issue 2
+    sj20-1            volume 20, issue 1
+    sj19-4            volume 19, issue 4
+    sj19-3            volume 19, issue 3
+    sj19-2            volume 19, issue 2
+    sj19-1            volume 19, issue 1
+    sj18-4            volume 18, issue 4
+    sj18-3            volume 18, issue 3
+    sj18-2            volume 18, issue 2
+    sj18-1            volume 18, issue 1
+    sj17-4            volume 17, issue 4
+    sj17-3            volume 17, issue 3
+    sj17-2            volume 17, issue 2
+    sj17-1            volume 17, issue 1
+    sj16-4            volume 16, issue 4
+    sj16-3            volume 16, issue 3
+    sj16-2            volume 16, issue 2
+    sj16-1            volume 16, issue 1
+    sj15-4            volume 15, issue 4
+    sj15-3            volume 15, issue 3
+    sj15-2            volume 15, issue 2
+    sj15-1            volume 15, issue 1
+    sj14-4            volume 14, issue 4
+    sj14-3            volume 14, issue 3
+    sj14-2            volume 14, issue 2
+    sj14-1            volume 14, issue 1
+    sj13-4            volume 13, issue 4
+    sj13-3            volume 13, issue 3
+    sj13-2            volume 13, issue 2
+    sj13-1            volume 13, issue 1
+    sj12-4            volume 12, issue 4
+    sj12-3            volume 12, issue 3
+    sj12-2            volume 12, issue 2
+    sj12-1            volume 12, issue 1
+    sj11-4            volume 11, issue 4
+    sj11-3            volume 11, issue 3
+    sj11-2            volume 11, issue 2
+    sj11-1            volume 11, issue 1
+    sj10-4            volume 10, issue 4
+    sj10-3            volume 10, issue 3
+    sj10-2            volume 10, issue 2
+    sj10-1            volume 10, issue 1
+    sj9-4             volume 9, issue 4
+    sj9-3             volume 9, issue 3
+    sj9-2             volume 9, issue 2
+    sj9-1             volume 9, issue 1
+    sj8-4             volume 8, issue 4
+    sj8-3             volume 8, issue 3
+    sj8-2             volume 8, issue 2
+    sj8-1             volume 8, issue 1
+    sj7-4             volume 7, issue 4
+    sj7-3             volume 7, issue 3
+    sj7-2             volume 7, issue 2
+    sj7-1             volume 7, issue 1
+    sj6-4             volume 6, issue 4
+    sj6-3             volume 6, issue 3
+    sj6-2             volume 6, issue 2
+    sj6-1             volume 6, issue 1
+    sj5-4             volume 5, issue 4
+    sj5-3             volume 5, issue 3
+    sj5-2             volume 5, issue 2
+    sj5-1             volume 5, issue 1
+    sj4-4             volume 4, issue 4
+    sj4-3             volume 4, issue 3
+    sj4-2             volume 4, issue 2
+    sj4-1             volume 4, issue 1
+    sj3-4             volume 3, issue 4
+    sj3-3             volume 3, issue 3
+    sj3-2             volume 3, issue 2
+    sj3-1             volume 3, issue 1
+    sj2-4             volume 2, issue 4
+    sj2-3             volume 2, issue 3
+    sj2-2             volume 2, issue 2
+    sj2-1             volume 2, issue 1
+    sj1-1             volume 1, issue 1
+-------------------------------------------------------------------------------
+
+. net search stcure
+(contacting http://www.stata.com)
+no matches
+
+. noi di "SS_NET_SEARCH_SJ_DONE|query=stcure"
+SS_NET_SEARCH_SJ_DONE|query=stcure
+
+. exit, clear
+
+end of do-file

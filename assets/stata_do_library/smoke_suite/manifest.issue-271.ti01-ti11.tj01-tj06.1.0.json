@@ -58,7 +58,7 @@
       "params": { "__TIME_VAR__": "y", "__FAILVAR__": "treat", "__INDEPVARS__": "x post" }
     },
     "TI09": {
-      "dependencies": [{ "pkg": "stcure", "purpose": "Cure model estimation", "source": "ssc" }],
+      "dependencies": [],
       "fixtures": [{ "dest": "data.csv", "source": "fixtures/TI09/sample_data.csv" }],
       "params": { "__TIME_VAR__": "year", "__FAILVAR__": "treat", "__INDEPVARS__": "x post" }
     },
@@ -104,4 +104,3 @@
     }
   }
 }
-
