@@ -35,3 +35,7 @@
 - Command: `gh pr checks --watch 319`
 - Command: `gh pr view 319 --json state,mergedAt`
 - Key output: `state=MERGED` / `mergedAt=2026-01-10T08:13:50Z`
+
+### 2026-01-10 Rulebook: archive task
+- Command: `rulebook_task_archive issue-317-prod-e2e-r042 (skipValidation=true)`
+- PR: https://github.com/Leeky1017/SS/pull/325
