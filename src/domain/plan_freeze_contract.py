@@ -20,7 +20,7 @@ def _dependencies_from_meta(*, template_id: str, meta: JsonObject) -> tuple[Json
     deps: list[JsonObject] = []
     for item in raw:
         if isinstance(item, dict):
-            deps.append(cast(JsonObject, item))
+            deps.append(item)
     return tuple(deps)
 
 

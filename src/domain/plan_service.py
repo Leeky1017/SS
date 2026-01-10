@@ -242,7 +242,7 @@ class PlanService:
         template_contract: JsonObject,
         primary_key: str,
         requirement_fingerprint: str,
-        analysis_spec: dict[str, object],
+        analysis_spec: JsonObject,
     ) -> list[PlanStep]:
         generate_step = PlanStep(
             step_id="generate_do",
