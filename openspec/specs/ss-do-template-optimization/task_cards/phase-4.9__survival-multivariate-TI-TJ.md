@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #271
 - Parent: #125
 - Superphase: Phase 4 (full-library Stata 18 audit)
 - Templates: `TI*` + `TJ*` (~17 templates, current inventory)
@@ -33,4 +33,3 @@ Make survival and multivariate templates run on **Stata 18** with fixtures, emit
 - [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
 - [ ] Common failure modes yield explicit `warn/fail` with `SS_RC` context
 - [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
-

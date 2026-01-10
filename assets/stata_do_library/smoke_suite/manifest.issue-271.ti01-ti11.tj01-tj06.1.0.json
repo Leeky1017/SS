@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "issue_271_ti01_ti11_tj01_tj06",
+  "templates": {
+    "TI01": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TI01/sample_data.csv" }],
+      "params": { "__TIME_VAR__": "year", "__FAILVAR__": "treat", "__INDEPVARS__": "x post" }
+    },
+    "TI02": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TI02/sample_data.csv" }],
+      "params": {
+        "__TIME_VAR__": "year",
+        "__FAILVAR__": "treat",
+        "__INDEPVARS__": "x post",
+        "__DIST__": "exponential"
+      }
+    },
+    "TI03": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TI03/sample_data.csv" }],
+      "params": { "__TIME_VAR__": "year", "__FAILVAR__": "treat", "__INDEPVARS__": "x post" }
+    },
+    "TI04": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TI04/sample_data.csv" }],
+      "params": { "__TIME_VAR__": "year", "__FAILVAR__": "cluster", "__INDEPVARS__": "x post" }
+    },
+    "TI05": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TI05/sample_data.csv" }],
+      "params": {
+        "__TIME_VAR__": "year",
+        "__FAILVAR__": "treat",
+        "__INDEPVARS__": "x post",
+        "__STRATA_VAR__": "cluster"
+      }
+    },
+    "TI06": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TI06/sample_data.csv" }],
+      "params": { "__TIME_VAR__": "year", "__FAILVAR__": "treat", "__INDEPVARS__": "x" }
+    },
+    "TI07": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TI07/sample_data.csv" }],
+      "params": {
+        "__TIME_VAR__": "year",
+        "__FAILVAR__": "treat",
+        "__INDEPVARS__": "x post",
+        "__GROUP_VAR__": "cluster"
+      }
+    },
+    "TI08": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TI08/sample_data.csv" }],
+      "params": { "__TIME_VAR__": "y", "__FAILVAR__": "treat", "__INDEPVARS__": "x post" }
+    },
+    "TI09": {
+      "dependencies": [{ "pkg": "stcure", "purpose": "Cure model estimation", "source": "ssc" }],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TI09/sample_data.csv" }],
+      "params": { "__TIME_VAR__": "year", "__FAILVAR__": "treat", "__INDEPVARS__": "x post" }
+    },
+    "TI10": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TI10/sample_data.csv" }],
+      "params": { "__TIME_VAR__": "year", "__FAILVAR__": "treat", "__INDEPVARS__": "x post" }
+    },
+    "TI11": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TI11/sample_data.csv" }],
+      "params": { "__HR__": "0.7", "__P1__": "0.5", "__ALPHA__": "0.05", "__POWER__": "0.8" }
+    },
+    "TJ01": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TJ01/sample_data.csv" }],
+      "params": { "__VARS__": "y x treat post" }
+    },
+    "TJ02": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TJ02/sample_data.csv" }],
+      "params": { "__MODEL_SPEC__": "(y <- x treat post)" }
+    },
+    "TJ03": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TJ03/sample_data.csv" }],
+      "params": { "__GROUP_VAR__": "treat", "__VARS__": "y x" }
+    },
+    "TJ04": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TJ04/sample_data.csv" }],
+      "params": { "__VARS1__": "y x", "__VARS2__": "treat post" }
+    },
+    "TJ05": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TJ05/sample_data.csv" }],
+      "params": { "__VARS__": "y x treat post" }
+    },
+    "TJ06": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TJ06/sample_data.csv" }],
+      "params": { "__VAR1__": "cluster", "__VAR2__": "treat" }
+    }
+  }
+}
+

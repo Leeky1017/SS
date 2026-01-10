@@ -3,13 +3,16 @@
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
-*   - fig_TJ05_mds.png type=figure desc="MDS plot"
+*   - fig_TJ05_mds.png type=graph desc="MDS plot"
 *   - data_TJ05_mds.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+local rc_log_close = _rc
+if `rc_log_close' != 0 {
+    display "SS_RC|code=`rc_log_close'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -20,20 +23,35 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TJ05|level=L1|title=MDS_Analysis"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
+
+program define ss_fail
+    args template_id code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=`template_id'|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    local rc_log = _rc
+    if `rc_log' != 0 {
+        display "SS_RC|code=`rc_log'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
 
 local vars = "__VARS__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
-if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+local rc_file = _rc
+if `rc_file' != 0 {
+    ss_fail TJ05 601 "confirm file data.csv" "input_file_not_found"
 }
-import delimited "data.csv", clear
+import delimited "data.csv", clear varnames(1) encoding(utf8)
 local n_input = _N
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
@@ -42,10 +60,32 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
-mds `vars'
-mdsconfig, autoaspect
-graph export "fig_TJ05_mds.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TJ05_mds.png|type=figure|desc=mds_plot"
+local idvar "id"
+capture confirm variable `idvar'
+local rc_id = _rc
+if `rc_id' != 0 {
+    gen long ss_id = _n
+    local idvar "ss_id"
+    display "SS_RC|code=111|cmd=confirm variable id|msg=id_var_missing_created|severity=warn"
+}
+capture noisily mds `vars', id(`idvar')
+local rc_mds = _rc
+if `rc_mds' != 0 {
+    ss_fail TJ05 `rc_mds' "mds" "mds_failed"
+}
+capture noisily mdsconfig, autoaspect
+local rc_cfg = _rc
+if `rc_cfg' != 0 {
+    display "SS_RC|code=`rc_cfg'|cmd=mdsconfig|msg=mdsconfig_failed|severity=warn"
+}
+capture graph export "fig_TJ05_mds.png", replace width(1200)
+local rc_export = _rc
+if `rc_export' != 0 {
+    display "SS_RC|code=`rc_export'|cmd=graph export fig_TJ05_mds.png|msg=graph_export_failed|severity=warn"
+}
+else {
+    display "SS_OUTPUT_FILE|file=fig_TJ05_mds.png|type=graph|desc=mds_plot"
+}
 
 local stress = e(stress)
 display "SS_METRIC|name=stress|value=`stress'"

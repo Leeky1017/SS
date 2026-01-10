@@ -9,7 +9,10 @@
 * DEPENDENCIES: none
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+local rc_log_close = _rc
+if `rc_log_close' != 0 {
+    display "SS_RC|code=`rc_log_close'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -20,21 +23,36 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TJ04|level=L1|title=Canon_Corr"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
+
+program define ss_fail
+    args template_id code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=`template_id'|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    local rc_log = _rc
+    if `rc_log' != 0 {
+        display "SS_RC|code=`rc_log'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
 
 local vars1 = "__VARS1__"
 local vars2 = "__VARS2__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
-if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+local rc_file = _rc
+if `rc_file' != 0 {
+    ss_fail TJ04 601 "confirm file data.csv" "input_file_not_found"
 }
-import delimited "data.csv", clear
+import delimited "data.csv", clear varnames(1) encoding(utf8)
 local n_input = _N
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
@@ -43,8 +61,17 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
-canon (`vars1') (`vars2')
-local corr1 = e(ccorr1)
+capture noisily canon (`vars1') (`vars2')
+local rc_canon = _rc
+if `rc_canon' != 0 {
+    ss_fail TJ04 `rc_canon' "canon" "canon_failed"
+}
+local corr1 = .
+capture local corr1 = e(ccorr1)
+local rc_corr = _rc
+if `rc_corr' != 0 {
+    display "SS_RC|code=`rc_corr'|cmd=e(ccorr1)|msg=missing_canonical_corr|severity=warn"
+}
 display "SS_METRIC|name=canonical_corr1|value=`corr1'"
 
 preserve
