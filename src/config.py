@@ -141,7 +141,7 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     stata_cmd = tuple(shlex.split(stata_cmd_raw)) if stata_cmd_raw != "" else tuple()
     log_level = str(e.get("SS_LOG_LEVEL", "INFO")).strip().upper()
     upload_object_store_backend = (
-        str(e.get("SS_UPLOAD_OBJECT_STORE_BACKEND", "fake")).strip().lower()
+        str(e.get("SS_UPLOAD_OBJECT_STORE_BACKEND", "s3")).strip().lower()
     )
     upload_s3_endpoint = str(e.get("SS_UPLOAD_S3_ENDPOINT", "")).strip()
     upload_s3_region = str(e.get("SS_UPLOAD_S3_REGION", "")).strip()

@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #315
 - Spec: `openspec/specs/ss-production-e2e-audit-remediation/spec.md`
 - Audit evidence: `openspec/_ops/task_runs/ISSUE-274.md` (F004 context: fake object store default)
 - Related specs:
@@ -34,4 +34,3 @@
 - [ ] runtime 不再支持 `fake` object store backend（错误码稳定、可诊断）
 - [ ] upload sessions 流程在生产配置下可用（至少 direct/multipart 的 presign + finalize 核心路径）
 - [ ] tests 不依赖 runtime fake object store（注入 fake）
-

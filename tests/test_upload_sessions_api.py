@@ -13,7 +13,6 @@ from src.domain.job_inputs_service import JobInputsService
 from src.domain.task_code_redeem_service import TaskCodeRedeemService
 from src.domain.upload_bundle_service import UploadBundleService
 from src.domain.upload_sessions_service import UploadSessionsService
-from src.infra.fake_object_store import FakeObjectStore
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_upload_session_store import FileUploadSessionStore
 from src.main import create_app
@@ -21,6 +20,7 @@ from src.utils.job_workspace import resolve_job_dir
 from src.utils.time import utc_now
 from tests.asgi_client import asgi_client
 from tests.async_overrides import async_override
+from tests.fakes.fake_object_store import FakeObjectStore
 
 pytestmark = pytest.mark.anyio
 
@@ -30,11 +30,11 @@ def _sha256_hex(data: bytes) -> str:
 
 
 def _test_config(*, jobs_dir: Path) -> Config:
-    raw = load_config(env={"SS_JOBS_DIR": str(jobs_dir), "SS_UPLOAD_OBJECT_STORE_BACKEND": "fake"})
+    raw = load_config(env={"SS_JOBS_DIR": str(jobs_dir)})
     return replace(
         raw,
         jobs_dir=jobs_dir,
-        upload_object_store_backend="fake",
+        upload_object_store_backend="s3",
         upload_presigned_url_ttl_seconds=900,
         upload_max_file_size_bytes=10_000_000,
         upload_max_sessions_per_job=128,
