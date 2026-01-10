@@ -29,7 +29,16 @@ Make medical/biostats templates run on **Stata 18** with fixtures, emit **contra
 
 ## Acceptance checklist
 
-- [ ] Stata 18 baseline run: 0 `fail` across `TM*`
-- [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
-- [ ] Common failure modes yield explicit `warn/fail` with `SS_RC` context
-- [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Stata 18 baseline run: 0 `fail` across `TM*`
+- [x] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
+- [x] Common failure modes yield explicit `warn/fail` with `SS_RC` context
+- [x] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-273.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/276
+- Summary:
+  - Added TM smoke-suite manifest + fixture dataset (TM01–TM15)
+  - Fixed runtime failures; replaced `icc` with `loneway` ICC calculation path; added `clogit` warn fallback
+  - Surfaced SSC-only commands as explicit deps (`diagt`, `metan`, `metafunnel`) producing smoke-suite `missing_deps` instead of hard failures
+- Run log: `openspec/_ops/task_runs/ISSUE-273.md`
