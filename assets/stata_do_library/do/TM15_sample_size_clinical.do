@@ -9,7 +9,10 @@
 * DEPENDENCIES: none
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -20,8 +23,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TM15|level=L1|title=Sample_Size_Clinical"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
@@ -37,11 +40,21 @@ local alpha = __ALPHA__
 local power = __POWER__
 local ratio = __RATIO__
 
-if `p1' <= 0 | `p1' >= 1 { local p1 = 0.3 }
-if `p2' <= 0 | `p2' >= 1 { local p2 = 0.5 }
-if `alpha' <= 0 | `alpha' >= 1 { local alpha = 0.05 }
-if `power' <= 0 | `power' >= 1 { local power = 0.8 }
-if `ratio' <= 0 { local ratio = 1 }
+if `p1' <= 0 | `p1' >= 1 {
+    local p1 = 0.3
+}
+if `p2' <= 0 | `p2' >= 1 {
+    local p2 = 0.5
+}
+if `alpha' <= 0 | `alpha' >= 1 {
+    local alpha = 0.05
+}
+if `power' <= 0 | `power' >= 1 {
+    local power = 0.8
+}
+if `ratio' <= 0 {
+    local ratio = 1
+}
 
 power twoproportions `p1' `p2', alpha(`alpha') power(`power') nratio(`ratio')
 local n1 = r(N1)
