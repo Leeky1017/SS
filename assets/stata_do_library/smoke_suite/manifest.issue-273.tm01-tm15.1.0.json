@@ -28,12 +28,12 @@
       "params": { "__OUTCOME__": "outcome", "__TREATMENT__": "treatment" }
     },
     "TM06": {
-      "dependencies": [{ "pkg": "metan", "purpose": "Meta-analysis forest plot", "source": "ssc" }],
+      "dependencies": [],
       "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
       "params": { "__EFFECT__": "effect", "__SE__": "se", "__STUDY__": "study" }
     },
     "TM07": {
-      "dependencies": [{ "pkg": "metafunnel", "purpose": "Funnel plot", "source": "ssc" }],
+      "dependencies": [],
       "fixtures": [{ "dest": "data.csv", "source": "fixtures/TM_common/sample_data.csv" }],
       "params": { "__EFFECT__": "effect", "__SE__": "se" }
     },

@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Cohort RR assumes incidence can be estimated within exposed/unexposed groups; ensure follow-up and censoring are handled appropriately.
+* - Sparse events can lead to unstable CI; consider exact methods or alternative models when needed.
+* - Report absolute risk difference (ARD) alongside RR for clinical interpretation.
+* 最佳实践审查（ZH）:
+* - 队列 RR 依赖暴露/未暴露组的发病估计；请确保随访与删失处理合理。
+* - 事件稀少会导致置信区间不稳定；必要时考虑精确方法或替代模型。
+* - 建议同时报告绝对风险差（ARD）以便临床解读。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -30,6 +38,8 @@ local outcome = "__OUTCOME__"
 local exposure = "__EXPOSURE__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -56,11 +66,84 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate binary outcome/exposure variables.
+* ZH: 校验结局/暴露变量为二分类。
+capture confirm variable `outcome'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `outcome'|msg=var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM09|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm variable `exposure'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `exposure'|msg=var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM09|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `outcome'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `outcome'|msg=var_not_numeric|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM09|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `exposure'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `exposure'|msg=var_not_numeric|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM09|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+quietly levelsof `outcome' if !missing(`outcome'), local(o_levels)
+quietly levelsof `exposure' if !missing(`exposure'), local(e_levels)
+local n_o : word count `o_levels'
+local n_e : word count `e_levels'
+display "SS_METRIC|name=n_outcome_levels|value=`n_o'"
+display "SS_METRIC|name=n_exposure_levels|value=`n_e'"
+if (`n_o' != 2) | (`n_e' != 2) {
+    display "SS_RC|code=2002|cmd=validate_binary_vars|msg=non_binary_detected|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM09|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 2002
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
-cs `outcome' `exposure'
+* EN: Estimate RR via cs.
+* ZH: 使用 cs 估计 RR。
+capture noisily cs `outcome' `exposure'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=cs|msg=cs_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM09|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 local rr = r(rr)
 local lb = r(lb_rr)
 local ub = r(ub_rr)

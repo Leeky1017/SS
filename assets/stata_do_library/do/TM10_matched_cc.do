@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Matched case-control analysis requires correct matching ID and appropriate conditional logistic specification.
+* - Sparse strata or no within-strata variation can cause estimation failures; handle these explicitly.
+* - Report matching scheme and check balance within matched sets before interpretation.
+* 最佳实践审查（ZH）:
+* - 匹配病例-对照分析依赖正确的匹配组 ID 与条件 logit 设定。
+* - 匹配组稀疏或组内无变异会导致估计失败；应显式处理并给出告警。
+* - 建议在解读前说明匹配方案并检查匹配组内平衡性。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -31,6 +39,8 @@ local exposure = "__EXPOSURE__"
 local match_id = "__MATCH_ID__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -57,6 +67,22 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables exist.
+* ZH: 校验关键变量存在。
+local required_vars "`case' `exposure' `match_id'"
+foreach v of local required_vars {
+    capture confirm variable `v'
+    if _rc {
+        local rc = _rc
+        display "SS_RC|code=`rc'|cmd=confirm variable `v'|msg=var_not_found|severity=fail"
+        timer off 1
+        quietly timer list 1
+        local elapsed = r(t1)
+        display "SS_TASK_END|id=TM10|status=fail|elapsed_sec=`elapsed'"
+        log close
+        exit `rc'
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"

@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Case-control odds ratios require careful definition of case/exposure and sampling scheme; confirm coding and inclusion criteria.
+* - Sparse cells can destabilize estimates; consider exact methods or penalized models when appropriate.
+* - Report the 2x2 table counts alongside OR and CI.
+* 最佳实践审查（ZH）:
+* - 病例-对照 OR 依赖病例/暴露定义与抽样方案；请确认编码与纳入标准。
+* - 稀疏单元格会导致估计不稳定；必要时考虑精确方法或惩罚模型。
+* - 建议在报告 OR/CI 的同时报告四格表计数。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -30,6 +38,8 @@ local case = "__CASE__"
 local exposure = "__EXPOSURE__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -56,11 +66,84 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate binary case/exposure variables.
+* ZH: 校验病例/暴露变量为二分类。
+capture confirm variable `case'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `case'|msg=var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm variable `exposure'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm variable `exposure'|msg=var_not_found|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `case'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `case'|msg=var_not_numeric|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture confirm numeric variable `exposure'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=confirm numeric variable `exposure'|msg=var_not_numeric|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+quietly levelsof `case' if !missing(`case'), local(c_levels)
+quietly levelsof `exposure' if !missing(`exposure'), local(e_levels)
+local n_c : word count `c_levels'
+local n_e : word count `e_levels'
+display "SS_METRIC|name=n_case_levels|value=`n_c'"
+display "SS_METRIC|name=n_exposure_levels|value=`n_e'"
+if (`n_c' != 2) | (`n_e' != 2) {
+    display "SS_RC|code=2002|cmd=validate_binary_vars|msg=non_binary_detected|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 2002
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
-cc `case' `exposure'
+* EN: Estimate odds ratio via cc.
+* ZH: 使用 cc 估计 OR。
+capture noisily cc `case' `exposure'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=cc|msg=cc_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TM08|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 local or = r(or)
 local lb = r(lb_or)
 local ub = r(ub_or)

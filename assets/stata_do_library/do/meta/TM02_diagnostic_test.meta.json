@@ -3,7 +3,7 @@
   "dependencies": [
     {
       "pkg": "stata",
-      "purpose": "diagt command",
+      "purpose": "2x2 diagnostic accuracy metrics",
       "source": "built-in"
     }
   ],
