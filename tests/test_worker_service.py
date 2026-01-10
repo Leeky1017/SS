@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from src.domain.do_file_generator import DEFAULT_SUMMARY_TABLE_FILENAME
+from src.domain.do_file_generator import DEFAULT_SUMMARY_TABLE_FILENAME, DoFileGenerator
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService
 from src.domain.models import ArtifactKind, JobConfirmation, JobInputs, JobStatus
@@ -13,6 +13,8 @@ from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
+from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
+from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store import JobStore
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.infra.stata_run_support import ERROR_FILENAME, META_FILENAME
@@ -33,11 +35,16 @@ def _write_job_inputs(*, jobs_dir: Path, job_id: str) -> None:
     )
 
 
-def _prepare_queued_job(*, jobs_dir: Path, queue: FileWorkerQueue) -> str:
+def _prepare_queued_job(*, jobs_dir: Path, queue: FileWorkerQueue, library_dir: Path) -> str:
     store = JobStore(jobs_dir=jobs_dir)
     state_machine = JobStateMachine()
     scheduler = QueueJobScheduler(queue=queue)
-    plan_service = PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
+    plan_service = PlanService(
+        store=store,
+        workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=library_dir),
+        do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir),
+    )
     job_service = JobService(
         store=store,
         scheduler=scheduler,
@@ -65,8 +72,10 @@ def test_worker_service_with_success_once_marks_job_succeeded(tmp_path: Path) ->
     jobs_dir = tmp_path / "jobs"
     queue_dir = tmp_path / "queue"
     queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
-    job_id = _prepare_queued_job(jobs_dir=jobs_dir, queue=queue)
+    library_dir = Path(__file__).resolve().parents[1] / "assets" / "stata_do_library"
+    job_id = _prepare_queued_job(jobs_dir=jobs_dir, queue=queue, library_dir=library_dir)
 
+    repo = FileSystemDoTemplateRepository(library_dir=library_dir)
     service = WorkerService(
         store=JobStore(jobs_dir=jobs_dir),
         queue=queue,
@@ -74,6 +83,7 @@ def test_worker_service_with_success_once_marks_job_succeeded(tmp_path: Path) ->
         runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[True]),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
+        do_file_generator=DoFileGenerator(do_template_repo=repo),
         sleep=_noop_sleep,
     )
 
@@ -106,7 +116,8 @@ def test_trigger_run_writes_queue_record_with_traceparent_matching_job_trace_id(
     queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
 
     # Act
-    job_id = _prepare_queued_job(jobs_dir=jobs_dir, queue=queue)
+    library_dir = Path(__file__).resolve().parents[1] / "assets" / "stata_do_library"
+    job_id = _prepare_queued_job(jobs_dir=jobs_dir, queue=queue, library_dir=library_dir)
 
     # Assert
     queued_files = list((queue_dir / "queued").glob("*.json"))
@@ -126,8 +137,10 @@ def test_worker_service_with_failure_then_success_retries_and_succeeds(tmp_path:
     jobs_dir = tmp_path / "jobs"
     queue_dir = tmp_path / "queue"
     queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
-    job_id = _prepare_queued_job(jobs_dir=jobs_dir, queue=queue)
+    library_dir = Path(__file__).resolve().parents[1] / "assets" / "stata_do_library"
+    job_id = _prepare_queued_job(jobs_dir=jobs_dir, queue=queue, library_dir=library_dir)
 
+    repo = FileSystemDoTemplateRepository(library_dir=library_dir)
     service = WorkerService(
         store=JobStore(jobs_dir=jobs_dir),
         queue=queue,
@@ -135,6 +148,7 @@ def test_worker_service_with_failure_then_success_retries_and_succeeds(tmp_path:
         runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[False, True]),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
+        do_file_generator=DoFileGenerator(do_template_repo=repo),
         sleep=_noop_sleep,
     )
 
@@ -162,8 +176,10 @@ def test_worker_service_with_failures_until_max_marks_job_failed(tmp_path: Path)
     jobs_dir = tmp_path / "jobs"
     queue_dir = tmp_path / "queue"
     queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
-    job_id = _prepare_queued_job(jobs_dir=jobs_dir, queue=queue)
+    library_dir = Path(__file__).resolve().parents[1] / "assets" / "stata_do_library"
+    job_id = _prepare_queued_job(jobs_dir=jobs_dir, queue=queue, library_dir=library_dir)
 
+    repo = FileSystemDoTemplateRepository(library_dir=library_dir)
     service = WorkerService(
         store=JobStore(jobs_dir=jobs_dir),
         queue=queue,
@@ -171,6 +187,7 @@ def test_worker_service_with_failures_until_max_marks_job_failed(tmp_path: Path)
         runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[False, False]),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=2, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
+        do_file_generator=DoFileGenerator(do_template_repo=repo),
         sleep=_noop_sleep,
     )
 
@@ -201,7 +218,13 @@ def test_worker_service_when_plan_missing_persists_error_artifacts_and_marks_job
     queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
     store = JobStore(jobs_dir=jobs_dir)
     scheduler = QueueJobScheduler(queue=queue)
-    plan_service = PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
+    library_dir = Path(__file__).resolve().parents[1] / "assets" / "stata_do_library"
+    plan_service = PlanService(
+        store=store,
+        workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=library_dir),
+        do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir),
+    )
     job_service = JobService(
         store=store,
         scheduler=scheduler,
@@ -250,7 +273,8 @@ def test_worker_service_when_inputs_manifest_missing_persists_error_artifacts_an
     jobs_dir = tmp_path / "jobs"
     queue_dir = tmp_path / "queue"
     queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
-    job_id = _prepare_queued_job(jobs_dir=jobs_dir, queue=queue)
+    library_dir = Path(__file__).resolve().parents[1] / "assets" / "stata_do_library"
+    job_id = _prepare_queued_job(jobs_dir=jobs_dir, queue=queue, library_dir=library_dir)
     store = JobStore(jobs_dir=jobs_dir)
     job = store.load(job_id)
     job.inputs = None

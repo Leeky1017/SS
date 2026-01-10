@@ -12,6 +12,8 @@ from src.domain.models import JobStatus
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobIllegalTransitionError, JobStateMachine
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
+from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
+from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.utils.job_workspace import resolve_job_dir
 
 
@@ -23,7 +25,12 @@ class InMemoryAuditLogger(AuditLogger):
         self.events.append(event)
 
 
-def test_confirm_job_emits_audit_events(store, draft_service, jobs_dir) -> None:
+def test_confirm_job_emits_audit_events(
+    store,
+    draft_service,
+    jobs_dir,
+    do_template_library_dir,
+) -> None:
     # Arrange
     audit = InMemoryAuditLogger()
     ctx = AuditContext.user(
@@ -36,7 +43,12 @@ def test_confirm_job_emits_audit_events(store, draft_service, jobs_dir) -> None:
     job_service = JobService(
         store=store,
         scheduler=NoopJobScheduler(),
-        plan_service=PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir)),
+        plan_service=PlanService(
+            store=store,
+            workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+            do_template_catalog=FileSystemDoTemplateCatalog(library_dir=do_template_library_dir),
+            do_template_repo=FileSystemDoTemplateRepository(library_dir=do_template_library_dir),
+        ),
         state_machine=JobStateMachine(),
         idempotency=JobIdempotency(),
         audit=audit,

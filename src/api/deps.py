@@ -28,6 +28,8 @@ from src.infra.audit_logger import LoggingAuditLogger
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_upload_session_store import FileUploadSessionStore
 from src.infra.file_worker_queue import FileWorkerQueue
+from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
+from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store_factory import build_job_store
 from src.infra.llm_client_factory import build_llm_client
 from src.infra.object_store_factory import build_object_store
@@ -192,7 +194,13 @@ def _job_query_service_cached() -> JobQueryService:
 
 @lru_cache
 def _plan_service_cached() -> PlanService:
-    return PlanService(store=_job_store_cached(), workspace=_job_workspace_store_cached())
+    config = _config_cached()
+    return PlanService(
+        store=_job_store_cached(),
+        workspace=_job_workspace_store_cached(),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=config.do_template_library_dir),
+        do_template_repo=FileSystemDoTemplateRepository(library_dir=config.do_template_library_dir),
+    )
 
 
 async def get_job_workspace_store() -> JobWorkspaceStore:

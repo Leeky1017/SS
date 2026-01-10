@@ -12,6 +12,8 @@ from src.domain.llm_client import StubLLMClient
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
+from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
+from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
 
@@ -19,6 +21,11 @@ from src.infra.llm_tracing import TracedLLMClient
 @pytest.fixture
 def jobs_dir(tmp_path: Path) -> Path:
     return tmp_path / "jobs"
+
+
+@pytest.fixture
+def do_template_library_dir() -> Path:
+    return Path(__file__).resolve().parents[1] / "assets" / "stata_do_library"
 
 
 @pytest.fixture
@@ -74,5 +81,10 @@ def draft_service(store: JobStore, state_machine: JobStateMachine, jobs_dir: Pat
 
 
 @pytest.fixture
-def plan_service(store: JobStore, jobs_dir: Path) -> PlanService:
-    return PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
+def plan_service(store: JobStore, jobs_dir: Path, do_template_library_dir: Path) -> PlanService:
+    return PlanService(
+        store=store,
+        workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=do_template_library_dir),
+        do_template_repo=FileSystemDoTemplateRepository(library_dir=do_template_library_dir),
+    )

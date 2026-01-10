@@ -12,6 +12,7 @@ from src.domain.job_support import NoopJobScheduler
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
+from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
 from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store_factory import build_job_store
 from src.infra.local_stata_runner import LocalStataRunner
@@ -21,9 +22,12 @@ from src.utils.json_types import JsonObject
 def create_job_services(*, config: Config) -> tuple[JobStore, JobStateMachine, JobService]:
     store = build_job_store(config=config)
     state_machine = JobStateMachine()
+    library_dir = config.do_template_library_dir
     plan_service = PlanService(
         store=store,
         workspace=FileJobWorkspaceStore(jobs_dir=config.jobs_dir),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=library_dir),
+        do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir),
     )
     job_service = JobService(
         store=store,

@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 
 from src.api import deps
 from src.domain.artifacts_service import ArtifactsService
+from src.domain.do_file_generator import DoFileGenerator
 from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_inputs_service import JobInputsService
@@ -26,6 +27,8 @@ from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.fake_stata_runner import FakeStataRunner
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
+from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
+from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
 from src.infra.queue_job_scheduler import QueueJobScheduler
@@ -74,9 +77,12 @@ def journey_job_service(
     journey_jobs_dir: Path,
 ) -> JobService:
     scheduler = QueueJobScheduler(queue=journey_queue)
+    library_dir = Path(__file__).resolve().parents[2] / "assets" / "stata_do_library"
     plan_service = PlanService(
         store=journey_store,
         workspace=FileJobWorkspaceStore(jobs_dir=journey_jobs_dir),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=library_dir),
+        do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir),
     )
     return JobService(
         store=journey_store,
@@ -125,6 +131,7 @@ def journey_worker_service(
     journey_state_machine: JobStateMachine,
 ) -> WorkerService:
     runner = FakeStataRunner(jobs_dir=journey_jobs_dir)
+    library_dir = Path(__file__).resolve().parents[2] / "assets" / "stata_do_library"
     return WorkerService(
         store=journey_store,
         queue=journey_queue,
@@ -132,15 +139,21 @@ def journey_worker_service(
         runner=runner,
         state_machine=journey_state_machine,
         retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
+        do_file_generator=DoFileGenerator(
+            do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir)
+        ),
         sleep=lambda _seconds: None,
     )
 
 
 @pytest.fixture
 def journey_plan_service(journey_store: JobStore, journey_jobs_dir: Path) -> PlanService:
+    library_dir = Path(__file__).resolve().parents[2] / "assets" / "stata_do_library"
     return PlanService(
         store=journey_store,
         workspace=FileJobWorkspaceStore(jobs_dir=journey_jobs_dir),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=library_dir),
+        do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir),
     )
 
 

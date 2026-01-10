@@ -7,6 +7,8 @@ from src.domain.artifacts_service import ArtifactsService
 from src.domain.job_query_service import JobQueryService
 from src.domain.plan_service import PlanService
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
+from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
+from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.main import create_app
 from tests.asgi_client import asgi_client
 from tests.async_overrides import async_override
@@ -14,7 +16,7 @@ from tests.async_overrides import async_override
 pytestmark = pytest.mark.anyio
 
 
-def _test_app(*, job_service, draft_service, store, jobs_dir):  # noqa: ANN001
+def _test_app(*, job_service, draft_service, store, jobs_dir, do_template_library_dir):  # noqa: ANN001
     app = create_app()
     app.dependency_overrides[deps.get_job_service] = async_override(job_service)
     app.dependency_overrides[deps.get_job_query_service] = async_override(
@@ -25,19 +27,25 @@ def _test_app(*, job_service, draft_service, store, jobs_dir):  # noqa: ANN001
         ArtifactsService(store=store, jobs_dir=jobs_dir)
     )
     app.dependency_overrides[deps.get_plan_service] = async_override(
-        PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
+        PlanService(
+            store=store,
+            workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+            do_template_catalog=FileSystemDoTemplateCatalog(library_dir=do_template_library_dir),
+            do_template_repo=FileSystemDoTemplateRepository(library_dir=do_template_library_dir),
+        )
     )
     return app
 
 
 async def test_freeze_plan_when_job_not_ready_returns_409(
-    job_service, draft_service, store, jobs_dir
+    job_service, draft_service, store, jobs_dir, do_template_library_dir
 ) -> None:
     app = _test_app(
         job_service=job_service,
         draft_service=draft_service,
         store=store,
         jobs_dir=jobs_dir,
+        do_template_library_dir=do_template_library_dir,
     )
     async with asgi_client(app=app) as client:
         created = await client.post("/v1/jobs", json={"requirement": "hello"})
@@ -51,13 +59,14 @@ async def test_freeze_plan_when_job_not_ready_returns_409(
 
 
 async def test_freeze_plan_then_get_plan_returns_plan(
-    job_service, draft_service, store, jobs_dir
+    job_service, draft_service, store, jobs_dir, do_template_library_dir
 ) -> None:
     app = _test_app(
         job_service=job_service,
         draft_service=draft_service,
         store=store,
         jobs_dir=jobs_dir,
+        do_template_library_dir=do_template_library_dir,
     )
     async with asgi_client(app=app) as client:
         created = await client.post("/v1/jobs", json={"requirement": "hello"})
@@ -77,13 +86,14 @@ async def test_freeze_plan_then_get_plan_returns_plan(
 
 
 async def test_confirm_auto_freezes_plan_before_queueing(
-    job_service, draft_service, store, jobs_dir
+    job_service, draft_service, store, jobs_dir, do_template_library_dir
 ) -> None:
     app = _test_app(
         job_service=job_service,
         draft_service=draft_service,
         store=store,
         jobs_dir=jobs_dir,
+        do_template_library_dir=do_template_library_dir,
     )
     async with asgi_client(app=app) as client:
         created = await client.post("/v1/jobs", json={"requirement": "hello"})
@@ -103,13 +113,14 @@ async def test_confirm_auto_freezes_plan_before_queueing(
 
 
 async def test_freeze_plan_when_called_twice_is_idempotent(
-    job_service, draft_service, store, jobs_dir
+    job_service, draft_service, store, jobs_dir, do_template_library_dir
 ) -> None:
     app = _test_app(
         job_service=job_service,
         draft_service=draft_service,
         store=store,
         jobs_dir=jobs_dir,
+        do_template_library_dir=do_template_library_dir,
     )
     async with asgi_client(app=app) as client:
         created = await client.post("/v1/jobs", json={"requirement": "hello"})
@@ -133,13 +144,14 @@ async def test_freeze_plan_when_called_twice_is_idempotent(
 
 
 async def test_freeze_plan_when_notes_change_returns_conflict(
-    job_service, draft_service, store, jobs_dir
+    job_service, draft_service, store, jobs_dir, do_template_library_dir
 ) -> None:
     app = _test_app(
         job_service=job_service,
         draft_service=draft_service,
         store=store,
         jobs_dir=jobs_dir,
+        do_template_library_dir=do_template_library_dir,
     )
     async with asgi_client(app=app) as client:
         created = await client.post("/v1/jobs", json={"requirement": "hello"})

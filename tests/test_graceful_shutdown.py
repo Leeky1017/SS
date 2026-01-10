@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from src.domain.do_file_generator import DoFileGenerator
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService
 from src.domain.job_support import NoopJobScheduler
@@ -18,6 +19,8 @@ from src.domain.worker_plan_executor import execute_plan
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_worker_queue import FileWorkerQueue
+from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
+from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store import JobStore
 from src.infra.queue_job_scheduler import QueueJobScheduler
 from src.main import create_app
@@ -29,7 +32,13 @@ def _prepare_queued_job(*, jobs_dir: Path, queue: FileWorkerQueue) -> str:
     store = JobStore(jobs_dir=jobs_dir)
     state_machine = JobStateMachine()
     scheduler = QueueJobScheduler(queue=queue)
-    plan_service = PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
+    library_dir = Path(__file__).resolve().parents[1] / "assets" / "stata_do_library"
+    plan_service = PlanService(
+        store=store,
+        workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=library_dir),
+        do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir),
+    )
     job_service = JobService(
         store=store,
         scheduler=scheduler,
@@ -118,7 +127,13 @@ def test_execute_plan_with_shutdown_deadline_caps_timeout_seconds(tmp_path: Path
     runner = _CapturingRunner()
     jobs_dir = tmp_path / "jobs"
     store = JobStore(jobs_dir=jobs_dir)
-    plan_service = PlanService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
+    library_dir = Path(__file__).resolve().parents[1] / "assets" / "stata_do_library"
+    plan_service = PlanService(
+        store=store,
+        workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=library_dir),
+        do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir),
+    )
     job_service = JobService(
         store=store,
         scheduler=NoopJobScheduler(),
@@ -153,6 +168,9 @@ def test_execute_plan_with_shutdown_deadline_caps_timeout_seconds(tmp_path: Path
         runner=runner,
         shutdown_deadline=deadline,
         clock=lambda: now,
+        do_file_generator=DoFileGenerator(
+            do_template_repo=FileSystemDoTemplateRepository(library_dir=library_dir)
+        ),
     )
 
     assert result.ok is True

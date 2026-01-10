@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Callable
 
 from src.domain.audit import AuditContext, AuditEvent, AuditLogger, NoopAuditLogger
+from src.domain.do_file_generator import DoFileGenerator
 from src.domain.job_store import JobStore
 from src.domain.metrics import NoopMetrics, RuntimeMetrics
 from src.domain.models import Job, JobStatus
@@ -26,12 +27,7 @@ from src.utils.time import utc_now
 logger = logging.getLogger(__name__)
 
 _SHUTDOWN_RELEASE_CLAIM_EVENT = "SS_WORKER_SHUTDOWN_RELEASE_CLAIM"
-_NON_RETRIABLE_ERROR_CODES = {
-    "PLAN_MISSING", "PLAN_INVALID", "INPUTS_MANIFEST_MISSING", "INPUTS_MANIFEST_UNSAFE",
-    "INPUTS_MANIFEST_INVALID", "INPUTS_MANIFEST_READ_FAILED", "DOFILE_PLAN_INVALID",
-    "DOFILE_TEMPLATE_UNSUPPORTED", "DOFILE_INPUTS_MANIFEST_INVALID", "STATA_WORKSPACE_INVALID",
-    "PLAN_COMPOSITION_INVALID", "STATA_INPUTS_UNSAFE",
-}
+_NON_RETRIABLE_ERROR_CODES = {"PLAN_MISSING", "PLAN_INVALID", "INPUTS_MANIFEST_MISSING", "INPUTS_MANIFEST_UNSAFE", "INPUTS_MANIFEST_INVALID", "INPUTS_MANIFEST_READ_FAILED", "DOFILE_PLAN_INVALID", "DOFILE_TEMPLATE_UNSUPPORTED", "DOFILE_INPUTS_MANIFEST_INVALID", "STATA_WORKSPACE_INVALID", "PLAN_COMPOSITION_INVALID", "STATA_INPUTS_UNSAFE"}  # noqa: E501
 
 _NEVER_STOP = repeat(False).__next__
 _NO_DEADLINE = repeat(None).__next__
@@ -54,6 +50,7 @@ class WorkerService:
         runner: StataRunner,
         state_machine: JobStateMachine,
         retry: WorkerRetryPolicy,
+        do_file_generator: DoFileGenerator | None = None,
         metrics: RuntimeMetrics | None = None,
         audit: AuditLogger | None = None,
         clock: Callable[[], datetime] = utc_now,
@@ -65,6 +62,7 @@ class WorkerService:
         self._runner = runner
         self._state_machine = state_machine
         self._retry = retry
+        self._do_file_generator = do_file_generator
         self._metrics = NoopMetrics() if metrics is None else metrics
         self._audit = NoopAuditLogger() if audit is None else audit
         self._clock = clock
@@ -195,6 +193,7 @@ class WorkerService:
                 runner=self._runner,
                 shutdown_deadline=shutdown_deadline(),
                 clock=self._clock,
+                do_file_generator=self._do_file_generator,
             )
             record_attempt_finished(
                 job=job,

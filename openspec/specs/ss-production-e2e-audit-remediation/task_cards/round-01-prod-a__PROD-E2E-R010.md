@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #299
 - Spec: `openspec/specs/ss-production-e2e-audit-remediation/spec.md`
 - Audit evidence: `openspec/_ops/task_runs/ISSUE-274.md` (F001)
 - Related specs:
@@ -36,4 +36,3 @@
 - [ ] `/v1` 链路中存在被注入并实际使用的 `DoTemplateCatalog` 与 `DoTemplateRepository`
 - [ ] 配置路径仅来自 `src/config.py`（无散落 env 读取）
 - [ ] 增加单元测试：给定一个 library_dir，可列出 templates 且可读取 template+meta（不依赖网络）
-
