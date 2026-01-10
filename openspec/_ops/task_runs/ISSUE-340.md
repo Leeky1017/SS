@@ -1,7 +1,7 @@
 # ISSUE-340
 - Issue: #340
 - Branch: task/340-prod-e2e-r013
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/350
 
 ## Plan
 - Replace stub do-file generator with deterministic do-template rendering
