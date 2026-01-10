@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Jones accruals are often estimated cross-sectionally (e.g., industry-year); pooled estimates may be less comparable.
+* - Deflator uses lagged total assets; ensure `__ASSETS__` is total assets and `__PANELVAR__`/`__TIME_VAR__` are correct for lags.
+* - Consider winsorizing inputs/DA and reporting the sample used for estimation (complete cases).
+* 最佳实践审查（ZH）:
+* - Jones 应计模型通常按行业-年份横截面估计；若采用 pooled 估计，结果可比性可能下降。
+* - 使用滞后总资产缩放；请确认 `__ASSETS__` 为总资产且 `__PANELVAR__`/`__TIME_VAR__` 设置正确以生成滞后项。
+* - 建议对输入或 DA 做分位数截尾（winsorize）并报告有效样本量（完整观测）。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -34,6 +42,8 @@ local panelvar = "__PANELVAR__"
 local timevar = "__TIME_VAR__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -60,6 +70,8 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and numeric types.
+* ZH: 校验关键变量存在且为数值型。
 local required_vars "`ta' `rev' `ppe' `assets' `panelvar' `timevar'"
 foreach v of local required_vars {
     capture confirm variable `v'
@@ -88,6 +100,8 @@ foreach v of local required_vars {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Estimate Jones model and compute discretionary accruals (DA = TA - NDA).
+* ZH: 估计 Jones 模型并计算可操纵应计（DA = TA - NDA）。
 
 capture xtset `panelvar' `timevar'
 if _rc {
@@ -106,8 +120,35 @@ generate inv_assets = 1 / L.`assets'
 generate delta_rev = D.`rev' / L.`assets'
 generate ppe_scaled = `ppe' / L.`assets'
 
-regress ta_scaled inv_assets delta_rev ppe_scaled, noconstant
-predict nda, xb
+count if !missing(ta_scaled, inv_assets, delta_rev, ppe_scaled)
+local n_reg = r(N)
+display "SS_METRIC|name=n_reg|value=`n_reg'"
+if `n_reg' < 30 {
+    display "SS_RC|code=2001|cmd=count_complete_cases|msg=small_sample_for_regression|severity=warn"
+}
+
+capture noisily regress ta_scaled inv_assets delta_rev ppe_scaled, noconstant
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=regress|msg=model_fit_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL01|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture noisily predict nda, xb
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=predict|msg=predict_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL01|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 generate da = ta_scaled - nda
 
 summarize da

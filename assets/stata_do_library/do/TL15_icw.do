@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - ICW disclosure/prediction models depend heavily on how ICW is coded; confirm `__ICW__` is binary (0/1) and time-aligned.
+* - Rare-event outcomes may cause separation; treat pseudo-R2 as descriptive and consider alternative diagnostics if needed.
+* - Consider adding year/industry controls and clustering when panel structure exists; this template keeps a portable baseline.
+* 最佳实践审查（ZH）:
+* - ICW（内部控制缺陷）变量的编码与时点非常关键；请确认 `__ICW__` 为 0/1 且与解释变量时期匹配。
+* - 若 ICW 为罕见事件，可能出现完全分离/不收敛；pseudo-R2 更适合作为描述性诊断。
+* - 若为面板数据，可加入年份/行业控制并使用聚类稳健标准误；本模板提供可移植的基线设定。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -35,6 +43,8 @@ local restructure = "__RESTRUCTURE__"
 local loss = "__LOSS__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -61,6 +71,8 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and numeric types.
+* ZH: 校验关键变量存在且为数值型。
 local required_vars "`icw' `lnta' `segments' `foreign' `growth' `restructure' `loss'"
 foreach v of local required_vars {
     capture confirm variable `v'
@@ -89,6 +101,31 @@ foreach v of local required_vars {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Fit logistic model for ICW and export key diagnostics.
+* ZH: 拟合 ICW 的 logit 模型并导出关键诊断指标。
+
+count if !missing(`icw', `lnta', `segments', `foreign', `growth', `restructure', `loss')
+local n_reg = r(N)
+display "SS_METRIC|name=n_reg|value=`n_reg'"
+if `n_reg' < 50 {
+    display "SS_RC|code=2001|cmd=count_complete_cases|msg=small_sample_for_logit|severity=warn"
+}
+
+count if `icw' == 0 & !missing(`icw')
+local n0 = r(N)
+count if `icw' == 1 & !missing(`icw')
+local n1 = r(N)
+display "SS_METRIC|name=n_outcome_0|value=`n0'"
+display "SS_METRIC|name=n_outcome_1|value=`n1'"
+if (`n0' == 0) | (`n1' == 0) {
+    display "SS_RC|code=2002|cmd=validate_binary_outcome|msg=outcome_has_no_variation|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL15|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit 2002
+}
 
 local model_ok = 1
 capture logit `icw' `lnta' `segments' `foreign' `growth' `restructure' `loss'

@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Dechow-Dichev style accrual quality relies on lead/lag CFO; verify CFO is aligned to the same fiscal period and scaled consistently.
+* - Lags/leads require correct `__PANELVAR__`/`__TIME_VAR__`; consider dropping first/last firm-years explicitly if needed.
+* - Consider reporting the estimation sample size and checking for extreme scaled values/outliers.
+* 最佳实践审查（ZH）:
+* - Dechow-Dichev 类应计质量依赖 CFO 的前后期；请确认 CFO 与财务期匹配且缩放口径一致。
+* - 滞后/超前项依赖正确的面板/时间设定；必要时可显式剔除每个公司首末期观测。
+* - 建议报告回归有效样本量，并检查缩放后变量的极端值/异常值。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -33,6 +41,8 @@ local panelvar = "__PANELVAR__"
 local timevar = "__TIME_VAR__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -59,6 +69,8 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and numeric types.
+* ZH: 校验关键变量存在且为数值型。
 local required_vars "`wca' `cfo' `assets' `panelvar' `timevar'"
 foreach v of local required_vars {
     capture confirm variable `v'
@@ -87,6 +99,8 @@ foreach v of local required_vars {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Estimate DD model; accrual quality is |residual| from WCA regression on CFO lead/lag/current.
+* ZH: 估计 DD 模型；应计质量指标通常取 WCA 回归残差的绝对值。
 
 capture xtset `panelvar' `timevar'
 if _rc {
@@ -105,8 +119,35 @@ generate cfo_lag = L.`cfo' / L.`assets'
 generate cfo_cur = `cfo' / L.`assets'
 generate cfo_lead = F.`cfo' / L.`assets'
 
-regress wca_scaled cfo_lag cfo_cur cfo_lead
-predict residual, residuals
+count if !missing(wca_scaled, cfo_lag, cfo_cur, cfo_lead)
+local n_reg = r(N)
+display "SS_METRIC|name=n_reg|value=`n_reg'"
+if `n_reg' < 30 {
+    display "SS_RC|code=2001|cmd=count_complete_cases|msg=small_sample_for_regression|severity=warn"
+}
+
+capture noisily regress wca_scaled cfo_lag cfo_cur cfo_lead
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=regress|msg=model_fit_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL04|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture noisily predict residual, residuals
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=predict|msg=predict_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL04|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 generate aq = abs(residual)
 
 summarize aq

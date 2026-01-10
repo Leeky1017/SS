@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Ohlson O-Score inputs are constructed ratios/flags; confirm each variable definition matches your dataset and period.
+* - The implied probability uses a logistic transform; interpret as relative risk unless locally calibrated/validated.
+* - Missingness and outliers can dominate the score; consider winsorization and missingness checks.
+* 最佳实践审查（ZH）:
+* - Ohlson O-Score 输入多为构造的比率/虚拟变量；请确认各变量口径与时期匹配。
+* - 概率通过 logistic 变换得到；若未做本地校准/验证，更适合作为相对风险指标。
+* - 缺失与极端值会显著影响结果；建议截尾并检查缺失比例。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -27,6 +35,8 @@ display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -53,8 +63,11 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and numeric types.
+* ZH: 校验关键变量存在且为数值型。
 
-* 参数定义
+* EN: Parameter/variable mappings.
+* ZH: 参数/变量映射。
 local size_var "__SIZE__"
 local tlta_var "__TLTA__"
 local wcta_var "__WCTA__"
@@ -93,6 +106,8 @@ foreach v of local required_vars {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute O-Score and implied probability (invlogit).
+* ZH: 计算 O-Score 及其概率（invlogit）。
 
 * Ohlson O-Score: O = -1.32 - 0.407*SIZE + 6.03*TLTA - 1.43*WCTA + 0.0757*CLCA
 *                    - 1.72*OENEG - 2.37*NITA - 1.83*FUTL + 0.285*INTWO - 0.521*CHIN
@@ -100,11 +115,14 @@ generate oscore = -1.32 - 0.407*`size_var' + 6.03*`tlta_var' - 1.43*`wcta_var' /
     + 0.0757*`clca_var' - 1.72*`oeneg_var' - 2.37*`nita_var' - 1.83*`futl_var' ///
     + 0.285*`intwo_var' - 0.521*`chin_var'
 
-generate prob_bankrupt = exp(oscore) / (1 + exp(oscore))
+generate prob_bankrupt = invlogit(oscore)
 
 summarize oscore prob_bankrupt
 local mean_oscore = r(mean)
+count if missing(oscore)
+local n_missing_oscore = r(N)
 display "SS_METRIC|name=mean_oscore|value=`mean_oscore'"
+display "SS_METRIC|name=n_missing_oscore|value=`n_missing_oscore'"
 
 preserve
 clear

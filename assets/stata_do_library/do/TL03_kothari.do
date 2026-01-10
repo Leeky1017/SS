@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Kothari adds performance control (ROA); ensure `__ROA__` is computed consistently (e.g., income / assets) for your setting.
+* - As with Jones models, consider cross-sectional estimation (industry-year) and winsorization for stability.
+* - Deflator uses lagged assets; verify panel/time settings before relying on lags/differences.
+* 最佳实践审查（ZH）:
+* - Kothari 模型加入 ROA 控制；请确认 `__ROA__` 的计算口径一致（如利润/资产）。
+* - 与 Jones 类模型类似，建议按行业-年份横截面估计并对极端值截尾以提升稳健性。
+* - 使用滞后资产缩放；在依赖滞后/差分前请检查面板/时间变量设置。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -36,6 +44,8 @@ local panelvar = "__PANELVAR__"
 local timevar = "__TIME_VAR__"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     local rc = _rc
@@ -62,6 +72,8 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and numeric types.
+* ZH: 校验关键变量存在且为数值型。
 local required_vars "`ta' `rev' `rec' `ppe' `roa' `assets' `panelvar' `timevar'"
 foreach v of local required_vars {
     capture confirm variable `v'
@@ -90,6 +102,8 @@ foreach v of local required_vars {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Estimate Kothari model and compute discretionary accruals (DA).
+* ZH: 估计 Kothari 模型并计算可操纵应计（DA）。
 
 capture xtset `panelvar' `timevar'
 if _rc {
@@ -108,8 +122,35 @@ generate inv_assets = 1 / L.`assets'
 generate adj_rev = (D.`rev' - D.`rec') / L.`assets'
 generate ppe_scaled = `ppe' / L.`assets'
 
-regress ta_scaled inv_assets adj_rev ppe_scaled `roa'
-predict nda, xb
+count if !missing(ta_scaled, inv_assets, adj_rev, ppe_scaled, `roa')
+local n_reg = r(N)
+display "SS_METRIC|name=n_reg|value=`n_reg'"
+if `n_reg' < 30 {
+    display "SS_RC|code=2001|cmd=count_complete_cases|msg=small_sample_for_regression|severity=warn"
+}
+
+capture noisily regress ta_scaled inv_assets adj_rev ppe_scaled `roa'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=regress|msg=model_fit_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL03|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
+capture noisily predict nda, xb
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=predict|msg=predict_failed|severity=fail"
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_TASK_END|id=TL03|status=fail|elapsed_sec=`elapsed'"
+    log close
+    exit `rc'
+}
 generate da = ta_scaled - nda
 
 summarize da
