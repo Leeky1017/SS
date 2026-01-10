@@ -29,7 +29,14 @@ Make finance templates run on **Stata 18** with fixtures, emit **contract-compli
 
 ## Acceptance checklist
 
-- [ ] Stata 18 baseline run: 0 `fail` across `TK*`
-- [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
-- [ ] Code style is normalized across the scope
-- [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Stata 18 baseline run: 0 `fail` across `TK*`
+- [x] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
+- [x] Code style is normalized across the scope
+- [x] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-280.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/291
+- Smoke suite: `rulebook/tasks/issue-280-phase-4-10-finance-tk/evidence/smoke_suite_report.issue-280.rerun11.json` (`passed: 20`)
+- Anchors: removed legacy `SS_*:` / `SS_WARNING:` / `SS_ERROR:` in TK01–TK20; standardized to `SS_EVENT|k=v`
+- Run log: `openspec/_ops/task_runs/ISSUE-280.md`
