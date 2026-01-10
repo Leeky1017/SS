@@ -246,3 +246,32 @@
      - High risk of deploying a “healthy” service that silently uses stub LLM and/or fake Stata runner; production behavior deviates from required capabilities.
    - Fix direction (not in this Issue):
      - Add an explicit production mode config gate (disallow stub LLM + fake runner) and make `/health/ready` fail when violated; document required env vars for production.
+
+### 2026-01-10 Delivery: auto-merge and verified merged
+- Command:
+  - `gh pr merge --auto --squash 281`
+  - `gh pr checks --watch 281`
+  - `gh pr view 281 --json state,mergedAt,mergeStateStatus`
+  - `git fetch origin main && git rebase origin/main && git push --force-with-lease` (resolve `mergeStateStatus=BEHIND`)
+  - `gh pr checks --watch 281` (post-rebase)
+  - `gh pr view 281 --json state,mergedAt` (verify `mergedAt != null`)
+- Key output:
+  - Auto-merge enabled: `will be automatically merged via squash`
+  - Detected blocker: `mergeStateStatus=BEHIND` → resolved by rebase + force-with-lease
+  - Verified merged: `state=MERGED`, `mergedAt=2026-01-10T02:52:47Z`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/281
+
+### 2026-01-10 Closeout: validate task cards + re-run checks
+- Command:
+  - `openspec validate --specs --strict --no-interactive`
+  - `ruff check .`
+  - `pytest -q`
+- Key output:
+  - `Totals: 26 passed, 0 failed (26 items)`
+  - `All checks passed!`
+  - `162 passed, 5 skipped`
+- Evidence:
+  - `openspec/specs/ss-production-e2e-audit/task_cards/ops__audit-inventory-production-chains.md`
+  - `openspec/specs/ss-production-e2e-audit/task_cards/ops__audit-run-production-e2e.md`
+  - `openspec/specs/ss-production-e2e-audit/task_cards/ops__audit-go-no-go-report.md`

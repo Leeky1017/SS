@@ -33,8 +33,16 @@ And clearly separate:
 
 ## Acceptance checklist
 
-- [ ] Inventory includes `/v1` routes used by the E2E journey and their handler locations.
-- [ ] Inventory includes any non-`/v1` routes and states whether they are reachable in production start mode.
-- [ ] Inventory states whether `assets/stata_do_library/**` is executed in the E2E chain, and where the integration boundary is.
-- [ ] Evidence captured in `openspec/_ops/task_runs/ISSUE-274.md` with command output snippets and path references.
+- [x] Inventory includes `/v1` routes used by the E2E journey and their handler locations.
+- [x] Inventory includes any non-`/v1` routes and states whether they are reachable in production start mode.
+- [x] Inventory states whether `assets/stata_do_library/**` is executed in the E2E chain, and where the integration boundary is.
+- [x] Evidence captured in `openspec/_ops/task_runs/ISSUE-274.md` with command output snippets and path references.
 
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/281
+- Run log: `openspec/_ops/task_runs/ISSUE-274.md`
+- Summary:
+  - Mapped `/v1` vs legacy unversioned routing surfaces and their handlers.
+  - Confirmed do-template library is present but not wired into the `/v1` plan+run chain.
