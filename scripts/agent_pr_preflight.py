@@ -252,8 +252,8 @@ def _main() -> int:
     controlplane_dirty = _run(["git", "status", "--porcelain=v1"], cwd=controlplane_root)
     if controlplane_dirty:
         print(
-            f"\n== Controlplane Guard ==\nERROR: controlplane working tree is dirty: {controlplane_root}\n"
-            f"{controlplane_dirty}\nFix: move these changes into a task worktree; keep controlplane main clean."
+            f"\n== Controlplane Guard ==\nERROR: controlplane dirty: {controlplane_root}\n"
+            f"{controlplane_dirty}\nFix: move into task worktree; keep controlplane clean."
         )
         return 5
 
