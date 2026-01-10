@@ -35,10 +35,19 @@ Collect evidence sufficient for a go/no-go decision.
 
 ## Acceptance checklist
 
-- [ ] Run log includes exact process start commands (API/worker) and key logs showing runner type + executed Stata command.
-- [ ] Run log includes HTTP requests, status codes, and key response fields for every step.
-- [ ] Draft preview evidence includes variable extraction and clarification mechanism fields.
-- [ ] Plan freeze evidence includes: template reference, param binding, dependencies, artifact contract/index.
-- [ ] Artifacts are downloaded to a local path and validated against the declared contract.
-- [ ] Evidence captured in `openspec/_ops/task_runs/ISSUE-274.md`.
+- [x] Run log includes exact process start commands (API/worker) and key logs showing runner type + executed Stata command.
+- [x] Run log includes HTTP requests, status codes, and key response fields for every step.
+- [x] Draft preview evidence includes variable extraction and clarification mechanism fields.
+- [x] Plan freeze evidence includes: template reference, param binding, dependencies, artifact contract/index.
+- [x] Artifacts are downloaded to a local path and validated against the declared contract.
+- [x] Evidence captured in `openspec/_ops/task_runs/ISSUE-274.md`.
 
+## Completion
+
+- Status: Done
+- PR: https://github.com/Leeky1017/SS/pull/281
+- Run log: `openspec/_ops/task_runs/ISSUE-274.md`
+- Summary:
+  - Ran `/v1` redeem → upload → preview → draft preview → plan freeze → run → artifacts.
+  - Verified non-stub LLM model evidence (`claude-opus-4-5-20251101`) and real Stata runner execution.
+  - Verified artifacts remain downloadable after restart.
