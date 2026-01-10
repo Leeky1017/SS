@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: #N
+- Issue: #334
 - Spec: `openspec/specs/ss-deployment-docker-minio/spec.md`
 - Related specs:
   - `openspec/specs/ss-inputs-upload-sessions/spec.md`
@@ -46,4 +46,4 @@
 - [ ] `docker compose up` 后 MinIO console 可访问，bucket 已存在
 - [ ] SS 可启动并能返回 `/health/live`
 - [ ] 资产与规范均由 `openspec/specs/**` 管理；`docs/` 如新增仅为指针入口
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-329.md`
+- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-334.md`
