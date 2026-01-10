@@ -6,7 +6,17 @@ import json
 import pytest
 
 from src.domain.models import ArtifactKind, JobConfirmation, JobInputs
-from src.infra.exceptions import PlanAlreadyFrozenError, PlanFreezeNotAllowedError
+from src.domain.plan_service import PlanService
+from src.infra.exceptions import (
+    DoTemplateIndexCorruptedError,
+    DoTemplateMetaNotFoundError,
+    PlanAlreadyFrozenError,
+    PlanFreezeNotAllowedError,
+    PlanTemplateMetaInvalidError,
+    PlanTemplateMetaNotFoundError,
+)
+from src.infra.file_job_workspace_store import FileJobWorkspaceStore
+from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
 from src.utils.job_workspace import resolve_job_dir
 
 
@@ -44,6 +54,12 @@ def test_freeze_plan_persists_llm_plan_and_plan_artifact(
     assert plan_path.exists()
     plan_payload = json.loads(plan_path.read_text(encoding="utf-8"))
     assert plan_payload["plan_id"] == plan.plan_id
+    generate_step = next(step for step in plan_payload["steps"] if step["step_id"] == "generate_do")
+    contract = generate_step["params"]["template_contract"]
+    assert contract["template_id"] == generate_step["params"]["template_id"]
+    assert isinstance(contract["dependencies"], list)
+    assert "params_contract" in contract
+    assert contract["outputs_contract"]["archive_dir_rel_path"] == "runs/{run_id}/artifacts/outputs"
 
     plan_refs = [ref for ref in loaded.artifacts_index if ref.kind == ArtifactKind.PLAN_JSON]
     assert len(plan_refs) == 1
@@ -151,3 +167,78 @@ def test_freeze_plan_with_multi_inputs_and_parallel_requirement_uses_parallel_th
     # Assert
     run = next(step for step in plan.steps if step.step_id == "run_stata")
     assert run.params.get("composition_mode") == "parallel_then_aggregate"
+
+
+def test_freeze_plan_when_template_meta_missing_raises_plan_template_meta_not_found_error(
+    job_service,
+    draft_service,
+    store,
+    jobs_dir,
+    do_template_library_dir,
+) -> None:
+    # Arrange
+    job = job_service.create_job(requirement="need a descriptive analysis")
+    asyncio.run(draft_service.preview(job_id=job.job_id))
+    loaded = store.load(job.job_id)
+    loaded.selected_template_id = "T01"
+    store.save(loaded)
+
+    class Repo:
+        def list_template_ids(self) -> tuple[str, ...]:
+            return ("T01",)
+
+        def get_template(self, *, template_id: str):  # noqa: ANN201
+            raise DoTemplateMetaNotFoundError(
+                template_id=template_id,
+                path="/tmp/missing.meta.json",
+            )
+
+    service = PlanService(
+        store=store,
+        workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=do_template_library_dir),
+        do_template_repo=Repo(),
+    )
+
+    # Act / Assert
+    with pytest.raises(PlanTemplateMetaNotFoundError) as excinfo:
+        service.freeze_plan(job_id=job.job_id, confirmation=JobConfirmation())
+    assert excinfo.value.error_code == "PLAN_TEMPLATE_META_NOT_FOUND"
+    assert job.job_id in excinfo.value.message
+    assert "template_id=T01" in excinfo.value.message
+
+
+def test_freeze_plan_when_template_meta_corrupt_raises_plan_template_meta_invalid_error(
+    job_service,
+    draft_service,
+    store,
+    jobs_dir,
+    do_template_library_dir,
+) -> None:
+    # Arrange
+    job = job_service.create_job(requirement="need a descriptive analysis")
+    asyncio.run(draft_service.preview(job_id=job.job_id))
+    loaded = store.load(job.job_id)
+    loaded.selected_template_id = "T01"
+    store.save(loaded)
+
+    class Repo:
+        def list_template_ids(self) -> tuple[str, ...]:
+            return ("T01",)
+
+        def get_template(self, *, template_id: str):  # noqa: ANN201
+            raise DoTemplateIndexCorruptedError(reason="meta.json_invalid", template_id=template_id)
+
+    service = PlanService(
+        store=store,
+        workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir),
+        do_template_catalog=FileSystemDoTemplateCatalog(library_dir=do_template_library_dir),
+        do_template_repo=Repo(),
+    )
+
+    # Act / Assert
+    with pytest.raises(PlanTemplateMetaInvalidError) as excinfo:
+        service.freeze_plan(job_id=job.job_id, confirmation=JobConfirmation())
+    assert excinfo.value.error_code == "PLAN_TEMPLATE_META_INVALID"
+    assert job.job_id in excinfo.value.message
+    assert "template_id=T01" in excinfo.value.message

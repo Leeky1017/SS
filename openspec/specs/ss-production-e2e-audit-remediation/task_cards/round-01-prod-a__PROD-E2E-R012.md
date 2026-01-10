@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #333
 - Spec: `openspec/specs/ss-production-e2e-audit-remediation/spec.md`
 - Audit evidence: `openspec/_ops/task_runs/ISSUE-274.md` (F002)
 - Related specs:
@@ -35,7 +35,14 @@
 
 ## Acceptance checklist
 
-- [ ] 下载的 `artifacts/plan.json` 显式包含 dependencies 与 outputs contract（字段固定、可审计）
-- [ ] Plan freeze 的响应中可见相同契约信息
-- [ ] 单元测试覆盖：模板 meta 缺失/损坏时的结构化错误与上下文
+- [x] 下载的 `artifacts/plan.json` 显式包含 dependencies 与 outputs contract（字段固定、可审计）
+- [x] Plan freeze 的响应中可见相同契约信息
+- [x] 单元测试覆盖：模板 meta 缺失/损坏时的结构化错误与上下文
 
+## Completion
+
+- PR: <fill-after-created>
+- `POST /v1/jobs/{job_id}/plan/freeze` 在 `generate_do` step params 写入 `template_contract`（params/deps/outputs contract）并落盘到 `artifacts/plan.json`
+- 模板选择链路收敛到 v1 可执行子集（保证 `template_params` 可生成并避免缺参崩溃）
+- 新增单测：模板 meta 缺失/损坏时返回 `PLAN_TEMPLATE_META_*` 结构化错误（含 job_id/template_id 上下文）
+- Run log: `openspec/_ops/task_runs/ISSUE-333.md`

@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-import hashlib
-import json
 import logging
-import re
-from collections.abc import Mapping
 from typing import cast
 
 from src.domain import do_template_plan_support
@@ -15,7 +11,6 @@ from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.models import (
     ArtifactKind,
-    ArtifactRef,
     Job,
     JobConfirmation,
     JobStatus,
@@ -28,48 +23,31 @@ from src.domain.plan_contract import (
     apply_confirmation_effects,
     validate_contract_columns,
 )
-from src.domain.plan_routing import choose_composition_mode, extract_input_dataset_keys
-from src.infra.exceptions import JobStoreIOError
-from src.infra.input_exceptions import InputPathUnsafeError
+from src.domain.plan_freeze_contract import build_plan_freeze_contract
+from src.domain.plan_id_support import build_plan_id, normalize_whitespace, sha256_hex
+from src.domain.plan_routing import choose_composition_mode
+from src.domain.plan_service_support import (
+    RUN_STATA_PRODUCES,
+    ensure_plan_artifact_index,
+    known_input_keys,
+    write_plan_artifact,
+)
+from src.infra.exceptions import (
+    DoTemplateContractInvalidError,
+    DoTemplateIndexCorruptedError,
+    DoTemplateMetaNotFoundError,
+)
 from src.infra.plan_exceptions import (
     PlanAlreadyFrozenError,
-    PlanArtifactsWriteError,
     PlanFreezeNotAllowedError,
     PlanMissingError,
+    PlanTemplateMetaInvalidError,
+    PlanTemplateMetaNotFoundError,
 )
 from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID
 
 logger = logging.getLogger(__name__)
-
-_WHITESPACE_RE = re.compile(r"\s+")
-
-
-def _normalize_whitespace(value: str) -> str:
-    return _WHITESPACE_RE.sub(" ", value.strip())
-
-
-def _sha256_hex(value: str) -> str:
-    return hashlib.sha256(value.encode("utf-8", errors="ignore")).hexdigest()
-
-
-def _plan_id(
-    *, job_id: str, inputs_fingerprint: str, requirement: str, confirmation: JsonObject
-) -> str:
-    canonical = json.dumps(
-        {
-            "v": 1,
-            "job_id": job_id,
-            "inputs_fingerprint": inputs_fingerprint,
-            "requirement": requirement,
-            "confirmation": confirmation,
-        },
-        ensure_ascii=False,
-        sort_keys=True,
-        separators=(",", ":"),
-    )
-    return _sha256_hex(canonical)
-
 
 class PlanService:
     """Plan service: freeze a schema-bound plan and persist it as an artifact."""
@@ -79,6 +57,45 @@ class PlanService:
         self._workspace = workspace
         self._do_template_catalog = do_template_catalog
         self._do_template_repo = do_template_repo
+
+    def _return_existing_plan_if_idempotent(
+        self, *, job: Job, expected_plan_id: str
+    ) -> LLMPlan | None:
+        existing = job.llm_plan
+        if existing is None:
+            return None
+        if existing.plan_id != expected_plan_id:
+            logger.warning(
+                "SS_PLAN_ALREADY_FROZEN_CONFLICT",
+                extra={
+                    "job_id": job.job_id,
+                    "existing_plan_id": existing.plan_id,
+                    "expected_plan_id": expected_plan_id,
+                },
+            )
+            raise PlanAlreadyFrozenError(job_id=job.job_id)
+        logger.info(
+            "SS_PLAN_FREEZE_IDEMPOTENT",
+            extra={"job_id": job.job_id, "plan_id": existing.plan_id},
+        )
+        return existing
+
+    def _ensure_freeze_allowed(self, *, job: Job) -> None:
+        if job.status in {JobStatus.DRAFT_READY, JobStatus.CONFIRMED}:
+            return
+        logger.warning(
+            "SS_PLAN_FREEZE_NOT_ALLOWED",
+            extra={"job_id": job.job_id, "status": job.status.value},
+        )
+        raise PlanFreezeNotAllowedError(job_id=job.job_id, status=job.status.value)
+
+    def _persist_frozen_plan(
+        self, *, tenant_id: str, job: Job, confirmation: JobConfirmation, plan: LLMPlan
+    ) -> None:
+        job.confirmation = confirmation
+        job.llm_plan = plan
+        ensure_plan_artifact_index(job=job, rel_path=plan.rel_path)
+        self._store.save(tenant_id=tenant_id, job=job)
 
     def freeze_plan(
         self,
@@ -93,38 +110,24 @@ class PlanService:
         job, confirmation = apply_confirmation_effects(job=job, confirmation=confirmation)
         expected_plan_id = self._expected_plan_id(job=job, confirmation=confirmation)
 
-        if job.llm_plan is not None:
-            if job.llm_plan.plan_id != expected_plan_id:
-                logger.warning(
-                    "SS_PLAN_ALREADY_FROZEN_CONFLICT",
-                    extra={
-                        "job_id": job_id,
-                        "existing_plan_id": job.llm_plan.plan_id,
-                        "expected_plan_id": expected_plan_id,
-                    },
-                )
-                raise PlanAlreadyFrozenError(job_id=job_id)
-            logger.info(
-                "SS_PLAN_FREEZE_IDEMPOTENT",
-                extra={"job_id": job_id, "plan_id": job.llm_plan.plan_id},
-            )
-            return job.llm_plan
-
-        if job.status not in {JobStatus.DRAFT_READY, JobStatus.CONFIRMED}:
-            logger.warning(
-                "SS_PLAN_FREEZE_NOT_ALLOWED",
-                extra={"job_id": job_id, "status": job.status.value},
-            )
-            raise PlanFreezeNotAllowedError(job_id=job_id, status=job.status.value)
+        existing = self._return_existing_plan_if_idempotent(
+            job=job,
+            expected_plan_id=expected_plan_id,
+        )
+        if existing is not None:
+            return existing
+        self._ensure_freeze_allowed(job=job)
 
         validate_contract_columns(workspace=self._workspace, tenant_id=tenant_id, job=job)
         plan = self._build_plan(job=job, confirmation=confirmation, plan_id=expected_plan_id)
-        self._write_plan_artifact(tenant_id=tenant_id, job_id=job_id, plan=plan)
+        write_plan_artifact(store=self._store, tenant_id=tenant_id, job_id=job_id, plan=plan)
 
-        job.confirmation = confirmation
-        job.llm_plan = plan
-        self._ensure_plan_artifact_index(job=job, rel_path=plan.rel_path)
-        self._store.save(tenant_id=tenant_id, job=job)
+        self._persist_frozen_plan(
+            tenant_id=tenant_id,
+            job=job,
+            confirmation=confirmation,
+            plan=plan,
+        )
         logger.info(
             "SS_PLAN_FROZEN",
             extra={"tenant_id": tenant_id, "job_id": job_id, "plan_id": plan.plan_id},
@@ -172,127 +175,134 @@ class PlanService:
             inputs_fingerprint = job.inputs.fingerprint
 
         requirement = job.requirement if job.requirement is not None else ""
-        requirement_norm = _normalize_whitespace(requirement)
+        requirement_norm = normalize_whitespace(requirement)
         confirmation_payload = cast(JsonObject, confirmation.model_dump(mode="json"))
-        return _plan_id(
+        return build_plan_id(
             job_id=job.job_id,
             inputs_fingerprint=inputs_fingerprint,
             requirement=requirement_norm,
             confirmation=confirmation_payload,
         )
 
-    def _build_plan(self, *, job: Job, confirmation: JobConfirmation, plan_id: str) -> LLMPlan:
-        requirement = confirmation.requirement if confirmation.requirement is not None else ""
-        requirement_norm = _normalize_whitespace(requirement)
-        requirement_fingerprint = _sha256_hex(requirement_norm)
-        analysis_spec = analysis_spec_from_draft(job=job)
-        analysis_vars = do_template_plan_support.analysis_vars_from_analysis_spec(analysis_spec)
-        template_id = do_template_plan_support.select_template_id(
+    def _resolve_template_id(self, *, job: Job, analysis_vars: list[str]) -> str:
+        template_id = job.selected_template_id
+        if template_id is not None and template_id.strip() != "":
+            return template_id
+        selected = do_template_plan_support.select_template_id(
             catalog=self._do_template_catalog,
             repo=self._do_template_repo,
             analysis_vars=analysis_vars,
         )
-        template_params = do_template_plan_support.template_params_for(template_id=template_id, analysis_vars=analysis_vars)  # noqa: E501
-        input_keys = self._known_input_keys(job=job)
-        primary_key = "primary"
-        if primary_key not in input_keys:
-            primary_key = sorted(input_keys)[0]
+        logger.info(
+            "SS_PLAN_TEMPLATE_SELECTED_FALLBACK",
+            extra={"job_id": job.job_id, "template_id": selected},
+        )
+        job.selected_template_id = selected
+        return selected
+
+    def _build_template_contract(
+        self, *, job_id: str, template_id: str, template_params: JsonObject
+    ) -> JsonObject:
+        try:
+            tpl = self._do_template_repo.get_template(template_id=template_id)
+            bound_values = {k: v for k, v in template_params.items() if isinstance(v, str)}
+            return build_plan_freeze_contract(
+                template_id=template_id,
+                meta=tpl.meta,
+                bound_values=bound_values,
+            )
+        except DoTemplateMetaNotFoundError as e:
+            logger.warning(
+                "SS_PLAN_TEMPLATE_META_NOT_FOUND",
+                extra={"job_id": job_id, "template_id": template_id, "error_code": e.error_code},
+            )
+            raise PlanTemplateMetaNotFoundError(job_id=job_id, template_id=template_id) from e
+        except (DoTemplateIndexCorruptedError, DoTemplateContractInvalidError) as e:
+            logger.warning(
+                "SS_PLAN_TEMPLATE_META_INVALID",
+                extra={
+                    "job_id": job_id,
+                    "template_id": template_id,
+                    "error_code": e.error_code,
+                    "error_message": e.message,
+                },
+            )
+            raise PlanTemplateMetaInvalidError(
+                job_id=job_id,
+                template_id=template_id,
+                reason=e.error_code,
+            ) from e
+
+    def _build_steps(
+        self,
+        *,
+        composition_mode: str,
+        template_id: str,
+        template_params: JsonObject,
+        template_contract: JsonObject,
+        primary_key: str,
+        requirement_fingerprint: str,
+        analysis_spec: dict[str, object],
+    ) -> list[PlanStep]:
+        generate_step = PlanStep(
+            step_id="generate_do",
+            type=PlanStepType.GENERATE_STATA_DO,
+            params={
+                "composition_mode": composition_mode,
+                "template_id": template_id,
+                "template_params": template_params,
+                "template_contract": template_contract,
+                "input_bindings": {"primary_dataset": f"input:{primary_key}"},
+                "products": [],
+                "requirement_fingerprint": requirement_fingerprint,
+                "analysis_spec": analysis_spec,
+            },
+            depends_on=[],
+            produces=[ArtifactKind.STATA_DO],
+        )
+        run_step = PlanStep(
+            step_id="run_stata",
+            type=PlanStepType.RUN_STATA,
+            params={
+                "composition_mode": composition_mode,
+                "timeout_seconds": 300,
+                "products": [{"product_id": "summary_table", "kind": "table"}],
+            },
+            depends_on=["generate_do"],
+            produces=RUN_STATA_PRODUCES,
+        )
+        return [generate_step, run_step]
+
+    def _build_plan(self, *, job: Job, confirmation: JobConfirmation, plan_id: str) -> LLMPlan:
+        requirement = confirmation.requirement if confirmation.requirement is not None else ""
+        requirement_norm = normalize_whitespace(requirement)
+        requirement_fingerprint = sha256_hex(requirement_norm)
+        analysis_spec = analysis_spec_from_draft(job=job)
+        analysis_vars = do_template_plan_support.analysis_vars_from_analysis_spec(analysis_spec)
+        template_id = self._resolve_template_id(job=job, analysis_vars=analysis_vars)
+        template_params = do_template_plan_support.template_params_for(
+            template_id=template_id, analysis_vars=analysis_vars
+        )
+        contract = self._build_template_contract(
+            job_id=job.job_id,
+            template_id=template_id,
+            template_params=template_params,
+        )
+        input_keys = known_input_keys(workspace=self._workspace, job=job)
+        primary_key = "primary" if "primary" in input_keys else sorted(input_keys)[0]
         composition_mode = choose_composition_mode(
             requirement=requirement_norm,
             input_keys=input_keys,
         )
-        rel_path = "artifacts/plan.json"
-        steps = [
-            PlanStep(
-                step_id="generate_do",
-                type=PlanStepType.GENERATE_STATA_DO,
-                params={
-                    "composition_mode": composition_mode.value,
-                    "template_id": template_id,
-                    "template_params": template_params,
-                    "input_bindings": {"primary_dataset": f"input:{primary_key}"},
-                    "products": [],
-                    "requirement_fingerprint": requirement_fingerprint,
-                    "analysis_spec": analysis_spec,
-                },
-                depends_on=[],
-                produces=[ArtifactKind.STATA_DO],
-            ),
-            PlanStep(
-                step_id="run_stata",
-                type=PlanStepType.RUN_STATA,
-                params={
-                    "composition_mode": composition_mode.value,
-                    "timeout_seconds": 300,
-                    "products": [{"product_id": "summary_table", "kind": "table"}],
-                },
-                depends_on=["generate_do"],
-                produces=[
-                    ArtifactKind.RUN_STDOUT,
-                    ArtifactKind.RUN_STDERR,
-                    ArtifactKind.STATA_LOG,
-                    ArtifactKind.STATA_EXPORT_TABLE,
-                    ArtifactKind.RUN_META_JSON,
-                    ArtifactKind.RUN_ERROR_JSON,
-                ],
-            ),
-        ]
-        plan = LLMPlan(plan_id=plan_id, rel_path=rel_path, steps=steps)
+        steps = self._build_steps(
+            composition_mode=composition_mode.value,
+            template_id=template_id,
+            template_params=template_params,
+            template_contract=contract,
+            primary_key=primary_key,
+            requirement_fingerprint=requirement_fingerprint,
+            analysis_spec=analysis_spec,
+        )
+        plan = LLMPlan(plan_id=plan_id, rel_path="artifacts/plan.json", steps=steps)
         validate_composition_plan(plan=plan, known_input_keys=input_keys)
         return plan
-
-    def _known_input_keys(self, *, job: Job) -> set[str]:
-        default = {"primary"}
-        if job.inputs is None:
-            return default
-        rel_path = job.inputs.manifest_rel_path
-        if rel_path is None or rel_path.strip() == "":
-            return default
-
-        try:
-            path = self._workspace.resolve_for_read(
-                tenant_id=job.tenant_id,
-                job_id=job.job_id,
-                rel_path=rel_path,
-            )
-            raw = json.loads(path.read_text(encoding="utf-8"))
-        except (FileNotFoundError, OSError, json.JSONDecodeError, InputPathUnsafeError) as e:
-            logger.warning(
-                "SS_PLAN_INPUTS_MANIFEST_READ_FAILED",
-                extra={
-                    "tenant_id": job.tenant_id,
-                    "job_id": job.job_id,
-                    "rel_path": rel_path,
-                    "reason": str(e),
-                },
-            )
-            return default
-        if not isinstance(raw, Mapping):
-            logger.warning(
-                "SS_PLAN_INPUTS_MANIFEST_INVALID",
-                extra={"tenant_id": job.tenant_id, "job_id": job.job_id, "rel_path": rel_path},
-            )
-            return default
-        keys = extract_input_dataset_keys(manifest=raw)
-        return default if len(keys) == 0 else keys
-
-    def _write_plan_artifact(self, *, tenant_id: str, job_id: str, plan: LLMPlan) -> None:
-        try:
-            self._store.write_artifact_json(
-                tenant_id=tenant_id,
-                job_id=job_id,
-                rel_path=plan.rel_path,
-                payload=plan.model_dump(mode="json"),
-            )
-        except JobStoreIOError as e:
-            logger.warning(
-                "SS_PLAN_ARTIFACT_WRITE_FAILED",
-                extra={"job_id": job_id, "error_code": e.error_code, "error_message": e.message},
-            )
-            raise PlanArtifactsWriteError(job_id=job_id) from e
-
-    def _ensure_plan_artifact_index(self, *, job: Job, rel_path: str) -> None:
-        for ref in job.artifacts_index:
-            if ref.kind == ArtifactKind.PLAN_JSON and ref.rel_path == rel_path:
-                return
-        job.artifacts_index.append(ArtifactRef(kind=ArtifactKind.PLAN_JSON, rel_path=rel_path))
