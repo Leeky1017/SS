@@ -14,11 +14,11 @@
 - Normalize anchors to `SS_EVENT|k=v` and unify style within TI/TJ templates.
 
 ## Status
-- CURRENT: TI/TJ smoke suite is 0 failed; ruff/pytest/openspec validate are green; ready to commit/push and open PR + auto-merge.
+- CURRENT: Changes committed + pushed; run preflight, open PR, and enable auto-merge.
 
 ## Next Actions
 - [x] Run `ruff` + `pytest` + `openspec validate` and record outputs.
-- [ ] Commit changes with `(#271)` and push branch.
+- [x] Commit changes with `(#271)` and push branch.
 - [ ] Run PR preflight and open PR with `Closes #271` + enable auto-merge.
 
 ## Decisions Made
@@ -70,4 +70,13 @@
 ### 2026-01-10 10:21 openspec validate — ok
 - Command: `. .venv/bin/activate && openspec validate --specs --strict --no-interactive`
 - Key output: `Totals: 25 passed, 0 failed (25 items)`
+- Evidence: n/a
+
+### 2026-01-10 10:23 commit + push
+- Command:
+  - `git commit -m "fix: audit TI/TJ templates (Stata 18 + anchors) (#271)"`
+  - `git push -u origin HEAD`
+- Key output:
+  - `[task/271-phase-4-9-survival-multivariate-ti-tj 8a6d90d] fix: audit TI/TJ templates (Stata 18 + anchors) (#271)`
+  - `* [new branch]      HEAD -> task/271-phase-4-9-survival-multivariate-ti-tj`
 - Evidence: n/a
