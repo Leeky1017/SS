@@ -30,6 +30,15 @@
 
 ## Acceptance checklist
 
-- [ ] `/v1` 下不存在 `POST /jobs` 的业务入口（路由/测试证据）
-- [ ] E2E 审计旅程仍可通过 redeem → upload → preview → draft → freeze → run → artifacts 完成
-- [ ] `openspec/_ops/task_runs/ISSUE-<N>.md` 记录移除与验证证据
+- [x] `/v1` 下不存在 `POST /jobs` 的业务入口（路由/测试证据）
+- [x] E2E 审计旅程仍可通过 redeem → upload → preview → draft → freeze → run → artifacts 完成
+- [x] `openspec/_ops/task_runs/ISSUE-314.md` 记录移除与验证证据
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/322
+- Implemented:
+  - Removed `POST /v1/jobs` legacy entrypoint and its config toggle.
+  - Updated callers (tests/docs/frontend) to redeem-only flow.
+  - Kept E2E journey green via redeem → upload → preview → draft → freeze → run → artifacts.
+- Run log: `openspec/_ops/task_runs/ISSUE-314.md`

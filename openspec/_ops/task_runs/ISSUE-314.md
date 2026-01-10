@@ -7,14 +7,14 @@
 - Make `POST /v1/task-codes/redeem` the only v1 job creation entrypoint by removing legacy `POST /v1/jobs` and its config toggle `v1_enable_legacy_post_jobs`, and updating all callers.
 
 ## Status
-- CURRENT: Legacy `POST /v1/jobs` removed; callers updated; local ruff/pytest green; preparing PR.
+- CURRENT: PR merged; syncing controlplane `main` and cleaning up worktree.
 
 ## Next Actions
 - [x] Remove legacy `POST /v1/jobs` route and any related auth guards.
 - [x] Remove `v1_enable_legacy_post_jobs` config and update references.
 - [x] Update any tests/scripts/docs that call `POST /v1/jobs` to use `POST /v1/task-codes/redeem`.
 - [x] Run `ruff check .` and `pytest -q`, record key outputs.
-- [ ] Run `scripts/agent_pr_preflight.sh`, open PR, enable auto-merge, and verify `MERGED`.
+- [x] Run `scripts/agent_pr_preflight.sh`, open PR, enable auto-merge, and verify `MERGED`.
 - [ ] Sync controlplane `main` and cleanup worktree.
 
 ## Decisions Made
@@ -68,5 +68,17 @@
   - `gh pr create --title "[ROUND-01-PROD-A] PROD-E2E-R002: redeem-only job creation (#314)" --body "Closes #314 ..."`
 - Key output:
   - `https://github.com/Leeky1017/SS/pull/322`
+- Evidence:
+  - PR: https://github.com/Leeky1017/SS/pull/322
+
+### 2026-01-10 PR: enable auto-merge + verify merged
+- Command:
+  - `gh pr merge 322 --auto --squash`
+  - `gh pr checks 322 --watch`
+  - `gh pr view 322 --json state,mergedAt,mergeStateStatus`
+- Key output:
+  - `auto-merge enabled (squash)`
+  - `All checks were successful`
+  - `state=MERGED`
 - Evidence:
   - PR: https://github.com/Leeky1017/SS/pull/322
