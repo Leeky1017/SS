@@ -26,11 +26,11 @@
 - Evidence: n/a
 
 ### 2026-01-11 10:57 smoke suite (rerun6, all pass)
-- Command: `. .venv/bin/activate && SS_LLM_PROVIDER=openai_compatible SS_LLM_API_KEY=dummy python3 -m src.cli run-smoke-suite --manifest assets/stata_do_library/smoke_suite/manifest.issue-354.tp01-tp15.tq01-tq12.1.0.json --report-path rulebook/tasks/issue-354-phase-4-14-panel-hlm-tp-tq/evidence/smoke_suite_report.issue-354.rerun6.json --timeout-seconds 600`
+- Command: `. .venv/bin/activate && SS_LLM_PROVIDER=openai_compatible SS_LLM_API_KEY=dummy python3 -m src.cli run-smoke-suite --manifest assets/stata_do_library/smoke_suite/manifest.issue-354.tp01-tp15.tq01-tq12.1.0.json --report-path rulebook/tasks/archive/2026-01-11-issue-354-phase-4-14-panel-hlm-tp-tq/evidence/smoke_suite_report.issue-354.rerun6.json --timeout-seconds 600`
 - Key output:
   - `summary: {"passed": 27}`
   - `TQ03: vecrank r(498) collinearity handled (no r() in log; outputs produced)`
-- Evidence: `rulebook/tasks/issue-354-phase-4-14-panel-hlm-tp-tq/evidence/smoke_suite_report.issue-354.rerun6.json`
+- Evidence: `rulebook/tasks/archive/2026-01-11-issue-354-phase-4-14-panel-hlm-tp-tq/evidence/smoke_suite_report.issue-354.rerun6.json`
 
 ### 2026-01-11 11:06 anchors + style (TP01–TP15, TQ01–TQ12)
 - Key changes:
@@ -39,9 +39,9 @@
 - Evidence: see `git diff` + rerun7 report below.
 
 ### 2026-01-11 11:06 smoke suite (rerun7, post-anchor, all pass)
-- Command: `. .venv/bin/activate && SS_LLM_PROVIDER=openai_compatible SS_LLM_API_KEY=dummy python3 -m src.cli run-smoke-suite --manifest assets/stata_do_library/smoke_suite/manifest.issue-354.tp01-tp15.tq01-tq12.1.0.json --report-path rulebook/tasks/issue-354-phase-4-14-panel-hlm-tp-tq/evidence/smoke_suite_report.issue-354.rerun7.post_anchor.json --timeout-seconds 600`
+- Command: `. .venv/bin/activate && SS_LLM_PROVIDER=openai_compatible SS_LLM_API_KEY=dummy python3 -m src.cli run-smoke-suite --manifest assets/stata_do_library/smoke_suite/manifest.issue-354.tp01-tp15.tq01-tq12.1.0.json --report-path rulebook/tasks/archive/2026-01-11-issue-354-phase-4-14-panel-hlm-tp-tq/evidence/smoke_suite_report.issue-354.rerun7.post_anchor.json --timeout-seconds 600`
 - Key output: `summary: {"passed": 27}`
-- Evidence: `rulebook/tasks/issue-354-phase-4-14-panel-hlm-tp-tq/evidence/smoke_suite_report.issue-354.rerun7.post_anchor.json`
+- Evidence: `rulebook/tasks/archive/2026-01-11-issue-354-phase-4-14-panel-hlm-tp-tq/evidence/smoke_suite_report.issue-354.rerun7.post_anchor.json`
 
 ### 2026-01-11 11:08 local checks
 - Command: `. .venv/bin/activate && ruff check .`
