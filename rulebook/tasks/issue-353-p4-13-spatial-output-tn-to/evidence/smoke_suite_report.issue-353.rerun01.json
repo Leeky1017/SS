@@ -1,0 +1,377 @@
+{
+  "cases": [
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/67/job_67694607462f6f0d/runs/5b09aa9661e647bfa01297a2646ff403/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_67694607462f6f0d",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TN01_spmat.dta",
+        "result.log",
+        "spmat_TN01.dta"
+      ],
+      "run_id": "5b09aa9661e647bfa01297a2646ff403",
+      "status": "failed",
+      "template_id": "TN01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/17/job_1799e784b52063f3/runs/4877df8f674b4ed785b9d17337822fb1/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_1799e784b52063f3",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TN02_moran.dta",
+        "result.log",
+        "table_TN02_moran.csv"
+      ],
+      "run_id": "4877df8f674b4ed785b9d17337822fb1",
+      "status": "failed",
+      "template_id": "TN02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/99/job_990d37780fe87b93/runs/8d922055abea48c0b7882ca7683cad2b/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_990d37780fe87b93",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TN03_sar.dta",
+        "result.log",
+        "table_TN03_sar.csv"
+      ],
+      "run_id": "8d922055abea48c0b7882ca7683cad2b",
+      "status": "failed",
+      "template_id": "TN03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/df/job_df73aa4237412ed8/runs/30629c4131da4fbf976a6cf9499ee018/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_df73aa4237412ed8",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TN04_sem.dta",
+        "result.log",
+        "table_TN04_sem.csv"
+      ],
+      "run_id": "30629c4131da4fbf976a6cf9499ee018",
+      "status": "failed",
+      "template_id": "TN04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/58/job_5878ab0be8baf43a/runs/7246807369a24bac97b90cc388f53846/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_5878ab0be8baf43a",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TN05_sdm.dta",
+        "result.log",
+        "table_TN05_sdm.csv"
+      ],
+      "run_id": "7246807369a24bac97b90cc388f53846",
+      "status": "failed",
+      "template_id": "TN05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/a9/job_a95c9bca21d979b5/runs/4559c4f9b54a4be5883c645b67e20fca/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_a95c9bca21d979b5",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TN06_sac.dta",
+        "result.log",
+        "table_TN06_sac.csv"
+      ],
+      "run_id": "4559c4f9b54a4be5883c645b67e20fca",
+      "status": "failed",
+      "template_id": "TN06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/96/job_963cf81980463e97/runs/dacd62b5c9ff458a8eba3616e7d07070/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_963cf81980463e97",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TN07_slx.dta",
+        "result.log",
+        "table_TN07_slx.csv"
+      ],
+      "run_id": "dacd62b5c9ff458a8eba3616e7d07070",
+      "status": "failed",
+      "template_id": "TN07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/60/job_6038515c9144113c/runs/7ea530785ab24921b6532794e4fcb3ae/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(199);"
+      },
+      "exit_code": 0,
+      "job_id": "job_6038515c9144113c",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TN08_sppanel.dta",
+        "result.log",
+        "table_TN08_sppanel.csv"
+      ],
+      "run_id": "7ea530785ab24921b6532794e4fcb3ae",
+      "status": "failed",
+      "template_id": "TN08",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/73/job_73224a91040c0f80/runs/846a3e2c45a24902ae553a60a03dd32a/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_73224a91040c0f80",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TN09_effects.dta",
+        "result.log",
+        "table_TN09_effects.csv"
+      ],
+      "run_id": "846a3e2c45a24902ae553a60a03dd32a",
+      "status": "failed",
+      "template_id": "TN09",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/30/job_30b27f1c2c3fe260/runs/19b54a99c2ea45fdac22dba2526135a4/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_30b27f1c2c3fe260",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TN10_lm.dta",
+        "result.log",
+        "table_TN10_lm.csv"
+      ],
+      "run_id": "19b54a99c2ea45fdac22dba2526135a4",
+      "status": "failed",
+      "template_id": "TN10",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/68/job_686734b2da027917/runs/0f0a5e70370d4bd3a71b1ccf00f0f264/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_686734b2da027917",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TO01_export.dta",
+        "result.log",
+        "table_TO01_reg.html"
+      ],
+      "run_id": "0f0a5e70370d4bd3a71b1ccf00f0f264",
+      "status": "failed",
+      "template_id": "TO01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/59/job_5923fcb7e2830b19/runs/6e2657f0d5744b42a96b8b881be9a605/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_5923fcb7e2830b19",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TO02_export.dta",
+        "result.log",
+        "table_TO02_reg.tex"
+      ],
+      "run_id": "6e2657f0d5744b42a96b8b881be9a605",
+      "status": "failed",
+      "template_id": "TO02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/c2/job_c25c0b7d7943729e/runs/6ed75f029c244aaa9f610bf7343f7d80/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_c25c0b7d7943729e",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TO03_export.dta",
+        "result.log",
+        "table_TO03_reg.rtf"
+      ],
+      "run_id": "6ed75f029c244aaa9f610bf7343f7d80",
+      "status": "failed",
+      "template_id": "TO03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/80/job_808ef51d7cd2439b/runs/0ac9a1d141e443dba2c897b377e44ea0/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_808ef51d7cd2439b",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TO04_export.dta",
+        "result.log",
+        "table_TO04_results.xlsx"
+      ],
+      "run_id": "0ac9a1d141e443dba2c897b377e44ea0",
+      "status": "failed",
+      "template_id": "TO04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/9b/job_9be5883301e694a1/runs/bbb42fae0c8b40ffa418301fa300b7cc/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_9be5883301e694a1",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TO05_export.dta",
+        "result.log",
+        "table_TO05_asdoc.doc"
+      ],
+      "run_id": "bbb42fae0c8b40ffa418301fa300b7cc",
+      "status": "failed",
+      "template_id": "TO05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/f2/job_f2f7876d99b1d2be/runs/19c4efca27ba44ae832cf440eb80d18e/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_f2f7876d99b1d2be",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TO06_export.dta",
+        "result.log",
+        "table_TO06_compare.doc"
+      ],
+      "run_id": "19c4efca27ba44ae832cf440eb80d18e",
+      "status": "failed",
+      "template_id": "TO06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/bd/job_bddb28cd07f62f4f/runs/04d1be06bde441c6bd54b26b4817daf4/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_bddb28cd07f62f4f",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TO07_export.dta",
+        "fig_TO07_scatter.pdf",
+        "fig_TO07_scatter.png",
+        "result.log"
+      ],
+      "run_id": "04d1be06bde441c6bd54b26b4817daf4",
+      "status": "failed",
+      "template_id": "TO07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/86/job_86f31dbcffac554a/runs/1333a5148a8943cab6ab101b82b527af/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_86f31dbcffac554a",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TO08_export.dta",
+        "result.log",
+        "table_TO08_table1.csv",
+        "table_TO08_table1.doc"
+      ],
+      "run_id": "1333a5148a8943cab6ab101b82b527af",
+      "status": "failed",
+      "template_id": "TO08",
+      "timed_out": false
+    }
+  ],
+  "finished_at": "2026-01-11T02:10:50.838951+00:00",
+  "library_dir": "assets/stata_do_library",
+  "schema_version": "1.0",
+  "started_at": "2026-01-11T02:10:25.061029+00:00",
+  "stata_cmd": [
+    "/mnt/c/Program Files/Stata18/StataMP-64.exe"
+  ],
+  "suite_id": "issue_353_tn01_tn10_to01_to08",
+  "summary": {
+    "failed": 18
+  }
+}

@@ -1,0 +1,83 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_estat_moran_post_spregress2.result.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:42:06
+
+. import delimited "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-outp
+> ut-tn-to/assets/stata_do_library/fixtures/TN03/sample_data.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(8 vars, 6 obs)
+
+. 
+. gen long sid = _n
+
+. spset sid
+
+      Sp dataset: <current>
+Linked shapefile: <none>
+            Data: Cross sectional
+ Spatial-unit ID: _ID (equal to sid)
+     Coordinates: <none>
+
+. spset, modify coord(x cluster)
+
+      Sp dataset: <current>
+Linked shapefile: <none>
+            Data: Cross sectional
+ Spatial-unit ID: _ID (equal to sid)
+     Coordinates: _CX, _CY (planar)
+
+
+. spmatrix create idistance W, normalize(row)
+
+. spregress y x treat post, ml dvarlag(W)
+  (6 observations)
+  (6 observations (places) used)
+  (weighting matrix defines 6 places)
+
+Performing grid search ... finished 
+
+Optimizing concentrated log likelihood:
+
+Iteration 0:  Log likelihood =  6.1746398  
+Iteration 1:  Log likelihood =   6.498741  
+Iteration 2:  Log likelihood =  6.5101097  
+Iteration 3:  Log likelihood =  6.5101119  
+Iteration 4:  Log likelihood =  6.5101119  
+
+Optimizing unconcentrated log likelihood:
+
+Iteration 0:  Log likelihood =  6.5101119  
+Iteration 1:  Log likelihood =  6.5101119  
+
+Spatial autoregressive model                           Number of obs =       6
+Maximum likelihood estimates                           Wald chi2(4)  = 2848.52
+                                                       Prob > chi2   =  0.0000
+Log likelihood = 6.5101119                             Pseudo R2     =  0.9728
+
+------------------------------------------------------------------------------
+           y | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+y            |
+           x |   5.491611   .4948773    11.10   0.000     4.521669    6.461553
+       treat |  -.4904411   .0571575    -8.58   0.000    -.6024677   -.3784145
+        post |  -.8571304   .2245745    -3.82   0.000    -1.297288   -.4169725
+       _cons |   14.89555   2.103657     7.08   0.000     10.77246    19.01864
+-------------+----------------------------------------------------------------
+W            |
+           y |  -1.191914   .2760468    -4.32   0.000    -1.732956   -.6508726
+-------------+----------------------------------------------------------------
+     var(e.y)|   .0029454   .0024138                      .0005909    .0146801
+------------------------------------------------------------------------------
+Wald test of spatial terms:          chi2(1) = 18.64      Prob > chi2 = 0.0000
+
+. 
+. estat moran
+estat moran not allowed
+r(321);
+
+end of do-file
+r(321);

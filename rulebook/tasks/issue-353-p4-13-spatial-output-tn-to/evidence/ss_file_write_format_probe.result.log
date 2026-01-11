@@ -1,0 +1,46 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_file_write_format_probe.result.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:45:07
+
+. import delimited "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-outp
+> ut-tn-to/assets/stata_do_library/fixtures/TN03/sample_data.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(8 vars, 6 obs)
+
+. regress y x treat post, robust
+
+Linear regression                               Number of obs     =          6
+                                                F(3, 2)           =      97.52
+                                                Prob > F          =     0.0102
+                                                R-squared         =     0.9889
+                                                Root MSE          =     .21602
+
+------------------------------------------------------------------------------
+             |               Robust
+           y | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+           x |      3.375   .2104064    16.04   0.004     2.469694    4.280306
+       treat |  -.3499998   .2207941    -1.59   0.254         -1.3    .6000006
+        post |   .0916669   .1813338     0.51   0.663    -.6885496    .8718835
+       _cons |   5.816666   .1348868    43.12   0.001     5.236295    6.397038
+------------------------------------------------------------------------------
+
+. local indepvars "x treat post"
+
+. tempname fh
+
+. file open `fh' using "ss_file_write_format_probe.out.txt", write replace text
+(file ss_file_write_format_probe.out.txt not found)
+
+. foreach v of local indepvars {
+  2.     file write `fh' "`v' & " %9.3f _b[`v'] " & " %9.3f _se[`v'] " \\ " _n
+  3. }
+invalid syntax
+r(198);
+
+end of do-file
+r(198);

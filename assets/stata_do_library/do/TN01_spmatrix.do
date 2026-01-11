@@ -9,7 +9,10 @@
 * DEPENDENCIES: none
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+local rc_log_close = _rc
+if `rc_log_close' != 0 {
+    display "SS_RC|code=`rc_log_close'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -19,8 +22,21 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TN01
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TN01|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TN01|level=L1|title=SP_Matrix"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 local id = "__ID__"
@@ -30,10 +46,7 @@ local y = "__Y__"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TN01 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -45,10 +58,21 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
-spmatrix create contiguity W, normalize(row)
+capture confirm variable `x'
+if _rc {
+    ss_fail_TN01 111 "confirm variable `x'" "coord_x_not_found"
+}
+capture confirm variable `y'
+if _rc {
+    ss_fail_TN01 111 "confirm variable `y'" "coord_y_not_found"
+}
+gen long ss_sid = _n
+spset ss_sid
+spset, modify coord(`x' `y')
+spmatrix create idistance W, normalize(row)
 spmatrix summarize W
-local n_neighbors = r(mean_neighbors)
-display "SS_METRIC|name=mean_neighbors|value=`n_neighbors'"
+local mean_w = r(mean)
+display "SS_METRIC|name=mean_weight|value=`mean_w'"
 
 spmatrix save W using "spmat_TN01.dta", replace
 display "SS_OUTPUT_FILE|file=spmat_TN01.dta|type=data|desc=spatial_matrix"
@@ -64,7 +88,7 @@ display "SS_METRIC|name=n_dropped|value=`n_dropped'"
 
 display "SS_SUMMARY|key=n_input|value=`n_input'"
 display "SS_SUMMARY|key=n_output|value=`n_output'"
-display "SS_SUMMARY|key=mean_neighbors|value=`n_neighbors'"
+display "SS_SUMMARY|key=mean_weight|value=`mean_w'"
 
 timer off 1
 quietly timer list 1

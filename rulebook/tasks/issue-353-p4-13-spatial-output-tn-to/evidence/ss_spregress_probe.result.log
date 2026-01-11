@@ -1,0 +1,41 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spregress_probe.result.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:36:46
+
+. import delimited "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-outp
+> ut-tn-to/assets/stata_do_library/fixtures/TN03/sample_data.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(8 vars, 6 obs)
+
+. 
+. gen long sid = _n
+
+. capture spset sid
+
+. capture spset, modify coord(x cluster)
+
+. 
+. capture spmatrix create idistance W
+
+. display "create_idistance_rc=" _rc
+create_idistance_rc=0
+
+. 
+. capture spregress y x treat post, ml dvarlag(W)
+
+. display "spregress_rc=" _rc
+spregress_rc=0
+
+. 
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spregress_probe.result.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:36:48
+-------------------------------------------------------------------------------

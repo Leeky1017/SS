@@ -1,0 +1,68 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spset_syntax_probe.result.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:34:12
+
+. import delimited "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-outp
+> ut-tn-to/assets/stata_do_library/fixtures/TN03/sample_data.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(8 vars, 6 obs)
+
+. 
+. gen long sid = _n
+
+. 
+. capture spset sid
+
+. 
+. display "spset_plain_rc=" _rc
+spset_plain_rc=0
+
+. 
+. capture spset sid, coord(x cluster)
+
+. display "spset_coord_rc=" _rc
+spset_coord_rc=459
+
+. 
+. capture spset sid, coords(x cluster)
+
+. display "spset_coords_space_rc=" _rc
+spset_coords_space_rc=459
+
+. 
+. capture spset sid, coords(x, cluster)
+
+. display "spset_coords_comma_rc=" _rc
+spset_coords_comma_rc=459
+
+. 
+. capture spset sid, coordinates(x cluster)
+
+. display "spset_coordinates_rc=" _rc
+spset_coordinates_rc=459
+
+. 
+. capture spset sid, coords(x cluster) replace
+
+. display "spset_coords_replace_rc=" _rc
+spset_coords_replace_rc=459
+
+. 
+. capture spset sid, coord(x cluster) replace
+
+. display "spset_coord_replace_rc=" _rc
+spset_coord_replace_rc=459
+
+. 
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spset_syntax_probe.result.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:34:12
+-------------------------------------------------------------------------------

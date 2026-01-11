@@ -1,0 +1,72 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_idistance_norm_probe.result.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:40:20
+
+. import delimited "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-outp
+> ut-tn-to/assets/stata_do_library/fixtures/TN03/sample_data.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(8 vars, 6 obs)
+
+. 
+. gen long sid = _n
+
+. spset sid
+
+      Sp dataset: <current>
+Linked shapefile: <none>
+            Data: Cross sectional
+ Spatial-unit ID: _ID (equal to sid)
+     Coordinates: <none>
+
+. spset, modify coord(x cluster)
+
+      Sp dataset: <current>
+Linked shapefile: <none>
+            Data: Cross sectional
+ Spatial-unit ID: _ID (equal to sid)
+     Coordinates: _CX, _CY (planar)
+
+
+. 
+. capture spmatrix create idistance W1, normalize(row)
+
+. display "normalize_row_rc=" _rc
+normalize_row_rc=0
+
+. 
+. capture spmatrix create idistance W2, norm(row)
+
+. display "norm_row_rc=" _rc
+norm_row_rc=0
+
+. 
+. capture spmatrix create idistance W3, normalization(row)
+
+. display "normalization_row_rc=" _rc
+normalization_row_rc=198
+
+. 
+. capture spmatrix create idistance W4, rowstandardize
+
+. display "rowstandardize_rc=" _rc
+rowstandardize_rc=198
+
+. 
+. capture spmatrix create idistance W5, standardize(row)
+
+. display "standardize_row_rc=" _rc
+standardize_row_rc=198
+
+. 
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_idistance_norm_probe.result.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:40:20
+-------------------------------------------------------------------------------

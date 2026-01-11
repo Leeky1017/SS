@@ -1,0 +1,305 @@
+{
+  "cases": [
+    {
+      "archived_outputs": [
+        "runs/56da414ee6054e269cc3e28368f14342/artifacts/outputs/data_TN01_spmat.dta",
+        "runs/56da414ee6054e269cc3e28368f14342/artifacts/outputs/result.log",
+        "runs/56da414ee6054e269cc3e28368f14342/artifacts/outputs/spmat_TN01.dta"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/9b/job_9bb5a8228ebec69a/runs/56da414ee6054e269cc3e28368f14342/artifacts",
+      "exit_code": 0,
+      "job_id": "job_9bb5a8228ebec69a",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "56da414ee6054e269cc3e28368f14342",
+      "status": "passed",
+      "template_id": "TN01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/1a4a4fad9e7a40eaaa2f9cda26209608/artifacts/outputs/table_TN02_moran.csv",
+        "runs/1a4a4fad9e7a40eaaa2f9cda26209608/artifacts/outputs/data_TN02_moran.dta",
+        "runs/1a4a4fad9e7a40eaaa2f9cda26209608/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/e3/job_e3fd577a91c9e272/runs/1a4a4fad9e7a40eaaa2f9cda26209608/artifacts",
+      "exit_code": 0,
+      "job_id": "job_e3fd577a91c9e272",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "1a4a4fad9e7a40eaaa2f9cda26209608",
+      "status": "passed",
+      "template_id": "TN02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/fd71dd4972a34633a7d9550f15226e67/artifacts/outputs/table_TN03_sar.csv",
+        "runs/fd71dd4972a34633a7d9550f15226e67/artifacts/outputs/data_TN03_sar.dta",
+        "runs/fd71dd4972a34633a7d9550f15226e67/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/86/job_86d50bc0a47601d2/runs/fd71dd4972a34633a7d9550f15226e67/artifacts",
+      "exit_code": 0,
+      "job_id": "job_86d50bc0a47601d2",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "fd71dd4972a34633a7d9550f15226e67",
+      "status": "passed",
+      "template_id": "TN03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/b4732771aa604467b1838033afae4a60/artifacts/outputs/table_TN04_sem.csv",
+        "runs/b4732771aa604467b1838033afae4a60/artifacts/outputs/data_TN04_sem.dta",
+        "runs/b4732771aa604467b1838033afae4a60/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/74/job_74a51ce6839bdf06/runs/b4732771aa604467b1838033afae4a60/artifacts",
+      "exit_code": 0,
+      "job_id": "job_74a51ce6839bdf06",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "b4732771aa604467b1838033afae4a60",
+      "status": "passed",
+      "template_id": "TN04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/2a8c12bc166d43f0941109fdc60c438e/artifacts/outputs/table_TN05_sdm.csv",
+        "runs/2a8c12bc166d43f0941109fdc60c438e/artifacts/outputs/data_TN05_sdm.dta",
+        "runs/2a8c12bc166d43f0941109fdc60c438e/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/f0/job_f0598f62b27b7c3e/runs/2a8c12bc166d43f0941109fdc60c438e/artifacts",
+      "exit_code": 0,
+      "job_id": "job_f0598f62b27b7c3e",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "2a8c12bc166d43f0941109fdc60c438e",
+      "status": "passed",
+      "template_id": "TN05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/846361d5e4b944a781cc25b5d07e4824/artifacts/outputs/table_TN06_sac.csv",
+        "runs/846361d5e4b944a781cc25b5d07e4824/artifacts/outputs/data_TN06_sac.dta",
+        "runs/846361d5e4b944a781cc25b5d07e4824/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/bf/job_bffa0099ef787b57/runs/846361d5e4b944a781cc25b5d07e4824/artifacts",
+      "exit_code": 0,
+      "job_id": "job_bffa0099ef787b57",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "846361d5e4b944a781cc25b5d07e4824",
+      "status": "passed",
+      "template_id": "TN06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/8412794c39474c9b87429c1d1226085f/artifacts/outputs/table_TN07_slx.csv",
+        "runs/8412794c39474c9b87429c1d1226085f/artifacts/outputs/data_TN07_slx.dta",
+        "runs/8412794c39474c9b87429c1d1226085f/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/41/job_416f1e4ec50b4fa1/runs/8412794c39474c9b87429c1d1226085f/artifacts",
+      "exit_code": 0,
+      "job_id": "job_416f1e4ec50b4fa1",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "8412794c39474c9b87429c1d1226085f",
+      "status": "passed",
+      "template_id": "TN07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/bda7419b8fa240fc94cfd9e977441d34/artifacts/outputs/table_TN08_sppanel.csv",
+        "runs/bda7419b8fa240fc94cfd9e977441d34/artifacts/outputs/data_TN08_sppanel.dta",
+        "runs/bda7419b8fa240fc94cfd9e977441d34/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/b8/job_b8871d98eac8f992/runs/bda7419b8fa240fc94cfd9e977441d34/artifacts",
+      "exit_code": 0,
+      "job_id": "job_b8871d98eac8f992",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "bda7419b8fa240fc94cfd9e977441d34",
+      "status": "passed",
+      "template_id": "TN08",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/45c5f7ea8a6e4601bc1e45ab42c8c201/artifacts/outputs/table_TN09_effects.csv",
+        "runs/45c5f7ea8a6e4601bc1e45ab42c8c201/artifacts/outputs/data_TN09_effects.dta",
+        "runs/45c5f7ea8a6e4601bc1e45ab42c8c201/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/59/job_599ecc6cec5b4952/runs/45c5f7ea8a6e4601bc1e45ab42c8c201/artifacts",
+      "exit_code": 0,
+      "job_id": "job_599ecc6cec5b4952",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "45c5f7ea8a6e4601bc1e45ab42c8c201",
+      "status": "passed",
+      "template_id": "TN09",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/b609b015d4d540189ecc4f0cdb346656/artifacts/outputs/data_TN10_lm.dta",
+        "runs/b609b015d4d540189ecc4f0cdb346656/artifacts/outputs/result.log",
+        "runs/b609b015d4d540189ecc4f0cdb346656/artifacts/outputs/table_TN10_lm.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/5b/job_5b5c7d298c15b197/runs/b609b015d4d540189ecc4f0cdb346656/artifacts",
+      "exit_code": 0,
+      "job_id": "job_5b5c7d298c15b197",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "b609b015d4d540189ecc4f0cdb346656",
+      "status": "passed",
+      "template_id": "TN10",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/6e13800151b44a17a481520ca7adcc66/artifacts/outputs/data_TO01_export.dta",
+        "runs/6e13800151b44a17a481520ca7adcc66/artifacts/outputs/result.log",
+        "runs/6e13800151b44a17a481520ca7adcc66/artifacts/outputs/table_TO01_reg.html"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/4c/job_4c684f7fdcdae85a/runs/6e13800151b44a17a481520ca7adcc66/artifacts",
+      "exit_code": 0,
+      "job_id": "job_4c684f7fdcdae85a",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "6e13800151b44a17a481520ca7adcc66",
+      "status": "passed",
+      "template_id": "TO01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/7d08fd0fda9449d8b603bef52e633a2e/artifacts/outputs/data_TO02_export.dta",
+        "runs/7d08fd0fda9449d8b603bef52e633a2e/artifacts/outputs/result.log",
+        "runs/7d08fd0fda9449d8b603bef52e633a2e/artifacts/outputs/table_TO02_reg.tex"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/f0/job_f07fec4a4660537d/runs/7d08fd0fda9449d8b603bef52e633a2e/artifacts",
+      "exit_code": 0,
+      "job_id": "job_f07fec4a4660537d",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "7d08fd0fda9449d8b603bef52e633a2e",
+      "status": "passed",
+      "template_id": "TO02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/1f479c3cbaa94b579a261729d2e9a99f/artifacts/outputs/data_TO03_export.dta",
+        "runs/1f479c3cbaa94b579a261729d2e9a99f/artifacts/outputs/result.log",
+        "runs/1f479c3cbaa94b579a261729d2e9a99f/artifacts/outputs/table_TO03_reg.rtf"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/50/job_500eb17fee823cbb/runs/1f479c3cbaa94b579a261729d2e9a99f/artifacts",
+      "exit_code": 0,
+      "job_id": "job_500eb17fee823cbb",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "1f479c3cbaa94b579a261729d2e9a99f",
+      "status": "passed",
+      "template_id": "TO03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/6f44cf99a7324b33a26f0a8e28526084/artifacts/outputs/data_TO04_export.dta",
+        "runs/6f44cf99a7324b33a26f0a8e28526084/artifacts/outputs/result.log",
+        "runs/6f44cf99a7324b33a26f0a8e28526084/artifacts/outputs/table_TO04_results.xlsx"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/d2/job_d2b3d4de7c40cbf2/runs/6f44cf99a7324b33a26f0a8e28526084/artifacts",
+      "exit_code": 0,
+      "job_id": "job_d2b3d4de7c40cbf2",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "6f44cf99a7324b33a26f0a8e28526084",
+      "status": "passed",
+      "template_id": "TO04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/49fcd835dc164ab081e0ca85543afd37/artifacts/outputs/data_TO05_export.dta",
+        "runs/49fcd835dc164ab081e0ca85543afd37/artifacts/outputs/result.log",
+        "runs/49fcd835dc164ab081e0ca85543afd37/artifacts/outputs/table_TO05_asdoc.doc"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/11/job_1106a6f95c280c02/runs/49fcd835dc164ab081e0ca85543afd37/artifacts",
+      "exit_code": 0,
+      "job_id": "job_1106a6f95c280c02",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "49fcd835dc164ab081e0ca85543afd37",
+      "status": "passed",
+      "template_id": "TO05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/d69e54a5f0824f3db4baa4f5c5638ab8/artifacts/outputs/data_TO06_export.dta",
+        "runs/d69e54a5f0824f3db4baa4f5c5638ab8/artifacts/outputs/result.log",
+        "runs/d69e54a5f0824f3db4baa4f5c5638ab8/artifacts/outputs/table_TO06_compare.doc"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/c0/job_c06bc63d42e5a21a/runs/d69e54a5f0824f3db4baa4f5c5638ab8/artifacts",
+      "exit_code": 0,
+      "job_id": "job_c06bc63d42e5a21a",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "d69e54a5f0824f3db4baa4f5c5638ab8",
+      "status": "passed",
+      "template_id": "TO06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/f393d90c99444f85808ccaab98b663f1/artifacts/outputs/data_TO07_export.dta",
+        "runs/f393d90c99444f85808ccaab98b663f1/artifacts/outputs/fig_TO07_scatter.pdf",
+        "runs/f393d90c99444f85808ccaab98b663f1/artifacts/outputs/fig_TO07_scatter.png",
+        "runs/f393d90c99444f85808ccaab98b663f1/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/6f/job_6fb27cd81db8e3d2/runs/f393d90c99444f85808ccaab98b663f1/artifacts",
+      "exit_code": 0,
+      "job_id": "job_6fb27cd81db8e3d2",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "f393d90c99444f85808ccaab98b663f1",
+      "status": "passed",
+      "template_id": "TO07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/18b2b44189024160972bef84698c0d1b/artifacts/outputs/data_TO08_export.dta",
+        "runs/18b2b44189024160972bef84698c0d1b/artifacts/outputs/result.log",
+        "runs/18b2b44189024160972bef84698c0d1b/artifacts/outputs/table_TO08_table1.csv",
+        "runs/18b2b44189024160972bef84698c0d1b/artifacts/outputs/table_TO08_table1.doc"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-output-tn-to/jobs/82/job_82597f9ecc1ff8ad/runs/18b2b44189024160972bef84698c0d1b/artifacts",
+      "exit_code": 0,
+      "job_id": "job_82597f9ecc1ff8ad",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "18b2b44189024160972bef84698c0d1b",
+      "status": "passed",
+      "template_id": "TO08",
+      "timed_out": false
+    }
+  ],
+  "finished_at": "2026-01-11T02:55:43.917385+00:00",
+  "library_dir": "assets/stata_do_library",
+  "schema_version": "1.0",
+  "started_at": "2026-01-11T02:53:28.113333+00:00",
+  "stata_cmd": [
+    "/mnt/c/Program Files/Stata18/StataMP-64.exe"
+  ],
+  "suite_id": "issue_353_tn01_tn10_to01_to08",
+  "summary": {
+    "passed": 18
+  }
+}

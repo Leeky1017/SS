@@ -1,0 +1,41 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spmatrix_test.result.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:33:25
+
+. import delimited "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-outp
+> ut-tn-to/assets/stata_do_library/fixtures/TN03/sample_data.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(8 vars, 6 obs)
+
+. 
+. gen long sid = _n
+
+. capture spset sid, coords(x cluster)
+
+. display "spset_rc=" _rc
+spset_rc=198
+
+. capture spmatrix create contiguity W, normalize(row)
+
+. display "spmatrix_rc=" _rc
+spmatrix_rc=459
+
+. capture spmatrix summarize W
+
+. if _rc {
+.     display "spmatrix_summarize_rc=" _rc
+spmatrix_summarize_rc=111
+. }
+
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spmatrix_test.result.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:33:25
+-------------------------------------------------------------------------------
