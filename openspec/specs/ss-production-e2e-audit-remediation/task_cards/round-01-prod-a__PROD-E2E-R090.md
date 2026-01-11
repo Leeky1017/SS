@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #352
 - Spec: `openspec/specs/ss-production-e2e-audit-remediation/spec.md`
 - Related specs:
   - `openspec/specs/ss-production-e2e-audit/spec.md`
@@ -32,7 +32,12 @@
 
 ## Acceptance checklist
 
-- [ ] 审计关键点全部 PASS（模板选择、缺参错误、依赖处理、artifact contract）
-- [ ] go/no-go 报告结论为 `READY` 且 blockers=空
-- [ ] 证据路径可复查（run log 中包含关键 artifacts 下载路径/链接）
+- [x] 审计关键点全部 PASS（模板选择、缺参错误、依赖处理、artifact contract）
+- [x] go/no-go 报告结论为 `READY` 且 blockers=空
+- [x] 证据路径可复查（run log 中包含关键 artifacts 下载路径/链接）
 
+## Completion
+
+- PR: <fill-after-created>
+- Verdict: `READY` (blockers empty)
+- Run log: `openspec/_ops/task_runs/ISSUE-352.md`
