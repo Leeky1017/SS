@@ -1,4 +1,4 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TP01  level=L2  module=P  title="Panel FE"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -12,7 +12,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -23,7 +26,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TP01|level=L2|title=Panel_FE"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -50,8 +53,8 @@ display "    FE类型: `fe_type'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    display "SS_TASK_END|id=TP01|status=fail|elapsed_sec=."
     log close
     exit 601
 }
@@ -66,8 +69,8 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `depvar' `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`var'"
+        display "SS_TASK_END|id=TP01|status=fail|elapsed_sec=."
         log close
         exit 200
     }
@@ -86,7 +89,14 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 display "SS_STEP_BEGIN|step=S03_analysis"
 
 * 设置面板
-ss_smart_xtset `id_var' `time_var'
+capture xtset `id_var' `time_var'
+if _rc {
+    local rc_xtset = _rc
+    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed|severity=fail"
+    display "SS_TASK_END|id=TP01|status=fail|elapsed_sec=."
+    log close
+    exit `rc_xtset'
+}
 
 quietly xtdescribe
 local n_panels = r(n)
@@ -220,7 +230,10 @@ display "SS_OUTPUT_FILE|file=table_TP01_fe_test.csv|type=table|desc=fe_test"
 restore
 
 capture erase "temp_fe_results.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
 
 * ============ 输出结果 ============
 local n_output = _N

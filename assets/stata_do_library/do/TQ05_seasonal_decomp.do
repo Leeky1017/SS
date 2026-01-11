@@ -12,7 +12,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -23,7 +26,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TQ05|level=L2|title=Seasonal_Decomp"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -49,8 +52,8 @@ display "    分解方法: `method'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    display "SS_TASK_END|id=TQ05|status=fail|elapsed_sec=."
     log close
     exit 601
 }
@@ -65,8 +68,8 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `series_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`var'"
+        display "SS_TASK_END|id=TQ05|status=fail|elapsed_sec=."
         log close
         exit 200
     }
@@ -180,18 +183,20 @@ display "═══════════════════════�
 display "SECTION 4: 生成分解图"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-graph combine ///
-    (line `series_var' `time_var', title("原始序列") lcolor(navy)) ///
-    (line trend `time_var', title("趋势") lcolor(red)) ///
-    (line seasonal `time_var', title("季节") lcolor(green)) ///
-    (line residual `time_var', title("残差") lcolor(gray)), ///
-    cols(1) xsize(8) ysize(10) ///
+twoway line `series_var' `time_var', title("原始序列") lcolor(navy) name(g_raw, replace)
+twoway line trend `time_var', title("趋势") lcolor(red) name(g_trend, replace)
+twoway line seasonal `time_var', title("季节") lcolor(green) name(g_season, replace)
+twoway line residual `time_var', title("残差") lcolor(gray) name(g_resid, replace)
+graph combine g_raw g_trend g_season g_resid, cols(1) xsize(8) ysize(10) ///
     title("时间序列分解 (`method')")
 graph export "fig_TQ05_decomp.png", replace width(1200)
 display "SS_OUTPUT_FILE|file=fig_TQ05_decomp.png|type=figure|desc=decomp_plot"
 
 capture erase "temp_season.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"

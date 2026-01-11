@@ -10,7 +10,10 @@
 * DEPENDENCIES: none
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -21,7 +24,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TQ12|level=L1|title=Growth_Curve"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 local depvar = "__DEPVAR__"
@@ -32,8 +35,8 @@ local id_var = "__ID_VAR__"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    display "SS_TASK_END|id=TQ12|status=fail|elapsed_sec=."
     log close
     exit 601
 }
@@ -47,7 +50,19 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
-mixed `depvar' `time_var' `indepvars' || `id_var': `time_var', covariance(unstructured)
+capture mixed `depvar' `time_var' `indepvars' || `id_var': `time_var', covariance(independent)
+if _rc {
+    local rc_mixed = _rc
+    display "SS_RC|code=`rc_mixed'|cmd=mixed|msg=mixed_fit_failed_fallback|severity=warn"
+    capture mixed `depvar' `time_var' `indepvars' || `id_var':
+    if _rc {
+        local rc_mixed2 = _rc
+        display "SS_RC|code=`rc_mixed2'|cmd=mixed|msg=mixed_fit_failed|severity=fail"
+        display "SS_TASK_END|id=TQ12|status=fail|elapsed_sec=."
+        log close
+        exit `rc_mixed2'
+    }
+}
 local ll = e(ll)
 display "SS_METRIC|name=log_likelihood|value=`ll'"
 

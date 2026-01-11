@@ -1,4 +1,4 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TP05  level=L2  module=P  title="Panel Serial"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -11,7 +11,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -22,18 +25,17 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TP05|level=L2|title=Panel_Serial"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 capture which xtserial
-if _rc {
-    display "SS_DEP_MISSING:cmd=xtserial:hint=ssc install xtserial"
-    display "SS_ERROR:DEP_MISSING:xtserial is required but not installed"
-    display "SS_ERR:DEP_MISSING:xtserial is required but not installed"
-    log close
-    exit 199
+local has_xtserial = (_rc == 0)
+if `has_xtserial' {
+    display "SS_DEP_CHECK|pkg=xtserial|source=ssc|status=ok"
 }
-display "SS_DEP_CHECK|pkg=xtserial|source=ssc|status=ok"
+else {
+    display "SS_RC|code=111|cmd=which xtserial|msg=dependency_missing_skip_xtserial|severity=warn"
+}
 
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
@@ -50,8 +52,8 @@ display "    自变量: `indepvars'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    display "SS_TASK_END|id=TP05|status=fail|elapsed_sec=."
     log close
     exit 601
 }
@@ -66,8 +68,8 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `depvar' `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`var'"
+        display "SS_TASK_END|id=TP05|status=fail|elapsed_sec=."
         log close
         exit 200
     }
@@ -81,7 +83,14 @@ foreach var of local indepvars {
     }
 }
 
-ss_smart_xtset `id_var' `time_var'
+capture xtset `id_var' `time_var'
+if _rc {
+    local rc_xtset = _rc
+    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed|severity=fail"
+    display "SS_TASK_END|id=TP05|status=fail|elapsed_sec=."
+    log close
+    exit `rc_xtset'
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -92,27 +101,47 @@ display "═══════════════════════�
 display "SECTION 1: Wooldridge序列相关检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-xtserial `depvar' `valid_indep'
-
-local wooldridge_f = r(F)
-local wooldridge_p = r(p)
-
-display ""
-display ">>> Wooldridge检验 (H0: 无一阶序列相关):"
-display "    F统计量: " %10.4f `wooldridge_f'
-display "    p值: " %10.4f `wooldridge_p'
-
-if `wooldridge_p' < 0.05 {
-    display "    结论: 存在一阶序列相关"
-    local serial_conclusion = "存在序列相关"
+local serial_test = ""
+local serial_stat = .
+local serial_p = .
+if `has_xtserial' {
+    capture noisily xtserial `depvar' `valid_indep'
+    if _rc {
+        log close
+        exit `=_rc'
+    }
+    local serial_test = "Wooldridge"
+    local serial_stat = r(F)
+    local serial_p = r(p)
 }
 else {
-    display "    结论: 无显著序列相关"
-    local serial_conclusion = "无序列相关"
+    local serial_test = "Skipped (xtserial missing)"
 }
 
-display "SS_METRIC|name=wooldridge_f|value=`wooldridge_f'"
-display "SS_METRIC|name=wooldridge_p|value=`wooldridge_p'"
+display ""
+display ">>> 序列相关检验 (H0: 无序列相关):"
+display "    检验: " "`serial_test'"
+display "    统计量: " %10.4f `serial_stat'
+display "    p值: " %10.4f `serial_p'
+
+local serial_conclusion = ""
+if `has_xtserial' {
+    if `serial_p' < 0.05 {
+        display "    结论: 存在一阶序列相关"
+        local serial_conclusion = "存在序列相关"
+    }
+    else {
+        display "    结论: 无显著序列相关"
+        local serial_conclusion = "无序列相关"
+    }
+}
+else {
+    display "    结论: 已跳过（xtserial 未安装）"
+    local serial_conclusion = "已跳过"
+}
+
+display "SS_METRIC|name=serial_stat|value=`serial_stat'"
+display "SS_METRIC|name=serial_p|value=`serial_p'"
 
 * ============ 残差分析 ============
 display ""
@@ -140,9 +169,9 @@ generate double statistic = .
 generate double p_value = .
 generate str30 conclusion = ""
 
-replace test = "Wooldridge" in 1
-replace statistic = `wooldridge_f' in 1
-replace p_value = `wooldridge_p' in 1
+replace test = "`serial_test'" in 1
+replace statistic = `serial_stat' in 1
+replace p_value = `serial_p' in 1
 replace conclusion = "`serial_conclusion'" in 1
 
 replace test = "残差自相关系数" in 2
