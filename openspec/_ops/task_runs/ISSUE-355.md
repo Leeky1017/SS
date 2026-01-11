@@ -71,3 +71,12 @@
   - `pytest: 184 passed, 5 skipped`
 - Evidence:
   - (terminal transcript)
+
+### 2026-01-11 11:42 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - (terminal transcript)
