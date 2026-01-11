@@ -46,3 +46,10 @@
 - Command: `.venv/bin/pytest -q`
 - Key output: `183 passed, 5 skipped in 9.24s`
 - Evidence: (stdout)
+
+### 2026-01-11 03:05 UTC PR preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence: (stdout)
