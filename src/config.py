@@ -135,7 +135,12 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         str(e.get("SS_DO_TEMPLATE_LIBRARY_DIR", "./assets/stata_do_library"))
     ).expanduser()
     stata_cmd_raw = str(e.get("SS_STATA_CMD", "")).strip()
-    stata_cmd = tuple(shlex.split(stata_cmd_raw)) if stata_cmd_raw != "" else tuple()
+    stata_cmd: tuple[str, ...] = tuple()
+    if stata_cmd_raw != "":
+        if Path(stata_cmd_raw).exists():
+            stata_cmd = (stata_cmd_raw,)
+        else:
+            stata_cmd = tuple(shlex.split(stata_cmd_raw))
     log_level = str(e.get("SS_LOG_LEVEL", "INFO")).strip().upper()
     upload_object_store_backend = (
         str(e.get("SS_UPLOAD_OBJECT_STORE_BACKEND", "s3")).strip().lower()
