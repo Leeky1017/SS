@@ -1,7 +1,7 @@
 # ISSUE-355
 - Issue: #355
 - Branch: task/355-phase-4-15-bayes-ml-text-viz-tr-tu
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/360
 
 ## Plan
 - Add TR–TU smoke-suite manifest(s) (fixtures + params + deps).
