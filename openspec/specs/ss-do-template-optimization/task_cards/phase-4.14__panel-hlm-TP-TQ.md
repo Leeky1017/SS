@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #354
 - Parent: #125
 - Superphase: Phase 4 (full-library Stata 18 audit)
 - Templates: `TP*` + `TQ*` (~27 templates, current inventory)
@@ -29,8 +29,14 @@ Make panel and hierarchical-model templates run on **Stata 18** with fixtures, e
 
 ## Acceptance checklist
 
-- [ ] Stata 18 baseline run: 0 `fail` across `TP*` + `TQ*`
-- [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
-- [ ] Convergence/failure modes yield explicit `warn/fail` with `SS_RC` context
-- [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Stata 18 baseline run: 0 `fail` across `TP*` + `TQ*`
+- [x] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
+- [x] Convergence/failure modes yield explicit `warn/fail` with `SS_RC` context
+- [x] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-354.md`
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/358
+- Fixed Stata 18 smoke-suite failures and stabilized fixtures (TP01–TP15, TQ01–TQ12)
+- Normalized anchors to `SS_EVENT|k=v` (removed legacy `SS_*:...` variants) and made failure paths explicit
+- Evidence: `openspec/_ops/task_runs/ISSUE-354.md`
