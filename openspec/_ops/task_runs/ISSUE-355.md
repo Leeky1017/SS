@@ -25,7 +25,7 @@
 - Key output:
   - `✅ Task issue-355-phase-4-15-bayes-ml-text-viz-tr-tu is valid`
 - Evidence:
-  - `rulebook/tasks/issue-355-phase-4-15-bayes-ml-text-viz-tr-tu/`
+  - `rulebook/tasks/archive/2026-01-11-issue-355-phase-4-15-bayes-ml-text-viz-tr-tu/`
 
 ### 2026-01-11 11:07 Build smoke-suite manifests
 - Command:
@@ -40,19 +40,19 @@
 
 ### 2026-01-11 11:09 Smoke suite (Package A: TR01–TR10 + TS01–TS12) — PASS
 - Command:
-  - `SS_LLM_PROVIDER=offline SS_STATA_CMD='/mnt/c/Program Files/Stata18/StataMP-64.exe' SS_JOBS_DIR=/tmp/ss_jobs_issue355_a6 python3 -m src.cli run-smoke-suite --manifest assets/stata_do_library/smoke_suite/manifest.issue-355.tr01-tr10.ts01-ts12.1.0.json --report-path rulebook/tasks/issue-355-phase-4-15-bayes-ml-text-viz-tr-tu/evidence/smoke_suite_report.issue-355.a.rerun6.json --timeout-seconds 300`
+  - `SS_LLM_PROVIDER=offline SS_STATA_CMD='/mnt/c/Program Files/Stata18/StataMP-64.exe' SS_JOBS_DIR=/tmp/ss_jobs_issue355_a6 python3 -m src.cli run-smoke-suite --manifest assets/stata_do_library/smoke_suite/manifest.issue-355.tr01-tr10.ts01-ts12.1.0.json --report-path rulebook/tasks/archive/2026-01-11-issue-355-phase-4-15-bayes-ml-text-viz-tr-tu/evidence/smoke_suite_report.issue-355.a.rerun6.json --timeout-seconds 300`
 - Key output:
   - `summary={'passed': 22}`
 - Evidence:
-  - `rulebook/tasks/issue-355-phase-4-15-bayes-ml-text-viz-tr-tu/evidence/smoke_suite_report.issue-355.a.rerun6.json`
+  - `rulebook/tasks/archive/2026-01-11-issue-355-phase-4-15-bayes-ml-text-viz-tr-tu/evidence/smoke_suite_report.issue-355.a.rerun6.json`
 
 ### 2026-01-11 11:25 Smoke suite (Package B: TT01–TT10 + TU01–TU14) — PASS
 - Command:
-  - `SS_LLM_PROVIDER=offline SS_STATA_CMD='/mnt/c/Program Files/Stata18/StataMP-64.exe' SS_JOBS_DIR=/tmp/ss_jobs_issue355_b4 python3 -m src.cli run-smoke-suite --manifest assets/stata_do_library/smoke_suite/manifest.issue-355.tt01-tt10.tu01-tu14.1.0.json --report-path rulebook/tasks/issue-355-phase-4-15-bayes-ml-text-viz-tr-tu/evidence/smoke_suite_report.issue-355.b.rerun4.json --timeout-seconds 300`
+  - `SS_LLM_PROVIDER=offline SS_STATA_CMD='/mnt/c/Program Files/Stata18/StataMP-64.exe' SS_JOBS_DIR=/tmp/ss_jobs_issue355_b4 python3 -m src.cli run-smoke-suite --manifest assets/stata_do_library/smoke_suite/manifest.issue-355.tt01-tt10.tu01-tu14.1.0.json --report-path rulebook/tasks/archive/2026-01-11-issue-355-phase-4-15-bayes-ml-text-viz-tr-tu/evidence/smoke_suite_report.issue-355.b.rerun4.json --timeout-seconds 300`
 - Key output:
   - `summary={'passed': 24}`
 - Evidence:
-  - `rulebook/tasks/issue-355-phase-4-15-bayes-ml-text-viz-tr-tu/evidence/smoke_suite_report.issue-355.b.rerun4.json`
+  - `rulebook/tasks/archive/2026-01-11-issue-355-phase-4-15-bayes-ml-text-viz-tr-tu/evidence/smoke_suite_report.issue-355.b.rerun4.json`
 
 ### 2026-01-11 11:30 Anchor normalization (TR–TU scope)
 - Command:
@@ -80,3 +80,44 @@
   - `OK: no hard dependencies found in execution plan`
 - Evidence:
   - (terminal transcript)
+
+### 2026-01-11 11:49 Inventory check (TU15)
+- Command:
+  - `ls assets/stata_do_library/do | rg '^TU\\d\\d' | sort | tail -n 10`
+- Key output:
+  - Current inventory ends at `TU14_npregress.do` (no `TU15_*` template).
+- Evidence:
+  - (terminal transcript)
+
+### 2026-01-11 11:51 Verify PR merged
+- Command:
+  - `gh pr view 360 --json state,mergedAt,mergeStateStatus`
+- Key output:
+  - `state=MERGED`
+  - `mergedAt=2026-01-11T03:51:19Z`
+- Evidence:
+  - https://github.com/Leeky1017/SS/pull/360
+
+### 2026-01-11 11:52 Controlplane sync main
+- Command:
+  - `scripts/agent_controlplane_sync.sh`
+- Key output:
+  - `HEAD -> main, origin/main: ad0d1c2 Phase 4.15: Stata18 audit TR–TU templates (#355) (#360)`
+- Evidence:
+  - (terminal transcript)
+
+### 2026-01-11 11:53 Cleanup worktree
+- Command:
+  - `scripts/agent_worktree_cleanup.sh "355" "phase-4-15-bayes-ml-text-viz-tr-tu"`
+- Key output:
+  - `OK: cleaned worktree .worktrees/issue-355-phase-4-15-bayes-ml-text-viz-tr-tu and local branch task/355-phase-4-15-bayes-ml-text-viz-tr-tu`
+- Evidence:
+  - (terminal transcript)
+
+### 2026-01-11 11:54 Archive Rulebook task
+- Command:
+  - `rulebook task archive issue-355-phase-4-15-bayes-ml-text-viz-tr-tu`
+- Key output:
+  - `✅ Task issue-355-phase-4-15-bayes-ml-text-viz-tr-tu archived successfully`
+- Evidence:
+  - `rulebook/tasks/archive/2026-01-11-issue-355-phase-4-15-bayes-ml-text-viz-tr-tu/`
