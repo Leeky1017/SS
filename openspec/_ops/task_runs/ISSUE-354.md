@@ -3,7 +3,7 @@
 - Issue: #354
 - Parent: #125
 - Branch: task/354-phase-4-14-panel-hlm-tp-tq
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/358
 
 ## Goal
 - Audit TP01–TP15 + TQ01–TQ12: Stata 18 smoke-suite 0 fail, anchors `SS_EVENT|k=v`, unified style and explicit warn/fail diagnostics.
