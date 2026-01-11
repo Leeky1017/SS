@@ -1,7 +1,7 @@
 # ISSUE-352
 - Issue: #352 https://github.com/Leeky1017/SS/issues/352
 - Branch: task/352-prod-e2e-r090
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/356
 
 ## Goal
 - After all P0 remediation merges, re-run the full `ss-production-e2e-audit` journey and produce a `READY` go/no-go verdict with auditable evidence.

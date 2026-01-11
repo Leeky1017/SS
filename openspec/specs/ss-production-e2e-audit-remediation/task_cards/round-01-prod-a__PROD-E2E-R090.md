@@ -38,6 +38,6 @@
 
 ## Completion
 
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/356
 - Verdict: `READY` (blockers empty)
 - Run log: `openspec/_ops/task_runs/ISSUE-352.md`
