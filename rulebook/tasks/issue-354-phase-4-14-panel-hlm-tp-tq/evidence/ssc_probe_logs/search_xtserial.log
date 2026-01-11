@@ -1,0 +1,17 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-354-pha
+> se-4-14-panel-hlm-tp-tq\search_xtserial.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:38:07
+
+. search xtserial
+request ignored because of batch mode
+
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-354-pha
+> se-4-14-panel-hlm-tp-tq\search_xtserial.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:38:07
+-------------------------------------------------------------------------------

@@ -1,0 +1,29 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-354-pha
+> se-4-14-panel-hlm-tp-tq\which_xt.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:36:54
+
+. capture which xtserial
+
+. noi di "xtserial_rc=" _rc
+xtserial_rc=111
+
+. capture which xtcointtest
+
+. noi di "xtcointtest_rc=" _rc
+xtcointtest_rc=0
+
+. capture which xttest3
+
+. noi di "xttest3_rc=" _rc
+xttest3_rc=0
+
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-354-pha
+> se-4-14-panel-hlm-tp-tq\which_xt.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:36:54
+-------------------------------------------------------------------------------

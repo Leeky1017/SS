@@ -1,0 +1,139 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-354-pha
+> se-4-14-panel-hlm-tp-tq\ssc_describe2.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:35:54
+
+. capture noisily ssc describe xtserial
+ssc describe: "xtserial" not found at SSC, type search xtserial
+(To find all packages at SSC that start with x, type ssc describe x)
+
+. capture noisily ssc describe xttest3
+
+-------------------------------------------------------------------------------
+package xttest3 from http://fmwww.bc.edu/repec/bocode/x
+-------------------------------------------------------------------------------
+
+TITLE
+      'XTTEST3': module to compute Modified Wald statistic for groupwise
+        heteroskedasticity
+
+DESCRIPTION/AUTHOR(S)
+      
+       xttest3 calculates a modified Wald statistic for groupwise
+      heteroskedasticity in the residuals of a fixed effect regression
+      model. It is for use after xtreg, fe or xtgls (with the default
+      panels option).
+      
+      KW: heteroskedasticity
+      KW: panel data
+      KW: cross-section time-series
+      
+      Requires: Stata version 6.0
+      
+      Distribution-Date: 20241005
+      
+      Author: Christopher F Baum, Boston College
+      Support: email baum@bc.edu
+      
+
+INSTALLATION FILES                              (type net install xttest3)
+      xttest3.ado
+      xttest3.hlp
+-------------------------------------------------------------------------------
+(type ssc install xttest3 to install)
+
+. capture noisily ssc describe xtcointtest
+ssc describe: "xtcointtest" not found at SSC, type search xtcointtest
+(To find all packages at SSC that start with x, type ssc describe x)
+
+. capture noisily ssc describe xtabond2
+
+-------------------------------------------------------------------------------
+package xtabond2 from http://fmwww.bc.edu/repec/bocode/x
+-------------------------------------------------------------------------------
+
+TITLE
+      'XTABOND2': module to extend xtabond dynamic panel data estimator
+
+DESCRIPTION/AUTHOR(S)
+      
+           xtabond2 can fit two closely related dynamic panel data
+      models. The first is the    Arellano-Bond (1991) estimator, which
+      is also available with xtabond without the two-step
+      finite-sample correction described below.  The second is an
+      augmented version outlined in    Arellano and Bover (1995) and
+      fully developed in Blundell and Bond (1998).   Arellano and Bond
+      (1991) developed a Generalized Method of    Moments estimator
+      that treats the model as a system of equations, one for each time
+      period.    The equations differ only in their instrument/moment
+      condition sets.  The predetermined and    endogenous variables in
+      first differences are instrumented with suitable lags of their
+      own  levels.  Strictly exogenous regressors, as well as any
+      other instruments, can enter the    instrument matrix in the
+      conventional instrumental variables fashion: in first
+      differences,   with one column per instrument.    A problem with
+      the original Arellano-Bond estimator is that lagged levels are
+      often poor instruments for first differences, especially for
+      variables that are close to a random   walk.  Arellano and Bover
+      (1995) described how, if the original equations in levels were
+      added to the system, additional moment conditions could be
+      brought to bear to increase  efficiency.  In these equations,
+      predetermined and endogenous variables in levels are
+      instrumented with suitable lags of their own first differences.
+      Blundell and Bond (1998)    articulated the necessary assumptions
+      for this augmented estimator more precisely and    tested it with
+      Monte Carlo simulations.  The original estimator is sometimes
+      called    "difference GMM," and the augmented one, "system GMM."
+      Bond (2002) is a good introduction to these estimators and
+      their use. xtabond2 implements both estimators.   As GMM
+      estimators, the Arellano-Bond estimators have one- and two-step
+      variants.  But    though asymptotically more efficient, the
+      two-step estimates of the standard errors tend to    be severely
+      downward biased (Arellano and Bond 1991; Blundell and Bond 1998).
+       To  compensate, xtabond2, unlike xtabond, makes available a
+      finite-sample correction to the    two-step covariance matrix
+      derived by Windmeijer (2000).  This can make twostep robust more
+        efficient than onestep robust, especially for system GMM.
+      Note: the routine requires an up-to-date version of Stata 7 (with
+      the 21jun2002 update installed).     Users of Stata version 10
+      (25feb2008 update) or later can take advantage of speed
+      improvements due to Mata.
+      
+      KW: Arellano-Bond
+      KW: dynamic panel data
+      KW: Blundell-Bond
+      KW: Arellano-Bover
+      KW: Windmeijer
+      
+      Requires: Stata version 7.0 (with 21jun2002 update); version 9.0 for Mata
+>  version
+      
+      Distribution-Date: 20250209
+      
+      Author: David Roodman
+      Support: email david@davidroodman.com
+      
+
+INSTALLATION FILES                             (type net install xtabond2)
+      xtabond2.ado
+      xtabond2.mata
+      xtabond2.hlp
+      xtab2_p.ado
+      ../l/lxtabond2.mlib
+
+ANCILLARY FILES                                (type net get xtabond2)
+      ../a/abest.do
+      ../b/bbest.do
+      ../g/Greene.do
+-------------------------------------------------------------------------------
+(type ssc install xtabond2 to install)
+
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-354-pha
+> se-4-14-panel-hlm-tp-tq\ssc_describe2.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:36:24
+-------------------------------------------------------------------------------

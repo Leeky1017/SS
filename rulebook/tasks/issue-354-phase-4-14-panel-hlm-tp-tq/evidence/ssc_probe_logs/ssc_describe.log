@@ -1,0 +1,14 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-354-pha
+> se-4-14-panel-hlm-tp-tq\ssc_describe.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:35:17
+
+. ssc describe xtserial
+ssc describe: "xtserial" not found at SSC, type search xtserial
+(To find all packages at SSC that start with x, type ssc describe x)
+r(601);
+
+end of do-file
+r(601);
