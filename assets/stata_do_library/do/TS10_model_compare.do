@@ -12,7 +12,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -23,8 +26,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TS10|level=L2|title=Model_Compare"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
@@ -39,8 +42,7 @@ display "    自变量: `indepvars'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -54,8 +56,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 * ============ 变量检查 ============
 capture confirm numeric variable `depvar'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`depvar' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`depvar' not found"
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=depvar_not_found|severity=fail"
     log close
     exit 200
 }
@@ -103,7 +104,14 @@ display "    R²=" %6.4f `ols_r2' ", AIC=" %10.2f `ols_aic' ", RMSE=" %8.4f `ols
 * 2. LASSO
 display ""
 display ">>> 2. LASSO回归..."
-lasso linear `depvar' `valid_indep', selection(cv)
+local folds = 5
+if _N < `folds' {
+    local folds = _N
+}
+if `folds' < 3 {
+    local folds = 3
+}
+lasso linear `depvar' `valid_indep', selection(cv) folds(`folds')
 
 local lasso_lambda = e(lambda_sel)
 lassogof
@@ -121,7 +129,7 @@ display "    R²=" %6.4f `lasso_r2' ", λ=" %10.6f `lasso_lambda' ", RMSE=" %8.4
 * 3. Ridge
 display ""
 display ">>> 3. Ridge回归..."
-elasticnet linear `depvar' `valid_indep', alpha(0) selection(cv)
+elasticnet linear `depvar' `valid_indep', alpha(0) selection(cv) folds(`folds')
 
 local ridge_lambda = e(lambda_sel)
 lassogof
@@ -138,7 +146,7 @@ display "    R²=" %6.4f `ridge_r2' ", λ=" %10.6f `ridge_lambda' ", RMSE=" %8.4
 * 4. Elastic Net (α=0.5)
 display ""
 display ">>> 4. Elastic Net回归..."
-elasticnet linear `depvar' `valid_indep', alpha(0.5) selection(cv)
+elasticnet linear `depvar' `valid_indep', alpha(0.5) selection(cv) folds(`folds')
 
 local enet_lambda = e(lambda_sel)
 lassogof
@@ -201,8 +209,10 @@ display "SS_METRIC|name=best_model_aic|value=`best_aic'"
 display "SS_METRIC|name=ols_r2|value=`ols_r2'"
 
 capture erase "temp_model_compare.dta"
-if _rc != 0 { }
-
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=rc_check|msg=nonzero_rc_ignored|severity=warn"
+}
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 

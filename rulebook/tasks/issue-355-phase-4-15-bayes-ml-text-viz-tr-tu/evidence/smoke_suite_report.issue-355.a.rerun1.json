@@ -1,0 +1,472 @@
+{
+  "cases": [
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/a6/job_a601d18d9e02fcac/runs/d49a6d629cdf44c588d97d559c75ccb9/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_a601d18d9e02fcac",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR01_spatial.dta",
+        "result.log",
+        "table_TR01_weight_summary.csv"
+      ],
+      "run_id": "d49a6d629cdf44c588d97d559c75ccb9",
+      "status": "failed",
+      "template_id": "TR01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/ce/job_cee97582262f520c/runs/952d6776019f4474b0df08f9e3f0cb11/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_cee97582262f520c",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR02_sar.dta",
+        "result.log",
+        "table_TR02_sar_result.csv"
+      ],
+      "run_id": "952d6776019f4474b0df08f9e3f0cb11",
+      "status": "failed",
+      "template_id": "TR02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/74/job_743f1a51c2e018e5/runs/e8fb9412fbd846239641f145a9dd88a1/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_743f1a51c2e018e5",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR03_sem.dta",
+        "result.log",
+        "table_TR03_sem_result.csv"
+      ],
+      "run_id": "e8fb9412fbd846239641f145a9dd88a1",
+      "status": "failed",
+      "template_id": "TR03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/df/job_df357af20c0507ca/runs/e7b9b9e31f414e4b943eb67a94ea2ccd/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_df357af20c0507ca",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR04_moran.dta",
+        "fig_TR04_moran_scatter.png",
+        "result.log",
+        "table_TR04_moran_global.csv",
+        "table_TR04_moran_local.csv"
+      ],
+      "run_id": "e7b9b9e31f414e4b943eb67a94ea2ccd",
+      "status": "failed",
+      "template_id": "TR04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/37/job_376f217c85f0a9cf/runs/751742e5f5b84eb5bee95c97132545f2/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(199);"
+      },
+      "exit_code": 0,
+      "job_id": "job_376f217c85f0a9cf",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR05_sp_panel.dta",
+        "result.log",
+        "table_TR05_spatial_panel.csv"
+      ],
+      "run_id": "751742e5f5b84eb5bee95c97132545f2",
+      "status": "failed",
+      "template_id": "TR05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/87/job_87ed69b010d05fdb/runs/ce06ff31c4644a6b8e4eda164323e118/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_87ed69b010d05fdb",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR06_bayes.dta",
+        "result.log",
+        "table_TR06_bayes.csv"
+      ],
+      "run_id": "ce06ff31c4644a6b8e4eda164323e118",
+      "status": "failed",
+      "template_id": "TR06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/9d/job_9d248a958bdfa6b3/runs/2dad7b23d6c54ac2b75398d66499227a/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_9d248a958bdfa6b3",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR07_blogit.dta",
+        "result.log",
+        "table_TR07_blogit.csv"
+      ],
+      "run_id": "2dad7b23d6c54ac2b75398d66499227a",
+      "status": "failed",
+      "template_id": "TR07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/8b/job_8b267eafdcda3996/runs/8d0bedf5a45b4e8bb78e486a938fdfd8/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_8b267eafdcda3996",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR08_bmixed.dta",
+        "result.log",
+        "table_TR08_bmixed.csv"
+      ],
+      "run_id": "8d0bedf5a45b4e8bb78e486a938fdfd8",
+      "status": "failed",
+      "template_id": "TR08",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/50/job_50f5d8e8a5e1c812/runs/b25d45f3d6c64e4b84cac5f5eb417c57/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_50f5d8e8a5e1c812",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR09_diag.dta",
+        "fig_TR09_acf.png",
+        "fig_TR09_trace.png",
+        "result.log"
+      ],
+      "run_id": "b25d45f3d6c64e4b84cac5f5eb417c57",
+      "status": "failed",
+      "template_id": "TR09",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/c9/job_c92afcb488173a97/runs/1a99e9036a4c494cada45f30a8bf5671/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_c92afcb488173a97",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR10_bf.dta",
+        "result.log",
+        "table_TR10_bf.csv"
+      ],
+      "run_id": "1a99e9036a4c494cada45f30a8bf5671",
+      "status": "failed",
+      "template_id": "TR10",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/fa/job_fa00ce3816477d3c/runs/cea5d7f83ef84415ab72c612a8da2c4f/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_fa00ce3816477d3c",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS01_lasso.dta",
+        "fig_TS01_cv_path.png",
+        "result.log",
+        "table_TS01_cv_result.csv",
+        "table_TS01_lasso_coef.csv"
+      ],
+      "run_id": "cea5d7f83ef84415ab72c612a8da2c4f",
+      "status": "failed",
+      "template_id": "TS01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/54/job_54e20231e0c4cf1a/runs/efb5c7f9265e4aed987cde1530ca1ac4/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_54e20231e0c4cf1a",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS02_ridge.dta",
+        "result.log",
+        "table_TS02_cv_result.csv",
+        "table_TS02_ridge_coef.csv"
+      ],
+      "run_id": "efb5c7f9265e4aed987cde1530ca1ac4",
+      "status": "failed",
+      "template_id": "TS02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/80/job_80d58efc502e9424/runs/f0eaffec3fc1492a8e780171b1108b1a/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_80d58efc502e9424",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS03_enet.dta",
+        "result.log",
+        "table_TS03_cv_result.csv",
+        "table_TS03_enet_coef.csv"
+      ],
+      "run_id": "f0eaffec3fc1492a8e780171b1108b1a",
+      "status": "failed",
+      "template_id": "TS03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/c7/job_c71521ab3e158d03/runs/873e4e7a6bcb4dd88473b90ec579b775/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_c71521ab3e158d03",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS04_rf.dta",
+        "result.log",
+        "table_TS04_rf_importance.csv",
+        "table_TS04_rf_result.csv"
+      ],
+      "run_id": "873e4e7a6bcb4dd88473b90ec579b775",
+      "status": "failed",
+      "template_id": "TS04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/0a/job_0a1a515ce8528aff/runs/779ea79b61504280a3232fa1d2bd182f/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_0a1a515ce8528aff",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS05_xgb.dta",
+        "result.log",
+        "table_TS05_xgb_importance.csv",
+        "table_TS05_xgb_result.csv"
+      ],
+      "run_id": "779ea79b61504280a3232fa1d2bd182f",
+      "status": "failed",
+      "template_id": "TS05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/a6/job_a655b1d9a954b881/runs/f2b93d75faa34030a8ae0e5aded56498/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_a655b1d9a954b881",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS06_cv.dta",
+        "result.log",
+        "table_TS06_cv_folds.csv",
+        "table_TS06_cv_summary.csv"
+      ],
+      "run_id": "f2b93d75faa34030a8ae0e5aded56498",
+      "status": "failed",
+      "template_id": "TS06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/73/job_73f4e0a178c34d18/runs/5d167a279a21417cab78d595b93fd8de/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_73f4e0a178c34d18",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS07_pca.dta",
+        "fig_TS07_scree.png",
+        "result.log",
+        "table_TS07_eigenvalues.csv",
+        "table_TS07_loadings.csv"
+      ],
+      "run_id": "5d167a279a21417cab78d595b93fd8de",
+      "status": "failed",
+      "template_id": "TS07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/6c/job_6c208068a51e0a22/runs/45fe1d4d743540c6a35fb7e0c488cb5c/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_6c208068a51e0a22",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS08_kmeans.dta",
+        "fig_TS08_elbow.png",
+        "result.log",
+        "table_TS08_centers.csv",
+        "table_TS08_elbow.csv"
+      ],
+      "run_id": "45fe1d4d743540c6a35fb7e0c488cb5c",
+      "status": "failed",
+      "template_id": "TS08",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/53/job_5301b80a3c5f1a1a/runs/8e8f09c213b94328b0d8c5bdd673f2af/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_5301b80a3c5f1a1a",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS09_logit.dta",
+        "fig_TS09_roc.png",
+        "result.log",
+        "table_TS09_confusion.csv",
+        "table_TS09_logit_result.csv"
+      ],
+      "run_id": "8e8f09c213b94328b0d8c5bdd673f2af",
+      "status": "failed",
+      "template_id": "TS09",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/ce/job_cef9bd7cf44de501/runs/38291a02acd44981af9ccb5e6ce1c251/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_cef9bd7cf44de501",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS10_compare.dta",
+        "fig_TS10_comparison.png",
+        "result.log",
+        "table_TS10_comparison.csv"
+      ],
+      "run_id": "38291a02acd44981af9ccb5e6ce1c251",
+      "status": "failed",
+      "template_id": "TS10",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/1d/job_1de199261bdc28db/runs/2a7b67f9592d46ab810cd2d15c5378b5/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(199);"
+      },
+      "exit_code": 0,
+      "job_id": "job_1de199261bdc28db",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS11_gee.dta",
+        "result.log",
+        "table_TS11_gee.csv"
+      ],
+      "run_id": "2a7b67f9592d46ab810cd2d15c5378b5",
+      "status": "failed",
+      "template_id": "TS11",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a2/a2/job_a20d5ad5dffe649c/runs/f6015b39307448ca8ae8bc4484e976ba/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(199);"
+      },
+      "exit_code": 0,
+      "job_id": "job_a20d5ad5dffe649c",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS12_geelogit.dta",
+        "result.log",
+        "table_TS12_geelogit.csv"
+      ],
+      "run_id": "f6015b39307448ca8ae8bc4484e976ba",
+      "status": "failed",
+      "template_id": "TS12",
+      "timed_out": false
+    }
+  ],
+  "finished_at": "2026-01-11T02:21:46.449835+00:00",
+  "library_dir": "assets/stata_do_library",
+  "schema_version": "1.0",
+  "started_at": "2026-01-11T02:21:27.163772+00:00",
+  "stata_cmd": [
+    "/mnt/c/Program Files/Stata18/StataMP-64.exe"
+  ],
+  "suite_id": "issue_355_tr01_tr10_ts01_ts12",
+  "summary": {
+    "failed": 22
+  }
+}

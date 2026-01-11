@@ -10,7 +10,13 @@
   "description": "Sample size calculation for one-way ANOVA",
   "family": "sample_size_power",
   "id": "TT07",
-  "inputs": [],
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "config"
+    }
+  ],
   "level": "L1",
   "module": "T",
   "outputs": [

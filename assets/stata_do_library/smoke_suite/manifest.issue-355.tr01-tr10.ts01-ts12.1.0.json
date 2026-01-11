@@ -1,0 +1,338 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "issue_355_tr01_tr10_ts01_ts12",
+  "templates": {
+    "TR01": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TR01/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__ID_VAR__": "id",
+        "__X_COORD__": "x",
+        "__Y_COORD__": "y",
+        "__DISTANCE_BAND__": "0",
+        "__K_NEIGHBORS__": "2",
+        "__WEIGHT_TYPE__": "knn"
+      }
+    },
+    "TR02": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TR02/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__ID_VAR__": "id",
+        "__X_COORD__": "x",
+        "__Y_COORD__": "y"
+      }
+    },
+    "TR03": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TR03/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__ID_VAR__": "id",
+        "__X_COORD__": "x",
+        "__Y_COORD__": "y"
+      }
+    },
+    "TR04": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TR04/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__ID_VAR__": "id",
+        "__X_COORD__": "x",
+        "__Y_COORD__": "y",
+        "__VAR__": "y"
+      }
+    },
+    "TR05": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TR05/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__ID_VAR__": "id",
+        "__TIME_VAR__": "time",
+        "__X_COORD__": "x_coord",
+        "__Y_COORD__": "y_coord",
+        "__MODEL_TYPE__": "fe"
+      }
+    },
+    "TR06": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TR06/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__MCMC__": "200"
+      }
+    },
+    "TR07": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TR07/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "treat",
+        "__INDEPVARS__": "x post",
+        "__MCMC__": "200"
+      }
+    },
+    "TR08": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TR08/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__GROUP_VAR__": "cluster",
+        "__MCMC__": "200"
+      }
+    },
+    "TR09": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TR09/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__MCMC__": "200"
+      }
+    },
+    "TR10": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TR10/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS1__": "x treat",
+        "__INDEPVARS2__": "post",
+        "__MCMC__": "200"
+      }
+    },
+    "TS01": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TS01/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__CV_FOLDS__": "5",
+        "__SELECTION__": "cv"
+      }
+    },
+    "TS02": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TS02/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__CV_FOLDS__": "5"
+      }
+    },
+    "TS03": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TS03/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__ALPHA__": "0.5",
+        "__CV_FOLDS__": "5"
+      }
+    },
+    "TS04": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TS04/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__N_TREES__": "50",
+        "__TYPE__": "regress",
+        "__SEED__": "12345"
+      }
+    },
+    "TS05": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TS05/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__N_ROUNDS__": "10",
+        "__MAX_DEPTH__": "3",
+        "__LEARNING_RATE__": "0.1"
+      }
+    },
+    "TS06": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TS06/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__MODEL__": "ols",
+        "__K_FOLDS__": "5"
+      }
+    },
+    "TS07": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TS07/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VARS__": "y x treat post",
+        "__N_COMPONENTS__": "2"
+      }
+    },
+    "TS08": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TS08/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VARS__": "y x treat post",
+        "__K__": "3",
+        "__MAX_K__": "5"
+      }
+    },
+    "TS09": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TS09/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "treat",
+        "__INDEPVARS__": "x post",
+        "__THRESHOLD__": "0.5"
+      }
+    },
+    "TS10": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TS10/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post"
+      }
+    },
+    "TS11": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TS11/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year",
+        "__FAMILY__": "gaussian",
+        "__CORR__": "independent"
+      }
+    },
+    "TS12": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TS12/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "treat",
+        "__INDEPVARS__": "x post",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year",
+        "__CORR__": "exchangeable"
+      }
+    }
+  }
+}

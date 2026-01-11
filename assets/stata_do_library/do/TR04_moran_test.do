@@ -13,7 +13,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -24,8 +27,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TR04|level=L2|title=Moran_Test"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local var = "__VAR__"
@@ -42,8 +45,7 @@ display "    地区ID: `id_var'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -58,8 +60,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach v in `var' `id_var' `x_coord' `y_coord' {
     capture confirm variable `v'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`v' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`v' not found"
+        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail"
         log close
         exit 200
     }

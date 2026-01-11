@@ -11,7 +11,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -22,8 +25,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TT02|level=L2|title=Word_Freq"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local text_var = "__TEXT_VAR__"
@@ -47,8 +50,7 @@ display "    最小词频: `min_freq'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -62,8 +64,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 * ============ 变量检查 ============
 capture confirm string variable `text_var'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`text_var' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`text_var' not found"
+    display "SS_RC|code=200|cmd=confirm string variable|msg=text_var_not_found|var=`text_var'|severity=fail"
     log close
     exit 200
 }
@@ -120,26 +121,41 @@ local n_filtered = _N
 
 display ">>> 过滤后词数 (freq>=`min_freq'): `n_filtered'"
 
-* 计算词频占比
-generate double _prop = _freq / `total_words'
+if _N == 0 {
+    display "SS_RC|code=112|cmd=contract|msg=no_tokens_after_filter|severity=warn"
+    gen str32 word = ""
+    gen long frequency = .
+    gen double proportion = .
+    keep word frequency proportion
+    keep in 1/0
 
-* 取Top N
-if _N > `top_n' {
-    keep in 1/`top_n'
+    local top_word = ""
+    local max_freq = 0
 }
+else {
+    * 计算词频占比
+    generate double _prop = _freq / `total_words'
 
-rename _word word
-rename _freq frequency
-rename _prop proportion
+    * 取Top N
+    if _N > `top_n' {
+        keep in 1/`top_n'
+    }
 
-display ""
-display ">>> Top 20 高频词:"
-list word frequency proportion in 1/20, noobs
+    rename _word word
+    rename _freq frequency
+    rename _prop proportion
+    keep word frequency proportion
 
-* 统计
-quietly summarize frequency
-local max_freq = r(max)
-local top_word = word[1]
+    display ""
+    display ">>> Top 20 高频词:"
+    local show_n = min(20, _N)
+    list word frequency proportion in 1/`show_n', noobs
+
+    * 统计
+    quietly summarize frequency
+    local max_freq = r(max)
+    local top_word = word[1]
+}
 
 display ""
 display ">>> 最高频词: `top_word' (频率=`max_freq')"

@@ -12,7 +12,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -23,15 +26,17 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TU14|level=L2|title=Kernel_Regression"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
 local kernel = "__KERNEL__"
 
-if "`kernel'" == "" | "`kernel'" == "__KERNEL__" { local kernel = "epanechnikov" }
+if "`kernel'" == "" | "`kernel'" == "__KERNEL__" {
+    local kernel = "epanechnikov"
+}
 
 display ""
 display ">>> 核回归参数:"
@@ -43,8 +48,7 @@ display "    核函数: `kernel'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -56,8 +60,23 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 capture confirm numeric variable `depvar'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`depvar' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`depvar' not found"
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=depvar_not_found|var=`depvar'|severity=fail"
+    log close
+    exit 200
+}
+local valid_indep ""
+foreach token of local indepvars {
+    local raw = "`token'"
+    if substr("`raw'", 1, 2) == "i." {
+        local raw = substr("`raw'", 3, .)
+    }
+    capture confirm numeric variable `raw'
+    if !_rc {
+        local valid_indep "`valid_indep' `token'"
+    }
+}
+if "`valid_indep'" == "" {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=no_valid_indepvars|severity=fail"
     log close
     exit 200
 }
@@ -72,7 +91,13 @@ display "SECTION 1: 核回归 (Kernel Regression)"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 * 使用npregress kernel命令
-npregress kernel `depvar' `indepvars', kernel(`kernel')
+capture noisily npregress kernel `depvar' `valid_indep', kernel(`kernel')
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=npregress kernel|msg=npregress_failed|severity=fail"
+    log close
+    exit `rc'
+}
 
 local n_obs = e(N)
 
@@ -84,10 +109,26 @@ display "    核函数: `kernel'"
 display "SS_METRIC|name=n_obs|value=`n_obs'"
 
 * 预测
-predict yhat_mean, mean
+capture predict yhat_mean, mean
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=predict|msg=predict_failed|severity=fail"
+    log close
+    exit `rc'
+}
 
-* 获取第一个自变量用于绘图
-local firstvar : word 1 of `indepvars'
+* 获取第一个非 factor 自变量用于绘图
+local firstvar ""
+foreach v of local valid_indep {
+    if substr("`v'", 1, 2) != "i." {
+        local firstvar "`v'"
+        continue, break
+    }
+}
+if "`firstvar'" == "" {
+    local first_token : word 1 of `valid_indep'
+    local firstvar = substr("`first_token'", 3, .)
+}
 
 twoway (scatter `depvar' `firstvar', msize(small) mcolor(gray%50)) ///
     (line yhat_mean `firstvar', sort lwidth(medium) lcolor(navy)), ///

@@ -10,7 +10,13 @@
   "description": "Sample size calculation for regression R-squared test",
   "family": "sample_size_power",
   "id": "TT06",
-  "inputs": [],
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "config"
+    }
+  ],
   "level": "L1",
   "module": "T",
   "outputs": [

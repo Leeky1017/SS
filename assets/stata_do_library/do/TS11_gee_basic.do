@@ -1,4 +1,4 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TS11  level=L1  module=S  title="GEE Basic"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -9,7 +9,10 @@
 * DEPENDENCIES: none
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -20,8 +23,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TS11|level=L1|title=GEE_Basic"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
@@ -33,8 +36,7 @@ local corr = "__CORR__"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -48,9 +50,30 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
-ss_smart_xtset `panelvar' `timevar'
-xtgee `depvar' `indepvars', family(`family') link(identity) corr(`corr') robust
-display "SS_METRIC|name=n_obs|value=`e(N)'"
+capture xtset `panelvar' `timevar'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=xtset `panelvar' `timevar'|msg=xtset_failed|severity=fail"
+    log close
+    exit `rc'
+}
+local n_obs = _N
+capture noisily xtgee `depvar' `indepvars', family(`family') link(identity) corr(`corr') robust
+local rc = _rc
+if `rc' != 0 {
+    if `rc' == 430 {
+        display "SS_RC|code=430|cmd=xtgee|msg=convergence_not_achieved|severity=warn"
+    }
+    else {
+        display "SS_RC|code=`rc'|cmd=xtgee|msg=xtgee_failed|severity=fail"
+        log close
+        exit `rc'
+    }
+}
+else {
+    local n_obs = e(N)
+}
+display "SS_METRIC|name=n_obs|value=`n_obs'"
 
 preserve
 clear
@@ -72,7 +95,7 @@ display "SS_METRIC|name=n_dropped|value=`n_dropped'"
 
 display "SS_SUMMARY|key=n_input|value=`n_input'"
 display "SS_SUMMARY|key=n_output|value=`n_output'"
-display "SS_SUMMARY|key=n_obs|value=`e(N)'"
+display "SS_SUMMARY|key=n_obs|value=`n_obs'"
 
 timer off 1
 quietly timer list 1

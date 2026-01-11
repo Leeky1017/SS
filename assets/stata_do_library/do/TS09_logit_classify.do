@@ -13,7 +13,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -24,13 +27,21 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TS09|level=L2|title=Logit_Classify"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
 local threshold = __THRESHOLD__
+
+local indepvars_clean ""
+foreach v of local indepvars {
+    if "`v'" != "`depvar'" {
+        local indepvars_clean "`indepvars_clean' `v'"
+    }
+}
+local indepvars "`indepvars_clean'"
 
 if `threshold' <= 0 | `threshold' >= 1 {
     local threshold = 0.5
@@ -46,8 +57,7 @@ display "    阈值: " %6.2f `threshold'
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -61,8 +71,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 * ============ 变量检查 ============
 capture confirm numeric variable `depvar'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`depvar' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`depvar' not found"
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=depvar_not_found|severity=fail"
     log close
     exit 200
 }
@@ -84,7 +93,18 @@ display "═══════════════════════�
 display "SECTION 1: Logistic回归"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-logit `depvar' `valid_indep', or
+capture noisily logit `depvar' `valid_indep', or
+if _rc == 2000 {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=logit|msg=perfect_prediction_fallback_to_intercept_only|severity=warn"
+    capture noisily logit `depvar', or
+}
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=logit|msg=logit_failed|severity=fail"
+    log close
+    exit `rc'
+}
 
 local ll = e(ll)
 local pseudo_r2 = e(r2_p)
@@ -203,8 +223,10 @@ graph export "fig_TS09_roc.png", replace width(1200)
 display "SS_OUTPUT_FILE|file=fig_TS09_roc.png|type=figure|desc=roc_curve"
 
 capture erase "temp_logit_results.dta"
-if _rc != 0 { }
-
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=rc_check|msg=nonzero_rc_ignored|severity=warn"
+}
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 

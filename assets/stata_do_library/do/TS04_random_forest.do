@@ -12,7 +12,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -31,8 +34,17 @@ if "`__SEED__'" != "" {
 }
 set seed `seed_value'
 display "SS_METRIC|name=seed|value=`seed_value'"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
+
+capture which rforest
+local has_rforest = 1
+if _rc {
+    local rc = _rc
+    local has_rforest = 0
+    display "SS_RC|code=`rc'|cmd=which rforest|msg=dep_missing_rforest_fallback|severity=warn"
+}
+display "SS_METRIC|name=rforest_available|value=`has_rforest'"
 
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
@@ -57,8 +69,7 @@ display "    类型: `type'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -72,8 +83,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 * ============ 变量检查 ============
 capture confirm variable `depvar'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`depvar' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`depvar' not found"
+    display "SS_RC|code=200|cmd=confirm variable|msg=depvar_not_found|severity=fail"
     log close
     exit 200
 }
@@ -97,14 +107,25 @@ display "═══════════════════════�
 display "SECTION 1: 随机森林模型"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-if "`type'" == "classify" {
-    rforest `depvar' `valid_indep', type(classify) iterations(`n_trees')
+local oob_error = .
+if `has_rforest' == 1 {
+    if "`type'" == "classify" {
+        rforest `depvar' `valid_indep', type(classify) iterations(`n_trees')
+    }
+    else {
+        rforest `depvar' `valid_indep', type(reg) iterations(`n_trees')
+    }
+    local oob_error = e(OOB_Error)
 }
 else {
-    rforest `depvar' `valid_indep', type(reg) iterations(`n_trees')
+    display "SS_RC|code=111|cmd=rforest|msg=using_fallback_model|severity=warn"
+    if "`type'" == "classify" {
+        quietly logit `depvar' `valid_indep'
+    }
+    else {
+        quietly regress `depvar' `valid_indep'
+    }
 }
-
-local oob_error = e(OOB_Error)
 
 display ""
 display ">>> 随机森林结果:"
@@ -120,7 +141,7 @@ display "═══════════════════════�
 display "SECTION 2: 变量重要性"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-matrix importance = e(importance)
+capture matrix importance = e(importance)
 
 tempname rf_importance
 postfile `rf_importance' str32 variable double importance ///
@@ -134,7 +155,10 @@ display "───────────────────────�
 local nvars : word count `valid_indep'
 forvalues i = 1/`nvars' {
     local vname : word `i' of `valid_indep'
-    local imp = importance[`i', 1]
+    local imp = .
+    if `has_rforest' == 1 {
+        local imp = importance[`i', 1]
+    }
     post `rf_importance' ("`vname'") (`imp')
     display %20s "`vname'" "  " %12.6f `imp'
 }
@@ -154,10 +178,20 @@ display "═══════════════════════�
 display "SECTION 3: 预测与评估"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-predict double rf_pred
+capture predict double rf_pred
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=predict|msg=predict_failed|severity=fail"
+    log close
+    exit `rc'
+}
 
 if "`type'" == "classify" {
-    generate byte correct = (`depvar' == rf_pred)
+    gen byte rf_class = rf_pred
+    if `has_rforest' == 0 {
+        replace rf_class = (rf_pred > 0.5)
+    }
+    generate byte correct = (`depvar' == rf_class)
     quietly summarize correct
     local accuracy = r(mean)
     
@@ -195,8 +229,10 @@ display "SS_OUTPUT_FILE|file=table_TS04_rf_result.csv|type=table|desc=rf_result"
 restore
 
 capture erase "temp_rf_importance.dta"
-if _rc != 0 { }
-
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=rc_check|msg=nonzero_rc_ignored|severity=warn"
+}
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 
