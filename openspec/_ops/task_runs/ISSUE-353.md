@@ -2,7 +2,7 @@
 
 - Issue: #353
 - Branch: `task/353-p4-13-spatial-output-tn-to`
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/357
 
 ## Plan
 - Add a dedicated smoke-suite manifest for TN01–TN10 + TO01–TO08 and run Stata 18 batch harness.

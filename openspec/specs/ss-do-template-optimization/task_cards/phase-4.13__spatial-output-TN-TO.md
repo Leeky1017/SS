@@ -36,6 +36,6 @@ Make spatial and output/reporting templates run on **Stata 18** with fixtures, e
 
 ## Completion
 
-- PR: <fill-after-merged>
+- PR: https://github.com/Leeky1017/SS/pull/357
 - Run log: `openspec/_ops/task_runs/ISSUE-353.md`
 - Evidence: `rulebook/tasks/issue-353-p4-13-spatial-output-tn-to/evidence/smoke_suite_report.issue-353.rerun04.json`
