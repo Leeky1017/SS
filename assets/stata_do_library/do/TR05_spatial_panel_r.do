@@ -1,4 +1,4 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TR05  level=L2  module=R  title="Spatial Panel"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -11,7 +11,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -22,8 +25,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TR05|level=L2|title=Spatial_Panel"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
@@ -48,8 +51,7 @@ display "    模型类型: `model_type'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -64,8 +66,15 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `depvar' `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+        display "SS_RC|code=200|cmd=confirm variable|msg=required_var_not_found|var=`var'|severity=fail"
+        log close
+        exit 200
+    }
+}
+foreach var in `x_coord' `y_coord' {
+    capture confirm numeric variable `var'
+    if _rc {
+        display "SS_RC|code=200|cmd=confirm numeric variable|msg=coord_var_not_found|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -79,13 +88,19 @@ foreach var of local indepvars {
     }
 }
 
-ss_smart_xtset `id_var' `time_var'
+capture xtset `id_var' `time_var'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=xtset `id_var' `time_var'|msg=xtset_failed|severity=fail"
+    log close
+    exit `rc'
+}
+sort `time_var' `id_var'
 
-* 获取唯一地区数
-quietly distinct `id_var'
-local n_regions = r(ndistinct)
-quietly distinct `time_var'
-local n_times = r(ndistinct)
+quietly levelsof `id_var', local(region_levels)
+local n_regions : word count `region_levels'
+quietly levelsof `time_var', local(time_levels)
+local n_times : word count `time_levels'
 
 display ""
 display ">>> 面板结构: `n_regions' 地区 x `n_times' 时期"
@@ -167,7 +182,10 @@ foreach t of local times {
         }
         local obs_i = (`t' - 1) * `n_regions' + `i'
         capture replace W_`depvar' = `wy' in `obs_i'
-        if _rc != 0 { }
+        local rc = _rc
+        if `rc' != 0 {
+            display "SS_RC|code=`rc'|cmd=rc_check|msg=nonzero_rc_ignored|severity=warn"
+        }
     }
 }
 
@@ -195,7 +213,10 @@ foreach var of local valid_indep {
             }
             local obs_i = (`t' - 1) * `n_regions' + `i'
             capture replace W_`var' = `wx' in `obs_i'
-            if _rc != 0 { }
+            local rc = _rc
+            if `rc' != 0 {
+                display "SS_RC|code=`rc'|cmd=rc_check|msg=nonzero_rc_ignored|severity=warn"
+            }
         }
     }
 }
@@ -206,13 +227,26 @@ foreach var of local valid_indep {
     local iv_list "`iv_list' W_`var'"
 }
 
+local rc = 0
 if "`model_type'" == "fe" {
     display ">>> 固定效应空间面板模型..."
-    xtivreg `depvar' `valid_indep' (W_`depvar' = `iv_list'), fe robust
+    capture noisily xtivreg `depvar' `valid_indep' (W_`depvar' = `iv_list'), fe
+    local rc = _rc
+    if `rc' == 198 {
+        display "SS_RC|code=198|cmd=xtivreg fe|msg=collinear_try_re|severity=warn"
+        capture noisily xtivreg `depvar' `valid_indep' (W_`depvar' = `iv_list'), re
+        local rc = _rc
+    }
 }
 else {
     display ">>> 随机效应空间面板模型..."
-    xtivreg `depvar' `valid_indep' (W_`depvar' = `iv_list'), re robust
+    capture noisily xtivreg `depvar' `valid_indep' (W_`depvar' = `iv_list'), re
+    local rc = _rc
+}
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=xtivreg|msg=xtivreg_failed|severity=fail"
+    log close
+    exit `rc'
 }
 
 local rho = _b[W_`depvar']
@@ -256,8 +290,10 @@ display "SS_OUTPUT_FILE|file=table_TR05_spatial_panel.csv|type=table|desc=spatia
 restore
 
 capture erase "temp_sp_results.dta"
-if _rc != 0 { }
-
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=rc_check|msg=nonzero_rc_ignored|severity=warn"
+}
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 

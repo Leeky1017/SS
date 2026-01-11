@@ -13,7 +13,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -24,8 +27,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TS07|level=L2|title=PCA_Analysis"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local vars = "__VARS__"
@@ -39,8 +42,7 @@ display "    分析变量: `vars'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -63,8 +65,7 @@ foreach var of local vars {
 }
 
 if `n_vars' < 2 {
-    display "SS_ERROR:FEW_VARS:Need at least 2 variables"
-    display "SS_ERR:FEW_VARS:Need at least 2 variables"
+    display "SS_RC|code=198|cmd=validate_inputs|msg=few_vars|severity=fail"
     log close
     exit 198
 }
@@ -200,10 +201,15 @@ display "SS_OUTPUT_FILE|file=fig_TS07_scree.png|type=figure|desc=scree_plot"
 restore
 
 capture erase "temp_eigenvalues.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=rc_check|msg=nonzero_rc_ignored|severity=warn"
+}
 capture erase "temp_loadings.dta"
-if _rc != 0 { }
-
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=rc_check|msg=nonzero_rc_ignored|severity=warn"
+}
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 

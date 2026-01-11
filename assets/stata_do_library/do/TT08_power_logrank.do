@@ -11,7 +11,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -22,8 +25,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TT08|level=L1|title=Power_Logrank"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local hr = __HR__
@@ -31,10 +34,18 @@ local p1 = __P1__
 local alpha = __ALPHA__
 local power = __POWER__
 
-if `hr' <= 0 { local hr = 0.7 }
-if `p1' <= 0 | `p1' >= 1 { local p1 = 0.5 }
-if `alpha' <= 0 | `alpha' >= 1 { local alpha = 0.05 }
-if `power' <= 0 | `power' >= 1 { local power = 0.8 }
+if `hr' <= 0 {
+    local hr = 0.7
+}
+if `p1' <= 0 | `p1' >= 1 {
+    local p1 = 0.5
+}
+if `alpha' <= 0 | `alpha' >= 1 {
+    local alpha = 0.05
+}
+if `power' <= 0 | `power' >= 1 {
+    local power = 0.8
+}
 
 display ""
 display ">>> 生存分析样本量参数:"

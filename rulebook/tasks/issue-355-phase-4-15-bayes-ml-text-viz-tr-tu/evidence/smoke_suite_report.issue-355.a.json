@@ -1,0 +1,473 @@
+{
+  "cases": [
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/4c/job_4c6e50ca5601356a/runs/4697f6fc76e7411ebfc22e8f3b354c87/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_4c6e50ca5601356a",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR01_spatial.dta",
+        "result.log",
+        "table_TR01_weight_summary.csv"
+      ],
+      "run_id": "4697f6fc76e7411ebfc22e8f3b354c87",
+      "status": "failed",
+      "template_id": "TR01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/20/job_2041a276f170b391/runs/e34898df05bb47f3b40a7cc10227cd00/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_2041a276f170b391",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR02_sar.dta",
+        "result.log",
+        "table_TR02_sar_result.csv"
+      ],
+      "run_id": "e34898df05bb47f3b40a7cc10227cd00",
+      "status": "failed",
+      "template_id": "TR02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/7f/job_7f61c0802abc5305/runs/59c8038deca84860b88a2bbd868f647b/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_7f61c0802abc5305",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR03_sem.dta",
+        "result.log",
+        "table_TR03_sem_result.csv"
+      ],
+      "run_id": "59c8038deca84860b88a2bbd868f647b",
+      "status": "failed",
+      "template_id": "TR03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/60/job_60493aa1e966565f/runs/851ac43e8a954bdabbc0b1d3738849d5/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_60493aa1e966565f",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR04_moran.dta",
+        "fig_TR04_moran_scatter.png",
+        "result.log",
+        "table_TR04_moran_global.csv",
+        "table_TR04_moran_local.csv"
+      ],
+      "run_id": "851ac43e8a954bdabbc0b1d3738849d5",
+      "status": "failed",
+      "template_id": "TR04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/34/job_3492f9e3887c4198/runs/725d4dbbbe764d38a6384179f95c8ba7/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_3492f9e3887c4198",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR05_sp_panel.dta",
+        "result.log",
+        "table_TR05_spatial_panel.csv"
+      ],
+      "run_id": "725d4dbbbe764d38a6384179f95c8ba7",
+      "status": "failed",
+      "template_id": "TR05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/f5/job_f5a1500cc2fab163/runs/2a5e29f2671541979320e1b9de6f0505/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_f5a1500cc2fab163",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR06_bayes.dta",
+        "result.log",
+        "table_TR06_bayes.csv"
+      ],
+      "run_id": "2a5e29f2671541979320e1b9de6f0505",
+      "status": "failed",
+      "template_id": "TR06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/02/job_027cc1a1094241c0/runs/87a6cd6ca6114428a6b40c60ff9ecabe/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_027cc1a1094241c0",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR07_blogit.dta",
+        "result.log",
+        "table_TR07_blogit.csv"
+      ],
+      "run_id": "87a6cd6ca6114428a6b40c60ff9ecabe",
+      "status": "failed",
+      "template_id": "TR07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/cf/job_cfd1203644616ad8/runs/35dcafde3dbc4293bc9931a43c5f76e4/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_cfd1203644616ad8",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR08_bmixed.dta",
+        "result.log",
+        "table_TR08_bmixed.csv"
+      ],
+      "run_id": "35dcafde3dbc4293bc9931a43c5f76e4",
+      "status": "failed",
+      "template_id": "TR08",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/80/job_80777ee0d22f8cad/runs/15fd0cb2030a46e2b402bf258888ad43/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_80777ee0d22f8cad",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR09_diag.dta",
+        "fig_TR09_acf.png",
+        "fig_TR09_trace.png",
+        "result.log"
+      ],
+      "run_id": "15fd0cb2030a46e2b402bf258888ad43",
+      "status": "failed",
+      "template_id": "TR09",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/c6/job_c600ad9f8efb35ef/runs/350ebc4714fe4b51b72f69967a27e53b/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_c600ad9f8efb35ef",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TR10_bf.dta",
+        "result.log",
+        "table_TR10_bf.csv"
+      ],
+      "run_id": "350ebc4714fe4b51b72f69967a27e53b",
+      "status": "failed",
+      "template_id": "TR10",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/18/job_184e96f316b63577/runs/123b2ae8053441daa279c8480655c3d9/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_184e96f316b63577",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS01_lasso.dta",
+        "fig_TS01_cv_path.png",
+        "result.log",
+        "table_TS01_cv_result.csv",
+        "table_TS01_lasso_coef.csv"
+      ],
+      "run_id": "123b2ae8053441daa279c8480655c3d9",
+      "status": "failed",
+      "template_id": "TS01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/1e/job_1eced08726ff6e3f/runs/fb591668b0f449cba8e6b9acd97cd821/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_1eced08726ff6e3f",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS02_ridge.dta",
+        "result.log",
+        "table_TS02_cv_result.csv",
+        "table_TS02_ridge_coef.csv"
+      ],
+      "run_id": "fb591668b0f449cba8e6b9acd97cd821",
+      "status": "failed",
+      "template_id": "TS02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/a6/job_a6f835dc23f98e37/runs/98cda3561825449d8f475a5e74d4f748/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_a6f835dc23f98e37",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS03_enet.dta",
+        "result.log",
+        "table_TS03_cv_result.csv",
+        "table_TS03_enet_coef.csv"
+      ],
+      "run_id": "98cda3561825449d8f475a5e74d4f748",
+      "status": "failed",
+      "template_id": "TS03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/db/job_dbdea67b58e580a7/runs/b11da1f1dbc04ca7a5e6ced75f4b447f/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_dbdea67b58e580a7",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS04_rf.dta",
+        "result.log",
+        "table_TS04_rf_importance.csv",
+        "table_TS04_rf_result.csv"
+      ],
+      "run_id": "b11da1f1dbc04ca7a5e6ced75f4b447f",
+      "status": "failed",
+      "template_id": "TS04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/78/job_78081273496b5662/runs/359d0565af46421181c083bd2f99da02/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_78081273496b5662",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS05_xgb.dta",
+        "result.log",
+        "table_TS05_xgb_importance.csv",
+        "table_TS05_xgb_result.csv"
+      ],
+      "run_id": "359d0565af46421181c083bd2f99da02",
+      "status": "failed",
+      "template_id": "TS05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/2a/job_2a159fbd7eff3287/runs/1b514c4ebaa748c19bbe1fd42ba7e9c3/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_2a159fbd7eff3287",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS06_cv.dta",
+        "result.log",
+        "table_TS06_cv_folds.csv",
+        "table_TS06_cv_summary.csv"
+      ],
+      "run_id": "1b514c4ebaa748c19bbe1fd42ba7e9c3",
+      "status": "failed",
+      "template_id": "TS06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/6d/job_6db0130995b2a4b9/runs/c5ab5bcd4d174c65b12b72309ad565e7/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_6db0130995b2a4b9",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS07_pca.dta",
+        "fig_TS07_scree.png",
+        "result.log",
+        "table_TS07_eigenvalues.csv",
+        "table_TS07_loadings.csv"
+      ],
+      "run_id": "c5ab5bcd4d174c65b12b72309ad565e7",
+      "status": "failed",
+      "template_id": "TS07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/b9/job_b992b6800221da23/runs/69e25d3a3aa14e43846f5696c02fbe92/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_b992b6800221da23",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS08_kmeans.dta",
+        "fig_TS08_elbow.png",
+        "result.log",
+        "table_TS08_centers.csv",
+        "table_TS08_elbow.csv"
+      ],
+      "run_id": "69e25d3a3aa14e43846f5696c02fbe92",
+      "status": "failed",
+      "template_id": "TS08",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/b7/job_b7c7e3ae093889de/runs/dd20a6d58466436cbcc9f5bc7049f9ba/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_b7c7e3ae093889de",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS09_logit.dta",
+        "fig_TS09_roc.png",
+        "result.log",
+        "table_TS09_confusion.csv",
+        "table_TS09_logit_result.csv"
+      ],
+      "run_id": "dd20a6d58466436cbcc9f5bc7049f9ba",
+      "status": "failed",
+      "template_id": "TS09",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/54/job_54fc0fe15841a8ac/runs/b69ebf246f084c269e8b210acbcf7a52/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_54fc0fe15841a8ac",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS10_compare.dta",
+        "fig_TS10_comparison.png",
+        "result.log",
+        "table_TS10_comparison.csv"
+      ],
+      "run_id": "b69ebf246f084c269e8b210acbcf7a52",
+      "status": "failed",
+      "template_id": "TS10",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/1a/job_1a116056cfbf7f1e/runs/63792447531b4836ab43ec8e50a761b5/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_1a116056cfbf7f1e",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS11_gee.dta",
+        "result.log",
+        "table_TS11_gee.csv"
+      ],
+      "run_id": "63792447531b4836ab43ec8e50a761b5",
+      "status": "failed",
+      "template_id": "TS11",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [],
+      "artifacts_dir": "/tmp/ss_jobs_issue355_a/3f/job_3fee6387c0b05822/runs/9a6a455758104cd48f04dc9b7a9b2a37/artifacts",
+      "error": {
+        "error_code": "STATA_SUBPROCESS_FAILED",
+        "message": "[Errno 2] No such file or directory: '/mnt/c/Program'"
+      },
+      "exit_code": null,
+      "job_id": "job_3fee6387c0b05822",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TS12_geelogit.dta",
+        "result.log",
+        "table_TS12_geelogit.csv"
+      ],
+      "run_id": "9a6a455758104cd48f04dc9b7a9b2a37",
+      "status": "failed",
+      "template_id": "TS12",
+      "timed_out": false
+    }
+  ],
+  "finished_at": "2026-01-11T02:16:34.380254+00:00",
+  "library_dir": "assets/stata_do_library",
+  "schema_version": "1.0",
+  "started_at": "2026-01-11T02:16:34.028282+00:00",
+  "stata_cmd": [
+    "/mnt/c/Program",
+    "Files/Stata18/StataMP-64.exe"
+  ],
+  "suite_id": "issue_355_tr01_tr10_ts01_ts12",
+  "summary": {
+    "failed": 22
+  }
+}

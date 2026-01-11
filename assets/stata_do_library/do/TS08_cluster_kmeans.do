@@ -13,7 +13,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -24,8 +27,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TS08|level=L2|title=KMeans_Cluster"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local vars = "__VARS__"
@@ -49,8 +52,7 @@ display "    肘部法则最大K: `max_k'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -89,6 +91,8 @@ display "K     组内平方和(WSS)"
 display "─────────────────────"
 
 forvalues test_k = 2/`max_k' {
+    capture cluster drop _temp_cluster
+    capture drop _temp_cluster
     cluster kmeans `valid_vars', k(`test_k') name(_temp_cluster) start(random(12345))
     
     * 计算组内平方和
@@ -104,7 +108,8 @@ forvalues test_k = 2/`max_k' {
     post `elbow_data' (`test_k') (`wss')
     display %4.0f `test_k' "   " %15.2f `wss'
     
-    drop _temp_cluster
+    capture cluster drop _temp_cluster
+    capture drop _temp_cluster
 }
 
 postclose `elbow_data'
@@ -182,10 +187,15 @@ display "SS_METRIC|name=k|value=`k'"
 display "SS_METRIC|name=wss|value=`total_wss'"
 
 capture erase "temp_elbow.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=rc_check|msg=nonzero_rc_ignored|severity=warn"
+}
 capture erase "temp_centers.dta"
-if _rc != 0 { }
-
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=rc_check|msg=nonzero_rc_ignored|severity=warn"
+}
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 

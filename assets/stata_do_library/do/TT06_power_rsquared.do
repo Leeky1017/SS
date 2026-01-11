@@ -11,7 +11,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -22,8 +25,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TT06|level=L1|title=Power_Rsquared"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local rsquared = __RSQUARED__
@@ -31,10 +34,18 @@ local n_predictors = __N_PREDICTORS__
 local alpha = __ALPHA__
 local power = __POWER__
 
-if `rsquared' <= 0 | `rsquared' >= 1 { local rsquared = 0.1 }
-if `n_predictors' < 1 { local n_predictors = 3 }
-if `alpha' <= 0 | `alpha' >= 1 { local alpha = 0.05 }
-if `power' <= 0 | `power' >= 1 { local power = 0.8 }
+if `rsquared' <= 0 | `rsquared' >= 1 {
+    local rsquared = 0.1
+}
+if `n_predictors' < 1 {
+    local n_predictors = 3
+}
+if `alpha' <= 0 | `alpha' >= 1 {
+    local alpha = 0.05
+}
+if `power' <= 0 | `power' >= 1 {
+    local power = 0.8
+}
 
 display ""
 display ">>> 回归R²检验样本量参数:"

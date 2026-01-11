@@ -12,7 +12,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -23,8 +26,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TT10|level=L1|title=Power_Graph"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local test_type = "__TEST_TYPE__"
@@ -33,11 +36,21 @@ local effect_max = __EFFECT_MAX__
 local alpha = __ALPHA__
 local n_sample = __N_SAMPLE__
 
-if "`test_type'" == "" | "`test_type'" == "__TEST_TYPE__" { local test_type = "twomeans" }
-if `effect_min' <= 0 { local effect_min = 0.1 }
-if `effect_max' <= `effect_min' { local effect_max = 1.0 }
-if `alpha' <= 0 | `alpha' >= 1 { local alpha = 0.05 }
-if `n_sample' < 10 { local n_sample = 100 }
+if "`test_type'" == "" | "`test_type'" == "__TEST_TYPE__" {
+    local test_type = "twomeans"
+}
+if `effect_min' <= 0 {
+    local effect_min = 0.1
+}
+if `effect_max' <= `effect_min' {
+    local effect_max = 1.0
+}
+if `alpha' <= 0 | `alpha' >= 1 {
+    local alpha = 0.05
+}
+if `n_sample' < 10 {
+    local n_sample = 100
+}
 
 display ""
 display ">>> 功效曲线参数:"
@@ -80,7 +93,9 @@ forvalues i = 1/`n_points' {
     }
     else if "`test_type'" == "oneproportion" {
         local p1 = 0.5 + `eff'/2
-        if `p1' > 0.99 { local p1 = 0.99 }
+        if `p1' > 0.99 {
+            local p1 = 0.99
+        }
         quietly power oneproportion 0.5 `p1', n(`n_sample') alpha(`alpha')
         replace power = r(power) in `i'
     }

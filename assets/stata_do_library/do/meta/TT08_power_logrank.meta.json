@@ -10,7 +10,13 @@
   "description": "Sample size calculation for survival analysis log-rank test",
   "family": "sample_size_power",
   "id": "TT08",
-  "inputs": [],
+  "inputs": [
+    {
+      "name": "data.csv",
+      "required": false,
+      "role": "config"
+    }
+  ],
   "level": "L1",
   "module": "T",
   "outputs": [

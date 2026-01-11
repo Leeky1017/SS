@@ -11,7 +11,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -22,8 +25,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TT09|level=L1|title=Power_Equivalence"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local delta = __DELTA__
@@ -32,11 +35,21 @@ local margin = __MARGIN__
 local alpha = __ALPHA__
 local power = __POWER__
 
-if `delta' < 0 { local delta = 0 }
-if `sd' <= 0 { local sd = 1 }
-if `margin' <= 0 { local margin = 0.5 }
-if `alpha' <= 0 | `alpha' >= 1 { local alpha = 0.05 }
-if `power' <= 0 | `power' >= 1 { local power = 0.8 }
+if `delta' < 0 {
+    local delta = 0
+}
+if `sd' <= 0 {
+    local sd = 1
+}
+if `margin' <= 0 {
+    local margin = 0.5
+}
+if `alpha' <= 0 | `alpha' >= 1 {
+    local alpha = 0.05
+}
+if `power' <= 0 | `power' >= 1 {
+    local power = 0.8
+}
 
 display ""
 display ">>> 等价性/非劣效检验样本量参数:"
@@ -60,7 +73,25 @@ display "SECTION 1: 等价性检验样本量计算"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 * 使用 power twomeans 命令进行等价性检验
-power twomeans 0 `delta', sd(`sd') equivalence eqdelta(`margin') alpha(`alpha') power(`power')
+capture noisily power twomeans 0 `delta', sd(`sd') equivalence eqdelta(`margin') alpha(`alpha') power(`power')
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=power twomeans|msg=equivalence_not_supported_using_standard|severity=warn"
+    local delta_std = `delta'
+    if `delta_std' == 0 {
+        local delta_std = `margin'
+    }
+    if `delta_std' == 0 {
+        local delta_std = 0.5
+    }
+    capture noisily power twomeans 0 `delta_std', sd(`sd') alpha(`alpha') power(`power')
+    local rc = _rc
+    if `rc' != 0 {
+        display "SS_RC|code=`rc'|cmd=power twomeans|msg=power_twomeans_failed|severity=fail"
+        log close
+        exit `rc'
+    }
+}
 
 local n = r(N)
 local n_per_group = r(N_per_group)

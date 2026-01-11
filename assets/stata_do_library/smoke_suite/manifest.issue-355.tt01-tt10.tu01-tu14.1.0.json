@@ -1,0 +1,346 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "issue_355_tt01_tt10_tu01_tu14",
+  "templates": {
+    "TT01": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TT01/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__TEXT_VAR__": "province",
+        "__LOWERCASE__": "yes",
+        "__REMOVE_PUNCT__": "yes",
+        "__REMOVE_NUM__": "no"
+      }
+    },
+    "TT02": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TT02/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__TEXT_VAR__": "province",
+        "__TOP_N__": "10",
+        "__MIN_FREQ__": "1"
+      }
+    },
+    "TT03": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TT03/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__TEXT_VAR__": "province",
+        "__POS_WORDS__": "good",
+        "__NEG_WORDS__": "bad"
+      }
+    },
+    "TT04": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TT04/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__TEXT_VAR__": "province",
+        "__TOP_N__": "10",
+        "__N__": "2"
+      }
+    },
+    "TT05": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TT05/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__TEXT_VAR__": "province"
+      }
+    },
+    "TT06": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TT06/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__RSQUARED__": "0.2",
+        "__N_PREDICTORS__": "3",
+        "__ALPHA__": "0.05",
+        "__POWER__": "0.8"
+      }
+    },
+    "TT07": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TT07/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__N_GROUPS__": "3",
+        "__EFFECT_SIZE__": "0.5",
+        "__ALPHA__": "0.05",
+        "__POWER__": "0.8"
+      }
+    },
+    "TT08": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TT08/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__HR__": "1.5",
+        "__ALPHA__": "0.05",
+        "__POWER__": "0.8",
+        "__P1__": "0.5"
+      }
+    },
+    "TT09": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TT09/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__SD__": "1",
+        "__MARGIN__": "0.2",
+        "__ALPHA__": "0.05",
+        "__POWER__": "0.8",
+        "__DELTA__": "0"
+      }
+    },
+    "TT10": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TT10/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__N_SAMPLE__": "100",
+        "__ALPHA__": "0.05",
+        "__TEST_TYPE__": "twomeans",
+        "__EFFECT_MIN__": "0.2",
+        "__EFFECT_MAX__": "0.8"
+      }
+    },
+    "TU01": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU01/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VAR__": "y",
+        "__BINS__": "10",
+        "__NORMAL__": "no",
+        "__TITLE__": "auto"
+      }
+    },
+    "TU02": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU02/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__XVAR__": "x",
+        "__YVAR__": "y",
+        "__GROUP_VAR__": "cluster",
+        "__FITLINE__": "linear"
+      }
+    },
+    "TU03": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU03/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VAR__": "y",
+        "__BY_VAR__": "province"
+      }
+    },
+    "TU04": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU04/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__XVAR__": "x",
+        "__YVAR__": "y",
+        "__BY_VAR__": "province"
+      }
+    },
+    "TU05": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU05/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VAR__": "y",
+        "__CAT_VAR__": "province",
+        "__STAT__": "mean"
+      }
+    },
+    "TU06": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU06/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VARS__": "y x treat post"
+      }
+    },
+    "TU07": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU07/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__CAT_VAR__": "province",
+        "__VALUE_VAR__": "y"
+      }
+    },
+    "TU08": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU08/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VAR__": "y",
+        "__BY_VAR__": "province",
+        "__BANDWIDTH__": "0"
+      }
+    },
+    "TU09": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU09/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__VAR__": "y"
+      }
+    },
+    "TU10": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU10/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__CI_LEVEL__": "95"
+      }
+    },
+    "TU11": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU11/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__QUANTILE__": "0.5"
+      }
+    },
+    "TU12": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU12/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "profit",
+        "__XVAR__": "revenue",
+        "__N_KNOTS__": "3",
+        "__SPLINE_TYPE__": "cubic"
+      }
+    },
+    "TU13": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU13/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__XVAR__": "revenue",
+        "__YVAR__": "profit",
+        "__DEGREE__": "1",
+        "__BANDWIDTH__": "0"
+      }
+    },
+    "TU14": {
+      "dependencies": [],
+      "fixtures": [
+        {
+          "dest": "data.csv",
+          "source": "fixtures/TU14/sample_data.csv"
+        }
+      ],
+      "params": {
+        "__DEPVAR__": "profit",
+        "__INDEPVARS__": "revenue i.treatment i.post",
+        "__KERNEL__": "epanechnikov"
+      }
+    }
+  }
+}

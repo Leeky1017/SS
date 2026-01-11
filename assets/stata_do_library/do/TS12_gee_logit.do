@@ -1,4 +1,4 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TS12  level=L1  module=S  title="GEE Logit"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -9,7 +9,10 @@
 * DEPENDENCIES: none
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -20,8 +23,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TS12|level=L1|title=GEE_Logit"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
@@ -29,11 +32,18 @@ local panelvar = "__PANELVAR__"
 local timevar = "__TIME_VAR__"
 local corr = "__CORR__"
 
+local indepvars_clean ""
+foreach v of local indepvars {
+    if "`v'" != "`depvar'" {
+        local indepvars_clean "`indepvars_clean' `v'"
+    }
+}
+local indepvars "`indepvars_clean'"
+
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -47,8 +57,25 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
-ss_smart_xtset `panelvar' `timevar'
-xtgee `depvar' `indepvars', family(binomial) link(logit) corr(`corr') eform robust
+capture xtset `panelvar' `timevar'
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=xtset `panelvar' `timevar'|msg=xtset_failed|severity=fail"
+    log close
+    exit `rc'
+}
+capture noisily xtgee `depvar' `indepvars', family(binomial) link(logit) corr(`corr') eform robust
+if _rc == 2000 {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=xtgee|msg=perfect_prediction_fallback_to_intercept_only|severity=warn"
+    capture noisily xtgee `depvar', family(binomial) link(logit) corr(`corr') eform robust
+}
+if _rc {
+    local rc = _rc
+    display "SS_RC|code=`rc'|cmd=xtgee|msg=xtgee_failed|severity=fail"
+    log close
+    exit `rc'
+}
 display "SS_METRIC|name=n_obs|value=`e(N)'"
 
 preserve

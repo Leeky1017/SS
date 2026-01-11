@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #355
 - Parent: #125
 - Superphase: Phase 4 (full-library Stata 18 audit)
 - Templates: `TR*` + `TS*` + `TT*` + `TU*` (~47 templates, current inventory)
@@ -36,4 +36,3 @@ Make Bayes/ML/text/viz templates run on **Stata 18** with fixtures, emit **contr
 - [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
 - [ ] Code style is normalized across the scope
 - [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
-

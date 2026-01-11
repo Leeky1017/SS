@@ -11,7 +11,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -22,8 +25,8 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TT04|level=L2|title=N_gram"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local text_var = "__TEXT_VAR__"
@@ -47,8 +50,7 @@ display "    Top N: `top_n'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -62,8 +64,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 * ============ 变量检查 ============
 capture confirm string variable `text_var'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`text_var' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`text_var' not found"
+    display "SS_RC|code=200|cmd=confirm string variable|msg=text_var_not_found|var=`text_var'|severity=fail"
     log close
     exit 200
 }
@@ -93,37 +94,43 @@ display ">>> 最大单词数/文档: `n_word_vars'"
 * 生成N-gram
 local max_ngram = `n_word_vars' - `n_gram' + 1
 if `max_ngram' < 1 {
-    local max_ngram = 1
+    local max_ngram = 0
 }
 
 tempname ngram_data
 postfile `ngram_data' long doc_id str200 ngram using "temp_ngram.dta", replace
 
-forvalues d = 1/`total_docs' {
-    forvalues i = 1/`max_ngram' {
-        local ngram_str ""
-        forvalues j = 0/`=`n_gram'-1' {
-            local word_idx = `i' + `j'
-            local w = _w`word_idx'[`d']
-            if "`w'" != "" {
-                if "`ngram_str'" == "" {
-                    local ngram_str "`w'"
+if `max_ngram' > 0 {
+    forvalues d = 1/`total_docs' {
+        forvalues i = 1/`max_ngram' {
+            local ngram_str ""
+            forvalues j = 0/`=`n_gram'-1' {
+                local word_idx = `i' + `j'
+                local w ""
+                capture confirm variable _w`word_idx'
+                if _rc == 0 {
+                    local w = _w`word_idx'[`d']
                 }
-                else {
-                    local ngram_str "`ngram_str' `w'"
+                if "`w'" != "" {
+                    if "`ngram_str'" == "" {
+                        local ngram_str "`w'"
+                    }
+                    else {
+                        local ngram_str "`ngram_str' `w'"
+                    }
                 }
+            }
+            
+            * 检查是否完整N-gram
+            local n_words : word count `ngram_str'
+            if `n_words' == `n_gram' {
+                post `ngram_data' (`d') ("`ngram_str'")
             }
         }
         
-        * 检查是否完整N-gram
-        local n_words : word count `ngram_str'
-        if `n_words' == `n_gram' {
-            post `ngram_data' (`d') ("`ngram_str'")
+        if mod(`d', 100) == 0 {
+            display "    处理文档 `d' / `total_docs'..."
         }
-    }
-    
-    if mod(`d', 100) == 0 {
-        display "    处理文档 `d' / `total_docs'..."
     }
 }
 
@@ -140,24 +147,38 @@ use "temp_ngram.dta", clear
 local total_ngrams = _N
 display ">>> 总`n_gram'-gram数: `total_ngrams'"
 
-contract ngram, freq(frequency)
-gsort -frequency
+local n_unique = 0
+local top_ngram = ""
+local top_freq = 0
 
-local n_unique = _N
-display ">>> 唯一`n_gram'-gram数: `n_unique'"
-
-generate double proportion = frequency / `total_ngrams'
-
-if _N > `top_n' {
-    keep in 1/`top_n'
+if `total_ngrams' == 0 {
+    display "SS_RC|code=112|cmd=postfile|msg=no_ngrams_generated|severity=warn"
+    keep ngram
+    gen long frequency = .
+    gen double proportion = .
+    keep ngram frequency proportion
 }
+else {
+    contract ngram, freq(frequency)
+    gsort -frequency
 
-display ""
-display ">>> Top 15 `n_gram'-gram:"
-list ngram frequency proportion in 1/15, noobs
+    local n_unique = _N
+    display ">>> 唯一`n_gram'-gram数: `n_unique'"
 
-local top_ngram = ngram[1]
-local top_freq = frequency[1]
+    generate double proportion = frequency / `total_ngrams'
+
+    if _N > `top_n' {
+        keep in 1/`top_n'
+    }
+
+    display ""
+    display ">>> Top 15 `n_gram'-gram:"
+    local show_n = min(15, _N)
+    list ngram frequency proportion in 1/`show_n', noobs
+
+    local top_ngram = ngram[1]
+    local top_freq = frequency[1]
+}
 
 display "SS_METRIC|name=total_ngrams|value=`total_ngrams'"
 display "SS_METRIC|name=unique_ngrams|value=`n_unique'"
@@ -170,7 +191,10 @@ save "data_TT04_ngram.dta", replace
 display "SS_OUTPUT_FILE|file=data_TT04_ngram.dta|type=data|desc=ngram_data"
 
 capture erase "temp_ngram.dta"
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=rc_check|msg=nonzero_rc_ignored|severity=warn"
+}
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
 local n_output = _N

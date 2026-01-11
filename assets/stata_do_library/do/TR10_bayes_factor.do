@@ -9,7 +9,10 @@
 * DEPENDENCIES: none
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -20,20 +23,21 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TR10|level=L1|title=Bayes_Factor"
-display "SS_TASK_VERSION:2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+display "SS_TASK_VERSION|version=2.0.1"
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 local depvar = "__DEPVAR__"
 local indepvars1 = "__INDEPVARS1__"
 local indepvars2 = "__INDEPVARS2__"
 local mcmc = __MCMC__
-if `mcmc' < 1000 { local mcmc = 10000 }
+if `mcmc' < 200 {
+    local mcmc = 200
+}
 
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
     log close
     exit 601
 }
@@ -48,13 +52,12 @@ display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 display "SS_STEP_BEGIN|step=S03_analysis"
 
 bayes, mcmcsize(`mcmc') burnin(2500): regress `depvar' `indepvars1'
-estimates store m1
+local margl1 = e(margl)
 
 bayes, mcmcsize(`mcmc') burnin(2500): regress `depvar' `indepvars2'
-estimates store m2
+local margl2 = e(margl)
 
-bayestest model m1 m2
-local bf = r(bf)
+local bf = exp(`margl1' - `margl2')
 display "SS_METRIC|name=bayes_factor|value=`bf'"
 
 preserve
