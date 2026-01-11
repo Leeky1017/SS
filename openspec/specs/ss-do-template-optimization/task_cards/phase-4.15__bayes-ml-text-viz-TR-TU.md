@@ -32,7 +32,15 @@ Make Bayes/ML/text/viz templates run on **Stata 18** with fixtures, emit **contr
 
 ## Acceptance checklist
 
-- [ ] Stata 18 baseline run: 0 `fail` across `TR*`–`TU*` (packages A+B)
-- [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
-- [ ] Code style is normalized across the scope
-- [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Stata 18 baseline run: 0 `fail` across `TR*`–`TU*` (packages A+B)
+- [x] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
+- [x] Code style is normalized across the scope
+- [x] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/360
+- Stata 18 smoke-suite: Package A (TR01–TR10 + TS01–TS12) PASS; Package B (TT01–TT10 + TU01–TU14) PASS.
+- Anchors normalized: removed legacy `SS_ERROR:` / `SS_ERR:` and standardized to `SS_EVENT|k=v` in scope.
+- Run log: `openspec/_ops/task_runs/ISSUE-355.md` (manifests + evidence + commands).
+- Inventory note: current template library contains `TU01`–`TU14` (no `TU15`).
