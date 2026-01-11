@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #353
 - Parent: #125
 - Superphase: Phase 4 (full-library Stata 18 audit)
 - Templates: `TN*` + `TO*` (~18 templates, current inventory)
@@ -29,8 +29,13 @@ Make spatial and output/reporting templates run on **Stata 18** with fixtures, e
 
 ## Acceptance checklist
 
-- [ ] Stata 18 baseline run: 0 `fail` across `TN*` + `TO*`
-- [ ] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
-- [ ] Output files are declared consistently and paths are safe (no hardcoded local paths)
-- [ ] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Stata 18 baseline run: 0 `fail` across `TN*` + `TO*`
+- [x] Anchors are contract-compliant and consistent (`SS_EVENT|k=v`)
+- [x] Output files are declared consistently and paths are safe (no hardcoded local paths)
+- [x] Evidence + per-template reports are linked from `openspec/_ops/task_runs/ISSUE-353.md`
 
+## Completion
+
+- PR: <fill-after-merged>
+- Run log: `openspec/_ops/task_runs/ISSUE-353.md`
+- Evidence: `rulebook/tasks/issue-353-p4-13-spatial-output-tn-to/evidence/smoke_suite_report.issue-353.rerun04.json`

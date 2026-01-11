@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "issue_353_tn01_tn10_to01_to08",
+  "templates": {
+    "TN01": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TN01/sample_data.csv" }],
+      "params": { "__ID__": "id", "__X__": "x", "__Y__": "cluster" }
+    },
+    "TN02": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TN02/sample_data.csv" }],
+      "params": { "__VAR__": "y" }
+    },
+    "TN03": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TN03/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TN04": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TN04/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TN05": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TN05/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TN06": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TN06/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TN07": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TN07/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TN08": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TN08/sample_data.csv" }],
+      "params": {
+        "__DEPVAR__": "y",
+        "__INDEPVARS__": "x treat post",
+        "__PANELVAR__": "id",
+        "__TIME_VAR__": "year"
+      }
+    },
+    "TN09": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TN09/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TN10": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TN10/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TO01": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TO01/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TO02": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TO02/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TO03": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TO03/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TO04": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TO04/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TO05": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TO05/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TO06": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TO06/sample_data.csv" }],
+      "params": { "__DEPVAR__": "y", "__INDEPVARS__": "x treat post" }
+    },
+    "TO07": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TO07/sample_data.csv" }],
+      "params": { "__XVAR__": "x", "__YVAR__": "y" }
+    },
+    "TO08": {
+      "dependencies": [],
+      "fixtures": [{ "dest": "data.csv", "source": "fixtures/TO08/sample_data.csv" }],
+      "params": { "__BY_VAR__": "treat", "__VARS__": "y x" }
+    }
+  }
+}
+

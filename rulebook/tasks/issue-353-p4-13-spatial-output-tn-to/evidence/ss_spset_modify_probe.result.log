@@ -1,0 +1,66 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spset_modify_probe.result.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:35:11
+
+. import delimited "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-outp
+> ut-tn-to/assets/stata_do_library/fixtures/TN03/sample_data.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(8 vars, 6 obs)
+
+. 
+. gen long sid = _n
+
+. capture spset sid
+
+. display "spset_plain_rc=" _rc
+spset_plain_rc=0
+
+. 
+. capture spset, modify coords(x cluster)
+
+. display "spset_modify_coords_rc=" _rc
+spset_modify_coords_rc=198
+
+. 
+. capture spset, modify coordinates(x cluster)
+
+. display "spset_modify_coordinates_rc=" _rc
+spset_modify_coordinates_rc=198
+
+. 
+. capture spset, modify coord(x cluster)
+
+. display "spset_modify_coord_rc=" _rc
+spset_modify_coord_rc=0
+
+. 
+. capture spset, modify xcoord(x) ycoord(cluster)
+
+. display "spset_modify_xy_rc=" _rc
+spset_modify_xy_rc=198
+
+. 
+. capture spset, describe
+
+. display "spset_describe_rc=" _rc
+spset_describe_rc=198
+
+. 
+. capture spmatrix create contiguity W, normalize(row)
+
+. display "spmatrix_contiguity_rc=" _rc
+spmatrix_contiguity_rc=601
+
+. 
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spset_modify_probe.result.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:35:11
+-------------------------------------------------------------------------------

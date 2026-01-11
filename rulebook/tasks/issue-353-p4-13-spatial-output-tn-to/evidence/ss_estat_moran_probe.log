@@ -1,0 +1,93 @@
+
+  ___  ____  ____  ____  ____ ®
+ /__    /   ____/   /   ____/      18.0
+___/   /   /___/   /   /___/       MP—Parallel Edition
+
+ Statistics and Data Science       Copyright 1985-2023 StataCorp LLC
+                                   StataCorp
+                                   4905 Lakeway Drive
+                                   College Station, Texas 77845 USA
+                                   800-STATA-PC        https://www.stata.com
+                                   979-696-4600        stata@stata.com
+
+Stata license: 114514-student 64-core lab perpetual
+Serial number: 9223372036854775807
+  Licensed to: LEEKY
+               1138
+
+Notes:
+      1. Stata is running in batch mode.
+      2. Unicode is supported; see help unicode_advice.
+      3. More than 2 billion observations are allowed; see help obs_advice.
+      4. Maximum number of variables is set to 5,000 but can be increased;
+          see help set_maxvar.
+
+. do ss_estat_moran_probe.do 
+
+. clear all
+
+. set more off
+
+. version 18
+
+. capture log close _all
+
+. log using "ss_estat_moran_probe.result.log", text replace
+(file
+    \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-13-spat
+    > ial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\ev
+    > idence\ss_estat_moran_probe.result.log not found)
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_estat_moran_probe.result.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:37:36
+
+. import delimited "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-outp
+> ut-tn-to/assets/stata_do_library/fixtures/TN03/sample_data.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(8 vars, 6 obs)
+
+. 
+. gen long sid = _n
+
+. spset sid
+
+      Sp dataset: <current>
+Linked shapefile: <none>
+            Data: Cross sectional
+ Spatial-unit ID: _ID (equal to sid)
+     Coordinates: <none>
+
+. spset, modify coord(x cluster)
+
+      Sp dataset: <current>
+Linked shapefile: <none>
+            Data: Cross sectional
+ Spatial-unit ID: _ID (equal to sid)
+     Coordinates: _CX, _CY (planar)
+
+
+. spmatrix create idistance W
+
+. 
+. capture estat moran y, weights(W)
+
+. display "estat_moran_rc=" _rc
+estat_moran_rc=301
+
+. 
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_estat_moran_probe.result.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:37:36
+-------------------------------------------------------------------------------
+
+. exit 0
+
+end of do-file

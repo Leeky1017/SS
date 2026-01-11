@@ -1,0 +1,64 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spmatrix_summarize_probe.result.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:38:41
+
+. import delimited "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-outp
+> ut-tn-to/assets/stata_do_library/fixtures/TN03/sample_data.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(8 vars, 6 obs)
+
+. 
+. gen long sid = _n
+
+. spset sid
+
+      Sp dataset: <current>
+Linked shapefile: <none>
+            Data: Cross sectional
+ Spatial-unit ID: _ID (equal to sid)
+     Coordinates: <none>
+
+. spset, modify coord(x cluster)
+
+      Sp dataset: <current>
+Linked shapefile: <none>
+            Data: Cross sectional
+ Spatial-unit ID: _ID (equal to sid)
+     Coordinates: _CX, _CY (planar)
+
+
+. spmatrix create idistance W
+
+. spmatrix summarize W
+
+Weighting matrix W
+---------------------------------------
+           Type |            idistance
+  Normalization |             spectral
+      Dimension |                6 x 6
+Elements        |
+   minimum      |                    0
+   minimum > 0  |             .0550918
+   mean         |             .1659265
+   max          |             .6159456
+---------------------------------------
+
+. capture display "S0=" r(S0)
+
+. capture display "mean_neighbors=" r(mean_neighbors)
+
+. display "rc_s0=" _rc
+rc_s0=0
+
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spmatrix_summarize_probe.result.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:38:42
+-------------------------------------------------------------------------------

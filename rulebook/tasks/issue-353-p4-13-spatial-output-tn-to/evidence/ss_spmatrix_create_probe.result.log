@@ -1,0 +1,77 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spmatrix_create_probe.result.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:35:54
+
+. import delimited "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-outp
+> ut-tn-to/assets/stata_do_library/fixtures/TN03/sample_data.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(8 vars, 6 obs)
+
+. 
+. gen long sid = _n
+
+. capture spset sid
+
+. display "spset_plain_rc=" _rc
+spset_plain_rc=0
+
+. capture spset, modify coord(x cluster)
+
+. display "spset_modify_coord_rc=" _rc
+spset_modify_coord_rc=0
+
+. 
+. capture spmatrix create contiguity Wc, normalize(row)
+
+. display "contiguity_rc=" _rc
+contiguity_rc=601
+
+. 
+. capture spmatrix create idistance Wi
+
+. display "idistance_rc=" _rc
+idistance_rc=0
+
+. 
+. capture spmatrix create idistance Wi, normalize(row)
+
+. display "idistance_norm_rc=" _rc
+idistance_norm_rc=110
+
+. 
+. capture spmatrix create knn Wk
+
+. display "knn_rc=" _rc
+knn_rc=198
+
+. 
+. capture spmatrix create knn Wk, k(2)
+
+. display "knn_k2_rc=" _rc
+knn_k2_rc=198
+
+. 
+. capture spmatrix create nearest Wn
+
+. display "nearest_rc=" _rc
+nearest_rc=198
+
+. 
+. capture spmatrix create nearest Wn, k(2)
+
+. display "nearest_k2_rc=" _rc
+nearest_k2_rc=198
+
+. 
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spmatrix_create_probe.result.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:35:54
+-------------------------------------------------------------------------------

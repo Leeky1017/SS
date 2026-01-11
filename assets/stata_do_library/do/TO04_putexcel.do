@@ -9,7 +9,10 @@
 * DEPENDENCIES: none
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+local rc_log_close = _rc
+if `rc_log_close' != 0 {
+    display "SS_RC|code=`rc_log_close'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -19,8 +22,21 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TO04
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TO04|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TO04|level=L1|title=Putexcel"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 local depvar = "__DEPVAR__"
@@ -29,10 +45,7 @@ local indepvars = "__INDEPVARS__"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TO04 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N

@@ -1,0 +1,56 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spgenerate_probe.result.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:37:59
+
+. import delimited "/home/leeky/work/SS/.worktrees/issue-353-p4-13-spatial-outp
+> ut-tn-to/assets/stata_do_library/fixtures/TN03/sample_data.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(8 vars, 6 obs)
+
+. 
+. gen long sid = _n
+
+. spset sid
+
+      Sp dataset: <current>
+Linked shapefile: <none>
+            Data: Cross sectional
+ Spatial-unit ID: _ID (equal to sid)
+     Coordinates: <none>
+
+. spset, modify coord(x cluster)
+
+      Sp dataset: <current>
+Linked shapefile: <none>
+            Data: Cross sectional
+ Spatial-unit ID: _ID (equal to sid)
+     Coordinates: _CX, _CY (planar)
+
+
+. spmatrix create idistance W
+
+. 
+. capture spgenerate Wy = W*y
+
+. display "spgenerate_rc=" _rc
+spgenerate_rc=0
+
+. 
+. capture corr y Wy
+
+. display "corr_rc=" _rc
+corr_rc=0
+
+. 
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-353-p4-
+> 13-spatial-output-tn-to\rulebook\tasks\issue-353-p4-13-spatial-output-tn-to\e
+> vidence\ss_spgenerate_probe.result.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:38:00
+-------------------------------------------------------------------------------

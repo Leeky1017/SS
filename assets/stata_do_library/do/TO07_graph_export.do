@@ -10,7 +10,10 @@
 * DEPENDENCIES: none
 * ==============================================================================
 capture log close _all
-if _rc != 0 { }
+local rc_log_close = _rc
+if `rc_log_close' != 0 {
+    display "SS_RC|code=`rc_log_close'|cmd=log close _all|msg=no_active_log|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -20,8 +23,21 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TO07
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TO07|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TO07|level=L1|title=Graph_Export"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 local yvar = "__YVAR__"
@@ -30,10 +46,7 @@ local xvar = "__XVAR__"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TO07 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -41,6 +54,14 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+capture confirm variable `xvar'
+if _rc {
+    ss_fail_TO07 111 "confirm variable `xvar'" "xvar_not_found"
+}
+capture confirm variable `yvar'
+if _rc {
+    ss_fail_TO07 111 "confirm variable `yvar'" "yvar_not_found"
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
