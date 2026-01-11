@@ -1,0 +1,29 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-354-pha
+> se-4-14-panel-hlm-tp-tq\net_install_xtserialpm.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:39:45
+
+. net install xtserialpm, from("http://fmwww.bc.edu/repec/bocode/x") replace
+checking xtserialpm consistency and verifying not already installed...
+installing into C:\Users\Lenovo\ado\plus\...
+installation complete.
+
+. capture which xtserialpm
+
+. noi di "xtserialpm_rc=" _rc
+xtserialpm_rc=0
+
+. capture which xtserial
+
+. noi di "xtserial_rc=" _rc
+xtserial_rc=111
+
+. log close
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-354-pha
+> se-4-14-panel-hlm-tp-tq\net_install_xtserialpm.log
+  log type:  text
+ closed on:  11 Jan 2026, 10:39:55
+-------------------------------------------------------------------------------

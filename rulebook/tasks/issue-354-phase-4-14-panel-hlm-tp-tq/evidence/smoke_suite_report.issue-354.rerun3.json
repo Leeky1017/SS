@@ -1,0 +1,494 @@
+{
+  "cases": [
+    {
+      "archived_outputs": [
+        "runs/654f2171fa5843668c90298349c3f77b/artifacts/outputs/data_TP01_fe.dta",
+        "runs/654f2171fa5843668c90298349c3f77b/artifacts/outputs/result.log",
+        "runs/654f2171fa5843668c90298349c3f77b/artifacts/outputs/table_TP01_fe_result.csv",
+        "runs/654f2171fa5843668c90298349c3f77b/artifacts/outputs/table_TP01_fe_test.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/4e/job_4e416c65ece7f31a/runs/654f2171fa5843668c90298349c3f77b/artifacts",
+      "exit_code": 0,
+      "job_id": "job_4e416c65ece7f31a",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "654f2171fa5843668c90298349c3f77b",
+      "status": "passed",
+      "template_id": "TP01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/8aa0cb6f447e47919987c4b3b4dc1dc6/artifacts/outputs/data_TP02_re.dta",
+        "runs/8aa0cb6f447e47919987c4b3b4dc1dc6/artifacts/outputs/result.log",
+        "runs/8aa0cb6f447e47919987c4b3b4dc1dc6/artifacts/outputs/table_TP02_hausman.csv",
+        "runs/8aa0cb6f447e47919987c4b3b4dc1dc6/artifacts/outputs/table_TP02_re_result.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/22/job_22dfafbbe8059eb6/runs/8aa0cb6f447e47919987c4b3b4dc1dc6/artifacts",
+      "exit_code": 0,
+      "job_id": "job_22dfafbbe8059eb6",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "8aa0cb6f447e47919987c4b3b4dc1dc6",
+      "status": "passed",
+      "template_id": "TP02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/7b1484eb714a462d923541873d08cc51/artifacts/outputs/data_TP03_gmm.dta",
+        "runs/7b1484eb714a462d923541873d08cc51/artifacts/outputs/result.log",
+        "runs/7b1484eb714a462d923541873d08cc51/artifacts/outputs/table_TP03_diagnostics.csv",
+        "runs/7b1484eb714a462d923541873d08cc51/artifacts/outputs/table_TP03_gmm_result.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/2b/job_2b1d9d9a511e32d1/runs/7b1484eb714a462d923541873d08cc51/artifacts",
+      "exit_code": 0,
+      "job_id": "job_2b1d9d9a511e32d1",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "7b1484eb714a462d923541873d08cc51",
+      "status": "passed",
+      "template_id": "TP03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/53029f66a0624b4a81eda1e5522b2e58/artifacts/outputs/data_TP04_cluster.dta",
+        "runs/53029f66a0624b4a81eda1e5522b2e58/artifacts/outputs/result.log",
+        "runs/53029f66a0624b4a81eda1e5522b2e58/artifacts/outputs/table_TP04_cluster_result.csv",
+        "runs/53029f66a0624b4a81eda1e5522b2e58/artifacts/outputs/table_TP04_comparison.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/8f/job_8f9fcd892139dcde/runs/53029f66a0624b4a81eda1e5522b2e58/artifacts",
+      "exit_code": 0,
+      "job_id": "job_8f9fcd892139dcde",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "53029f66a0624b4a81eda1e5522b2e58",
+      "status": "passed",
+      "template_id": "TP04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/1f593ee683e24c96a769dc79d0dad61f/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/36/job_367927a4a0933ecc/runs/1f593ee683e24c96a769dc79d0dad61f/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(199);"
+      },
+      "exit_code": 0,
+      "job_id": "job_367927a4a0933ecc",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TP05_serial.dta",
+        "table_TP05_serial_tests.csv"
+      ],
+      "run_id": "1f593ee683e24c96a769dc79d0dad61f",
+      "status": "failed",
+      "template_id": "TP05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/192bbbea89494b97a3aef064f9c6b266/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/a1/job_a1e9e74976cc2901/runs/192bbbea89494b97a3aef064f9c6b266/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(199);"
+      },
+      "exit_code": 0,
+      "job_id": "job_a1e9e74976cc2901",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TP06_hetero.dta",
+        "table_TP06_hetero_tests.csv"
+      ],
+      "run_id": "192bbbea89494b97a3aef064f9c6b266",
+      "status": "failed",
+      "template_id": "TP06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/a4b8110106f547e0aedd5974421dd075/artifacts/outputs/data_TP07_fgls.dta",
+        "runs/a4b8110106f547e0aedd5974421dd075/artifacts/outputs/result.log",
+        "runs/a4b8110106f547e0aedd5974421dd075/artifacts/outputs/table_TP07_fgls_result.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/0c/job_0c40c9777b7d191b/runs/a4b8110106f547e0aedd5974421dd075/artifacts",
+      "exit_code": 0,
+      "job_id": "job_0c40c9777b7d191b",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "a4b8110106f547e0aedd5974421dd075",
+      "status": "passed",
+      "template_id": "TP07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/27d1ca81097243f3895b5b4a326e7609/artifacts/outputs/data_TP08_pcse.dta",
+        "runs/27d1ca81097243f3895b5b4a326e7609/artifacts/outputs/result.log",
+        "runs/27d1ca81097243f3895b5b4a326e7609/artifacts/outputs/table_TP08_pcse_result.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/41/job_4166eb555b4950d0/runs/27d1ca81097243f3895b5b4a326e7609/artifacts",
+      "exit_code": 0,
+      "job_id": "job_4166eb555b4950d0",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "27d1ca81097243f3895b5b4a326e7609",
+      "status": "passed",
+      "template_id": "TP08",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/a9189eadce3d46249407ef10ffc398af/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/2c/job_2c430329ec851348/runs/a9189eadce3d46249407ef10ffc398af/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(2000);"
+      },
+      "exit_code": 0,
+      "job_id": "job_2c430329ec851348",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TP09_unit_root.dta",
+        "table_TP09_unit_root.csv"
+      ],
+      "run_id": "a9189eadce3d46249407ef10ffc398af",
+      "status": "failed",
+      "template_id": "TP09",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/e8a45aa6efdd4384ac6f460f2e8ca235/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/75/job_75e855e0b9e4e43e/runs/e8a45aa6efdd4384ac6f460f2e8ca235/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(2000);"
+      },
+      "exit_code": 0,
+      "job_id": "job_75e855e0b9e4e43e",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TP10_coint.dta",
+        "table_TP10_cointegration.csv"
+      ],
+      "run_id": "e8a45aa6efdd4384ac6f460f2e8ca235",
+      "status": "failed",
+      "template_id": "TP10",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/13c929788c084562a98d74290a348b90/artifacts/outputs/data_TP11_svy.dta",
+        "runs/13c929788c084562a98d74290a348b90/artifacts/outputs/result.log",
+        "runs/13c929788c084562a98d74290a348b90/artifacts/outputs/table_TP11_svymean.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/2c/job_2c3b5f54e1766d8a/runs/13c929788c084562a98d74290a348b90/artifacts",
+      "exit_code": 0,
+      "job_id": "job_2c3b5f54e1766d8a",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "13c929788c084562a98d74290a348b90",
+      "status": "passed",
+      "template_id": "TP11",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/d350731e561c4d62995ecc2e7f2e12af/artifacts/outputs/data_TP12_svy.dta",
+        "runs/d350731e561c4d62995ecc2e7f2e12af/artifacts/outputs/result.log",
+        "runs/d350731e561c4d62995ecc2e7f2e12af/artifacts/outputs/table_TP12_svyreg.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/0c/job_0cf8f036dd1e1896/runs/d350731e561c4d62995ecc2e7f2e12af/artifacts",
+      "exit_code": 0,
+      "job_id": "job_0cf8f036dd1e1896",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "d350731e561c4d62995ecc2e7f2e12af",
+      "status": "passed",
+      "template_id": "TP12",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/43cafaf60d0a4e1b8eac374c057811d3/artifacts/outputs/data_TP13_svy.dta",
+        "runs/43cafaf60d0a4e1b8eac374c057811d3/artifacts/outputs/result.log",
+        "runs/43cafaf60d0a4e1b8eac374c057811d3/artifacts/outputs/table_TP13_svylogit.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/d1/job_d1be2383590e7f56/runs/43cafaf60d0a4e1b8eac374c057811d3/artifacts",
+      "exit_code": 0,
+      "job_id": "job_d1be2383590e7f56",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "43cafaf60d0a4e1b8eac374c057811d3",
+      "status": "passed",
+      "template_id": "TP13",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/6ae80b0e8b7f4504989aed376555bd38/artifacts/outputs/data_TP14_svy.dta",
+        "runs/6ae80b0e8b7f4504989aed376555bd38/artifacts/outputs/result.log",
+        "runs/6ae80b0e8b7f4504989aed376555bd38/artifacts/outputs/table_TP14_svypois.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/01/job_015fe20bfb814ba0/runs/6ae80b0e8b7f4504989aed376555bd38/artifacts",
+      "exit_code": 0,
+      "job_id": "job_015fe20bfb814ba0",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "6ae80b0e8b7f4504989aed376555bd38",
+      "status": "passed",
+      "template_id": "TP14",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/0034bdd8ee694579a3ff24a31ad732b7/artifacts/outputs/data_TP15_svy.dta",
+        "runs/0034bdd8ee694579a3ff24a31ad732b7/artifacts/outputs/result.log",
+        "runs/0034bdd8ee694579a3ff24a31ad732b7/artifacts/outputs/table_TP15_svytab.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/1d/job_1dd4a6af00f2162d/runs/0034bdd8ee694579a3ff24a31ad732b7/artifacts",
+      "exit_code": 0,
+      "job_id": "job_1dd4a6af00f2162d",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "0034bdd8ee694579a3ff24a31ad732b7",
+      "status": "passed",
+      "template_id": "TP15",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/04169f474018424eb41dc9e6d2113c72/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/38/job_385b11bfcf5c40c2/runs/04169f474018424eb41dc9e6d2113c72/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(430);"
+      },
+      "exit_code": 0,
+      "job_id": "job_385b11bfcf5c40c2",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TQ01_arima.dta",
+        "fig_TQ01_forecast.png",
+        "table_TQ01_arima_result.csv",
+        "table_TQ01_forecast.csv"
+      ],
+      "run_id": "04169f474018424eb41dc9e6d2113c72",
+      "status": "failed",
+      "template_id": "TQ01",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/8a9d08120f344e188d708c3866f882d8/artifacts/outputs/data_TQ02_var.dta",
+        "runs/8a9d08120f344e188d708c3866f882d8/artifacts/outputs/fig_TQ02_irf.png",
+        "runs/8a9d08120f344e188d708c3866f882d8/artifacts/outputs/result.log",
+        "runs/8a9d08120f344e188d708c3866f882d8/artifacts/outputs/table_TQ02_granger.csv",
+        "runs/8a9d08120f344e188d708c3866f882d8/artifacts/outputs/table_TQ02_var_result.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/7e/job_7e2d0e2a4e82d116/runs/8a9d08120f344e188d708c3866f882d8/artifacts",
+      "exit_code": 0,
+      "job_id": "job_7e2d0e2a4e82d116",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "8a9d08120f344e188d708c3866f882d8",
+      "status": "passed",
+      "template_id": "TQ02",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/d6c40ce524144b1c9c5ac4b8b8d713a4/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/c6/job_c6583e46afb89816/runs/d6c40ce524144b1c9c5ac4b8b8d713a4/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_c6583e46afb89816",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TQ03_vecm.dta",
+        "table_TQ03_johansen.csv",
+        "table_TQ03_vecm_result.csv"
+      ],
+      "run_id": "d6c40ce524144b1c9c5ac4b8b8d713a4",
+      "status": "failed",
+      "template_id": "TQ03",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/91ffee37b65341cdad2352c09e0e3eaf/artifacts/outputs/data_TQ04_adf.dta",
+        "runs/91ffee37b65341cdad2352c09e0e3eaf/artifacts/outputs/result.log",
+        "runs/91ffee37b65341cdad2352c09e0e3eaf/artifacts/outputs/table_TQ04_adf_result.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/26/job_2688345f2265a34a/runs/91ffee37b65341cdad2352c09e0e3eaf/artifacts",
+      "exit_code": 0,
+      "job_id": "job_2688345f2265a34a",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "91ffee37b65341cdad2352c09e0e3eaf",
+      "status": "passed",
+      "template_id": "TQ04",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/be11739549fe4a28818c98c41051fd85/artifacts/outputs/table_TQ05_decomp.csv",
+        "runs/be11739549fe4a28818c98c41051fd85/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/f2/job_f26a1e37b9bff85c/runs/be11739549fe4a28818c98c41051fd85/artifacts",
+      "error": {
+        "error_code": "STATA_RETURN_CODE",
+        "message": "stata log contains r(198);"
+      },
+      "exit_code": 0,
+      "job_id": "job_f26a1e37b9bff85c",
+      "missing_deps": [],
+      "missing_outputs": [
+        "data_TQ05_decomp.dta",
+        "fig_TQ05_decomp.png"
+      ],
+      "run_id": "be11739549fe4a28818c98c41051fd85",
+      "status": "failed",
+      "template_id": "TQ05",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/332d5073b57c4edab56ca11c2e679c9e/artifacts/outputs/data_TQ06_hlm.dta",
+        "runs/332d5073b57c4edab56ca11c2e679c9e/artifacts/outputs/result.log",
+        "runs/332d5073b57c4edab56ca11c2e679c9e/artifacts/outputs/table_TQ06_hlm2.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/88/job_882df8984fd96326/runs/332d5073b57c4edab56ca11c2e679c9e/artifacts",
+      "exit_code": 0,
+      "job_id": "job_882df8984fd96326",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "332d5073b57c4edab56ca11c2e679c9e",
+      "status": "passed",
+      "template_id": "TQ06",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/79a71e6faa0743b08d28aff6cbd7177a/artifacts/outputs/data_TQ07_hlm.dta",
+        "runs/79a71e6faa0743b08d28aff6cbd7177a/artifacts/outputs/result.log",
+        "runs/79a71e6faa0743b08d28aff6cbd7177a/artifacts/outputs/table_TQ07_hlm3.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/31/job_313748ea74529bc9/runs/79a71e6faa0743b08d28aff6cbd7177a/artifacts",
+      "exit_code": 0,
+      "job_id": "job_313748ea74529bc9",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "79a71e6faa0743b08d28aff6cbd7177a",
+      "status": "passed",
+      "template_id": "TQ07",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/5b4eb2b7699942499f471bff0b57a869/artifacts/outputs/table_TQ08_rslope.csv",
+        "runs/5b4eb2b7699942499f471bff0b57a869/artifacts/outputs/data_TQ08_rslope.dta",
+        "runs/5b4eb2b7699942499f471bff0b57a869/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/8e/job_8e3590a54117815a/runs/5b4eb2b7699942499f471bff0b57a869/artifacts",
+      "exit_code": 0,
+      "job_id": "job_8e3590a54117815a",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "5b4eb2b7699942499f471bff0b57a869",
+      "status": "passed",
+      "template_id": "TQ08",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/d17b1ef15dec41c2a3fbfaf116f707a6/artifacts/outputs/table_TQ09_melogit.csv",
+        "runs/d17b1ef15dec41c2a3fbfaf116f707a6/artifacts/outputs/data_TQ09_melogit.dta",
+        "runs/d17b1ef15dec41c2a3fbfaf116f707a6/artifacts/outputs/result.log"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/98/job_984aa1b1f54b22c1/runs/d17b1ef15dec41c2a3fbfaf116f707a6/artifacts",
+      "exit_code": 0,
+      "job_id": "job_984aa1b1f54b22c1",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "d17b1ef15dec41c2a3fbfaf116f707a6",
+      "status": "passed",
+      "template_id": "TQ09",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/8ae6225c184d4dffb73d1e8ba6fdc988/artifacts/outputs/data_TQ10_mepois.dta",
+        "runs/8ae6225c184d4dffb73d1e8ba6fdc988/artifacts/outputs/result.log",
+        "runs/8ae6225c184d4dffb73d1e8ba6fdc988/artifacts/outputs/table_TQ10_mepois.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/6f/job_6f12b44965145c75/runs/8ae6225c184d4dffb73d1e8ba6fdc988/artifacts",
+      "exit_code": 0,
+      "job_id": "job_6f12b44965145c75",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "8ae6225c184d4dffb73d1e8ba6fdc988",
+      "status": "passed",
+      "template_id": "TQ10",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/74cceebf702845d09d59aa903c9e2a6e/artifacts/outputs/data_TQ11_cross.dta",
+        "runs/74cceebf702845d09d59aa903c9e2a6e/artifacts/outputs/result.log",
+        "runs/74cceebf702845d09d59aa903c9e2a6e/artifacts/outputs/table_TQ11_cross.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/b6/job_b61d4f478033f65e/runs/74cceebf702845d09d59aa903c9e2a6e/artifacts",
+      "exit_code": 0,
+      "job_id": "job_b61d4f478033f65e",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "74cceebf702845d09d59aa903c9e2a6e",
+      "status": "passed",
+      "template_id": "TQ11",
+      "timed_out": false
+    },
+    {
+      "archived_outputs": [
+        "runs/24f782828c1340b29385ee78aba7c067/artifacts/outputs/data_TQ12_growth.dta",
+        "runs/24f782828c1340b29385ee78aba7c067/artifacts/outputs/fig_TQ12_growth.png",
+        "runs/24f782828c1340b29385ee78aba7c067/artifacts/outputs/result.log",
+        "runs/24f782828c1340b29385ee78aba7c067/artifacts/outputs/table_TQ12_growth.csv"
+      ],
+      "artifacts_dir": "/home/leeky/work/SS/.worktrees/issue-354-phase-4-14-panel-hlm-tp-tq/jobs/dd/job_dd7dc86671ac5984/runs/24f782828c1340b29385ee78aba7c067/artifacts",
+      "exit_code": 0,
+      "job_id": "job_dd7dc86671ac5984",
+      "missing_deps": [],
+      "missing_outputs": [],
+      "run_id": "24f782828c1340b29385ee78aba7c067",
+      "status": "passed",
+      "template_id": "TQ12",
+      "timed_out": false
+    }
+  ],
+  "finished_at": "2026-01-11T02:32:17.792425+00:00",
+  "library_dir": "assets/stata_do_library",
+  "schema_version": "1.0",
+  "started_at": "2026-01-11T02:29:59.802831+00:00",
+  "stata_cmd": [
+    "/mnt/c/Program Files/Stata18/StataMP-64.exe"
+  ],
+  "suite_id": "issue_354_tp01_tp15_tq01_tq12",
+  "summary": {
+    "failed": 7,
+    "passed": 20
+  }
+}

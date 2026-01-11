@@ -1,0 +1,14 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\wsl.localhost\Ubuntu\home\leeky\work\SS\.worktrees\issue-354-pha
+> se-4-14-panel-hlm-tp-tq\net_install_xtserial.log
+  log type:  text
+ opened on:  11 Jan 2026, 10:37:33
+
+. net install xtserial, from("http://fmwww.bc.edu/repec/bocode/x") replace
+file http://fmwww.bc.edu/repec/bocode/x/xtserial.pkg not found
+could not load xtserial.pkg from http://fmwww.bc.edu/repec/bocode/x/
+r(601);
+
+end of do-file
+r(601);

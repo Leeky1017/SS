@@ -1,4 +1,4 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TP09  level=L2  module=P  title="Panel Unit Root"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -11,7 +11,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -22,7 +25,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TP09|level=L2|title=Panel_Unit_Root"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -44,8 +47,8 @@ display "    滞后阶数: `lags'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    display "SS_TASK_END|id=TP09|status=fail|elapsed_sec=."
     log close
     exit 601
 }
@@ -60,14 +63,21 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach v in `var' `id_var' `time_var' {
     capture confirm variable `v'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`v' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`v' not found"
+        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`v'"
+        display "SS_TASK_END|id=TP09|status=fail|elapsed_sec=."
         log close
         exit 200
     }
 }
 
-ss_smart_xtset `id_var' `time_var'
+capture xtset `id_var' `time_var'
+if _rc {
+    local rc_xtset = _rc
+    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed|severity=fail"
+    display "SS_TASK_END|id=TP09|status=fail|elapsed_sec=."
+    log close
+    exit `rc_xtset'
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"

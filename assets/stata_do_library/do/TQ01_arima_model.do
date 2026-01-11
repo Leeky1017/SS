@@ -13,7 +13,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -24,7 +27,7 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TQ01|level=L2|title=ARIMA_Model"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
@@ -58,8 +61,8 @@ display "    预测期数: `forecast_h'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    display "SS_TASK_END|id=TQ01|status=fail|elapsed_sec=."
     log close
     exit 601
 }
@@ -74,8 +77,8 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `series_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`var'"
+        display "SS_TASK_END|id=TQ01|status=fail|elapsed_sec=."
         log close
         exit 200
     }
@@ -183,7 +186,10 @@ graph export "fig_TQ01_forecast.png", replace width(1200)
 display "SS_OUTPUT_FILE|file=fig_TQ01_forecast.png|type=figure|desc=forecast_plot"
 
 capture erase "temp_arima_results.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"

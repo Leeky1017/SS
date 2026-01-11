@@ -12,7 +12,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -22,23 +25,35 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TQ03
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TQ03|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        display "SS_RC|code=`=_rc'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TQ03|level=L2|title=VECM_Model"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 * ============ 参数设置 ============
-local endog_vars = "__ENDOG_VARS__"
-local time_var = "__TIME_VAR__"
+local endog_vars "__ENDOG_VARS__"
+local time_var "__TIME_VAR__"
 local lags = __LAGS__
-local trend = "__TREND__"
+local trend "__TREND__"
 
 if `lags' < 1 | `lags' > 10 {
     local lags = 2
 }
-if "`trend'" == "" {
-    local trend = "constant"
-}
-
 display ""
 display ">>> VECM参数:"
 display "    内生变量: `endog_vars'"
@@ -49,10 +64,7 @@ display "    趋势项: `trend'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
-    log close
-    exit 601
+    ss_fail_TQ03 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -62,12 +74,9 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 
 * ============ 变量检查 ============
-capture confirm variable `time_var'
+capture confirm numeric variable `time_var'
 if _rc {
-    display "SS_ERROR:VAR_NOT_FOUND:`time_var' not found"
-    display "SS_ERR:VAR_NOT_FOUND:`time_var' not found"
-    log close
-    exit 200
+    ss_fail_TQ03 200 "confirm numeric variable `time_var'" "time_var_missing_or_not_numeric"
 }
 
 local valid_endog ""
@@ -78,7 +87,16 @@ foreach var of local endog_vars {
     }
 }
 
-tsset `time_var'
+local n_endog : word count `valid_endog'
+display "SS_METRIC|name=n_endog|value=`n_endog'"
+if `n_endog' < 2 {
+    ss_fail_TQ03 200 "validate endog_vars" "endog_vars_too_short"
+}
+
+capture tsset `time_var'
+if _rc {
+    ss_fail_TQ03 `=_rc' "tsset `time_var'" "tsset_failed"
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -89,9 +107,15 @@ display "═══════════════════════�
 display "SECTION 1: Johansen协整检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-vecrank `valid_endog', lags(`lags') `trend'
-
-local n_coint = e(r)
+quietly capture vecrank `valid_endog', lags(`lags') `trend'
+local rc_vecrank = _rc
+if `rc_vecrank' != 0 {
+    display "SS_RC|code=`rc_vecrank'|cmd=vecrank|msg=vecrank_failed_skipped|severity=warn"
+    local n_coint = 0
+}
+else {
+    local n_coint = e(r)
+}
 
 display ""
 display ">>> 协整秩: `n_coint'"
@@ -105,6 +129,7 @@ set obs 1
 generate int cointegration_rank = `n_coint'
 generate str20 trend = "`trend'"
 generate int lags = `lags'
+generate int rc_vecrank = `rc_vecrank'
 export delimited using "table_TQ03_johansen.csv", replace
 display "SS_OUTPUT_FILE|file=table_TQ03_johansen.csv|type=table|desc=johansen_test"
 restore
@@ -116,7 +141,15 @@ display "SECTION 2: VECM估计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 if `n_coint' > 0 {
-    vec `valid_endog', lags(`lags') rank(`n_coint') `trend'
+    capture noisily vec `valid_endog', lags(`lags') rank(`n_coint') `trend'
+    local rc_vec = _rc
+    if `rc_vec' != 0 {
+        display "SS_RC|code=`rc_vec'|cmd=vec|msg=vec_failed_skipped|severity=warn"
+        local n_coint = 0
+    }
+}
+
+if `n_coint' > 0 {
     
     local ll = e(ll)
     
@@ -161,12 +194,28 @@ if `n_coint' > 0 {
     restore
     
     capture erase "temp_vecm_results.dta"
-    if _rc != 0 { }
+    local rc_last = _rc
+    if `rc_last' != 0 {
+        display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+    }
 }
 else {
     display ""
     display ">>> 无协整关系，建议使用VAR模型"
-    display "SS_WARNING:NO_COINTEGRATION:No cointegration found"
+    display "SS_RC|code=0|cmd=vec|msg=no_cointegration_or_vecm_skipped|severity=warn"
+
+    preserve
+    clear
+    set obs 1
+    gen str32 parameter = "status"
+    gen double coef = .
+    gen double se = .
+    gen double z = .
+    gen double p = .
+    gen str80 note = "no_cointegration_or_vecm_skipped"
+    export delimited using "table_TQ03_vecm_result.csv", replace
+    display "SS_OUTPUT_FILE|file=table_TQ03_vecm_result.csv|type=table|desc=vecm_results"
+    restore
 }
 
 local n_output = _N

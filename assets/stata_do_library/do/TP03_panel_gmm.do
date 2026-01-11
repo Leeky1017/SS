@@ -1,4 +1,4 @@
-﻿* ==============================================================================
+* ==============================================================================
 * SS_TEMPLATE: id=TP03  level=L2  module=P  title="Panel GMM"
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
@@ -12,7 +12,10 @@
 
 * ============ 初始化 ============
 capture log close _all
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
 clear all
 set more off
 version 18
@@ -23,16 +26,16 @@ timer on 1
 log using "result.log", text replace
 
 display "SS_TASK_BEGIN|id=TP03|level=L2|title=Panel_GMM"
-display "SS_TASK_VERSION:2.0.1"
+display "SS_TASK_VERSION|version=2.0.1"
 
 * ============ 依赖检测 ============
 local required_deps "xtabond2"
 foreach dep of local required_deps {
     capture which `dep'
     if _rc {
-        display "SS_DEP_MISSING:cmd=`dep':hint=ssc install `dep'"
-        display "SS_ERROR:DEP_MISSING:`dep' is required but not installed"
-        display "SS_ERR:DEP_MISSING:`dep' is required but not installed"
+        display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
+        display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail|pkg=`dep'"
+        display "SS_TASK_END|id=TP03|status=fail|elapsed_sec=."
         log close
         exit 199
     }
@@ -65,8 +68,8 @@ display "    滞后阶数: `lags'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_ERROR:FILE_NOT_FOUND:data.csv not found"
-    display "SS_ERR:FILE_NOT_FOUND:data.csv not found"
+    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
+    display "SS_TASK_END|id=TP03|status=fail|elapsed_sec=."
     log close
     exit 601
 }
@@ -81,8 +84,8 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `depvar' `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_ERROR:VAR_NOT_FOUND:`var' not found"
-        display "SS_ERR:VAR_NOT_FOUND:`var' not found"
+        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`var'"
+        display "SS_TASK_END|id=TP03|status=fail|elapsed_sec=."
         log close
         exit 200
     }
@@ -96,7 +99,14 @@ foreach var of local indepvars {
     }
 }
 
-ss_smart_xtset `id_var' `time_var'
+capture xtset `id_var' `time_var'
+if _rc {
+    local rc_xtset = _rc
+    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed|severity=fail"
+    display "SS_TASK_END|id=TP03|status=fail|elapsed_sec=."
+    log close
+    exit `rc_xtset'
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -180,7 +190,7 @@ if `ar2_p' >= 0.10 {
     display "    结论: AR(2)不显著，模型设定正确"
 }
 else {
-    display "SS_WARNING:AR2_SIGNIFICANT:AR(2) test significant"
+    display "SS_RC|code=0|cmd=estat abond|msg=ar2_significant|severity=warn"
 }
 
 * Hansen/Sargan过度识别检验
@@ -195,7 +205,7 @@ if `hansen_p' >= 0.10 {
     display "    结论: 工具变量有效"
 }
 else {
-    display "SS_WARNING:OVERID_REJECTED:Overidentification test rejected"
+    display "SS_RC|code=0|cmd=estat sargan|msg=overid_rejected|severity=warn"
 }
 
 display "SS_METRIC|name=ar2_p|value=`ar2_p'"
@@ -226,7 +236,10 @@ display "SS_OUTPUT_FILE|file=table_TP03_diagnostics.csv|type=table|desc=diagnost
 restore
 
 capture erase "temp_gmm_results.dta"
-if _rc != 0 { }
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
 
 * ============ 输出结果 ============
 local n_output = _N
