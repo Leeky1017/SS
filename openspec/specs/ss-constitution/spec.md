@@ -30,7 +30,7 @@ All implementations MUST follow repository hard constraints in `AGENTS.md`, incl
 ### Requirement: Architecture contracts are binding
 
 The system MUST maintain these architectural contracts (details in the SS contract specs):
-- layering direction: `api -> domain -> ports <- infra` and a separate worker (`openspec/specs/ss-ports-and-services/spec.md`)
+- layering direction: `api -> domain -> ports <- infra-adapters` and a separate worker (`openspec/specs/ss-ports-and-services/spec.md`)
 - data contract: `job.json` v1 with `schema_version` and an artifacts index (`openspec/specs/ss-job-contract/spec.md`)
 - state machine + idempotency + concurrency strategy (`openspec/specs/ss-state-machine/spec.md`)
 - LLM Brain: schema-bound plan and auditable prompt/response artifacts with redaction (`openspec/specs/ss-llm-brain/spec.md`)
@@ -45,6 +45,20 @@ The system MUST maintain these architectural contracts (details in the SS contra
 #### Scenario: Changes reference the architecture contracts
 - **WHEN** a new capability spec is added or modified
 - **THEN** it aligns with the contracts above (or updates this constitution first)
+
+### Requirement: Layering distinguishes infra adapters from shared application infrastructure
+
+The layering contract MUST distinguish between:
+- **infra adapters**: concrete implementations that integrate external systems (e.g., S3 object store, Postgres job store, local Stata runner)
+- **shared application infrastructure**: application-level shared primitives usable across layers (e.g., `src/infra/exceptions.py` `SSError` hierarchy; structured logging helpers)
+
+Constraints:
+- Domain layer MUST NOT depend on infra adapters.
+- Domain layer MAY depend on shared application infrastructure.
+
+#### Scenario: Domain uses shared application infrastructure without violating layering
+- **WHEN** `src/domain/` imports `src/infra/exceptions.py` for `SSError`
+- **THEN** it is treated as an allowed dependency on shared application infrastructure (not an infra adapter)
 
 ### Requirement: Legacy reference policy is enforced
 
