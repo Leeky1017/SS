@@ -32,7 +32,15 @@
 
 ## Acceptance checklist
 
-- [ ] 仓库根目录新增 `requirements.txt`（版本锁定）
-- [ ] 记录生成命令与更新策略（可写入 run log 或 task evidence）
-- [ ] Dockerfile 使用该锁定文件进行安装（或明确使用 lock file 的替代方案）
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] 仓库根目录新增 `requirements.txt`（版本锁定）
+- [x] 记录生成命令与更新策略（可写入 run log 或 task evidence）
+- [x] Dockerfile 使用该锁定文件进行安装（或明确使用 lock file 的替代方案）
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-389.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/392
+- Added repo-root `requirements.txt` pinned via `pip-compile` from `pyproject.toml`.
+- Documented the generation command + update strategy in `openspec/specs/ss-deployment-docker-readiness/spec.md`.
+- Wired Docker assets to install dependencies from `requirements.txt`.
+- Run log: `openspec/_ops/task_runs/ISSUE-389.md`
