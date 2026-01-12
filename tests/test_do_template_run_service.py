@@ -220,3 +220,53 @@ def test_run_when_required_param_missing_marks_job_failed(
         svc.run(job_id=job.job_id, template_id="T01", params={}, run_id="run_missing")
     updated = store.load(job.job_id)
     assert updated.status == JobStatus.FAILED
+
+
+def test_run_when_template_requires_panelvar_accepts_id_var_param_alias(
+    job_service,
+    store,
+    state_machine,
+    jobs_dir: Path,
+    tmp_path: Path,
+):
+    # Arrange
+    library = tmp_path / "library"
+    _write_json(library / "DO_LIBRARY_INDEX.json", {"tasks": {"TF01": {"do_file": "TF01_demo.do"}}})
+    (library / "do").mkdir(parents=True, exist_ok=True)
+    (library / "do" / "TF01_demo.do").write_text('display "__PANELVAR__"\n', encoding="utf-8")
+    _write_json(
+        library / "do" / "meta" / "TF01_demo.meta.json",
+        {
+            "id": "TF01",
+            "parameters": [{"name": "__PANELVAR__", "required": True}],
+            "outputs": [{"file": "result.log", "type": "log"}],
+        },
+    )
+
+    job = job_service.create_job(requirement="demo", plan_revision="run-alias-1")
+    repo = FileSystemDoTemplateRepository(library_dir=library)
+    runner = FakeRunner(jobs_dir=jobs_dir)
+    svc = DoTemplateRunService(
+        store=store,
+        runner=runner,
+        repo=repo,
+        state_machine=state_machine,
+        jobs_dir=jobs_dir,
+    )
+
+    # Act
+    result = svc.run(
+        job_id=job.job_id,
+        template_id="TF01",
+        params={"__ID_VAR__": "firm_id"},
+        run_id="run_alias",
+    )
+
+    # Assert
+    assert result.ok is True
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+    assert job_dir is not None
+    rendered_do = (job_dir / "runs" / "run_alias" / "artifacts" / "stata.do").read_text(
+        encoding="utf-8"
+    )
+    assert 'display "firm_id"' in rendered_do

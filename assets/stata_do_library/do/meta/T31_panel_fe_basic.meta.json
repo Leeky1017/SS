@@ -81,6 +81,7 @@
   "slug": "panel_fe_basic",
   "tags": [
     "panel",
+    "long",
     "fixed_effects",
     "xtreg",
     "fe",
