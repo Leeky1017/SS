@@ -1,24 +1,25 @@
 # ISSUE-422
 - Issue: #422
 - Branch: task/422-llm-infra-coverage
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/423
 
 ## Goal
 - Add unit tests for LLM infra config validation and OpenAI-compatible client error handling, raising coverage for these integration boundaries.
 
 ## Status
-- CURRENT: Unit tests added; local checks green; ready to open PR.
+- CURRENT: MERGED via PR #423; controlplane synced and worktree cleaned.
 
 ## Next Actions
-- [ ] Commit changes and open PR.
-- [ ] Enable auto-merge and verify `mergedAt`.
-- [ ] Sync controlplane `main` and cleanup worktree.
+- [x] Commit changes and open PR.
+- [x] Enable auto-merge and verify `mergedAt`.
+- [x] Sync controlplane `main` and cleanup worktree.
 
 ## Decisions Made
 - 2026-01-12 Use fakes for AsyncOpenAI responses (no network) and assert error mapping to `LLMProviderError`.
 
 ## Errors Encountered
 - 2026-01-12 `ruff` E501 in `tests/test_llm_client_factory.py` → wrapped function signature to satisfy line length.
+- 2026-01-12 Used backticks in `gh pr create --body "<...>"` which triggered shell command substitution → fixed by editing the PR body via `gh pr edit --body-file -`.
 
 ## Runs
 ### 2026-01-12 Create Issue
@@ -82,5 +83,42 @@
   - `.venv/bin/mypy src`
 - Key output:
   - `Success: no issues found in 175 source files`
+- Evidence:
+  - N/A
+
+### 2026-01-12 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - N/A
+
+### 2026-01-12 Create PR
+- Command:
+  - `gh pr create --title "[COVERAGE] LLM infra: add unit tests (#422)" --body "Closes #422 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/423`
+- Evidence:
+  - N/A
+
+### 2026-01-12 Merge PR
+- Command:
+  - `gh pr merge 423 --auto --squash`
+  - `gh pr view 423 --json state,mergedAt`
+- Key output:
+  - `state: MERGED`
+  - `mergedAt: 2026-01-12T15:14:49Z`
+- Evidence:
+  - N/A
+
+### 2026-01-12 Controlplane sync + cleanup
+- Command:
+  - `scripts/agent_controlplane_sync.sh`
+  - `scripts/agent_worktree_cleanup.sh "422" "llm-infra-coverage"`
+- Key output:
+  - `Fast-forward to b5bdab5`
+  - `OK: cleaned worktree .worktrees/issue-422-llm-infra-coverage`
 - Evidence:
   - N/A
