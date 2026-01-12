@@ -76,3 +76,8 @@
 - Command: `rulebook task archive issue-389-deploy-ready-r020`
 - Key output: `✅ Task issue-389-deploy-ready-r020 archived successfully`
 - Evidence: `rulebook/tasks/archive/2026-01-12-issue-389-deploy-ready-r020/`
+
+### 2026-01-12 15:55 Wire Dockerfile to the pinned requirements lock
+- Command: `rg -n "pip install" Dockerfile`
+- Key output: Dockerfile installs `-r requirements.txt` then installs `.` with `--no-deps`
+- Evidence: `Dockerfile`
