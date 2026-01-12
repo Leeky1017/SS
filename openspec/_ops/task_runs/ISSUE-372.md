@@ -1,7 +1,7 @@
 # ISSUE-372
 - Issue: #372
 - Branch: task/372-deploy-ready-r001
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/377
 
 ## Plan
 - Audit `assets/stata_do_library/do/` + `do/meta/*.meta.json` for wide/long/panel requirements.
@@ -72,3 +72,27 @@
 - Key output:
   - `All checks passed!`
   - `184 passed, 5 skipped`
+
+### 2026-01-12 00:08 PR preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-12 00:09 PR created
+- Command: `gh pr create --title "[DEPLOY-READY] DEPLOY-READY-R001: do-template data-shape capability matrix (#372)" --body "Closes #372 ..."`
+- Key output: `https://github.com/Leeky1017/SS/pull/377`
+
+### 2026-01-12 00:10 Enable auto-merge
+- Command: `gh pr merge --auto --squash 377`
+- Key output: `will be automatically merged via squash when all requirements are met`
+
+### 2026-01-12 00:11 Checks green + merged
+- Command:
+  - `gh pr checks --watch 377`
+  - `gh pr view 377 --json mergedAt,state`
+- Key output:
+  - `ci/ci (pull_request): success`
+  - `merge-serial: success`
+  - `openspec-log-guard: success`
+  - `state=MERGED mergedAt=2026-01-12T05:43:58Z`

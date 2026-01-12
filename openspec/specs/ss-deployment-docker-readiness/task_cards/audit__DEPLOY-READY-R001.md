@@ -44,7 +44,16 @@
 
 ## Acceptance checklist
 
-- [ ] 产出能力矩阵（宽/长/面板）并明确每个结论对应的模板证据
-- [ ] 明确“必须支持/可选支持/不支持”的边界，并列出风险项与建议处置
-- [ ] 把缺口映射到整改任务（至少覆盖 DEPLOY-READY-R030）
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] 产出能力矩阵（宽/长/面板）并明确每个结论对应的模板证据
+- [x] 明确“必须支持/可选支持/不支持”的边界，并列出风险项与建议处置
+- [x] 把缺口映射到整改任务（至少覆盖 DEPLOY-READY-R030）
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-372.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/377
+- Delivered:
+  - Added an auditable wide/long/panel capability matrix grounded in do+meta evidence.
+  - Recorded representative template evidence pointers (id + code locations) and summarized coverage signals.
+  - Mapped gaps/risks to remediation card DEPLOY-READY-R030 for follow-up.
+- Run log: `openspec/_ops/task_runs/ISSUE-372.md`
