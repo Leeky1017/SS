@@ -2,9 +2,14 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "asdoc",
-      "purpose": "Word export",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "Regression commands",
+      "source": "built-in"
+    },
+    {
+      "pkg": "putdocx",
+      "purpose": "DOCX export for regression table",
+      "source": "built-in"
     }
   ],
   "description": "Export results using asdoc package",
@@ -32,7 +37,7 @@
     },
     {
       "description": "Auto-synced from SS_OUTPUT_FILE anchors",
-      "file": "table_TO05_asdoc.doc",
+      "file": "table_TO05_asdoc.docx",
       "type": "table"
     }
   ],
@@ -52,7 +57,8 @@
   ],
   "slug": "asdoc",
   "tags": [
-    "asdoc",
+    "putdocx",
+    "docx",
     "word",
     "export",
     "output"

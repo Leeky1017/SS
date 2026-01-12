@@ -2,9 +2,14 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "estout",
-      "purpose": "Table export",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "Regression + file I/O",
+      "source": "built-in"
+    },
+    {
+      "pkg": "collect",
+      "purpose": "HTML export via collect",
+      "source": "built-in"
     }
   ],
   "description": "Export regression tables to HTML format",

@@ -2,7 +2,7 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "spmat",
+      "pkg": "spmatrix",
       "purpose": "Spatial matrix",
       "source": "stata"
     }
@@ -38,19 +38,19 @@
   ],
   "parameters": [
     {
-      "description": "ID variable (currently unused by this template)",
+      "description": "Spatial unit ID variable (numeric unique preferred; falls back to row index)",
       "name": "__ID__",
       "required": true,
       "type": "string"
     },
     {
-      "description": "X coordinate variable (currently unused by this template)",
+      "description": "X coordinate variable (numeric, non-missing)",
       "name": "__X__",
       "required": true,
       "type": "string"
     },
     {
-      "description": "Y coordinate variable (currently unused by this template)",
+      "description": "Y coordinate variable (numeric, non-missing)",
       "name": "__Y__",
       "required": true,
       "type": "string"

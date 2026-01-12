@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "xsmle",
-      "purpose": "Spatial panel",
-      "source": "ssc"
+      "pkg": "xtreg",
+      "purpose": "Panel fixed effects regression",
+      "source": "stata"
     }
   ],
   "description": "Spatial panel data models",

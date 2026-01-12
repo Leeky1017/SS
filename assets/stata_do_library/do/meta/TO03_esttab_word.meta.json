@@ -2,9 +2,14 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "estout",
-      "purpose": "Table export",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "Regression commands",
+      "source": "built-in"
+    },
+    {
+      "pkg": "putdocx",
+      "purpose": "DOCX export for regression table",
+      "source": "built-in"
     }
   ],
   "description": "Export regression tables to Word format",
@@ -32,8 +37,8 @@
     },
     {
       "description": "Auto-synced from SS_OUTPUT_FILE anchors",
-      "file": "table_TO03_reg.rtf",
-      "type": "report"
+      "file": "table_TO03_reg.docx",
+      "type": "table"
     }
   ],
   "parameters": [
@@ -52,9 +57,9 @@
   ],
   "slug": "esttab_word",
   "tags": [
-    "esttab",
+    "putdocx",
+    "docx",
     "word",
-    "rtf",
     "export",
     "output"
   ],

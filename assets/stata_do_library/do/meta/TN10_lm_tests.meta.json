@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "spatdiag",
-      "purpose": "Spatial diagnostics",
-      "source": "ssc"
+      "pkg": "spregress",
+      "purpose": "Spatial regression + diagnostics",
+      "source": "stata"
     }
   ],
   "description": "Lagrange Multiplier tests for spatial dependence",

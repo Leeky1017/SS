@@ -2,9 +2,14 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "table1_mc",
-      "purpose": "Table 1 creation",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "Summary statistics (tabstat)",
+      "source": "built-in"
+    },
+    {
+      "pkg": "putdocx",
+      "purpose": "DOCX export for Table 1",
+      "source": "built-in"
     }
   ],
   "description": "Create publication-ready Table 1 with descriptive statistics",
@@ -37,7 +42,7 @@
     },
     {
       "description": "Auto-synced from SS_OUTPUT_FILE anchors",
-      "file": "table_TO08_table1.doc",
+      "file": "table_TO08_table1.docx",
       "type": "table"
     }
   ],
@@ -51,7 +56,7 @@
     {
       "description": "Group variable",
       "name": "__BY_VAR__",
-      "required": false,
+      "required": true,
       "type": "string"
     }
   ],

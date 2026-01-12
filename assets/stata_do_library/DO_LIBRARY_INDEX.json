@@ -1,5 +1,5 @@
 {
-  "audit_date": "2026-01-09",
+  "audit_date": "2026-01-12",
   "compliance_summary": {
     "anchor_compliant": 310,
     "dangerous_command_free": 310,
@@ -6851,7 +6851,7 @@
       "outputs": [
         "data_TO03_export.dta",
         "result.log",
-        "table_TO03_reg.rtf"
+        "table_TO03_reg.docx"
       ],
       "placeholders": [
         "__DEPVAR__",
@@ -6901,7 +6901,7 @@
       "outputs": [
         "data_TO05_export.dta",
         "result.log",
-        "table_TO05_asdoc.doc"
+        "table_TO05_asdoc.docx"
       ],
       "placeholders": [
         "__DEPVAR__",
@@ -6926,7 +6926,7 @@
       "outputs": [
         "data_TO06_export.dta",
         "result.log",
-        "table_TO06_compare.doc"
+        "table_TO06_compare.docx"
       ],
       "placeholders": [
         "__DEPVAR__",
@@ -6978,7 +6978,7 @@
         "data_TO08_export.dta",
         "result.log",
         "table_TO08_table1.csv",
-        "table_TO08_table1.doc"
+        "table_TO08_table1.docx"
       ],
       "placeholders": [
         "__VARS__",

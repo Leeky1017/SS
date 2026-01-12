@@ -3,10 +3,10 @@
 * INPUTS:
 *   - data.csv  role=main_dataset  required=yes
 * OUTPUTS:
-*   - table_TO03_reg.rtf type=table desc="RTF regression table"
+*   - table_TO03_reg.docx type=table desc="DOCX regression table"
 *   - data_TO03_export.dta type=data desc="Output data"
 *   - result.log type=log desc="Execution log"
-* DEPENDENCIES: none (optional: estout/esttab)
+* DEPENDENCIES: none (Stata 18 built-in; uses putdocx)
 * ==============================================================================
 
 capture log close _all
@@ -40,10 +40,21 @@ end
 display "SS_TASK_BEGIN|id=TO03|level=L2|title=Esttab_Word"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
+display "SS_DEP_CHECK|pkg=putdocx|source=built-in|status=ok"
+
+* ==============================================================================
+* PHASE 5.13 REVIEW (Issue #362) / 最佳实践审查（阶段 5.13）
+* - SSC deps: removed (`esttab` → native `putdocx`) / SSC 依赖：已移除（用 putdocx 替代）
+* - Output: DOCX regression table / 输出：DOCX 回归表
+* - Error policy: fail on model/export errors / 错误策略：模型或导出失败→fail
+* ==============================================================================
+display "SS_BP_REVIEW|issue=362|template_id=TO03|ssc=removed|output=docx_dta|policy=warn_fail"
 
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
 
+* [ZH] S01 加载数据（data.csv）
+* [EN] S01 Load data (data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
@@ -54,54 +65,127 @@ local n_input = _N
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
+* [ZH] S02 校验输入变量（因变量/自变量）
+* [EN] S02 Validate inputs (depvar/indepvars)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 capture confirm variable `depvar'
 if _rc {
     ss_fail_TO03 111 "confirm variable `depvar'" "depvar_not_found"
 }
-foreach v of local indepvars {
-    capture confirm variable `v'
-    if _rc {
-        ss_fail_TO03 111 "confirm variable `v'" "indepvar_not_found"
-    }
+capture confirm numeric variable `depvar'
+if _rc {
+    ss_fail_TO03 109 "confirm numeric variable `depvar'" "depvar_not_numeric"
+}
+capture fvunab indepvars_fv : `indepvars'
+if _rc {
+    ss_fail_TO03 111 "fvunab indepvars" "indepvars_invalid"
+}
+local indepvars "`indepvars_fv'"
+if "`indepvars'" == "" {
+    ss_fail_TO03 111 "indepvars" "indepvars_empty"
 }
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
+* [ZH] S03 回归并导出 DOCX 表（putdocx）
+* [EN] S03 Run regression and export DOCX (putdocx)
 display "SS_STEP_BEGIN|step=S03_analysis"
 
-capture which esttab
-local has_esttab = (_rc == 0)
-if `has_esttab' == 0 {
-    display "SS_RC|code=111|cmd=which esttab|msg=optional_dep_missing_fallback|pkg=estout|severity=warn"
+capture noisily regress `depvar' `indepvars', robust
+if _rc {
+    ss_fail_TO03 459 "regress" "model_fit_failed"
 }
-
-regress `depvar' `indepvars', robust
 local n_obs = e(N)
 local r2 = e(r2)
+local df_r = e(df_r)
 
 local n_obs_txt : display %9.0f `n_obs'
 local r2_txt : display %9.3f `r2'
 
-tempname fh
-file open `fh' using "table_TO03_reg.rtf", write replace text
-file write `fh' "{\\rtf1\\ansi" _n
-file write `fh' "\\b Regression Results (robust SE) \\b0\\par" _n
-file write `fh' "N=`n_obs_txt'  R2=`r2_txt'\\par\\par" _n
+local k : word count `indepvars'
+local n_rows = `k' + 1
+
+preserve
+clear
+set obs `n_rows'
+gen str32 variable = ""
+gen double coef = .
+gen double se = .
+gen double t = .
+gen double p = .
+
+local row = 1
 foreach v of local indepvars {
-    local b_txt : display %9.3f _b[`v']
-    local se_txt : display %9.3f _se[`v']
-    file write `fh' "`v': `b_txt' (SE `se_txt')\\par" _n
+    replace variable = "`v'" in `row'
+    local b = _b[`v']
+    local s = _se[`v']
+    replace coef = `b' in `row'
+    replace se = `s' in `row'
+    local tt = .
+    local pp = .
+    if `s' < . & `s' > 0 {
+        local tt = `b' / `s'
+        local pp = 2 * ttail(`df_r', abs(`tt'))
+    }
+    replace t = `tt' in `row'
+    replace p = `pp' in `row'
+    local row = `row' + 1
 }
-local b0_txt : display %9.3f _b[_cons]
-local se0_txt : display %9.3f _se[_cons]
-file write `fh' "_cons: `b0_txt' (SE `se0_txt')\\par" _n
-file write `fh' "}" _n
-file close `fh'
-display "SS_OUTPUT_FILE|file=table_TO03_reg.rtf|type=table|desc=rtf_table"
+replace variable = "_cons" in `row'
+local b0 = _b[_cons]
+local s0 = _se[_cons]
+replace coef = `b0' in `row'
+replace se = `s0' in `row'
+local t0 = .
+local p0 = .
+if `s0' < . & `s0' > 0 {
+    local t0 = `b0' / `s0'
+    local p0 = 2 * ttail(`df_r', abs(`t0'))
+}
+replace t = `t0' in `row'
+replace p = `p0' in `row'
+
+capture noisily putdocx clear
+capture noisily putdocx begin
+if _rc {
+    ss_fail_TO03 459 "putdocx begin" "putdocx_begin_failed"
+}
+capture noisily putdocx paragraph, style(Heading1)
+if _rc {
+    ss_fail_TO03 459 "putdocx paragraph" "putdocx_paragraph_failed"
+}
+capture noisily putdocx text ("Regression Results (robust SE)")
+if _rc {
+    ss_fail_TO03 459 "putdocx text" "putdocx_text_failed"
+}
+capture noisily putdocx paragraph
+if _rc {
+    ss_fail_TO03 459 "putdocx paragraph" "putdocx_paragraph_failed"
+}
+capture noisily putdocx text ("N=`n_obs_txt'  R2=`r2_txt'")
+if _rc {
+    ss_fail_TO03 459 "putdocx text" "putdocx_text_failed"
+}
+capture noisily putdocx paragraph
+if _rc {
+    ss_fail_TO03 459 "putdocx paragraph" "putdocx_paragraph_failed"
+}
+capture noisily putdocx table t1 = data(variable coef se t p), varnames
+if _rc {
+    ss_fail_TO03 459 "putdocx table" "putdocx_table_failed"
+}
+capture noisily putdocx save "table_TO03_reg.docx", replace
+if _rc {
+    ss_fail_TO03 459 "putdocx save table_TO03_reg.docx" "putdocx_save_failed"
+}
+display "SS_OUTPUT_FILE|file=table_TO03_reg.docx|type=table|desc=docx_table"
+restore
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
-save "data_TO03_export.dta", replace
+capture noisily save "data_TO03_export.dta", replace
+if _rc {
+    ss_fail_TO03 459 "save data_TO03_export.dta" "save_output_data_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TO03_export.dta|type=data|desc=export_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 

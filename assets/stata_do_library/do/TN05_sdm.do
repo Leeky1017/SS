@@ -37,11 +37,22 @@ end
 
 display "SS_TASK_BEGIN|id=TN05|level=L1|title=SDM"
 display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.13 REVIEW (Issue #362) / 最佳实践审查（阶段 5.13）
+* - SSC deps: none (built-in spatial suite) / SSC 依赖：无（官方空间计量命令）
+* - Output: CSV + DTA / 输出：CSV 表格 + DTA 数据
+* - Notes: SDM may not converge on small samples; fallbacks are explicit / 备注：小样本 SDM 可能不收敛；已提供显式降级路径
+* ==============================================================================
+display "SS_BP_REVIEW|issue=362|template_id=TN05|ssc=none|output=csv_dta|policy=warn_fail"
+
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
 
+* [ZH] S01 加载数据（data.csv）
+* [EN] S01 Load data (data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
@@ -52,9 +63,29 @@ local n_input = _N
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
+* [ZH] S02 校验输入变量（因变量/自变量）
+* [EN] S02 Validate inputs (depvar/indepvars)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+capture confirm variable `depvar'
+if _rc {
+    ss_fail_TN05 111 "confirm variable `depvar'" "depvar_not_found"
+}
+capture confirm numeric variable `depvar'
+if _rc {
+    ss_fail_TN05 109 "confirm numeric variable `depvar'" "depvar_not_numeric"
+}
+capture fvunab indepvars_fv : `indepvars'
+if _rc {
+    ss_fail_TN05 111 "fvunab indepvars" "indepvars_invalid"
+}
+local indepvars "`indepvars_fv'"
+if "`indepvars'" == "" {
+    ss_fail_TN05 111 "indepvars" "indepvars_empty"
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
+* [ZH] S03 构建 W 并估计 SDM（空间杜宾模型）
+* [EN] S03 Build W and estimate SDM (spatial Durbin model)
 display "SS_STEP_BEGIN|step=S03_analysis"
 
 capture confirm variable x
@@ -68,9 +99,18 @@ if _rc {
     display "SS_RC|code=0|cmd=gen cluster=0|msg=coord_y_defaulted|severity=warn"
 }
 gen long ss_sid = _n
-spset ss_sid
-spset, modify coord(x cluster)
-spmatrix create idistance W, normalize(row)
+capture noisily spset ss_sid
+if _rc {
+    ss_fail_TN05 459 "spset ss_sid" "spset_failed"
+}
+capture noisily spset, modify coord(x cluster)
+if _rc {
+    ss_fail_TN05 459 "spset modify coord" "spset_coord_failed"
+}
+capture noisily spmatrix create idistance W, normalize(row)
+if _rc {
+    ss_fail_TN05 459 "spmatrix create idistance" "spmatrix_create_failed"
+}
 capture spregress `depvar' `indepvars', ml dvarlag(W) ivarlag(W: `indepvars')
 if _rc {
     local rc_sdm = _rc
@@ -81,6 +121,9 @@ if _rc {
     local rc_sar = _rc
     display "SS_RC|code=`rc_sar'|cmd=spregress|msg=sar_failed_fallback_ols|severity=warn"
     capture regress `depvar' `indepvars'
+    if _rc {
+        ss_fail_TN05 459 "regress" "ols_fallback_failed"
+    }
     local rho = .
     local ll = .
 }
@@ -97,13 +140,19 @@ set obs 1
 gen str32 model = "SDM"
 gen double rho = `rho'
 gen double ll = `ll'
-export delimited using "table_TN05_sdm.csv", replace
+capture noisily export delimited using "table_TN05_sdm.csv", replace
+if _rc {
+    ss_fail_TN05 459 "export delimited table_TN05_sdm.csv" "export_table_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TN05_sdm.csv|type=table|desc=sdm_results"
 restore
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
-save "data_TN05_sdm.dta", replace
+capture noisily save "data_TN05_sdm.dta", replace
+if _rc {
+    ss_fail_TN05 459 "save data_TN05_sdm.dta" "save_output_data_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TN05_sdm.dta|type=data|desc=sdm_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 

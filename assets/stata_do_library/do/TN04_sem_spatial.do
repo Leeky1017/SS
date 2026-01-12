@@ -37,11 +37,22 @@ end
 
 display "SS_TASK_BEGIN|id=TN04|level=L1|title=SEM"
 display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.13 REVIEW (Issue #362) / 最佳实践审查（阶段 5.13）
+* - SSC deps: none (built-in spatial suite) / SSC 依赖：无（官方空间计量命令）
+* - Output: CSV + DTA / 输出：CSV 表格 + DTA 数据
+* - Notes: errorlag(W) models spatially correlated errors / 备注：errorlag(W) 用于建模空间相关误差项
+* ==============================================================================
+display "SS_BP_REVIEW|issue=362|template_id=TN04|ssc=none|output=csv_dta|policy=warn_fail"
+
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
 
+* [ZH] S01 加载数据（data.csv）
+* [EN] S01 Load data (data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
@@ -52,9 +63,29 @@ local n_input = _N
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
+* [ZH] S02 校验输入变量（因变量/自变量）
+* [EN] S02 Validate inputs (depvar/indepvars)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+capture confirm variable `depvar'
+if _rc {
+    ss_fail_TN04 111 "confirm variable `depvar'" "depvar_not_found"
+}
+capture confirm numeric variable `depvar'
+if _rc {
+    ss_fail_TN04 109 "confirm numeric variable `depvar'" "depvar_not_numeric"
+}
+capture fvunab indepvars_fv : `indepvars'
+if _rc {
+    ss_fail_TN04 111 "fvunab indepvars" "indepvars_invalid"
+}
+local indepvars "`indepvars_fv'"
+if "`indepvars'" == "" {
+    ss_fail_TN04 111 "indepvars" "indepvars_empty"
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
+* [ZH] S03 构建 W 并估计 SEM（空间误差模型）
+* [EN] S03 Build W and estimate SEM (spatial error model)
 display "SS_STEP_BEGIN|step=S03_analysis"
 
 capture confirm variable x
@@ -68,10 +99,22 @@ if _rc {
     display "SS_RC|code=0|cmd=gen cluster=0|msg=coord_y_defaulted|severity=warn"
 }
 gen long ss_sid = _n
-spset ss_sid
-spset, modify coord(x cluster)
-spmatrix create idistance W, normalize(row)
-spregress `depvar' `indepvars', ml errorlag(W)
+capture noisily spset ss_sid
+if _rc {
+    ss_fail_TN04 459 "spset ss_sid" "spset_failed"
+}
+capture noisily spset, modify coord(x cluster)
+if _rc {
+    ss_fail_TN04 459 "spset modify coord" "spset_coord_failed"
+}
+capture noisily spmatrix create idistance W, normalize(row)
+if _rc {
+    ss_fail_TN04 459 "spmatrix create idistance" "spmatrix_create_failed"
+}
+capture noisily spregress `depvar' `indepvars', ml errorlag(W)
+if _rc {
+    ss_fail_TN04 459 "spregress" "sem_model_fit_failed"
+}
 local lambda = e(lambda)
 local ll = e(ll)
 display "SS_METRIC|name=lambda|value=`lambda'"
@@ -83,13 +126,19 @@ set obs 1
 gen str32 model = "SEM"
 gen double lambda = `lambda'
 gen double ll = `ll'
-export delimited using "table_TN04_sem.csv", replace
+capture noisily export delimited using "table_TN04_sem.csv", replace
+if _rc {
+    ss_fail_TN04 459 "export delimited table_TN04_sem.csv" "export_table_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TN04_sem.csv|type=table|desc=sem_results"
 restore
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
-save "data_TN04_sem.dta", replace
+capture noisily save "data_TN04_sem.dta", replace
+if _rc {
+    ss_fail_TN04 459 "save data_TN04_sem.dta" "save_output_data_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TN04_sem.dta|type=data|desc=sem_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
