@@ -9,10 +9,10 @@
 - [x] 1.8 Add regression tests for `output_formats` persistence and `T07` template params.
 
 ## 2. Testing
-- [ ] 2.1 `docker-compose up -d` and verify `minio`, `ss-api`, `ss-worker` are healthy.
-- [ ] 2.2 Run `/v1` journey end-to-end (redeem/upload/draft/freeze/run/poll/artifacts/download) and verify output formats.
-- [ ] 2.3 `docker-compose restart ss-api ss-worker` and verify job/artifacts recovery + redeem idempotency.
+- [x] 2.1 `docker-compose up -d` and verify `minio`, `ss-api`, `ss-worker` are healthy.
+- [x] 2.2 Run `/v1` journey end-to-end (redeem/upload/draft/freeze/run/poll/artifacts/download) and verify output formats.
+- [x] 2.3 `docker-compose restart ss-api ss-worker` and verify job/artifacts recovery + redeem idempotency.
 
 ## 3. Documentation
-- [ ] 3.1 Record key commands + key outputs + verdict in `openspec/_ops/task_runs/ISSUE-406.md`.
-- [ ] 3.2 Update task card completion section with PR + run log evidence after PR is opened.
+- [x] 3.1 Record key commands + key outputs + verdict in `openspec/_ops/task_runs/ISSUE-406.md`.
+- [x] 3.2 Update task card completion section with PR + run log evidence after PR is opened.
