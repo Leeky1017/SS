@@ -34,7 +34,16 @@
 
 ## Acceptance checklist
 
-- [ ] 缺口模板已补齐且 meta 合同完整（inputs/outputs/parameters/deps）
-- [ ] 能力矩阵更新并标注新增覆盖点
-- [ ] 至少一个可复现回归路径（smoke suite 或 pytest 集成测试）
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] 缺口模板已补齐且 meta 合同完整（inputs/outputs/parameters/deps）
+- [x] 能力矩阵更新并标注新增覆盖点
+- [x] 至少一个可复现回归路径（smoke suite 或 pytest 集成测试）
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-388.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/395
+- Delivered:
+  - Added `wide/long` tagging for shape-sensitive templates and documented the convention in OpenSpec.
+  - Added rendering alias support for `__ID_VAR__`/`__PANELVAR__` to reduce panel template parameter coupling.
+  - Added a minimal pytest audit + updated data-shape capability matrix evidence.
+- Run log: `openspec/_ops/task_runs/ISSUE-388.md`
