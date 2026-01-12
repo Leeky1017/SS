@@ -4,6 +4,9 @@
 
 Define the SS job state machine, allowed transitions, and idempotency strategy as domain logic so API/worker cannot diverge.
 
+System-level, code-verified diagrams (Job/Plan/Run/UploadSession/Worker Queue) live in:
+- `openspec/specs/ss-state-machine/state_machines.md`
+
 ## Vocabulary (v1)
 
 ### Status enum

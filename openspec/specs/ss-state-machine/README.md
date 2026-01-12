@@ -2,6 +2,10 @@
 
 状态机与幂等策略必须是 **domain 逻辑**。API/worker 不得各写一套 if/else。
 
+## 图与验证（代码一致）
+
+- 系统核心状态机图（Job / Plan / Run / Upload Session / Worker Queue）：`openspec/specs/ss-state-machine/state_machines.md`
+
 ## 状态枚举（建议）
 
 - `created`
@@ -36,4 +40,3 @@ failed -> queued   (可选：允许显式重试)
 - queue claim 原子化（防止双 worker）
 - job.json 更新加锁 + 原子写（防止并发写覆盖）
 - revision/compare-and-swap（防止“最后写赢”）
-
