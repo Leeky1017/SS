@@ -1,7 +1,7 @@
 # ISSUE-371
 - Issue: #371
 - Branch: task/371-deploy-ready-r003
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/378
 
 ## Plan
 - Inventory current Docker/compose assets and runtime entrypoints (API/worker/Stata).
@@ -73,6 +73,26 @@
 - Command: `scripts/agent_pr_preflight.sh`
 - Key output: `OK: no overlapping files with open PRs`
 - Evidence: `scripts/agent_pr_preflight.sh`
+
+### 2026-01-12 21:45 PR + auto-merge
+- Command: `gh pr create ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/378`
+- Evidence: `openspec/_ops/task_runs/ISSUE-371.md`
+
+### 2026-01-12 21:45 Enable auto-merge
+- Command: `gh pr merge --auto --squash`
+- Key output: `PR will be automatically merged via squash when all requirements are met`
+- Evidence: `gh pr view 378 --json autoMergeRequest`
+
+### 2026-01-12 21:46 Rebase (PR was BEHIND)
+- Command: `git rebase origin/main && git push --force-with-lease`
+- Key output: `mergeStateStatus=BEHIND -> updated branch`
+- Evidence: `gh pr view 378 --json mergeStateStatus`
+
+### 2026-01-12 21:49 Merge verified
+- Command: `gh pr view 378 --json mergedAt,state`
+- Key output: `state=MERGED mergedAt=2026-01-12T05:49:13Z`
+- Evidence: `gh pr view 378`
 
 ## Findings
 

@@ -47,3 +47,11 @@ SS 需要在远程服务器上通过 Docker 进行生产部署，但当前仓库
 - [x] 明确 compose 需要包含的最小拓扑（MinIO + ss-api + ss-worker）与关键 volumes
 - [x] 明确 Stata strategy 的决策点与风险（license/路径/挂载/SS_STATA_CMD）
 - [x] Evidence: `openspec/_ops/task_runs/ISSUE-371.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/378
+- Delivered a numbered gap list (DR-REQ-01..09) with priority + mapped remediation cards.
+- Defined minimal production compose topology (minio + ss-api + ss-worker) and key volumes.
+- Documented Stata provisioning decision points/risks and a minimal remediation sequence (R010/R020/R012/R011 → R090).
+- Run log: `openspec/_ops/task_runs/ISSUE-371.md`
