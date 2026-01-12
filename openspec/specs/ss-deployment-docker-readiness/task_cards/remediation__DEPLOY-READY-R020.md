@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P1
-- Issue: TBD
+- Issue: #389
 - Spec: `openspec/specs/ss-deployment-docker-readiness/spec.md`
 - Related specs:
   - `openspec/specs/ss-delivery-workflow/spec.md`
@@ -36,4 +36,3 @@
 - [ ] 记录生成命令与更新策略（可写入 run log 或 task evidence）
 - [ ] Dockerfile 使用该锁定文件进行安装（或明确使用 lock file 的替代方案）
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
-
