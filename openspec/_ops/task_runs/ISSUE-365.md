@@ -82,3 +82,36 @@
   - `OK: no hard dependencies found in execution plan`
 - Evidence:
   - (terminal transcript)
+
+### 2026-01-12 12:43 Verify PR merged
+- Command:
+  - `gh pr view 366 --json state,mergedAt,mergeStateStatus,url`
+- Key output:
+  - `state=MERGED`
+  - `mergedAt=2026-01-12T04:42:42Z`
+- Evidence:
+  - https://github.com/Leeky1017/SS/pull/366
+
+### 2026-01-12 12:44 Controlplane sync main
+- Command:
+  - `scripts/agent_controlplane_sync.sh`
+- Key output:
+  - `Fast-forward` to merged PR commit on `main`
+- Evidence:
+  - (terminal transcript)
+
+### 2026-01-12 12:44 Cleanup worktree
+- Command:
+  - `scripts/agent_worktree_cleanup.sh "365" "deploy-docker-readiness"`
+- Key output:
+  - `OK: cleaned worktree .worktrees/issue-365-deploy-docker-readiness and local branch task/365-deploy-docker-readiness`
+- Evidence:
+  - (terminal transcript)
+
+### 2026-01-12 12:48 Archive Rulebook task
+- Command:
+  - `rulebook task archive issue-365-deploy-docker-readiness`
+- Key output:
+  - `✅ Task issue-365-deploy-docker-readiness archived successfully`
+- Evidence:
+  - `rulebook/tasks/archive/2026-01-12-issue-365-deploy-docker-readiness/`
