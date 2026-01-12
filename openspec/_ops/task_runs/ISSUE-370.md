@@ -109,3 +109,10 @@
   - `gh pr merge --auto --squash 385`
 - Key output:
   - `will be automatically merged via squash when all requirements are met`
+
+### 2026-01-12 14:37 Merge verification
+- Command:
+  - `gh pr view 385 --json state,mergedAt`
+- Key output:
+  - `state=MERGED`
+  - `mergedAt=2026-01-12T06:36:42Z`
