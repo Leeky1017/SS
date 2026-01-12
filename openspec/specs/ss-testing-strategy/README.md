@@ -116,6 +116,9 @@ pytest tests/ -v --cov=src --cov-report=html
 - Concurrent：关键路径尽量覆盖（并通过重复运行捕获竞态）
 - Stress/Chaos：以定性验证为主
 
+CI 基线门禁：
+- required checks `ci` / `merge-serial` 运行 `pytest -q --cov=src --cov-fail-under=75`，覆盖率低于 75% 直接阻塞。
+
 红灯（阻塞）示例：
 - 任何 unit/integration 失败
 - 并发测试出现数据竞态（读到脏数据/部分写入）
