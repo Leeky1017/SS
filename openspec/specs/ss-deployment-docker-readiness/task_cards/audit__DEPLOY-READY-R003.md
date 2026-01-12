@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #371
 - Spec: `openspec/specs/ss-deployment-docker-readiness/spec.md`
 - Related specs:
   - `openspec/specs/ss-deployment-docker-minio/spec.md`
@@ -43,8 +43,7 @@ SS 需要在远程服务器上通过 Docker 进行生产部署，但当前仓库
 
 ## Acceptance checklist
 
-- [ ] 输出 gap list（按 requirement 编号逐项对照），并标注优先级与推荐归属任务
-- [ ] 明确 compose 需要包含的最小拓扑（MinIO + ss-api + ss-worker）与关键 volumes
-- [ ] 明确 Stata strategy 的决策点与风险（license/路径/挂载/SS_STATA_CMD）
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
-
+- [x] 输出 gap list（按 requirement 编号逐项对照），并标注优先级与推荐归属任务
+- [x] 明确 compose 需要包含的最小拓扑（MinIO + ss-api + ss-worker）与关键 volumes
+- [x] 明确 Stata strategy 的决策点与风险（license/路径/挂载/SS_STATA_CMD）
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-371.md`
