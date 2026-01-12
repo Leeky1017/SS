@@ -33,8 +33,16 @@ Enhance Bayes/ML/text/viz templates with best practices (最佳实践), Stata 18
 
 ## Acceptance checklist
 
-- [ ] Each template has a best-practice review record (packages A+B)
-- [ ] SSC deps removed/replaced where feasible (exceptions justified)
-- [ ] Error handling and diagnostics are strengthened (no silent failure)
-- [ ] Key steps have bilingual comments (中英文注释)
-- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Each template has a best-practice review record (packages A+B)
+- [x] SSC deps removed/replaced where feasible (exceptions justified)
+- [x] Error handling and diagnostics are strengthened (no silent failure)
+- [x] Key steps have bilingual comments (中英文注释)
+- [x] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-364.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/373
+- Added bilingual `BEST_PRACTICE_REVIEW` blocks across TR/TS/TT/TU templates; strengthened validation + `SS_RC` fail-fast behavior.
+- Replaced remaining feasible SSC dependency: TU11 now implements RIF regression with built-in `_pctile` + `kdensity` + `regress`.
+- Hardened optional numeric parameters to avoid invalid Stata syntax when placeholders are omitted.
+- Run log: `openspec/_ops/task_runs/ISSUE-364.md`
