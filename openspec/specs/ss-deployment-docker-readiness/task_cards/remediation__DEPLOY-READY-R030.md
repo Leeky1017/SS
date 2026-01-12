@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P1
-- Issue: TBD
+- Issue: #388
 - Spec: `openspec/specs/ss-deployment-docker-readiness/spec.md`
 - Related specs:
   - `openspec/specs/ss-do-template-library/spec.md`
@@ -38,4 +38,3 @@
 - [ ] 能力矩阵更新并标注新增覆盖点
 - [ ] 至少一个可复现回归路径（smoke suite 或 pytest 集成测试）
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
-

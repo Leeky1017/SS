@@ -66,7 +66,8 @@
     "hypothesis",
     "paired",
     "before_after",
-    "mean_comparison"
+    "mean_comparison",
+    "wide"
   ],
   "title": "Paired Sample T-Test",
   "title_zh": "配对样本t检验",
