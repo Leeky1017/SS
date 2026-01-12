@@ -30,8 +30,17 @@ Enhance panel and hierarchical-model templates with best practices (最佳实践
 
 ## Acceptance checklist
 
-- [ ] Each template has a best-practice review record
-- [ ] SSC deps removed/replaced where feasible (exceptions justified)
-- [ ] Error handling and diagnostics are strengthened (no silent failure)
-- [ ] Key steps have bilingual comments (中英文注释)
-- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] Each template has a best-practice review record
+- [x] SSC deps removed/replaced where feasible (exceptions justified)
+- [x] Error handling and diagnostics are strengthened (no silent failure)
+- [x] Key steps have bilingual comments (中英文注释)
+- [x] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-363.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/369
+- Summary:
+  - Added Phase 5.14 review blocks + `SS_BP_REVIEW|issue=363` anchors for TP01–TP15 and TQ01–TQ12.
+  - Strengthened preflight validation + explicit warn/fail error handling (`SS_RC`) for panel/ts/HLM workflows.
+  - Kept required SSC deps with explicit checks + rationale where no safe built-in alternative exists (e.g., `xtabond2`, `xtserial`).
+- Run log: `openspec/_ops/task_runs/ISSUE-363.md`
