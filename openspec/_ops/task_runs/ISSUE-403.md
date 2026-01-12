@@ -1,7 +1,7 @@
 # ISSUE-403
 - Issue: #403
-- Branch: task/403-deploy-ready-r011
-- PR: https://github.com/Leeky1017/SS/pull/404
+- Branch: task/403-deploy-ready-r011, task/403-deploy-ready-r011-closeout
+- PR: https://github.com/Leeky1017/SS/pull/404, https://github.com/Leeky1017/SS/pull/405
 
 ## Plan
 - Add repo-root `docker-compose.yml` with MinIO + API + worker and durable volumes.
@@ -50,3 +50,11 @@
 - Command: `rulebook task archive issue-403-deploy-ready-r011`
 - Key output: `✅ Task issue-403-deploy-ready-r011 archived successfully`
 - Evidence: `rulebook/tasks/archive/2026-01-12-issue-403-deploy-ready-r011/`
+
+### 2026-01-12 00:00 Closeout PR preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+
+### 2026-01-12 00:00 Closeout PR create
+- Command: `gh pr create ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/405`
