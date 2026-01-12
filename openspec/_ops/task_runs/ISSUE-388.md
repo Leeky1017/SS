@@ -1,7 +1,7 @@
 # ISSUE-388
 - Issue: #388
 - Branch: task/388-deploy-ready-r030
-- PR: <fill>
+- PR: https://github.com/Leeky1017/SS/pull/395
 
 ## Plan
 - Add wide/long/panel meta coverage for audited templates.
@@ -26,7 +26,7 @@
 - Key output:
   - `Task issue-388-deploy-ready-r030 created successfully`
   - `Task issue-388-deploy-ready-r030 is valid`
-- Evidence: `rulebook/tasks/issue-388-deploy-ready-r030/`
+- Evidence: `rulebook/tasks/archive/2026-01-12-issue-388-deploy-ready-r030/`
 
 ### 2026-01-12 15:12 Wide/long/panel tag signals (meta)
 - Command: `python3 -c "<count tags wide/long/panel in do/meta/*.meta.json>"`
@@ -39,7 +39,7 @@
   - `assets/stata_do_library/do/meta/T31_panel_fe_basic.meta.json`
 
 ### 2026-01-12 15:18 Matrix update (evidence)
-- Evidence: `rulebook/tasks/issue-388-deploy-ready-r030/evidence/do_template_data_shape_matrix.md`
+- Evidence: `rulebook/tasks/archive/2026-01-12-issue-388-deploy-ready-r030/evidence/do_template_data_shape_matrix.md`
 
 ### 2026-01-12 15:21 Local checks (ruff + pytest)
 - Command:
@@ -56,3 +56,32 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-12 15:23 PR created
+- Command: `gh pr create --title "[DEPLOY-READY] DEPLOY-READY-R030: close do-template data-shape gaps (#388)" --body "Closes #388 ..."`
+- Key output: `https://github.com/Leeky1017/SS/pull/395`
+
+### 2026-01-12 15:24 Enable auto-merge
+- Command: `gh pr merge --auto --squash 395`
+- Key output: `will be automatically merged via squash when all requirements are met`
+
+### 2026-01-12 15:29 Auto-merge unblock (branch behind)
+- Command:
+  - `git fetch origin main && git rebase origin/main`
+  - `git push --force-with-lease`
+- Key output: `PR auto-merge required branch update (mergeStateStatus=BEHIND)`
+
+### 2026-01-12 15:32 Checks green + merged
+- Command:
+  - `gh pr checks --watch 395`
+  - `gh pr view 395 --json mergedAt,state`
+- Key output:
+  - `ci: success`
+  - `merge-serial: success`
+  - `openspec-log-guard: success`
+  - `state=MERGED mergedAt=2026-01-12T07:32:12Z`
+
+### 2026-01-12 15:33 Rulebook archive
+- Command: `rulebook task archive issue-388-deploy-ready-r030`
+- Key output: `Task issue-388-deploy-ready-r030 archived successfully`
+- Evidence: `rulebook/tasks/archive/2026-01-12-issue-388-deploy-ready-r030/`
