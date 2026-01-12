@@ -1,7 +1,7 @@
 # ISSUE-387
 - Issue: #387
 - Branch: task/387-deploy-ready-r010
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/393
 
 ## Plan
 - Add repo-root `Dockerfile` + `.dockerignore` for production image builds.
