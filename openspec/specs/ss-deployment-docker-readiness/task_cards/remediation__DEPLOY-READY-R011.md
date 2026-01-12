@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #403
 - Spec: `openspec/specs/ss-deployment-docker-readiness/spec.md`
 - Related specs:
   - `openspec/specs/ss-deployment-docker-minio/spec.md`
@@ -42,4 +42,3 @@
 - [ ] `ss-worker` 与 `ss-api` 共享 jobs/queue 的持久化存储并保持路径一致
 - [ ] `docker-compose up` 后 worker 能启动（配置齐全时）并可处理队列任务
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
-

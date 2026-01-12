@@ -1,0 +1,103 @@
+services:
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    environment:
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER:?missing}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:?missing}"
+    volumes:
+      - minio-data:/data
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    environment:
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER:?missing}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:?missing}"
+      SS_UPLOAD_S3_BUCKET: "${SS_UPLOAD_S3_BUCKET:?missing}"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        until mc alias set local http://minio:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"; do
+          echo "waiting for minio..."
+          sleep 1
+        done
+        mc mb --ignore-existing "local/${SS_UPLOAD_S3_BUCKET}"
+    restart: "no"
+
+  ss-api:
+    build:
+      context: .
+    image: ss:prod
+    environment:
+      SS_ENV: "production"
+      SS_JOBS_DIR: "/var/lib/ss/jobs"
+      SS_QUEUE_DIR: "/var/lib/ss/queue"
+      SS_DO_TEMPLATE_LIBRARY_DIR: "/app/assets/stata_do_library"
+      SS_STATA_CMD: "/mnt/stata/stata-mp"
+      SS_LLM_PROVIDER: "${SS_LLM_PROVIDER:?missing}"
+      SS_LLM_BASE_URL: "${SS_LLM_BASE_URL:-https://yunwu.ai/v1}"
+      SS_LLM_API_KEY: "${SS_LLM_API_KEY:?missing}"
+      SS_LLM_MODEL: "${SS_LLM_MODEL:?missing}"
+      SS_UPLOAD_OBJECT_STORE_BACKEND: "s3"
+      SS_UPLOAD_S3_ENDPOINT: "${SS_UPLOAD_S3_ENDPOINT:-http://minio:9000}"
+      SS_UPLOAD_S3_REGION: "${SS_UPLOAD_S3_REGION:-us-east-1}"
+      SS_UPLOAD_S3_BUCKET: "${SS_UPLOAD_S3_BUCKET:?missing}"
+      SS_UPLOAD_S3_ACCESS_KEY_ID: "${MINIO_ROOT_USER:?missing}"
+      SS_UPLOAD_S3_SECRET_ACCESS_KEY: "${MINIO_ROOT_PASSWORD:?missing}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+    ports:
+      - "${SS_API_PORT:-8000}:8000"
+    volumes:
+      - ss-jobs:/var/lib/ss/jobs
+      - ss-queue:/var/lib/ss/queue
+      - /opt/stata18:/mnt/stata:ro
+    command: ["python", "-m", "src.main"]
+    restart: unless-stopped
+
+  ss-worker:
+    build:
+      context: .
+    image: ss:prod
+    environment:
+      SS_ENV: "production"
+      SS_JOBS_DIR: "/var/lib/ss/jobs"
+      SS_QUEUE_DIR: "/var/lib/ss/queue"
+      SS_DO_TEMPLATE_LIBRARY_DIR: "/app/assets/stata_do_library"
+      SS_STATA_CMD: "/mnt/stata/stata-mp"
+      SS_LLM_PROVIDER: "${SS_LLM_PROVIDER:?missing}"
+      SS_LLM_BASE_URL: "${SS_LLM_BASE_URL:-https://yunwu.ai/v1}"
+      SS_LLM_API_KEY: "${SS_LLM_API_KEY:?missing}"
+      SS_LLM_MODEL: "${SS_LLM_MODEL:?missing}"
+      SS_UPLOAD_OBJECT_STORE_BACKEND: "s3"
+      SS_UPLOAD_S3_ENDPOINT: "${SS_UPLOAD_S3_ENDPOINT:-http://minio:9000}"
+      SS_UPLOAD_S3_REGION: "${SS_UPLOAD_S3_REGION:-us-east-1}"
+      SS_UPLOAD_S3_BUCKET: "${SS_UPLOAD_S3_BUCKET:?missing}"
+      SS_UPLOAD_S3_ACCESS_KEY_ID: "${MINIO_ROOT_USER:?missing}"
+      SS_UPLOAD_S3_SECRET_ACCESS_KEY: "${MINIO_ROOT_PASSWORD:?missing}"
+      SS_WORKER_ID: "${SS_WORKER_ID:-worker-1}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+    volumes:
+      - ss-jobs:/var/lib/ss/jobs
+      - ss-queue:/var/lib/ss/queue
+      - /opt/stata18:/mnt/stata:ro
+    command: ["python", "-m", "src.worker"]
+    restart: unless-stopped
+
+volumes:
+  minio-data: {}
+  ss-jobs: {}
+  ss-queue: {}
