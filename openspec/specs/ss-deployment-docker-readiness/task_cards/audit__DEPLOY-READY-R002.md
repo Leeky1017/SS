@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #370
 - Spec: `openspec/specs/ss-deployment-docker-readiness/spec.md`
 - Related specs:
   - `openspec/specs/ss-do-template-library/spec.md`
@@ -49,4 +49,3 @@
 - [ ] 明确 Word/PDF 的可行实现策略与现状差距（优先 `putdocx` / `putpdf`）
 - [ ] 明确 artifact kind/命名一致性问题，并给出整改建议
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
-
