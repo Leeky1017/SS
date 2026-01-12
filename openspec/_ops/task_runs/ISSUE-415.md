@@ -1,7 +1,7 @@
 # ISSUE-415
 - Issue: #415
 - Branch: task/415-ci-coverage-gate
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/416
 
 ## Goal
 - Prevent coverage regressions by gating CI at a safe baseline (`--cov-fail-under=75`).
@@ -101,5 +101,30 @@
   - `openspec validate --specs --strict --no-interactive`
 - Key output:
   - `Totals: 29 passed, 0 failed (29 items)`
+- Evidence:
+  - N/A
+
+### 2026-01-12 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - N/A
+
+### 2026-01-12 Push branch
+- Command:
+  - `git push -u origin HEAD`
+- Key output:
+  - `HEAD -> task/415-ci-coverage-gate`
+- Evidence:
+  - N/A
+
+### 2026-01-12 Open PR
+- Command:
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/416`
 - Evidence:
   - N/A
