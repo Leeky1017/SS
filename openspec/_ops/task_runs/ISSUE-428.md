@@ -18,7 +18,7 @@
 - 2026-01-12 Keep change minimal: only fix stale fields and append missing run entries (no code changes).
 
 ## Errors Encountered
-- None.
+- 2026-01-12 `git push` failed (`Could not resolve host: github.com`) → retried and succeeded.
 
 ## Runs
 ### 2026-01-12 Create Issue
@@ -64,3 +64,12 @@
   - `PR link filled and status/runs backfilled`
 - Evidence:
   - `openspec/_ops/task_runs/ISSUE-422.md`
+
+### 2026-01-12 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - N/A
