@@ -45,3 +45,28 @@
 ### 2026-01-12 PR created
 - Command: `gh pr create --title \"[PHASE-5.13] Spatial+Output templates TN/TO: best practices + native outputs (#362)\" --body \"Closes #362 ...\"`
 - Key output: `https://github.com/Leeky1017/SS/pull/367`
+
+### 2026-01-12 post-merge sync (controlplane)
+- Command: `scripts/agent_controlplane_sync.sh`
+- Key output:
+  - `Updating f41e4b7..3216d32`
+  - `Fast-forward`
+- Evidence: (stdout)
+
+### 2026-01-12 worktree cleanup (controlplane)
+- Command: `scripts/agent_worktree_cleanup.sh 362 p5-13-spatial-output-tn-to`
+- Key output:
+  - `OK: cleaned worktree .worktrees/issue-362-p5-13-spatial-output-tn-to and local branch task/362-p5-13-spatial-output-tn-to`
+- Evidence: (stdout)
+
+### 2026-01-12 closeout (task card + Rulebook archive)
+- Command:
+  - `gh issue reopen 362`
+  - `scripts/agent_worktree_setup.sh 362 p5-13-spatial-output-tn-to-closeout`
+  - `git mv rulebook/tasks/issue-362-p5-13-spatial-output-tn-to rulebook/tasks/archive/2026-01-12-issue-362-p5-13-spatial-output-tn-to`
+- Key output:
+  - `Reopened issue Leeky1017/SS#362`
+  - `Worktree created: .worktrees/issue-362-p5-13-spatial-output-tn-to-closeout`
+- Evidence:
+  - `openspec/specs/ss-do-template-optimization/task_cards/phase-5.13__spatial-output-TN-TO.md`
+  - `rulebook/tasks/archive/2026-01-12-issue-362-p5-13-spatial-output-tn-to`

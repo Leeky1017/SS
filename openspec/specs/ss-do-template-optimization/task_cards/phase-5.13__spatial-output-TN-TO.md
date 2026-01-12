@@ -30,8 +30,16 @@ Enhance spatial and output/reporting templates with best practices (最佳实践
 
 ## Acceptance checklist
 
-- [ ] Each template has a best-practice review record
-- [ ] Outputs are upgraded with Stata 18-native tooling where feasible
-- [ ] Error handling and diagnostics are strengthened (no silent failure)
-- [ ] Key steps have bilingual comments (中英文注释)
-- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-362.md`
+- [x] Each template has a best-practice review record
+- [x] Outputs are upgraded with Stata 18-native tooling where feasible
+- [x] Error handling and diagnostics are strengthened (no silent failure)
+- [x] Key steps have bilingual comments (中英文注释)
+- [x] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-362.md`
+
+## Completion
+- PR: https://github.com/Leeky1017/SS/pull/367
+- Run log: `openspec/_ops/task_runs/ISSUE-362.md`
+- Summary:
+  - TN01–TN10 + TO01–TO08 add Phase 5.13 best-practice review blocks (`SS_BP_REVIEW`) and bilingual step comments
+  - TO* output templates prefer Stata 18-native `collect`/`etable`/`putdocx`/`putexcel` paths and reduce SSC deps where feasible
+  - Update `*.meta.json` outputs/deps and regenerate `assets/stata_do_library/DO_LIBRARY_INDEX.json`
