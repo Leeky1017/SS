@@ -1,7 +1,7 @@
 # ISSUE-414
 - Issue: #414
 - Branch: task/414-step1-method-guidance
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/417
 
 ## Plan
 - Add Step 1 guided analysis method selection (category → method → template).
@@ -38,3 +38,18 @@
 - Command: `cd frontend && npm run build`
 - Key output: `✓ built in 772ms`
 - Evidence: `.worktrees/issue-414-step1-method-guidance/frontend/dist/`
+
+### 2026-01-12 22:10 preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs; OK: no hard dependencies found in execution plan`
+- Evidence: `.worktrees/issue-414-step1-method-guidance/scripts/agent_pr_preflight.py`
+
+### 2026-01-12 22:10 push
+- Command: `git push -u origin HEAD`
+- Key output: `created branch task/414-step1-method-guidance`
+- Evidence: `.worktrees/issue-414-step1-method-guidance/.git/`
+
+### 2026-01-12 22:11 pr create
+- Command: `gh pr create --base main --head task/414-step1-method-guidance ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/417`
+- Evidence: `.worktrees/issue-414-step1-method-guidance/openspec/_ops/task_runs/ISSUE-414.md`
