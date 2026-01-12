@@ -1,7 +1,7 @@
 # ISSUE-364
 - Issue: #364
 - Branch: task/364-phase-5-15-bayes-ml-text-viz-tr-tu
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/373
 
 ## Plan
 - Add best-practice upgrades (Bayes/ML/Text/Viz)
@@ -22,3 +22,11 @@
 ### 2026-01-12 13:15 pytest
 - Command: `/home/leeky/work/SS/.venv/bin/pytest -q`
 - Key output: `184 passed, 5 skipped in 11.09s`
+
+### 2026-01-12 13:15 preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+
+### 2026-01-12 13:15 pr-create
+- Command: `gh pr create --base main --head task/364-phase-5-15-bayes-ml-text-viz-tr-tu ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/373`
