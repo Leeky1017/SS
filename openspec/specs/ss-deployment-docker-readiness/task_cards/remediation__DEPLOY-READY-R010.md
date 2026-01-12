@@ -39,7 +39,16 @@
 
 ## Acceptance checklist
 
-- [ ] 仓库根目录新增 `Dockerfile`，可在无交互环境中构建成功
-- [ ] 镜像可分别启动 API 与 Worker（不要求真正跑 Stata，但启动链路明确）
-- [ ] 依赖锁定策略明确（requirements.txt 或 lock file）且被 Dockerfile 使用
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] 仓库根目录新增 `Dockerfile`，可在无交互环境中构建成功
+- [x] 镜像可分别启动 API 与 Worker（不要求真正跑 Stata，但启动链路明确）
+- [x] 依赖锁定策略明确（requirements.txt 或 lock file）且被 Dockerfile 使用
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-387.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/393
+- Run log: `openspec/_ops/task_runs/ISSUE-387.md`
+- Summary:
+  - Added repo-root `Dockerfile` (single image for API + worker).
+  - Added `.dockerignore` for deterministic build contexts.
+  - Documented validation commands and environment constraints in the run log.
