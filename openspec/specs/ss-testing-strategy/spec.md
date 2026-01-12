@@ -56,11 +56,11 @@ This spec MUST provide task cards for implementing the strategy:
 
 The required CI workflows (`ci` and `merge-serial`) MUST run pytest with coverage for `src` and MUST fail when overall coverage drops below the baseline threshold.
 
-Baseline threshold (initial): 75%.
+Baseline threshold (current): 80%.
 
 #### Scenario: CI fails when coverage drops below the baseline
-- **GIVEN** CI runs `pytest -q --cov=src --cov-fail-under=75`
-- **WHEN** overall coverage is below 75%
+- **GIVEN** CI runs `pytest -q --cov=src --cov-fail-under=80`
+- **WHEN** overall coverage is below 80%
 - **THEN** the CI job fails
 
 ### Requirement: Spec passes strict validation
