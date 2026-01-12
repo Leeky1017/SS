@@ -24,7 +24,7 @@ def _write_docx_or_error(*, lines: list[str], dest_path: Path) -> RunError | Non
         doc.add_heading("SS Output Report", level=1)
         for line in lines:
             doc.add_paragraph(line)
-        doc.save(dest_path)
+        doc.save(str(dest_path))
     except (OSError, ValueError) as e:
         return RunError(error_code="OUTPUT_FORMATTER_FAILED", message=str(e))
     return None

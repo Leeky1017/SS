@@ -56,9 +56,9 @@ def produce_dta(
 ) -> tuple[ArtifactRef | None, RunError | None]:
     src_csv = [ref for ref in artifacts if ext_of(ref.rel_path) == "csv"]
     if not src_csv:
-        df = _manifest_df(artifacts=artifacts)
+        manifest_df = _manifest_df(artifacts=artifacts)
         dest_path = formatted_dir / "output.dta"
-        err = _write_dta_or_error(df=df, dest_path=dest_path)
+        err = _write_dta_or_error(df=manifest_df, dest_path=dest_path)
         if err is not None:
             return None, err
         return (
@@ -111,9 +111,9 @@ def produce_csv(
 ) -> tuple[ArtifactRef | None, RunError | None]:
     src_dta = [ref for ref in artifacts if ext_of(ref.rel_path) == "dta"]
     if not src_dta:
-        df = _manifest_df(artifacts=artifacts)
+        manifest_df = _manifest_df(artifacts=artifacts)
         dest_path = formatted_dir / "output.csv"
-        err = _write_csv_or_error(df=df, dest_path=dest_path)
+        err = _write_csv_or_error(df=manifest_df, dest_path=dest_path)
         if err is not None:
             return None, err
         return (

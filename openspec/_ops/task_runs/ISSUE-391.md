@@ -40,3 +40,12 @@
 - Key output:
   - `All checks passed!`
   - `188 passed, 5 skipped`
+
+### 2026-01-12 Fix mypy (reportlab stubs) + rerun checks
+- Command:
+  - `.venv/bin/python -m pip install -e '.[dev]'`
+  - `.venv/bin/mypy`
+  - `.venv/bin/pytest -q`
+- Key output:
+  - `Success: no issues found in 175 source files`
+  - `194 passed, 5 skipped in 9.16s`

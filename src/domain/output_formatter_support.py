@@ -34,10 +34,13 @@ def artifact_ref_with_meta(
     created_at: str,
     output_format: str,
 ) -> ArtifactRef:
-    return ArtifactRef(
+    ref = ArtifactRef(
         kind=kind,
         rel_path=job_rel_path(job_dir=job_dir, path=path),
-        created_at=created_at,
-        meta={"output_format": output_format, "generated_by": "output_formatter"},
     )
-
+    return ref.model_copy(
+        update={
+            "created_at": created_at,
+            "meta": {"output_format": output_format, "generated_by": "output_formatter"},
+        }
+    )
