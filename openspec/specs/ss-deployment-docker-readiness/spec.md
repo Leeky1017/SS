@@ -60,6 +60,22 @@ SS MUST provide at least one explicit, reproducible dependency lock for producti
 - a pinned `requirements.txt`, or
 - a dependency lock file used by the chosen installer (for example `uv.lock` or `poetry.lock`)
 
+#### Recommendation: `requirements.txt` generated from `pyproject.toml`
+
+SS SHOULD prefer a pinned, repo-root `requirements.txt` generated from `pyproject.toml` because it is installer-agnostic and works with plain `pip` in production images.
+
+Source of truth + update strategy:
+- `pyproject.toml` is the source of truth; `requirements.txt` is derived and MUST NOT be edited manually.
+- Regenerate the lock when changing dependency intent in `pyproject.toml`.
+- Refresh pinned versions within the same intent periodically (or for security updates) by regenerating with upgrades enabled.
+
+Generation commands (example, Python 3.12):
+- Create an isolated venv and install the generator: `python3 -m venv .venv && . .venv/bin/activate && python -m pip install -U pip pip-tools`
+- Generate the lock: `pip-compile --strip-extras pyproject.toml -o requirements.txt`
+- Upgrade pinned versions (within constraints): `pip-compile --strip-extras --upgrade pyproject.toml -o requirements.txt`
+
+Docker build assets (such as a repo-root `Dockerfile`) SHOULD install dependencies from `requirements.txt` (for example: `python -m pip install -r requirements.txt`).
+
 #### Scenario: A pinned dependency source exists
 - **WHEN** reviewing the repository root
 - **THEN** at least one pinned dependency source exists for production builds (`requirements.txt` or a lock file)
@@ -150,4 +166,3 @@ SS MUST provide a Docker end-to-end deployment verification that starts from `do
 ## Task cards
 
 Task cards for this spec live under: `openspec/specs/ss-deployment-docker-readiness/task_cards/`.
-
