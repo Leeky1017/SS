@@ -71,6 +71,27 @@ The frontend MUST persist:
 - **WHEN** the user submits `task_code` + `requirement` and the frontend receives `{job_id, token}` from `POST /v1/task-codes/redeem`
 - **THEN** the token is persisted under `ss.auth.v1.{job_id}` and `ss.last_job_id` is updated to that `job_id`
 
+### Requirement: Step 1 MUST provide guided analysis method selection for requirement drafting
+
+To reduce vague requirements and improve downstream template/capability selection, Step 1 MUST provide an optional guided method selection UI (category → sub-method) that generates an editable structured requirement template.
+
+This MUST:
+- render a small set of analysis categories as clickable cards (including a “free description” option)
+- show sub-method options for the selected category (except “free description”)
+- populate the requirement textarea with a structured template when a sub-method is selected
+- keep the generated template fully editable before submission
+
+#### Scenario: Selecting a sub-method generates an editable requirement template
+- **GIVEN** the user is at Step 1 and the requirement textarea is editable
+- **WHEN** the user selects an analysis category and then selects a sub-method
+- **THEN** the UI populates the requirement textarea with a structured template
+- **AND** the user can freely edit the generated text before submission
+
+#### Scenario: Free description keeps the textarea empty
+- **GIVEN** the user is at Step 1
+- **WHEN** the user selects “free description”
+- **THEN** the UI does not auto-fill a template and keeps the textarea empty
+
 ### Requirement: Task code requirement MUST be gated by `VITE_REQUIRE_TASK_CODE`
 
 The frontend MUST gate whether the user must provide a task code:
