@@ -1,7 +1,7 @@
 # ISSUE-426
 - Issue: #426
 - Branch: task/426-ci-coverage-gate-80
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/427
 
 ## Goal
 - Raise CI coverage gate from 75% to 80% now that overall coverage is >80%.
@@ -71,5 +71,22 @@
 - Key output:
   - `Required test coverage of 80% reached. Total coverage: 80.25%`
   - `270 passed, 5 skipped`
+- Evidence:
+  - N/A
+
+### 2026-01-12 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - N/A
+
+### 2026-01-12 Create PR
+- Command:
+  - `gh pr create --title "[CI] Raise coverage gate to 80% (#426)" --body "Closes #426 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/427`
 - Evidence:
   - N/A
