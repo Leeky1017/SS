@@ -1,7 +1,7 @@
 # ISSUE-403
 - Issue: #403
 - Branch: task/403-deploy-ready-r011
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/404
 
 ## Plan
 - Add repo-root `docker-compose.yml` with MinIO + API + worker and durable volumes.
@@ -29,3 +29,7 @@
 ### 2026-01-12 00:00 Tests
 - Command: `/home/leeky/work/SS/.venv/bin/pytest -q`
 - Key output: `194 passed, 5 skipped`
+
+### 2026-01-12 00:00 PR preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
