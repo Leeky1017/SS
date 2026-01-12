@@ -5,6 +5,11 @@
       "pkg": "stata",
       "purpose": "Core regression commands",
       "source": "built-in"
+    },
+    {
+      "pkg": "putdocx",
+      "purpose": "DOCX report export",
+      "source": "built-in"
     }
   ],
   "description": "Compare multiple regression models with key metrics, perform nested tests, and help select optimal model specification",

@@ -5,6 +5,11 @@
       "pkg": "stata",
       "purpose": "Regression commands",
       "source": "built-in"
+    },
+    {
+      "pkg": "putdocx",
+      "purpose": "DOCX report export",
+      "source": "built-in"
     }
   ],
   "description": "Estimate classic 2x2 difference-in-differences model for policy evaluation with trend visualization",

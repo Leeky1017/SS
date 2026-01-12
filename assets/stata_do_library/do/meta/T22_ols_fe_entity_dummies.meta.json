@@ -5,6 +5,11 @@
       "pkg": "stata",
       "purpose": "Core regression commands",
       "source": "built-in"
+    },
+    {
+      "pkg": "putdocx",
+      "purpose": "DOCX report export",
+      "source": "built-in"
     }
   ],
   "description": "Entity fixed effects regression using areg to control for time-invariant individual characteristics with clustered standard errors",
