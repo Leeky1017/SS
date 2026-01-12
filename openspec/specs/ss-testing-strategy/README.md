@@ -117,7 +117,7 @@ pytest tests/ -v --cov=src --cov-report=html
 - Stress/Chaos：以定性验证为主
 
 CI 基线门禁：
-- required checks `ci` / `merge-serial` 运行 `pytest -q --cov=src --cov-fail-under=75`，覆盖率低于 75% 直接阻塞。
+- required checks `ci` / `merge-serial` 运行 `pytest -q --cov=src --cov-fail-under=80`，覆盖率低于 80% 直接阻塞。
 
 红灯（阻塞）示例：
 - 任何 unit/integration 失败
