@@ -1,7 +1,7 @@
 # ISSUE-407
 - Issue: #407
 - Branch: task/407-state-machines
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/408
 
 ## Goal
 - Draw and validate SS core state machines (Job/Plan/Run/UploadSession/Worker) from code, and document them as Mermaid diagrams in OpenSpec.
@@ -56,3 +56,11 @@
 ### 2026-01-12 00:00 OpenSpec validate (strict)
 - Command: `openspec validate --specs --strict --no-interactive`
 - Key output: `Totals: 29 passed, 0 failed (29 items)`
+
+### 2026-01-12 00:00 PR preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+
+### 2026-01-12 00:00 PR create
+- Command: `gh pr create --title "docs: SS system state machine diagrams (#407)" --body "Closes #407 ..."`
+- Key output: `https://github.com/Leeky1017/SS/pull/408`
