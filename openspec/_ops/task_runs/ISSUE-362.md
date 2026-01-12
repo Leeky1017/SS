@@ -2,7 +2,7 @@
 
 - Issue: #362
 - Branch: `task/362-p5-13-spatial-output-tn-to`
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/367
 
 ## Plan
 - Add Phase 5.13 best-practice review + bilingual comments across TN01–TN10 and TO01–TO08.
@@ -41,3 +41,7 @@
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
 - Evidence: (stdout)
+
+### 2026-01-12 PR created
+- Command: `gh pr create --title \"[PHASE-5.13] Spatial+Output templates TN/TO: best practices + native outputs (#362)\" --body \"Closes #362 ...\"`
+- Key output: `https://github.com/Leeky1017/SS/pull/367`
