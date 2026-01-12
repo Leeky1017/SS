@@ -1,7 +1,7 @@
 # ISSUE-406
 - Issue: #406
 - Branch: task/406-deploy-ready-r090
-- PR: TBD
+- PR: https://github.com/Leeky1017/SS/pull/411
 
 ## Goal
 - Validate SS Docker deployment end-to-end on Windows Server + Docker Desktop (WSL2) with Windows Stata 18 MP, from `docker-compose up` to a terminal `succeeded` job with downloadable artifacts.
@@ -23,6 +23,7 @@
 - 2026-01-12 `docker compose up --build` failed because both `ss-api` and `ss-worker` tried to build/export the same image tag `ss:prod` → fixed by building the image once (keep `build:` only on `ss-api`).
 - 2026-01-12 `SS_LLM_PROVIDER=stub` is rejected by `load_config()` → use `SS_LLM_PROVIDER=yunwu` for production compose.
 - 2026-01-12 Host only has `python3` (no `python` shim) → use `python3` in local evidence scripts.
+- 2026-01-12 `scripts/agent_pr_preflight.sh` blocked due to controlplane untracked `rulebook/tasks/issue-409-layering-shared-app-infra/.metadata.json` → moved it out to `/tmp/ss_controlplane_quarantine/...` to keep controlplane clean.
 
 ## Runs
 ### 2026-01-12 18:58 Create Issue + Rulebook task
@@ -134,3 +135,15 @@
 - Command: `/tmp/ss406/venv/bin/pytest -q`
 - Key output: `196 passed, 5 skipped in 12.97s`
 - Evidence: N/A
+
+### 2026-01-12 21:02 PR preflight (PASS)
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence: N/A
+
+### 2026-01-12 21:03 Create PR (PASS)
+- Command: `gh pr create --base main --head task/406-deploy-ready-r090 ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/411`
+- Evidence: PR
