@@ -1,0 +1,23 @@
+services:
+  ss-worker:
+    image: python:3.12-slim
+    working_dir: /app
+    env_file:
+      - ${SS_DOCKER_ENV_FILE:-.env}
+    environment:
+      SS_JOBS_DIR: "/var/lib/ss/jobs"
+      SS_QUEUE_DIR: "/var/lib/ss/queue"
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ../../../..:/app:ro
+      - ss-jobs:/var/lib/ss/jobs
+      - ss-queue:/var/lib/ss/queue
+      - ss-pip-cache:/root/.cache/pip
+      - "${SS_STATA_HOST_DIR:?missing}:/mnt/stata:ro"
+    entrypoint: ["/bin/sh", "-c"]
+    command: python -m pip install . && python -m src.worker
+
+volumes:
+  ss-jobs: {}
+  ss-queue: {}
+  ss-pip-cache: {}

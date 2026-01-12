@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import logging
+import os
+import shutil
 import signal
 import threading
 from dataclasses import dataclass
@@ -70,19 +72,74 @@ def _install_shutdown_handlers(*, worker_id: str, grace_seconds: float) -> _Shut
     return state
 
 
-def _require_stata_cmd(*, worker_id: str, stata_cmd: tuple[str, ...]) -> tuple[str, ...]:
-    if stata_cmd:
-        return stata_cmd
-    error_code = "STATA_CMD_NOT_CONFIGURED"
+def _fail_worker_startup(
+    *,
+    worker_id: str,
+    error_code: str,
+    message: str,
+    context: dict[str, object],
+) -> None:
     logger.error(
         "SS_WORKER_STARTUP_FAILED",
-        extra={"worker_id": worker_id, "error_code": error_code, "missing": ["SS_STATA_CMD"]},
+        extra={"worker_id": worker_id, "error_code": error_code, **context},
     )
-    raise SSError(
-        error_code=error_code,
-        message="SS_STATA_CMD is required to start worker (no runtime fake runner fallback)",
-        status_code=500,
-    )
+    raise SSError(error_code=error_code, message=message, status_code=500)
+
+
+def _validate_stata_cmd_or_raise(*, worker_id: str, stata_cmd: tuple[str, ...]) -> None:
+    executable = str(stata_cmd[0]).strip()
+    executable_path = Path(executable)
+    looks_like_path = executable_path.is_absolute() or executable_path.parent != Path(".")
+    if looks_like_path:
+        resolved = executable_path
+        if not resolved.is_absolute():
+            resolved = (Path.cwd() / resolved).resolve()
+        if not resolved.is_file():
+            _fail_worker_startup(
+                worker_id=worker_id,
+                error_code="STATA_CMD_INVALID",
+                message=f"SS_STATA_CMD executable not found: {resolved}",
+                context={
+                    "stata_cmd": list(stata_cmd),
+                    "reason": "not_found",
+                    "resolved": str(resolved),
+                },
+            )
+        if not os.access(str(resolved), os.X_OK):
+            _fail_worker_startup(
+                worker_id=worker_id,
+                error_code="STATA_CMD_INVALID",
+                message=f"SS_STATA_CMD executable is not executable: {resolved}",
+                context={
+                    "stata_cmd": list(stata_cmd),
+                    "reason": "not_executable",
+                    "resolved": str(resolved),
+                },
+            )
+        return
+    if shutil.which(executable) is None:
+        _fail_worker_startup(
+            worker_id=worker_id,
+            error_code="STATA_CMD_INVALID",
+            message=f"SS_STATA_CMD executable not found in PATH: {executable}",
+            context={
+                "stata_cmd": list(stata_cmd),
+                "reason": "not_in_path",
+                "executable": executable,
+            },
+        )
+
+
+def _require_stata_cmd(*, worker_id: str, stata_cmd: tuple[str, ...]) -> tuple[str, ...]:
+    if not stata_cmd:
+        _fail_worker_startup(
+            worker_id=worker_id,
+            error_code="STATA_CMD_NOT_CONFIGURED",
+            message="SS_STATA_CMD is required to start worker (no runtime fake runner fallback)",
+            context={"missing": ["SS_STATA_CMD"]},
+        )
+    _validate_stata_cmd_or_raise(worker_id=worker_id, stata_cmd=stata_cmd)
+    return stata_cmd
 
 
 def _build_runner(

@@ -25,3 +25,66 @@ def test_worker_startup_without_ss_stata_cmd_raises_stable_error_code(tmp_path: 
         _build_worker_service(config=config, metrics=PrometheusMetrics())
 
     assert exc.value.error_code == "STATA_CMD_NOT_CONFIGURED"
+
+
+def test_worker_startup_with_missing_stata_executable_path_raises_stable_error_code(
+    tmp_path: Path,
+) -> None:
+    missing_exe = tmp_path / "missing-stata-mp"
+    config = load_config(
+        env={
+            "SS_LLM_PROVIDER": "yunwu",
+            "SS_LLM_API_KEY": "test-key",
+            "SS_JOBS_DIR": str(tmp_path / "jobs"),
+            "SS_QUEUE_DIR": str(tmp_path / "queue"),
+            "SS_WORKER_METRICS_PORT": "0",
+            "SS_STATA_CMD": str(missing_exe),
+        }
+    )
+
+    with pytest.raises(SSError) as exc:
+        _build_worker_service(config=config, metrics=PrometheusMetrics())
+
+    assert exc.value.error_code == "STATA_CMD_INVALID"
+
+
+def test_worker_startup_with_non_executable_stata_path_raises_stable_error_code(
+    tmp_path: Path,
+) -> None:
+    stata_exe = tmp_path / "stata-mp"
+    stata_exe.write_text("not a real executable", encoding="utf-8")
+    config = load_config(
+        env={
+            "SS_LLM_PROVIDER": "yunwu",
+            "SS_LLM_API_KEY": "test-key",
+            "SS_JOBS_DIR": str(tmp_path / "jobs"),
+            "SS_QUEUE_DIR": str(tmp_path / "queue"),
+            "SS_WORKER_METRICS_PORT": "0",
+            "SS_STATA_CMD": str(stata_exe),
+        }
+    )
+
+    with pytest.raises(SSError) as exc:
+        _build_worker_service(config=config, metrics=PrometheusMetrics())
+
+    assert exc.value.error_code == "STATA_CMD_INVALID"
+
+
+def test_worker_startup_with_missing_stata_executable_in_path_raises_stable_error_code(
+    tmp_path: Path,
+) -> None:
+    config = load_config(
+        env={
+            "SS_LLM_PROVIDER": "yunwu",
+            "SS_LLM_API_KEY": "test-key",
+            "SS_JOBS_DIR": str(tmp_path / "jobs"),
+            "SS_QUEUE_DIR": str(tmp_path / "queue"),
+            "SS_WORKER_METRICS_PORT": "0",
+            "SS_STATA_CMD": "ss-test-stata-command-does-not-exist",
+        }
+    )
+
+    with pytest.raises(SSError) as exc:
+        _build_worker_service(config=config, metrics=PrometheusMetrics())
+
+    assert exc.value.error_code == "STATA_CMD_INVALID"
