@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Pie charts are hard to compare across categories; prefer bar charts when there are many slices or small differences.
+* - Ensure the measure is non-negative and meaningful for shares; document whether wedges represent counts or summed values.
+* - Sort categories and label clearly; consider aggregating tiny slices into "Other".
+* 最佳实践审查（ZH）:
+* - 饼图不利于跨类别比较；类别多或差异小更建议用柱状图。
+* - 扇区度量需非负且有意义；请明确扇区代表计数还是数值求和占比。
+* - 建议排序并清晰标注；可将极小类别合并为“其他”。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -39,6 +48,8 @@ display "    分类变量: `cat_var'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -47,10 +58,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate category variable and optional weight/value variable.
+* ZH: 校验分类变量与可选权重/数值变量。
 
 * ============ 变量检查 ============
 capture confirm variable `cat_var'
@@ -59,9 +77,27 @@ if _rc {
     log close
     exit 200
 }
+local use_weighted = 0
+if "`value_var'" != "" & "`value_var'" != "__VALUE_VAR__" {
+    capture confirm numeric variable `value_var'
+    if _rc {
+        display "SS_RC|code=10|cmd=confirm numeric variable|msg=value_var_not_numeric_ignored|var=`value_var'|severity=warn"
+    }
+    else {
+        quietly count if `value_var' < 0 & !missing(`value_var')
+        if r(N) > 0 {
+            display "SS_RC|code=10|cmd=value_check|msg=value_var_negative_ignored|var=`value_var'|severity=warn"
+        }
+        else {
+            local use_weighted = 1
+        }
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute shares and export pie chart figure/table.
+* ZH: 计算占比并导出饼图与表格。
 
 * ============ 计算占比 ============
 display ""
@@ -69,14 +105,29 @@ display "═══════════════════════�
 display "SECTION 1: 计算占比"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-contract `cat_var', freq(_count)
-generate double _pct = _count / `n_input' * 100
+if `use_weighted' == 1 {
+    collapse (sum) count = `value_var', by(`cat_var')
+    quietly summarize count
+    local total = r(sum)
+    if `total' <= 0 {
+        display "SS_RC|code=112|cmd=collapse|msg=nonpositive_total_fallback_to_counts|severity=warn"
+        contract `cat_var', freq(count)
+        generate double percentage = count / `n_input' * 100
+    }
+    else {
+        generate double percentage = count / `total' * 100
+    }
+}
+else {
+    contract `cat_var', freq(count)
+    generate double percentage = count / `n_input' * 100
+}
 
-gsort -_count
+gsort -count
 
 display ""
 display ">>> 各类占比:"
-list `cat_var' _count _pct, noobs
+list `cat_var' count percentage, noobs
 
 local n_cats = _N
 display ""
@@ -85,8 +136,6 @@ display ">>> 类别数: `n_cats'"
 display "SS_METRIC|name=n_categories|value=`n_cats'"
 
 * 导出占比数据
-rename _count count
-rename _pct percentage
 export delimited using "table_TU07_pie_data.csv", replace
 display "SS_OUTPUT_FILE|file=table_TU07_pie_data.csv|type=table|desc=pie_data"
 

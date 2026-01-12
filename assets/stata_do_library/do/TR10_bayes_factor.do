@@ -8,6 +8,14 @@
 *   - result.log type=log desc="Execution log"
 * DEPENDENCIES: none
 * ==============================================================================
+* BEST_PRACTICE_REVIEW (EN):
+* - Bayes factors are sensitive to priors; ensure models are comparable and priors are intentionally chosen.
+* - Compare models on the same data and check convergence (ESS/diagnostics) for both runs.
+* - Increase `__MCMC__` for real analysis (200 is smoke-test only) and report uncertainty/sensitivity.
+* 最佳实践审查（ZH）:
+* - 贝叶斯因子对先验敏感；请保证模型可比，并明确选择先验。
+* - 两个模型必须基于同一数据；并检查两个模型都已收敛（ESS/诊断）。
+* - 真实分析请增大 `__MCMC__`（200 仅用于冒烟测试），并报告敏感性分析。
 capture log close _all
 local rc = _rc
 if `rc' != 0 {
@@ -26,15 +34,24 @@ display "SS_TASK_BEGIN|id=TR10|level=L1|title=Bayes_Factor"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
+* Reproducibility / 可复现性
+local seed_value = 12345
+set seed `seed_value'
+display "SS_METRIC|name=seed|value=`seed_value'"
+
 local depvar = "__DEPVAR__"
 local indepvars1 = "__INDEPVARS1__"
 local indepvars2 = "__INDEPVARS2__"
-local mcmc = __MCMC__
-if `mcmc' < 200 {
+local mcmc_raw = "__MCMC__"
+local mcmc = real("`mcmc_raw'")
+if missing(`mcmc') | `mcmc' < 200 {
     local mcmc = 200
 }
+local mcmc = floor(`mcmc')
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -43,18 +60,64 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and basic types.
+* ZH: 校验关键变量存在且类型合理。
+capture confirm numeric variable `depvar'
+if _rc {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=depvar_not_found_or_not_numeric|var=`depvar'|severity=fail"
+    log close
+    exit 200
+}
+local valid_indep1 ""
+foreach var of local indepvars1 {
+    capture confirm numeric variable `var'
+    if !_rc {
+        local valid_indep1 "`valid_indep1' `var'"
+    }
+}
+local valid_indep2 ""
+foreach var of local indepvars2 {
+    capture confirm numeric variable `var'
+    if !_rc {
+        local valid_indep2 "`valid_indep2' `var'"
+    }
+}
+if "`valid_indep1'" == "" | "`valid_indep2'" == "" {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=invalid_model_spec_no_valid_indepvars|severity=fail"
+    log close
+    exit 200
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Fit two Bayesian models and compute Bayes factor via marginal likelihoods.
+* ZH: 拟合两个贝叶斯模型，并基于边际似然计算贝叶斯因子。
 
-bayes, mcmcsize(`mcmc') burnin(2500): regress `depvar' `indepvars1'
+capture noisily bayes, mcmcsize(`mcmc') burnin(2500): regress `depvar' `valid_indep1'
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=bayes regress model1|msg=bayes_failed|severity=fail"
+    log close
+    exit `rc'
+}
 local margl1 = e(margl)
 
-bayes, mcmcsize(`mcmc') burnin(2500): regress `depvar' `indepvars2'
+capture noisily bayes, mcmcsize(`mcmc') burnin(2500): regress `depvar' `valid_indep2'
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=bayes regress model2|msg=bayes_failed|severity=fail"
+    log close
+    exit `rc'
+}
 local margl2 = e(margl)
 
 local bf = exp(`margl1' - `margl2')

@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - K-means is sensitive to scaling and outliers; standardize variables and consider robust alternatives when needed.
+* - Choose K via multiple criteria (elbow/silhouette/stability) and report sensitivity; random starts can change assignments.
+* - Interpret clusters with domain knowledge; clustering is descriptive, not causal.
+* 最佳实践审查（ZH）:
+* - K-means 对尺度与离群点敏感；建议标准化并在必要时采用稳健替代方法。
+* - K 的选择建议结合多种准则（肘部/轮廓系数/稳定性）并报告敏感性；随机初值会影响结果。
+* - 聚类解释应结合领域知识；聚类本质是描述性分析而非因果推断。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -32,15 +41,19 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local vars = "__VARS__"
-local k = __K__
-local max_k = __MAX_K__
+local k_raw = "__K__"
+local max_k_raw = "__MAX_K__"
+local k = real("`k_raw'")
+local max_k = real("`max_k_raw'")
 
-if `k' < 2 | `k' > 20 {
+if missing(`k') | `k' < 2 | `k' > 20 {
     local k = 3
 }
-if `max_k' < `k' | `max_k' > 20 {
+local k = floor(`k')
+if missing(`max_k') | `max_k' < `k' | `max_k' > 20 {
     local max_k = 10
 }
+local max_k = floor(`max_k')
 
 display ""
 display ">>> K均值聚类参数:"
@@ -50,6 +63,8 @@ display "    肘部法则最大K: `max_k'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -58,10 +73,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate clustering variables (numeric, >=1).
+* ZH: 校验聚类变量（数值型且至少 1 个）。
 
 * ============ 变量检查 ============
 local valid_vars ""
@@ -73,9 +95,16 @@ foreach var of local vars {
         local n_vars = `n_vars' + 1
     }
 }
+if `n_vars' <= 0 {
+    display "SS_RC|code=198|cmd=validate_inputs|msg=no_valid_vars|severity=fail"
+    log close
+    exit 198
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute elbow curve and run K-means clustering.
+* ZH: 计算肘部曲线并执行 K-means 聚类。
 
 * ============ 肘部法则 ============
 display ""

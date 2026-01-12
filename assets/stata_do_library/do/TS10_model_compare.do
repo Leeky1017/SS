@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Compare models on the same resampling splits (CV folds) to ensure a fair comparison.
+* - Use evaluation metrics aligned with the task (RMSE/MAE for regression; AUC/F1 for classification) and report uncertainty.
+* - Avoid leakage: preprocessing must be learned on training data only; keep a final hold-out test when possible.
+* 最佳实践审查（ZH）:
+* - 模型比较应基于同一套抽样划分（相同 CV 折）以保证公平。
+* - 指标需匹配任务（回归 RMSE/MAE；分类 AUC/F1），并报告不确定性。
+* - 避免信息泄露：预处理应仅在训练集拟合；条件允许时保留独立测试集。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -29,6 +38,11 @@ display "SS_TASK_BEGIN|id=TS10|level=L2|title=Model_Compare"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
+* Reproducibility / 可复现性
+local seed_value = 12345
+set seed `seed_value'
+display "SS_METRIC|name=seed|value=`seed_value'"
+
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
@@ -40,6 +54,8 @@ display "    自变量: `indepvars'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -48,10 +64,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and basic types.
+* ZH: 校验关键变量存在且类型合理。
 
 * ============ 变量检查 ============
 capture confirm numeric variable `depvar'
@@ -70,9 +93,16 @@ foreach var of local indepvars {
         local n_vars = `n_vars' + 1
     }
 }
+if `n_vars' <= 0 {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=no_valid_indepvars|severity=fail"
+    log close
+    exit 200
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Fit multiple models and compare goodness-of-fit metrics.
+* ZH: 拟合多个模型并比较拟合优度指标。
 
 * ============ 模型比较 ============
 display ""

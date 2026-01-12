@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Power curves depend on assumptions; justify effect-size range and α, and report sensitivity.
+* - Use curves for planning (trade-offs between n and detectable effects), not as a guarantee.
+* - For complex designs (clustered/longitudinal), consider simulation-based power.
+* 最佳实践审查（ZH）:
+* - 功效曲线依赖假设；请说明效应量区间与 α 的依据，并报告敏感性。
+* - 曲线用于规划（n 与可检测效应的权衡），并非保证。
+* - 复杂设计（聚类/纵向）建议采用仿真功效分析。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -31,26 +40,31 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local test_type = "__TEST_TYPE__"
-local effect_min = __EFFECT_MIN__
-local effect_max = __EFFECT_MAX__
-local alpha = __ALPHA__
-local n_sample = __N_SAMPLE__
+local effect_min_raw = "__EFFECT_MIN__"
+local effect_max_raw = "__EFFECT_MAX__"
+local alpha_raw = "__ALPHA__"
+local n_sample_raw = "__N_SAMPLE__"
+local effect_min = real("`effect_min_raw'")
+local effect_max = real("`effect_max_raw'")
+local alpha = real("`alpha_raw'")
+local n_sample = real("`n_sample_raw'")
 
 if "`test_type'" == "" | "`test_type'" == "__TEST_TYPE__" {
     local test_type = "twomeans"
 }
-if `effect_min' <= 0 {
+if missing(`effect_min') | `effect_min' <= 0 {
     local effect_min = 0.1
 }
-if `effect_max' <= `effect_min' {
+if missing(`effect_max') | `effect_max' <= `effect_min' {
     local effect_max = 1.0
 }
-if `alpha' <= 0 | `alpha' >= 1 {
+if missing(`alpha') | `alpha' <= 0 | `alpha' >= 1 {
     local alpha = 0.05
 }
-if `n_sample' < 10 {
+if missing(`n_sample') | `n_sample' < 10 {
     local n_sample = 100
 }
+local n_sample = floor(`n_sample')
 
 display ""
 display ">>> 功效曲线参数:"
@@ -60,11 +74,17 @@ display "    显著性水平: `alpha'"
 display "    样本量: `n_sample'"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: No data inputs (parameters only).
+* ZH: 无数据输入（仅参数计算）。
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Parameters validated via bounds/defaults.
+* ZH: 参数已通过取值范围/默认值进行校验。
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute a power curve across effect sizes and export figure/table.
+* ZH: 在效应量区间内计算功效曲线并导出图表。
 
 * ============ 功效曲线计算 ============
 display ""
@@ -88,22 +108,47 @@ forvalues i = 1/`n_points' {
     local eff = effect_size[`i']
     
     if "`test_type'" == "twomeans" {
-        quietly power twomeans 0 `eff', n(`n_sample') alpha(`alpha')
-        replace power = r(power) in `i'
+        capture noisily power twomeans 0 `eff', n(`n_sample') alpha(`alpha')
+        local rc = _rc
+        if `rc' != 0 {
+            display "SS_RC|code=`rc'|cmd=power twomeans|msg=power_failed_point|severity=warn"
+            replace power = . in `i'
+        }
+        else {
+            replace power = r(power) in `i'
+        }
     }
     else if "`test_type'" == "oneproportion" {
         local p1 = 0.5 + `eff'/2
         if `p1' > 0.99 {
             local p1 = 0.99
         }
-        quietly power oneproportion 0.5 `p1', n(`n_sample') alpha(`alpha')
-        replace power = r(power) in `i'
+        capture noisily power oneproportion 0.5 `p1', n(`n_sample') alpha(`alpha')
+        local rc = _rc
+        if `rc' != 0 {
+            display "SS_RC|code=`rc'|cmd=power oneproportion|msg=power_failed_point|severity=warn"
+            replace power = . in `i'
+        }
+        else {
+            replace power = r(power) in `i'
+        }
     }
     else {
         * 默认使用 twomeans
-        quietly power twomeans 0 `eff', n(`n_sample') alpha(`alpha')
-        replace power = r(power) in `i'
+        capture noisily power twomeans 0 `eff', n(`n_sample') alpha(`alpha')
+        local rc = _rc
+        if `rc' != 0 {
+            display "SS_RC|code=`rc'|cmd=power twomeans|msg=power_failed_point|severity=warn"
+            replace power = . in `i'
+        }
+        else {
+            replace power = r(power) in `i'
+        }
     }
+}
+quietly count if missing(power)
+if r(N) > 0 {
+    display "SS_RC|code=112|cmd=power_curve|msg=missing_power_points|n_missing=`r(N)'|severity=warn"
 }
 
 * ============ 绘制功效曲线 ============

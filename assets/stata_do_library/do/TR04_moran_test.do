@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Moran's I depends on the weight matrix; document W and run sensitivity checks (band/KNN/standardization).
+* - Local Moran (LISA) involves multiple testing; consider p-value adjustment and interpret clusters cautiously.
+* - Coordinates should be in a meaningful metric space (projection/units) to avoid misleading distances.
+* 最佳实践审查（ZH）:
+* - Moran's I 依赖权重矩阵；请记录 W 的构建方式并做敏感性分析（阈值/KNN/标准化）。
+* - 局部 Moran(LISA) 存在多重检验；建议做 p 值校正并谨慎解释聚类类型。
+* - 坐标应处于合理度量空间（投影/单位），否则距离可能产生误导。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -43,6 +52,8 @@ display "    地区ID: `id_var'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -51,16 +62,35 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and basic types.
+* ZH: 校验关键变量存在且类型合理。
 
 * ============ 变量检查 ============
-foreach v in `var' `id_var' `x_coord' `y_coord' {
-    capture confirm variable `v'
+capture confirm numeric variable `var'
+if _rc {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=var_not_found_or_not_numeric|var=`var'|severity=fail"
+    log close
+    exit 200
+}
+capture confirm variable `id_var'
+if _rc {
+    display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|var=`id_var'|severity=fail"
+    log close
+    exit 200
+}
+foreach v in `x_coord' `y_coord' {
+    capture confirm numeric variable `v'
     if _rc {
-        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail"
+        display "SS_RC|code=200|cmd=confirm numeric variable|msg=coord_var_not_found_or_not_numeric|var=`v'|severity=fail"
         log close
         exit 200
     }
@@ -68,6 +98,8 @@ foreach v in `var' `id_var' `x_coord' `y_coord' {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute global/local Moran statistics and export tables/figure.
+* ZH: 计算全局/局部 Moran 统计量并导出表格与图形。
 
 * ============ 构建空间权重 ============
 display ""

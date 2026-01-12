@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Correlation heatmaps are sensitive to scaling/outliers and missingness; document preprocessing and consider robust correlations.
+* - Use consistent color scales and clear labels; avoid implying causality from correlation patterns.
+* - For many variables, consider clustering/reordering to improve interpretability.
+* 最佳实践审查（ZH）:
+* - 相关热力图对尺度/离群值/缺失敏感；请记录预处理，并在需要时使用稳健相关系数。
+* - 颜色尺度与标签要清晰一致；不要从相关图形直接推断因果关系。
+* - 变量很多时可考虑聚类/重排以提升可读性。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -38,6 +47,8 @@ display "    变量: `vars'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -46,10 +57,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate variables for correlation/heatmap (numeric, >=2).
+* ZH: 校验变量（数值型且至少 2 个）以计算相关与绘制热力图。
 
 * ============ 变量检查 ============
 local valid_vars ""
@@ -70,6 +88,8 @@ if `n_vars' < 2 {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute correlation matrix and export heatmap + table.
+* ZH: 计算相关矩阵并导出热力图与表格。
 
 * ============ 计算相关矩阵 ============
 display ""

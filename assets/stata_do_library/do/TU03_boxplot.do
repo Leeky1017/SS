@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Boxplots summarize distributions; complement with raw points (jitter) for small samples or multimodality.
+* - Outlier fences are heuristic; treat outliers carefully and justify trimming/winsorization decisions.
+* - Use consistent scales and clear grouping labels; too many groups can harm readability.
+* 最佳实践审查（ZH）:
+* - 箱线图是分布摘要；小样本或多峰分布建议搭配散点/抖动展示原始点。
+* - 围栏定义是启发式；异常值处理需谨慎并说明截尾/缩尾依据。
+* - 分组标签与尺度要清晰一致；组别过多会降低可读性。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -40,6 +49,8 @@ display "    分组: `by_var'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -48,10 +59,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate plotting variable existence/type.
+* ZH: 校验绘图变量存在且为数值型。
 
 * ============ 变量检查 ============
 capture confirm numeric variable `var'
@@ -63,6 +81,8 @@ if _rc {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute boxplot stats and export figure/table outputs.
+* ZH: 计算箱线统计量并导出图表输出。
 
 * ============ 统计计算 ============
 display ""

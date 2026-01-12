@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Power analysis depends on assumed effect size (R²) and model complexity; justify assumptions and run sensitivity ranges.
+* - Use realistic α/power targets given multiple testing and study constraints.
+* - Treat this as planning support, not a guarantee; validate with simulation for complex designs.
+* 最佳实践审查（ZH）:
+* - 功效分析依赖假设效应量（R²）与模型复杂度；请说明依据并做敏感性区间分析。
+* - 根据多重检验与研究约束选择合理的 α/功效目标。
+* - 该计算用于规划支持而非保证；复杂设计建议用仿真验证。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -29,21 +38,26 @@ display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
-local rsquared = __RSQUARED__
-local n_predictors = __N_PREDICTORS__
-local alpha = __ALPHA__
-local power = __POWER__
+local rsquared_raw = "__RSQUARED__"
+local n_predictors_raw = "__N_PREDICTORS__"
+local alpha_raw = "__ALPHA__"
+local power_raw = "__POWER__"
+local rsquared = real("`rsquared_raw'")
+local n_predictors = real("`n_predictors_raw'")
+local alpha = real("`alpha_raw'")
+local power = real("`power_raw'")
 
-if `rsquared' <= 0 | `rsquared' >= 1 {
+if missing(`rsquared') | `rsquared' <= 0 | `rsquared' >= 1 {
     local rsquared = 0.1
 }
-if `n_predictors' < 1 {
+if missing(`n_predictors') | `n_predictors' < 1 {
     local n_predictors = 3
 }
-if `alpha' <= 0 | `alpha' >= 1 {
+local n_predictors = floor(`n_predictors')
+if missing(`alpha') | `alpha' <= 0 | `alpha' >= 1 {
     local alpha = 0.05
 }
-if `power' <= 0 | `power' >= 1 {
+if missing(`power') | `power' <= 0 | `power' >= 1 {
     local power = 0.8
 }
 
@@ -55,11 +69,17 @@ display "    显著性水平: `alpha'"
 display "    检验功效: `power'"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: No data inputs (parameters only).
+* ZH: 无数据输入（仅参数计算）。
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Parameters validated via bounds/defaults.
+* ZH: 参数已通过取值范围/默认值进行校验。
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Run Stata power command and export results.
+* ZH: 调用 Stata power 命令并导出结果。
 
 * ============ 样本量计算 ============
 display ""
@@ -71,7 +91,13 @@ display "═══════════════════════�
 local f2 = `rsquared' / (1 - `rsquared')
 
 * 使用 power rsquared 命令
-power rsquared `rsquared', ntested(`n_predictors') alpha(`alpha') power(`power')
+capture noisily power rsquared `rsquared', ntested(`n_predictors') alpha(`alpha') power(`power')
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=power rsquared|msg=power_failed|severity=fail"
+    log close
+    exit `rc'
+}
 
 local n = r(N)
 local actual_power = r(power)

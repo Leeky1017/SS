@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Kernel and bandwidth drive smoothness; use cross-validation/robustness checks and report settings (defaults may not fit all problems).
+* - For multiple covariates, visualization is partial; interpret plots carefully (consider marginal effects or partial dependence style diagnostics).
+* - Check support overlap and boundary behavior; sparse regions can distort nonparametric fits.
+* 最佳实践审查（ZH）:
+* - 核函数与带宽决定平滑程度；建议做交叉验证/稳健性检验并报告设定（默认值未必适用所有问题）。
+* - 多自变量情形下的图形通常是“局部”可视化；需谨慎解释（可考虑边际效应/类似 PDP 的诊断）。
+* - 注意支持集与边界行为；数据稀疏区域可能导致非参数拟合失真。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -54,10 +63,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate variables and basic types.
+* ZH: 校验变量存在且类型合理。
 capture confirm numeric variable `depvar'
 if _rc {
     display "SS_RC|code=200|cmd=confirm numeric variable|msg=depvar_not_found|var=`depvar'|severity=fail"
@@ -67,7 +83,7 @@ if _rc {
 local valid_indep ""
 foreach token of local indepvars {
     local raw = "`token'"
-    if substr("`raw'", 1, 2) == "i." {
+    if substr("`raw'", 1, 2) == "i." | substr("`raw'", 1, 2) == "c." {
         local raw = substr("`raw'", 3, .)
     }
     capture confirm numeric variable `raw'
@@ -83,6 +99,8 @@ if "`valid_indep'" == "" {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Fit nonparametric kernel regression and export outputs.
+* ZH: 执行非参数核回归并导出输出。
 
 * ============ 核回归 ============
 display ""

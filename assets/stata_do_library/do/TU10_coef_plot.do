@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Coefficient plots are easiest to compare when predictors are on comparable scales; consider standardizing or using meaningful units.
+* - Report uncertainty clearly (CI level + SE type); for clustered/heteroskedastic settings prefer robust/clustered SE over default OLS SE.
+* - Avoid over-interpreting magnitude without checking model specification (omitted variables, functional form, collinearity).
+* 最佳实践审查（ZH）:
+* - 系数图的可比性依赖于变量尺度；建议标准化或使用有意义的单位进行比较。
+* - 不确定性表达要清晰（置信水平 + 标准误类型）；存在异方差/聚类时优先使用稳健/聚类标准误。
+* - 避免在未检验模型设定（遗漏变量、函数形式、共线性）前过度解读系数大小。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -32,11 +41,13 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
-local ci_level = __CI_LEVEL__
+local ci_level_raw = "__CI_LEVEL__"
+local ci_level = real("`ci_level_raw'")
 
-if `ci_level' < 80 | `ci_level' > 99 {
+if missing(`ci_level') | `ci_level' < 80 | `ci_level' > 99 {
     local ci_level = 95
 }
+local ci_level = floor(`ci_level')
 
 display ""
 display ">>> 系数图参数:"
@@ -54,10 +65,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate dependent/independent variables.
+* ZH: 校验因变量与自变量存在且为数值型。
 
 * ============ 变量检查 ============
 capture confirm numeric variable `depvar'
@@ -68,15 +86,25 @@ if _rc {
 }
 
 local valid_indep ""
+local n_indep = 0
 foreach var of local indepvars {
     capture confirm numeric variable `var'
     if !_rc {
         local valid_indep "`valid_indep' `var'"
+        local n_indep = `n_indep' + 1
     }
 }
+if `n_indep' <= 0 {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=no_valid_indepvars|severity=fail"
+    log close
+    exit 200
+}
+display "SS_METRIC|name=n_indep|value=`n_indep'"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Fit OLS regression and plot coefficients with confidence intervals.
+* ZH: 执行 OLS 回归并绘制系数及置信区间。
 
 * ============ 回归估计 ============
 display ""
@@ -84,7 +112,13 @@ display "═══════════════════════�
 display "SECTION 1: 回归估计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-regress `depvar' `valid_indep', level(`ci_level')
+capture noisily regress `depvar' `valid_indep', level(`ci_level')
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=regress|msg=regression_failed|severity=fail"
+    log close
+    exit `rc'
+}
 
 local r2 = e(r2)
 local n_obs = e(N)
@@ -139,6 +173,13 @@ postclose `coef_data'
 * 导出系数表
 preserve
 use "temp_coef.dta", clear
+sort order
+label define coef_order 0 "", replace
+forvalues i = 1/`=_N' {
+    local vname = variable[`i']
+    label define coef_order `i' "`vname'", add
+}
+label values order coef_order
 export delimited using "table_TU10_coef.csv", replace
 display "SS_OUTPUT_FILE|file=table_TU10_coef.csv|type=table|desc=coefficients"
 

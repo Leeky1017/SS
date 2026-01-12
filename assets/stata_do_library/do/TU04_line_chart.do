@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Sort by the x-axis variable and label units; time-series-like charts should reflect correct ordering.
+* - When comparing groups, keep consistent scales and limit the number of lines for readability.
+* - Consider uncertainty bands or smoothing only when justified; document any transformations.
+* 最佳实践审查（ZH）:
+* - 请按 x 轴变量排序并标注单位；类时间序列折线图需保证顺序正确。
+* - 分组对比时保持一致尺度并避免过多折线，以保证可读性。
+* - 不确定性带/平滑需有依据；任何变换都应明确记录。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -40,6 +49,8 @@ display "    X变量: `xvar'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -48,10 +59,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate plotting variables existence/type.
+* ZH: 校验绘图变量存在且为数值型。
 
 * ============ 变量检查 ============
 foreach var in `yvar' `xvar' {
@@ -65,6 +83,8 @@ foreach var in `yvar' `xvar' {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Plot line chart (optionally by group) and export outputs.
+* ZH: 绘制折线图（可选分组）并导出输出。
 
 sort `xvar'
 

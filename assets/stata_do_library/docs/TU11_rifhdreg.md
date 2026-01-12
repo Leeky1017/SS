@@ -43,6 +43,6 @@
 ## 技术说明
 
 - **Stata 版本**：18.0+
-- **关键命令**：`rifreg`
-- **外部依赖**：rifreg（SSC）
-- **安装命令**：`ssc install rifreg`
+- **关键命令**：`_pctile`（分位数）、`kdensity`（密度估计）、`regress`（对 RIF 的 OLS 回归）
+- **外部依赖**：无（内置实现，不依赖 SSC）
+- **实现要点**：构造 `RIF(y;q_τ)=q_τ+(τ-I(y≤q_τ))/f(q_τ)`，其中 `f(q_τ)` 通过 `kdensity` 网格估计并取最近点近似

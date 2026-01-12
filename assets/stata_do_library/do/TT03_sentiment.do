@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Dictionary-based sentiment is a baseline; validate dictionaries for your domain/language and consider negation/context handling.
+* - Tokenization matters: simple substring counting can overcount (e.g., "bad" in "badly"); interpret results cautiously.
+* - Report missingness and sensitivity to dictionary choices; avoid treating sentiment as ground truth without validation.
+* 最佳实践审查（ZH）:
+* - 词典法情感分析仅是基线；需根据领域/语言校验词典，并考虑否定词/上下文。
+* - 分词很关键：简单子串计数可能过度统计（如 "bad" 出现在 "badly"）；请谨慎解释。
+* - 报告缺失与词典选择敏感性；未经验证不应把情感得分当作“真实情绪”。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -39,6 +48,8 @@ display "    文本变量: `text_var'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -47,10 +58,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate text variable existence/type.
+* ZH: 校验文本变量存在且为字符串。
 
 * ============ 变量检查 ============
 capture confirm string variable `text_var'
@@ -62,6 +80,8 @@ if _rc {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute sentiment scores and export summary outputs.
+* ZH: 计算情感得分并导出统计摘要。
 
 * ============ 情感词典 ============
 display ""

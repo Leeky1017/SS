@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Density estimates depend on bandwidth; document bandwidth choice and check sensitivity.
+* - For group comparisons, ensure groups are comparable and consider weighting/normalization when sample sizes differ.
+* - Complement densities with summary statistics and/or histograms for transparency.
+* 最佳实践审查（ZH）:
+* - 核密度估计依赖带宽；请记录带宽选择并做敏感性分析。
+* - 分组对比时需保证可比性；样本量差异大时可考虑加权/归一化。
+* - 建议搭配统计量与/或直方图增强透明度。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -31,7 +40,15 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 * ============ 参数设置 ============
 local var = "__VAR__"
 local by_var = "__BY_VAR__"
-local bandwidth = __BANDWIDTH__
+local bandwidth_raw = "__BANDWIDTH__"
+local bandwidth = real("`bandwidth_raw'")
+if missing(`bandwidth') | `bandwidth' <= 0 {
+    local bandwidth = 0
+}
+local bw_opt ""
+if `bandwidth' > 0 {
+    local bw_opt "bwidth(`bandwidth')"
+}
 
 display ""
 display ">>> 核密度图参数:"
@@ -39,6 +56,8 @@ display "    变量: `var'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -47,10 +66,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate plotting variable existence/type.
+* ZH: 校验绘图变量存在且为数值型。
 
 * ============ 变量检查 ============
 capture confirm numeric variable `var'
@@ -62,6 +88,8 @@ if _rc {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Plot kernel density (optionally by group) and export outputs.
+* ZH: 绘制核密度图（可选分组）并导出输出。
 
 * ============ 绘制核密度图 ============
 display ""
@@ -71,14 +99,14 @@ display "═══════════════════════�
 
 capture confirm variable `by_var'
 if !_rc & "`by_var'" != "" & "`by_var'" != "__BY_VAR__" {
-    twoway (kdensity `var' if `by_var' == 0, lcolor(navy)) ///
-           (kdensity `var' if `by_var' == 1, lcolor(red)), ///
+    twoway (kdensity `var' if `by_var' == 0, `bw_opt' lcolor(navy)) ///
+           (kdensity `var' if `by_var' == 1, `bw_opt' lcolor(red)), ///
            title("核密度图: `var'") ///
            xtitle("`var'") ytitle("密度") ///
            legend(order(1 "`by_var'=0" 2 "`by_var'=1"))
 }
 else {
-    kdensity `var', ///
+    kdensity `var', `bw_opt' ///
         title("核密度图: `var'") ///
         xtitle("`var'") ytitle("密度") ///
         lcolor(navy) lwidth(medium)

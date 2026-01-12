@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Classification needs honest evaluation: ROC/AUC, PR curves, and calibrated probabilities; accuracy alone can mislead under imbalance.
+* - Threshold should be chosen based on costs/constraints; report sensitivity to threshold choices.
+* - Avoid leakage: preprocessing must be learned on training data only; keep a final hold-out test when possible.
+* 最佳实践审查（ZH）:
+* - 分类评估要全面：ROC/AUC、PR 曲线、概率校准；类别不平衡下仅看准确率可能误导。
+* - 阈值应基于代价/约束选择；建议报告不同阈值下的敏感性。
+* - 避免信息泄露：预处理应仅基于训练集拟合；条件允许时保留独立测试集。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -33,7 +42,8 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
-local threshold = __THRESHOLD__
+local threshold_raw = "__THRESHOLD__"
+local threshold = real("`threshold_raw'")
 
 local indepvars_clean ""
 foreach v of local indepvars {
@@ -43,7 +53,7 @@ foreach v of local indepvars {
 }
 local indepvars "`indepvars_clean'"
 
-if `threshold' <= 0 | `threshold' >= 1 {
+if missing(`threshold') | `threshold' <= 0 | `threshold' >= 1 {
     local threshold = 0.5
 }
 
@@ -55,6 +65,8 @@ display "    阈值: " %6.2f `threshold'
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -63,10 +75,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and basic types.
+* ZH: 校验关键变量存在且类型合理。
 
 * ============ 变量检查 ============
 capture confirm numeric variable `depvar'
@@ -74,6 +93,10 @@ if _rc {
     display "SS_RC|code=200|cmd=confirm numeric variable|msg=depvar_not_found|severity=fail"
     log close
     exit 200
+}
+quietly count if !inlist(`depvar', 0, 1) & !missing(`depvar')
+if r(N) > 0 {
+    display "SS_RC|code=10|cmd=depvar_check|msg=depvar_not_binary_for_logit|severity=warn"
 }
 
 local valid_indep ""
@@ -83,9 +106,16 @@ foreach var of local indepvars {
         local valid_indep "`valid_indep' `var'"
     }
 }
+if "`valid_indep'" == "" {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=no_valid_indepvars|severity=fail"
+    log close
+    exit 200
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Fit logit, generate predictions, and export ROC/confusion outputs.
+* ZH: 估计 logit、生成预测并导出 ROC/混淆矩阵等输出。
 
 * ============ Logistic回归 ============
 display ""
