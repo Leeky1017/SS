@@ -1,222 +1,410 @@
 from __future__ import annotations
 
-import json
+from collections.abc import Callable
+from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from src.domain.do_file_generator import DoFileGenerator
-from src.domain.models import ArtifactKind, JobStatus
-from src.domain.output_formatter_service import OutputFormatterService
+import pytest
+
+from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobStatus, RunAttempt
+from src.domain.output_formatter_service import OutputFormatterOutcome
+from src.domain.stata_runner import RunError, RunResult
 from src.domain.state_machine import JobStateMachine
+from src.domain.worker_queue import QueueClaim
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
-from src.infra.file_worker_queue import FileWorkerQueue
-from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
-from src.infra.job_store import JobStore
-from src.infra.stata_run_support import META_FILENAME
-from src.utils.job_workspace import resolve_job_dir
-from tests.fakes.fake_stata_runner import FakeStataRunner
-from tests.worker_service_support import noop_sleep, prepare_queued_job, stata_do_library_dir
+from src.infra.exceptions import JobNotFoundError, QueueIOError
 
 
-def test_worker_service_with_success_once_marks_job_succeeded(tmp_path: Path) -> None:
-    # Arrange
-    jobs_dir = tmp_path / "jobs"
-    queue_dir = tmp_path / "queue"
-    queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
-    library_dir = stata_do_library_dir()
-    job_id = prepare_queued_job(jobs_dir=jobs_dir, queue=queue, library_dir=library_dir)
+@dataclass
+class _FakeQueue:
+    claim_result: QueueClaim | None = None
+    acked: list[QueueClaim] | None = None
+    released: list[QueueClaim] | None = None
+    ack_error: Exception | None = None
+    release_error: Exception | None = None
 
-    repo = FileSystemDoTemplateRepository(library_dir=library_dir)
-    service = WorkerService(
-        store=JobStore(jobs_dir=jobs_dir),
-        queue=queue,
-        jobs_dir=jobs_dir,
-        runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[True]),
-        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
-        state_machine=JobStateMachine(),
-        retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
-        do_file_generator=DoFileGenerator(do_template_repo=repo),
-        sleep=noop_sleep,
+    def claim(self, *, worker_id: str) -> QueueClaim | None:
+        return self.claim_result
+
+    def ack(self, *, claim: QueueClaim) -> None:
+        if self.ack_error is not None:
+            raise self.ack_error
+        if self.acked is None:
+            self.acked = []
+        self.acked.append(claim)
+
+    def release(self, *, claim: QueueClaim) -> None:
+        if self.release_error is not None:
+            raise self.release_error
+        if self.released is None:
+            self.released = []
+        self.released.append(claim)
+
+    def enqueue(
+        self,
+        job_id: str,
+        *,
+        tenant_id: str = "default",
+        traceparent: str | None = None,
+    ) -> None:
+        raise NotImplementedError
+
+
+@dataclass
+class _FakeStore:
+    job: Job | None = None
+    load_error: Exception | None = None
+    saves: int = 0
+
+    def load(self, job_id: str, *, tenant_id: str = "default") -> Job:
+        if self.load_error is not None:
+            raise self.load_error
+        assert self.job is not None
+        return self.job
+
+    def save(self, job: Job, *, tenant_id: str = "default") -> None:
+        self.saves += 1
+        self.job = job
+
+    def create(self, job: Job, *, tenant_id: str = "default") -> None:
+        raise NotImplementedError
+
+    def write_draft(self, *, job_id: str, draft: object, tenant_id: str = "default") -> None:
+        raise NotImplementedError
+
+    def write_artifact_json(
+        self,
+        *,
+        job_id: str,
+        rel_path: str,
+        payload: object,
+        tenant_id: str = "default",
+    ) -> None:
+        raise NotImplementedError
+
+
+@dataclass
+class _FakeOutputFormatter:
+    outcome: OutputFormatterOutcome
+
+    def format_run_outputs(
+        self,
+        *,
+        job: Job,
+        run_id: str,
+        artifacts: tuple[object, ...],
+    ) -> OutputFormatterOutcome:
+        return self.outcome
+
+
+class _UnusedRunner:
+    def run(self, *args: object, **kwargs: object) -> RunResult:
+        raise AssertionError("runner should not be called in unit tests")
+
+
+def _job(*, status: JobStatus, runs: int = 0) -> Job:
+    job = Job(
+        schema_version=JOB_SCHEMA_VERSION_CURRENT,
+        tenant_id="default",
+        job_id="job_123",
+        status=status,
+        created_at="2026-01-01T00:00:00Z",
+        runs=[],
+    )
+    for i in range(runs):
+        job.runs.append(
+            RunAttempt(
+                run_id=f"run_{i}",
+                attempt=i + 1,
+                status="failed",
+                started_at=None,
+                ended_at=None,
+                artifacts=[],
+            )
+        )
+    return job
+
+
+def _claim(*, job_id: str = "job_123") -> QueueClaim:
+    now = datetime.now(tz=timezone.utc)
+    return QueueClaim(
+        tenant_id="default",
+        job_id=job_id,
+        claim_id="claim_1",
+        worker_id="worker_1",
+        claimed_at=now,
+        lease_expires_at=now + timedelta(seconds=30),
     )
 
-    # Act
-    processed = service.process_next(worker_id="worker-1")
 
-    # Assert
-    assert processed is True
-    job = JobStore(jobs_dir=jobs_dir).load(job_id)
-    assert job.status == JobStatus.SUCCEEDED
-    assert len(job.runs) == 1
-    assert job.runs[0].status == "succeeded"
-    assert any(ref.kind == ArtifactKind.RUN_META_JSON for ref in job.artifacts_index)
-    assert any(ref.kind == ArtifactKind.DO_TEMPLATE_SOURCE for ref in job.artifacts_index)
-    assert any(ref.kind == ArtifactKind.DO_TEMPLATE_META for ref in job.artifacts_index)
-    assert any(ref.kind == ArtifactKind.DO_TEMPLATE_PARAMS for ref in job.artifacts_index)
-    assert any(ref.kind == ArtifactKind.DO_TEMPLATE_RUN_META_JSON for ref in job.artifacts_index)
-    assert any(ref.kind == ArtifactKind.STATA_RESULT_LOG for ref in job.artifacts_index)
-    assert any(ref.kind == ArtifactKind.STATA_EXPORT_TABLE for ref in job.artifacts_index)
-    run_id = job.runs[0].run_id
-    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
-    assert job_dir is not None
-    assert (job_dir / "runs" / run_id / "artifacts" / META_FILENAME).exists()
-    assert (job_dir / "runs" / run_id / "artifacts" / "template" / "source.do").exists()
-    assert (job_dir / "runs" / run_id / "artifacts" / "template" / "meta.json").exists()
-    assert (job_dir / "runs" / run_id / "artifacts" / "template" / "params.json").exists()
-    assert (job_dir / "runs" / run_id / "artifacts" / "do_template_run.meta.json").exists()
-    outputs_dir = job_dir / "runs" / run_id / "artifacts" / "outputs"
-    assert (outputs_dir / "result.log").exists()
-    assert (outputs_dir / "table_TA14_quality_summary.csv").exists()
-    assert list((queue_dir / "queued").glob("*.json")) == []
-    assert list((queue_dir / "claimed").glob("*.json")) == []
-
-
-def test_trigger_run_writes_queue_record_with_traceparent_matching_job_trace_id(
-    tmp_path: Path,
-) -> None:
-    # Arrange
-    jobs_dir = tmp_path / "jobs"
-    queue_dir = tmp_path / "queue"
-    queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
-
-    # Act
-    library_dir = stata_do_library_dir()
-    job_id = prepare_queued_job(jobs_dir=jobs_dir, queue=queue, library_dir=library_dir)
-
-    # Assert
-    queued_files = list((queue_dir / "queued").glob("*.json"))
-    assert len(queued_files) == 1
-    record = json.loads(queued_files[0].read_text(encoding="utf-8"))
-    traceparent = record.get("traceparent")
-    assert isinstance(traceparent, str)
-    parts = traceparent.split("-")
-    assert len(parts) == 4
-    trace_id = parts[1]
-    job = JobStore(jobs_dir=jobs_dir).load(job_id)
-    assert job.trace_id == trace_id
-
-
-def test_worker_service_with_failure_then_success_retries_and_succeeds(tmp_path: Path) -> None:
-    # Arrange
-    jobs_dir = tmp_path / "jobs"
-    queue_dir = tmp_path / "queue"
-    queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
-    library_dir = stata_do_library_dir()
-    job_id = prepare_queued_job(jobs_dir=jobs_dir, queue=queue, library_dir=library_dir)
-
-    repo = FileSystemDoTemplateRepository(library_dir=library_dir)
-    service = WorkerService(
-        store=JobStore(jobs_dir=jobs_dir),
-        queue=queue,
-        jobs_dir=jobs_dir,
-        runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[False, True]),
-        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
-        state_machine=JobStateMachine(),
-        retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
-        do_file_generator=DoFileGenerator(do_template_repo=repo),
-        sleep=noop_sleep,
-    )
-
-    # Act
-    processed = service.process_next(worker_id="worker-1")
-
-    # Assert
-    assert processed is True
-    job = JobStore(jobs_dir=jobs_dir).load(job_id)
-    assert job.status == JobStatus.SUCCEEDED
-    assert len(job.runs) == 2
-    assert job.runs[0].status == "failed"
-    assert job.runs[1].status == "succeeded"
-    assert job.runs[0].run_id != job.runs[1].run_id
-    run_ids = {attempt.run_id for attempt in job.runs}
-    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
-    assert job_dir is not None
-    assert len(list((job_dir / "runs").iterdir())) == len(run_ids)
-    assert list((queue_dir / "queued").glob("*.json")) == []
-    assert list((queue_dir / "claimed").glob("*.json")) == []
-
-
-def test_worker_service_with_failures_until_max_marks_job_failed(tmp_path: Path) -> None:
-    # Arrange
-    jobs_dir = tmp_path / "jobs"
-    queue_dir = tmp_path / "queue"
-    queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
-    library_dir = stata_do_library_dir()
-    job_id = prepare_queued_job(jobs_dir=jobs_dir, queue=queue, library_dir=library_dir)
-
-    repo = FileSystemDoTemplateRepository(library_dir=library_dir)
-    service = WorkerService(
-        store=JobStore(jobs_dir=jobs_dir),
-        queue=queue,
-        jobs_dir=jobs_dir,
-        runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[False, False]),
-        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
-        state_machine=JobStateMachine(),
-        retry=WorkerRetryPolicy(max_attempts=2, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
-        do_file_generator=DoFileGenerator(do_template_repo=repo),
-        sleep=noop_sleep,
-    )
-
-    # Act
-    processed = service.process_next(worker_id="worker-1")
-
-    # Assert
-    assert processed is True
-    job = JobStore(jobs_dir=jobs_dir).load(job_id)
-    assert job.status == JobStatus.FAILED
-    assert len(job.runs) == 2
-    assert job.runs[0].status == "failed"
-    assert job.runs[1].status == "failed"
-    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
-    assert job_dir is not None
-    for attempt in job.runs:
-        assert (job_dir / "runs" / attempt.run_id / "artifacts" / META_FILENAME).exists()
-    assert list((queue_dir / "queued").glob("*.json")) == []
-    assert list((queue_dir / "claimed").glob("*.json")) == []
-
-
-def test_worker_service_with_output_formats_produces_converted_artifacts(tmp_path: Path) -> None:
-    jobs_dir = tmp_path / "jobs"
-    queue_dir = tmp_path / "queue"
-    queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
-    library_dir = stata_do_library_dir()
-    job_id = prepare_queued_job(jobs_dir=jobs_dir, queue=queue, library_dir=library_dir)
-
-    store = JobStore(jobs_dir=jobs_dir)
-    job = store.load(job_id)
-    job.output_formats = ["csv", "xlsx", "dta", "docx", "pdf", "log", "do"]
-    store.save(job)
-
-    repo = FileSystemDoTemplateRepository(library_dir=library_dir)
-    service = WorkerService(
+def _service(
+    *,
+    store: _FakeStore,
+    queue: _FakeQueue,
+    jobs_dir: Path,
+    output_formatter: _FakeOutputFormatter,
+    retry: WorkerRetryPolicy,
+    sleep: Callable[[float], None] | None = None,
+) -> WorkerService:
+    return WorkerService(
         store=store,
         queue=queue,
         jobs_dir=jobs_dir,
-        runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[True]),
-        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
+        runner=_UnusedRunner(),
+        output_formatter=output_formatter,
+        dependency_checker=None,
         state_machine=JobStateMachine(),
-        retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
-        do_file_generator=DoFileGenerator(do_template_repo=repo),
-        sleep=noop_sleep,
+        retry=retry,
+        do_file_generator=None,
+        metrics=None,
+        audit=None,
+        clock=lambda: datetime(2026, 1, 1),
+        sleep=(lambda _seconds: None) if sleep is None else sleep,
     )
 
-    processed = service.process_next(worker_id="worker-1")
 
-    assert processed is True
-    updated = store.load(job_id)
-    assert updated.status == JobStatus.SUCCEEDED
-    assert updated.runs
+def test_process_next_when_no_claim_returns_false(tmp_path: Path) -> None:
+    queue = _FakeQueue(claim_result=None)
+    store = _FakeStore()
+    svc = _service(
+        store=store,
+        queue=queue,
+        jobs_dir=tmp_path,
+        output_formatter=_FakeOutputFormatter(outcome=OutputFormatterOutcome(artifacts=tuple())),
+        retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=1.0, backoff_max_seconds=30.0),
+    )
 
-    run_id = updated.runs[-1].run_id
-    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
-    assert job_dir is not None
-    formatted_dir = job_dir / "runs" / run_id / "artifacts" / "formatted"
-    assert (formatted_dir / "tables.xlsx").exists()
-    assert (formatted_dir / "output.dta").exists()
-    assert (formatted_dir / "report.docx").exists()
-    assert (formatted_dir / "report.pdf").exists()
+    assert svc.process_next(worker_id="worker_1") is False
 
-    rels = {ref.rel_path for ref in updated.artifacts_index}
-    assert f"runs/{run_id}/artifacts/formatted/tables.xlsx" in rels
-    assert f"runs/{run_id}/artifacts/formatted/output.dta" in rels
-    assert f"runs/{run_id}/artifacts/formatted/report.docx" in rels
-    assert f"runs/{run_id}/artifacts/formatted/report.pdf" in rels
-    assert any(ref.kind == ArtifactKind.STATA_EXPORT_REPORT for ref in updated.artifacts_index)
+
+def test_process_next_when_stop_requested_before_claim_returns_false(tmp_path: Path) -> None:
+    queue = _FakeQueue(claim_result=_claim())
+    store = _FakeStore(job=_job(status=JobStatus.RUNNING))
+    svc = _service(
+        store=store,
+        queue=queue,
+        jobs_dir=tmp_path,
+        output_formatter=_FakeOutputFormatter(outcome=OutputFormatterOutcome(artifacts=tuple())),
+        retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=1.0, backoff_max_seconds=30.0),
+    )
+
+    assert svc.process_next(worker_id="worker_1", stop_requested=lambda: True) is False
+    assert queue.acked is None
+    assert queue.released is None
+
+
+def test_process_next_when_stop_requested_after_claim_releases_claim(tmp_path: Path) -> None:
+    claim = _claim()
+    queue = _FakeQueue(claim_result=claim)
+    store = _FakeStore(job=_job(status=JobStatus.RUNNING))
+    svc = _service(
+        store=store,
+        queue=queue,
+        jobs_dir=tmp_path,
+        output_formatter=_FakeOutputFormatter(outcome=OutputFormatterOutcome(artifacts=tuple())),
+        retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=1.0, backoff_max_seconds=30.0),
+    )
+
+    stop_calls = {"n": 0}
+
+    def _stop() -> bool:
+        stop_calls["n"] += 1
+        return stop_calls["n"] >= 2
+
+    assert svc.process_next(worker_id="worker_1", stop_requested=_stop) is False
+    assert queue.released is not None and queue.released == [claim]
+
+
+def test_process_claim_when_job_not_found_acks_claim(tmp_path: Path) -> None:
+    claim = _claim()
+    queue = _FakeQueue()
+    store = _FakeStore(load_error=JobNotFoundError(job_id=claim.job_id))
+    svc = _service(
+        store=store,
+        queue=queue,
+        jobs_dir=tmp_path,
+        output_formatter=_FakeOutputFormatter(outcome=OutputFormatterOutcome(artifacts=tuple())),
+        retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=1.0, backoff_max_seconds=30.0),
+    )
+
+    svc.process_claim(claim=claim)
+
+    assert queue.acked is not None and queue.acked == [claim]
+    assert queue.released is None
+
+
+def test_run_job_with_retries_when_successful_finishes_and_acks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    job = _job(status=JobStatus.QUEUED)
+    claim = _claim()
+    store = _FakeStore(job=job)
+    queue = _FakeQueue()
+    svc = _service(
+        store=store,
+        queue=queue,
+        jobs_dir=tmp_path,
+        output_formatter=_FakeOutputFormatter(outcome=OutputFormatterOutcome(artifacts=tuple())),
+        retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=1.0, backoff_max_seconds=30.0),
+    )
+
+    def _fake_execute_plan(*, job: Job, run_id: str, **_kwargs: object) -> RunResult:
+        return RunResult(
+            job_id=job.job_id,
+            run_id=run_id,
+            ok=True,
+            exit_code=0,
+            timed_out=False,
+            artifacts=tuple(),
+            error=None,
+        )
+
+    monkeypatch.setattr("src.domain.worker_service.execute_plan", _fake_execute_plan)
+
+    svc.process_claim(claim=claim)
+
+    assert store.job is not None and store.job.status == JobStatus.SUCCEEDED
+    assert queue.acked is not None and queue.acked == [claim]
+
+
+def test_run_job_with_retries_when_retriable_then_success_sleeps_and_succeeds(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    job = _job(status=JobStatus.RUNNING)
+    claim = _claim()
+    store = _FakeStore(job=job)
+    queue = _FakeQueue()
+    sleeps: list[float] = []
+
+    svc = _service(
+        store=store,
+        queue=queue,
+        jobs_dir=tmp_path,
+        output_formatter=_FakeOutputFormatter(outcome=OutputFormatterOutcome(artifacts=tuple())),
+        retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=1.0, backoff_max_seconds=30.0),
+        sleep=sleeps.append,
+    )
+
+    results: list[RunResult] = []
+
+    def _fake_execute_plan(*, job: Job, run_id: str, **_kwargs: object) -> RunResult:
+        if not results:
+            results.append(
+                RunResult(
+                    job_id=job.job_id,
+                    run_id=run_id,
+                    ok=False,
+                    exit_code=1,
+                    timed_out=False,
+                    artifacts=tuple(),
+                    error=RunError(error_code="STATA_TIMEOUT", message="timeout"),
+                )
+            )
+            return results[-1]
+        return RunResult(
+            job_id=job.job_id,
+            run_id=run_id,
+            ok=True,
+            exit_code=0,
+            timed_out=False,
+            artifacts=tuple(),
+            error=None,
+        )
+
+    monkeypatch.setattr("src.domain.worker_service.execute_plan", _fake_execute_plan)
+
+    svc.process_claim(claim=claim)
+
+    assert sleeps == [1.0]
+    assert store.job is not None and store.job.status == JobStatus.SUCCEEDED
+    assert queue.acked is not None and queue.acked == [claim]
+
+
+def test_run_job_with_retries_when_non_retriable_marks_failed_and_acks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    job = _job(status=JobStatus.RUNNING)
+    claim = _claim()
+    store = _FakeStore(job=job)
+    queue = _FakeQueue()
+    svc = _service(
+        store=store,
+        queue=queue,
+        jobs_dir=tmp_path,
+        output_formatter=_FakeOutputFormatter(outcome=OutputFormatterOutcome(artifacts=tuple())),
+        retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=1.0, backoff_max_seconds=30.0),
+    )
+
+    def _fake_execute_plan(*, job: Job, run_id: str, **_kwargs: object) -> RunResult:
+        return RunResult(
+            job_id=job.job_id,
+            run_id=run_id,
+            ok=False,
+            exit_code=1,
+            timed_out=False,
+            artifacts=tuple(),
+            error=RunError(error_code="PLAN_INVALID", message="invalid"),
+        )
+
+    monkeypatch.setattr("src.domain.worker_service.execute_plan", _fake_execute_plan)
+
+    svc.process_claim(claim=claim)
+
+    assert store.job is not None and store.job.status == JobStatus.FAILED
+    assert queue.acked is not None and queue.acked == [claim]
+
+
+def test_run_job_with_retries_when_output_formatter_errors_marks_failed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    job = _job(status=JobStatus.RUNNING)
+    claim = _claim()
+    store = _FakeStore(job=job)
+    queue = _FakeQueue()
+    svc = _service(
+        store=store,
+        queue=queue,
+        jobs_dir=tmp_path,
+        output_formatter=_FakeOutputFormatter(
+            outcome=OutputFormatterOutcome(
+                artifacts=tuple(),
+                error=RunError(error_code="OUTPUT_FORMATTER_FAILED", message="boom"),
+            )
+        ),
+        retry=WorkerRetryPolicy(max_attempts=2, backoff_base_seconds=1.0, backoff_max_seconds=30.0),
+    )
+
+    def _fake_execute_plan(*, job: Job, run_id: str, **_kwargs: object) -> RunResult:
+        return RunResult(
+            job_id=job.job_id,
+            run_id=run_id,
+            ok=True,
+            exit_code=0,
+            timed_out=False,
+            artifacts=tuple(),
+            error=None,
+        )
+
+    monkeypatch.setattr("src.domain.worker_service.execute_plan", _fake_execute_plan)
+
+    svc.process_claim(claim=claim)
+
+    assert store.job is not None and store.job.status == JobStatus.FAILED
+    assert queue.acked is not None and queue.acked == [claim]
+
+
+def test_worker_ack_when_queue_fails_raises_queue_io_error(tmp_path: Path) -> None:
+    claim = _claim()
+    queue = _FakeQueue(ack_error=QueueIOError(operation="ack", path="/tmp/queue.json"))
+    store = _FakeStore(job=_job(status=JobStatus.RUNNING))
+    svc = _service(
+        store=store,
+        queue=queue,
+        jobs_dir=tmp_path,
+        output_formatter=_FakeOutputFormatter(outcome=OutputFormatterOutcome(artifacts=tuple())),
+        retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=1.0, backoff_max_seconds=30.0),
+    )
+
+    with pytest.raises(QueueIOError):
+        svc._ack(claim)
