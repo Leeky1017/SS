@@ -38,7 +38,16 @@
 
 ## Acceptance checklist
 
-- [ ] `docker-compose.yml` 包含 `minio` + `ss-api` + `ss-worker` 的最小生产拓扑
-- [ ] `ss-worker` 与 `ss-api` 共享 jobs/queue 的持久化存储并保持路径一致
-- [ ] `docker-compose up` 后 worker 能启动（配置齐全时）并可处理队列任务
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] `docker-compose.yml` 包含 `minio` + `ss-api` + `ss-worker` 的最小生产拓扑
+- [x] `ss-worker` 与 `ss-api` 共享 jobs/queue 的持久化存储并保持路径一致
+- [x] `docker-compose up` 后 worker 能启动（配置齐全时）并可处理队列任务
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-403.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/404
+- Run log: `openspec/_ops/task_runs/ISSUE-403.md`
+- Summary:
+  - Added repo-root `docker-compose.yml` for `minio` + `ss-api` + `ss-worker` (same image).
+  - Shared durable `ss-jobs` / `ss-queue` volumes at `/var/lib/ss/jobs` and `/var/lib/ss/queue`.
+  - Wired host-mounted Stata + explicit `SS_STATA_CMD` and `SS_DO_TEMPLATE_LIBRARY_DIR`.
