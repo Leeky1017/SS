@@ -94,6 +94,11 @@
 - Key output: `state=MERGED mergedAt=2026-01-12T05:49:13Z`
 - Evidence: `gh pr view 378`
 
+### 2026-01-12 22:00 Rulebook archive
+- Command: `rulebook task archive issue-371-deploy-ready-r003`
+- Key output: `moved to rulebook/tasks/archive/2026-01-12-issue-371-deploy-ready-r003/`
+- Evidence: `rulebook/tasks/archive/2026-01-12-issue-371-deploy-ready-r003/`
+
 ## Findings
 
 ### Gap list (ss-deployment-docker-readiness)
