@@ -1,7 +1,7 @@
 # ISSUE-390
 - Issue: #390
 - Branch: task/390-deploy-ready-r012
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/394
 
 ## Plan
 - Specify the production Stata provisioning strategy (host-mounted) with a stable mount path and `SS_STATA_CMD` contract.
@@ -53,3 +53,13 @@
 - Command: `openspec validate --specs --strict --no-interactive`
 - Key output: `Totals: 29 passed, 0 failed`
 - Evidence: `openspec validate --specs --strict --no-interactive`
+
+### 2026-01-12 22:34 PR preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+- Evidence: `scripts/agent_pr_preflight.sh`
+
+### 2026-01-12 22:35 PR created
+- Command: `gh pr create ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/394`
+- Evidence: `openspec/_ops/task_runs/ISSUE-390.md`

@@ -39,7 +39,15 @@ worker 依赖 Stata 执行 do-template，但生产部署场景下 Stata 的安�
 
 ## Acceptance checklist
 
-- [ ] 给出明确的 Stata provisioning 方案与操作步骤（包含 `SS_STATA_CMD` 口径）
-- [ ] Docker compose 环境中可复现（worker 启动链路清晰，缺配置时 fail fast）
-- [ ] 明确安全/合规边界（不在仓库内传播 license/installer）
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-390.md`
+- [x] 给出明确的 Stata provisioning 方案与操作步骤（包含 `SS_STATA_CMD` 口径）
+- [x] Docker compose 环境中可复现（worker 启动链路清晰，缺配置时 fail fast）
+- [x] 明确安全/合规边界（不在仓库内传播 license/installer）
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-390.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/394
+- Documented the production-default host-mounted Stata strategy and the `/mnt/stata:ro` + `SS_STATA_CMD=/mnt/stata/stata-mp` contract.
+- Added runnable docker-compose + `.env` example for host-mounted Stata under `ss-deployment-docker-readiness`.
+- Worker startup now fails fast when `SS_STATA_CMD` is missing or points to a missing/non-executable binary (stable error codes).
+- Run log: `openspec/_ops/task_runs/ISSUE-390.md`
