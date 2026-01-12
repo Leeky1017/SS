@@ -1,7 +1,7 @@
 # ISSUE-418
 - Issue: #418
 - Branch: task/418-worker-coverage
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/419
 
 ## Goal
 - Add unit tests for worker internals (claim handling / retry / pre-run errors) and raise worker-path coverage.
@@ -86,5 +86,30 @@
   - `src/domain/worker_pre_run_error.py ... 100%`
   - `src/domain/worker_retry.py ... 88%`
   - `src/domain/worker_service.py ... 89%`
+- Evidence:
+  - N/A
+
+### 2026-01-12 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - N/A
+
+### 2026-01-12 Push branch
+- Command:
+  - `git push -u origin HEAD`
+- Key output:
+  - `HEAD -> task/418-worker-coverage`
+- Evidence:
+  - N/A
+
+### 2026-01-12 Open PR
+- Command:
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/419`
 - Evidence:
   - N/A
