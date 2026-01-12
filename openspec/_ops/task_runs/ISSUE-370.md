@@ -1,7 +1,7 @@
 # ISSUE-370
 - Issue: #370
 - Branch: task/370-deploy-ready-r002
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/385
 
 ## Goal
 - DEPLOY-READY-R002: audit do-template library output format support based on `assets/stata_do_library/` (meta + template implementations), and provide remediation input for DEPLOY-READY-R031 (unified output formatter).
@@ -97,3 +97,9 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-12 14:30 PR created
+- Command:
+  - `gh pr create --title "[DEPLOY-READY-R002] Audit do-template output formats (#370)" --body "Closes #370 ..."`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/385`
