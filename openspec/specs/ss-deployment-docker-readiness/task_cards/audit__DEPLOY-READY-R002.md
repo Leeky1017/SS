@@ -45,7 +45,14 @@
 
 ## Acceptance checklist
 
-- [ ] 输出格式能力矩阵（至少覆盖 csv/dta/docx/pdf/log/do，若存在 xlsx 也需记录）
-- [ ] 明确 Word/PDF 的可行实现策略与现状差距（优先 `putdocx` / `putpdf`）
-- [ ] 明确 artifact kind/命名一致性问题，并给出整改建议
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] 输出格式能力矩阵（至少覆盖 csv/dta/docx/pdf/log/do，若存在 xlsx 也需记录）
+- [x] 明确 Word/PDF 的可行实现策略与现状差距（优先 `putdocx` / `putpdf`）
+- [x] 明确 artifact kind/命名一致性问题，并给出整改建议
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-370.md`
+
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/385
+- Added evidence-backed capability matrix from meta + sampled templates (csv/xlsx/dta/docx/pdf/log/do).
+- Documented Word/PDF feasibility/gaps and artifact kind/naming inconsistencies to feed DEPLOY-READY-R031.
+- Run log: `openspec/_ops/task_runs/ISSUE-370.md`
