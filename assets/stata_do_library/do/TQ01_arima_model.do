@@ -26,9 +26,35 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TQ01
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TQ01|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        display "SS_RC|code=`=_rc'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TQ01|level=L2|title=ARIMA_Model"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+* ==============================================================================
+* PHASE 5.14 REVIEW (Issue #363) / 最佳实践审查（阶段 5.14）
+* - Best practice: confirm stationarity/differencing choices; use diagnostics (AIC/BIC, roots) and avoid overfitting. /
+*   最佳实践：确认平稳性/差分选择；使用诊断（AIC/BIC、根）并避免过拟合。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing inputs/tsset/arima; warn on time gaps and forecast/plot failures /
+*   错误策略：缺少输入/tsset/arima 失败→fail；时间缺口/预测或绘图失败→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=363|template_id=TQ01|ssc=none|output=csv_png_dta|policy=warn_fail"
 
 * ============ 参数设置 ============
 local series_var = "__SERIES_VAR__"
@@ -61,10 +87,7 @@ display "    预测期数: `forecast_h'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
-    display "SS_TASK_END|id=TQ01|status=fail|elapsed_sec=."
-    log close
-    exit 601
+    ss_fail_TQ01 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -77,14 +100,50 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `series_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`var'"
-        display "SS_TASK_END|id=TQ01|status=fail|elapsed_sec=."
-        log close
-        exit 200
+        ss_fail_TQ01 200 "confirm variable `var'" "var_not_found"
     }
 }
+capture confirm numeric variable `series_var'
+if _rc {
+    ss_fail_TQ01 200 "confirm numeric variable `series_var'" "series_var_not_numeric"
+}
 
-tsset `time_var'
+local tsvar "`time_var'"
+local _ss_need_index = 0
+capture confirm numeric variable `time_var'
+if _rc {
+    local _ss_need_index = 1
+    display "SS_RC|code=TIMEVAR_NOT_NUMERIC|var=`time_var'|severity=warn"
+}
+if `_ss_need_index' == 0 {
+    capture isid `time_var'
+    if _rc {
+        local _ss_need_index = 1
+        display "SS_RC|code=TIMEVAR_NOT_UNIQUE|var=`time_var'|severity=warn"
+    }
+}
+if `_ss_need_index' == 1 {
+    sort `time_var'
+    capture drop ss_time_index
+    local rc_drop = _rc
+    if `rc_drop' != 0 & `rc_drop' != 111 {
+        display "SS_RC|code=`rc_drop'|cmd=drop ss_time_index|msg=drop_failed|severity=warn"
+    }
+    gen long ss_time_index = _n
+    local tsvar "ss_time_index"
+    display "SS_METRIC|name=ts_timevar|value=ss_time_index"
+}
+capture tsset `tsvar'
+if _rc {
+    ss_fail_TQ01 `=_rc' "tsset `tsvar'" "tsset_failed"
+}
+capture tsreport, report
+if _rc == 0 {
+    display "SS_METRIC|name=ts_n_gaps|value=`=r(N_gaps)'"
+    if r(N_gaps) > 0 {
+        display "SS_RC|code=TIME_GAPS|n_gaps=`=r(N_gaps)'|severity=warn"
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -95,7 +154,10 @@ display "═══════════════════════�
 display "SECTION 1: ARIMA(`ar_order',`diff_order',`ma_order')估计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-arima `series_var', arima(`ar_order',`diff_order',`ma_order')
+capture noisily arima `series_var', arima(`ar_order',`diff_order',`ma_order')
+if _rc {
+    ss_fail_TQ01 `=_rc' "arima" "arima_failed"
+}
 
 local ll = e(ll)
 local aic = -2 * `ll' + 2 * e(k)
@@ -135,7 +197,10 @@ postclose `arima_results'
 
 preserve
 use "temp_arima_results.dta", clear
-export delimited using "table_TQ01_arima_result.csv", replace
+capture export delimited using "table_TQ01_arima_result.csv", replace
+if _rc {
+    ss_fail_TQ01 `=_rc' "export delimited table_TQ01_arima_result.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TQ01_arima_result.csv|type=table|desc=arima_results"
 restore
 
@@ -146,17 +211,26 @@ display "SECTION 2: 预测"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 * 扩展数据
-local last_t = `time_var'[_N]
+local last_t = `tsvar'[_N]
 local new_obs = _N + `forecast_h'
 set obs `new_obs'
 forvalues i = 1/`forecast_h' {
-    replace `time_var' = `last_t' + `i' in `=_N - `forecast_h' + `i''
+    replace `tsvar' = `last_t' + `i' in `=_N - `forecast_h' + `i''
 }
 
-tsset `time_var'
+capture tsset `tsvar'
+if _rc {
+    ss_fail_TQ01 `=_rc' "tsset `tsvar'" "tsset_failed"
+}
 
-predict double forecast, y dynamic(`=`last_t'+1')
-predict double forecast_se, mse dynamic(`=`last_t'+1')
+capture predict double forecast, y dynamic(`=`last_t'+1')
+if _rc {
+    ss_fail_TQ01 `=_rc' "predict forecast" "predict_failed"
+}
+capture predict double forecast_se, mse dynamic(`=`last_t'+1')
+if _rc {
+    ss_fail_TQ01 `=_rc' "predict forecast_se" "predict_failed"
+}
 replace forecast_se = sqrt(forecast_se)
 
 generate double ci_lower = forecast - 1.96 * forecast_se
@@ -164,25 +238,32 @@ generate double ci_upper = forecast + 1.96 * forecast_se
 
 display ""
 display ">>> 预测结果:"
-list `time_var' forecast ci_lower ci_upper if `time_var' > `last_t', noobs
+list `tsvar' forecast ci_lower ci_upper if `tsvar' > `last_t', noobs
 
 * 导出预测
 preserve
-keep if `time_var' > `last_t'
-keep `time_var' forecast forecast_se ci_lower ci_upper
-export delimited using "table_TQ01_forecast.csv", replace
+keep if `tsvar' > `last_t'
+keep `tsvar' forecast forecast_se ci_lower ci_upper
+capture export delimited using "table_TQ01_forecast.csv", replace
+if _rc {
+    ss_fail_TQ01 `=_rc' "export delimited table_TQ01_forecast.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TQ01_forecast.csv|type=table|desc=forecast"
 restore
 
 * ============ 生成预测图 ============
-twoway (line `series_var' `time_var' if `time_var' <= `last_t', lcolor(navy)) ///
-       (line forecast `time_var' if `time_var' > `last_t', lcolor(red)) ///
-       (rarea ci_lower ci_upper `time_var' if `time_var' > `last_t', color(red%20)), ///
+twoway (line `series_var' `tsvar' if `tsvar' <= `last_t', lcolor(navy)) ///
+       (line forecast `tsvar' if `tsvar' > `last_t', lcolor(red)) ///
+       (rarea ci_lower ci_upper `tsvar' if `tsvar' > `last_t', color(red%20)), ///
        xline(`last_t', lcolor(gray) lpattern(dash)) ///
        legend(order(1 "历史" 2 "预测" 3 "95%CI") position(6)) ///
        xtitle("时间") ytitle("`series_var'") ///
        title("ARIMA(`ar_order',`diff_order',`ma_order')预测")
-graph export "fig_TQ01_forecast.png", replace width(1200)
+capture graph export "fig_TQ01_forecast.png", replace width(1200)
+local rc_gexp = _rc
+if `rc_gexp' != 0 {
+    display "SS_RC|code=`rc_gexp'|cmd=graph export fig_TQ01_forecast.png|msg=graph_export_failed|severity=warn"
+}
 display "SS_OUTPUT_FILE|file=fig_TQ01_forecast.png|type=figure|desc=forecast_plot"
 
 capture erase "temp_arima_results.dta"
@@ -194,7 +275,10 @@ if `rc_last' != 0 {
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 
-save "data_TQ01_arima.dta", replace
+capture save "data_TQ01_arima.dta", replace
+if _rc {
+    ss_fail_TQ01 `=_rc' "save data_TQ01_arima.dta" "save_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TQ01_arima.dta|type=data|desc=arima_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -222,6 +306,7 @@ display "SS_SUMMARY|key=aic|value=`aic'"
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"

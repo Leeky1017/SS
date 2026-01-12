@@ -45,6 +45,16 @@ display "SS_TASK_BEGIN|id=TQ03|level=L2|title=VECM_Model"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
+* ==============================================================================
+* PHASE 5.14 REVIEW (Issue #363) / 最佳实践审查（阶段 5.14）
+* - Best practice: VECM is appropriate only when variables are cointegrated; choose lag length carefully and interpret rank selection cautiously. /
+*   最佳实践：VECM 仅在存在协整关系时适用；滞后阶与协整秩选择需谨慎。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing inputs/tsset; warn when vecrank/vec fails and produce a placeholder table /
+*   错误策略：缺少输入/tsset 失败→fail；vecrank/vec 失败→warn 并输出占位结果表
+* ==============================================================================
+display "SS_BP_REVIEW|issue=363|template_id=TQ03|ssc=none|output=csv_dta|policy=warn_fail"
+
 * ============ 参数设置 ============
 local endog_vars "__ENDOG_VARS__"
 local time_var "__TIME_VAR__"
@@ -74,9 +84,9 @@ display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 
 * ============ 变量检查 ============
-capture confirm numeric variable `time_var'
+capture confirm variable `time_var'
 if _rc {
-    ss_fail_TQ03 200 "confirm numeric variable `time_var'" "time_var_missing_or_not_numeric"
+    ss_fail_TQ03 200 "confirm variable `time_var'" "time_var_missing"
 }
 
 local valid_endog ""
@@ -93,9 +103,41 @@ if `n_endog' < 2 {
     ss_fail_TQ03 200 "validate endog_vars" "endog_vars_too_short"
 }
 
-capture tsset `time_var'
+local tsvar "`time_var'"
+local _ss_need_index = 0
+capture confirm numeric variable `time_var'
 if _rc {
-    ss_fail_TQ03 `=_rc' "tsset `time_var'" "tsset_failed"
+    local _ss_need_index = 1
+    display "SS_RC|code=TIMEVAR_NOT_NUMERIC|var=`time_var'|severity=warn"
+}
+if `_ss_need_index' == 0 {
+    capture isid `time_var'
+    if _rc {
+        local _ss_need_index = 1
+        display "SS_RC|code=TIMEVAR_NOT_UNIQUE|var=`time_var'|severity=warn"
+    }
+}
+if `_ss_need_index' == 1 {
+    sort `time_var'
+    capture drop ss_time_index
+    local rc_drop = _rc
+    if `rc_drop' != 0 & `rc_drop' != 111 {
+        display "SS_RC|code=`rc_drop'|cmd=drop ss_time_index|msg=drop_failed|severity=warn"
+    }
+    gen long ss_time_index = _n
+    local tsvar "ss_time_index"
+    display "SS_METRIC|name=ts_timevar|value=ss_time_index"
+}
+capture tsset `tsvar'
+if _rc {
+    ss_fail_TQ03 `=_rc' "tsset `tsvar'" "tsset_failed"
+}
+capture tsreport, report
+if _rc == 0 {
+    display "SS_METRIC|name=ts_n_gaps|value=`=r(N_gaps)'"
+    if r(N_gaps) > 0 {
+        display "SS_RC|code=TIME_GAPS|n_gaps=`=r(N_gaps)'|severity=warn"
+    }
 }
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
@@ -130,7 +172,10 @@ generate int cointegration_rank = `n_coint'
 generate str20 trend = "`trend'"
 generate int lags = `lags'
 generate int rc_vecrank = `rc_vecrank'
-export delimited using "table_TQ03_johansen.csv", replace
+capture export delimited using "table_TQ03_johansen.csv", replace
+if _rc {
+    ss_fail_TQ03 `=_rc' "export delimited table_TQ03_johansen.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TQ03_johansen.csv|type=table|desc=johansen_test"
 restore
 
@@ -189,7 +234,10 @@ if `n_coint' > 0 {
     
     preserve
     use "temp_vecm_results.dta", clear
-    export delimited using "table_TQ03_vecm_result.csv", replace
+    capture export delimited using "table_TQ03_vecm_result.csv", replace
+    if _rc {
+        ss_fail_TQ03 `=_rc' "export delimited table_TQ03_vecm_result.csv" "export_failed"
+    }
     display "SS_OUTPUT_FILE|file=table_TQ03_vecm_result.csv|type=table|desc=vecm_results"
     restore
     
@@ -213,7 +261,10 @@ else {
     gen double z = .
     gen double p = .
     gen str80 note = "no_cointegration_or_vecm_skipped"
-    export delimited using "table_TQ03_vecm_result.csv", replace
+    capture export delimited using "table_TQ03_vecm_result.csv", replace
+    if _rc {
+        ss_fail_TQ03 `=_rc' "export delimited table_TQ03_vecm_result.csv" "export_failed"
+    }
     display "SS_OUTPUT_FILE|file=table_TQ03_vecm_result.csv|type=table|desc=vecm_results"
     restore
 }
@@ -221,7 +272,10 @@ else {
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 
-save "data_TQ03_vecm.dta", replace
+capture save "data_TQ03_vecm.dta", replace
+if _rc {
+    ss_fail_TQ03 `=_rc' "save data_TQ03_vecm.dta" "save_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TQ03_vecm.dta|type=data|desc=vecm_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -247,6 +301,7 @@ display "SS_SUMMARY|key=n_coint|value=`n_coint'"
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"

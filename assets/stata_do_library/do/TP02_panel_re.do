@@ -25,9 +25,35 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TP02
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TP02|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        display "SS_RC|code=`=_rc'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TP02|level=L2|title=Panel_RE"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+* ==============================================================================
+* PHASE 5.14 REVIEW (Issue #363) / 最佳实践审查（阶段 5.14）
+* - Best practice: RE requires exogeneity of unobserved effects; report Hausman test and prefer FE if rejected. /
+*   最佳实践：RE 依赖个体效应外生性；报告 Hausman 检验，若拒绝则优先 FE。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing inputs/xtset/estimation; warn on singleton groups /
+*   错误策略：缺少输入/xtset/估计失败→fail；单成员组→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=363|template_id=TP02|ssc=none|output=csv_dta|policy=warn_fail"
 
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
@@ -46,10 +72,7 @@ display "    时间: `time_var'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
-    display "SS_TASK_END|id=TP02|status=fail|elapsed_sec=."
-    log close
-    exit 601
+    ss_fail_TP02 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -62,10 +85,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `depvar' `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`var'"
-        display "SS_TASK_END|id=TP02|status=fail|elapsed_sec=."
-        log close
-        exit 200
+        ss_fail_TP02 200 "confirm variable `var'" "var_not_found"
     }
 }
 
@@ -76,14 +96,22 @@ foreach var of local indepvars {
         local valid_indep "`valid_indep' `var'"
     }
 }
+if "`valid_indep'" == "" {
+    ss_fail_TP02 200 "confirm numeric indepvars" "no_valid_indepvars"
+}
 
 capture xtset `id_var' `time_var'
 if _rc {
-    local rc_xtset = _rc
-    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed|severity=fail"
-    display "SS_TASK_END|id=TP02|status=fail|elapsed_sec=."
-    log close
-    exit `rc_xtset'
+    ss_fail_TP02 `=_rc' "xtset `id_var' `time_var'" "xtset_failed"
+}
+tempvar _ss_n_i
+bysort `id_var': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=xtset|msg=singleton_groups_present|severity=warn"
 }
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
@@ -95,7 +123,10 @@ display "═══════════════════════�
 display "SECTION 1: 随机效应模型估计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-xtreg `depvar' `valid_indep', re
+capture noisily xtreg `depvar' `valid_indep', re
+if _rc {
+    ss_fail_TP02 `=_rc' "xtreg re" "estimation_failed"
+}
 
 local r2_within = e(r2_w)
 local r2_between = e(r2_b)
@@ -140,7 +171,10 @@ postclose `re_results'
 
 preserve
 use "temp_re_results.dta", clear
-export delimited using "table_TP02_re_result.csv", replace
+capture export delimited using "table_TP02_re_result.csv", replace
+if _rc {
+    ss_fail_TP02 `=_rc' "export delimited table_TP02_re_result.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TP02_re_result.csv|type=table|desc=re_results"
 restore
 
@@ -151,29 +185,32 @@ display "SECTION 2: Hausman检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 * 先估计FE
-quietly xtreg `depvar' `valid_indep', fe
+capture quietly xtreg `depvar' `valid_indep', fe
+if _rc {
+    ss_fail_TP02 `=_rc' "xtreg fe" "fe_estimation_failed"
+}
 estimates store fe_model
 
 * Hausman检验
-hausman fe_model re_model
-
-local hausman_chi2 = r(chi2)
-local hausman_df = r(df)
-local hausman_p = r(p)
-
-display ""
-display ">>> Hausman检验 (H0: RE一致且有效):"
-display "    χ²统计量: " %10.4f `hausman_chi2'
-display "    自由度: " %10.0f `hausman_df'
-display "    p值: " %10.4f `hausman_p'
-
-if `hausman_p' < 0.05 {
-    display "    结论: 拒绝H0，应使用固定效应模型"
-    local recommendation = "FE"
+local hausman_chi2 = .
+local hausman_df = .
+local hausman_p = .
+local recommendation = "NA"
+capture noisily hausman fe_model re_model
+if _rc {
+    display "SS_RC|code=`=_rc'|cmd=hausman|msg=hausman_failed|severity=warn"
 }
 else {
-    display "    结论: 不能拒绝H0，随机效应模型更有效"
-    local recommendation = "RE"
+    local hausman_chi2 = r(chi2)
+    local hausman_df = r(df)
+    local hausman_p = r(p)
+
+    if `hausman_p' < 0.05 {
+        local recommendation = "FE"
+    }
+    else {
+        local recommendation = "RE"
+    }
 }
 
 display "SS_METRIC|name=hausman_chi2|value=`hausman_chi2'"
@@ -188,7 +225,10 @@ generate int df = `hausman_df'
 generate double p_value = `hausman_p'
 generate str10 recommendation = "`recommendation'"
 
-export delimited using "table_TP02_hausman.csv", replace
+capture export delimited using "table_TP02_hausman.csv", replace
+if _rc {
+    ss_fail_TP02 `=_rc' "export delimited table_TP02_hausman.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TP02_hausman.csv|type=table|desc=hausman_test"
 restore
 
@@ -202,7 +242,10 @@ if `rc_last' != 0 {
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 
-save "data_TP02_re.dta", replace
+capture save "data_TP02_re.dta", replace
+if _rc {
+    ss_fail_TP02 `=_rc' "save data_TP02_re.dta" "save_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TP02_re.dta|type=data|desc=re_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -235,6 +278,7 @@ display "SS_SUMMARY|key=hausman_p|value=`hausman_p'"
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"

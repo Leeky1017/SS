@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #363
 - Parent: #125
 - Superphase: Phase 5 (content enhancement)
 - Templates: `TP*` + `TQ*` (~27 templates, current inventory)
@@ -35,4 +35,3 @@ Enhance panel and hierarchical-model templates with best practices (最佳实践
 - [ ] Error handling and diagnostics are strengthened (no silent failure)
 - [ ] Key steps have bilingual comments (中英文注释)
 - [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
-

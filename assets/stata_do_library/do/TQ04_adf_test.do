@@ -24,9 +24,35 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TQ04
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TQ04|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        display "SS_RC|code=`=_rc'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TQ04|level=L2|title=ADF_Test"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+* ==============================================================================
+* PHASE 5.14 REVIEW (Issue #363) / 最佳实践审查（阶段 5.14）
+* - Best practice: unit-root results depend on lag selection and deterministic terms; use multiple tests and treat as input to modeling choices. /
+*   最佳实践：单位根结论受滞后与确定性项选择影响；建议多检验并用于指导建模。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing inputs/tsset/tests; warn on time gaps /
+*   错误策略：缺少输入/tsset/检验失败→fail；时间缺口→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=363|template_id=TQ04|ssc=none|output=csv_dta|policy=warn_fail"
 
 * ============ 参数设置 ============
 local series_var = "__SERIES_VAR__"
@@ -51,10 +77,7 @@ display "    趋势项: `trend'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
-    display "SS_TASK_END|id=TQ04|status=fail|elapsed_sec=."
-    log close
-    exit 601
+    ss_fail_TQ04 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -67,14 +90,51 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `series_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`var'"
-        display "SS_TASK_END|id=TQ04|status=fail|elapsed_sec=."
-        log close
-        exit 200
+        ss_fail_TQ04 200 "confirm variable `var'" "var_not_found"
     }
 }
 
-tsset `time_var'
+capture confirm numeric variable `series_var'
+if _rc {
+    ss_fail_TQ04 200 "confirm numeric variable `series_var'" "series_var_not_numeric"
+}
+
+local tsvar "`time_var'"
+local _ss_need_index = 0
+capture confirm numeric variable `time_var'
+if _rc {
+    local _ss_need_index = 1
+    display "SS_RC|code=TIMEVAR_NOT_NUMERIC|var=`time_var'|severity=warn"
+}
+if `_ss_need_index' == 0 {
+    capture isid `time_var'
+    if _rc {
+        local _ss_need_index = 1
+        display "SS_RC|code=TIMEVAR_NOT_UNIQUE|var=`time_var'|severity=warn"
+    }
+}
+if `_ss_need_index' == 1 {
+    sort `time_var'
+    capture drop ss_time_index
+    local rc_drop = _rc
+    if `rc_drop' != 0 & `rc_drop' != 111 {
+        display "SS_RC|code=`rc_drop'|cmd=drop ss_time_index|msg=drop_failed|severity=warn"
+    }
+    gen long ss_time_index = _n
+    local tsvar "ss_time_index"
+    display "SS_METRIC|name=ts_timevar|value=ss_time_index"
+}
+capture tsset `tsvar'
+if _rc {
+    ss_fail_TQ04 `=_rc' "tsset `tsvar'" "tsset_failed"
+}
+capture tsreport, report
+if _rc == 0 {
+    display "SS_METRIC|name=ts_n_gaps|value=`=r(N_gaps)'"
+    if r(N_gaps) > 0 {
+        display "SS_RC|code=TIME_GAPS|n_gaps=`=r(N_gaps)'|severity=warn"
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -85,7 +145,10 @@ display "═══════════════════════�
 display "SECTION 1: ADF单位根检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-dfuller `series_var', lags(`lags') `trend'
+capture noisily dfuller `series_var', lags(`lags') `trend'
+if _rc {
+    ss_fail_TQ04 `=_rc' "dfuller" "adf_failed"
+}
 
 local adf_stat = r(Zt)
 local adf_p = r(p)
@@ -115,7 +178,10 @@ display "═══════════════════════�
 display "SECTION 2: Phillips-Perron检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-pperron `series_var', lags(`lags') `trend'
+capture noisily pperron `series_var', lags(`lags') `trend'
+if _rc {
+    ss_fail_TQ04 `=_rc' "pperron" "pp_failed"
+}
 
 local pp_stat = r(Zt)
 local pp_p = r(p)
@@ -134,9 +200,17 @@ display "═══════════════════════�
 display "SECTION 3: 一阶差分后ADF检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
+capture drop d_`series_var'
+local rc_drop = _rc
+if `rc_drop' != 0 & `rc_drop' != 111 {
+    display "SS_RC|code=`rc_drop'|cmd=drop d_`series_var'|msg=drop_failed|severity=warn"
+}
 generate double d_`series_var' = D.`series_var'
 
-dfuller d_`series_var', lags(`lags') `trend'
+capture noisily dfuller d_`series_var', lags(`lags') `trend'
+if _rc {
+    ss_fail_TQ04 `=_rc' "dfuller diff" "adf_failed"
+}
 
 local adf_d_stat = r(Zt)
 local adf_d_p = r(p)
@@ -178,14 +252,20 @@ replace statistic = `adf_d_stat' in 3
 replace p_value = `adf_d_p' in 3
 replace conclusion = "I(`integration_order')" in 3
 
-export delimited using "table_TQ04_adf_result.csv", replace
+capture export delimited using "table_TQ04_adf_result.csv", replace
+if _rc {
+    ss_fail_TQ04 `=_rc' "export delimited table_TQ04_adf_result.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TQ04_adf_result.csv|type=table|desc=adf_results"
 restore
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 
-save "data_TQ04_adf.dta", replace
+capture save "data_TQ04_adf.dta", replace
+if _rc {
+    ss_fail_TQ04 `=_rc' "save data_TQ04_adf.dta" "save_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TQ04_adf.dta|type=data|desc=adf_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -215,6 +295,7 @@ display "SS_SUMMARY|key=adf_p|value=`adf_p'"
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"

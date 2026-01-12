@@ -26,9 +26,35 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TQ02
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TQ02|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        display "SS_RC|code=`=_rc'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TQ02|level=L2|title=VAR_Model"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+* ==============================================================================
+* PHASE 5.14 REVIEW (Issue #363) / 最佳实践审查（阶段 5.14）
+* - Best practice: VAR requires careful lag selection and stationarity checks; interpret Granger tests as predictive, not causal. /
+*   最佳实践：VAR 需谨慎选择滞后并检查平稳性；Granger 检验是预测关系而非因果。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing inputs/tsset/estimation; warn on time gaps and IRF failures /
+*   错误策略：缺少输入/tsset/估计失败→fail；时间缺口与 IRF 失败→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=363|template_id=TQ02|ssc=none|output=csv_png_dta|policy=warn_fail"
 
 * ============ 参数设置 ============
 local endog_vars = "__ENDOG_VARS__"
@@ -48,10 +74,7 @@ display "    滞后阶数: `lags'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
-    display "SS_TASK_END|id=TQ02|status=fail|elapsed_sec=."
-    log close
-    exit 601
+    ss_fail_TQ02 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -79,13 +102,45 @@ foreach var of local endog_vars {
 
 local n_vars : word count `valid_endog'
 if `n_vars' < 2 {
-    display "SS_RC|code=200|cmd=validate endog_vars|msg=endog_vars_too_short|severity=fail"
-    display "SS_TASK_END|id=TQ02|status=fail|elapsed_sec=."
-    log close
-    exit 198
+    ss_fail_TQ02 198 "validate endog_vars" "endog_vars_too_short"
 }
 
-tsset `time_var'
+local tsvar "`time_var'"
+local _ss_need_index = 0
+capture confirm numeric variable `time_var'
+if _rc {
+    local _ss_need_index = 1
+    display "SS_RC|code=TIMEVAR_NOT_NUMERIC|var=`time_var'|severity=warn"
+}
+if `_ss_need_index' == 0 {
+    capture isid `time_var'
+    if _rc {
+        local _ss_need_index = 1
+        display "SS_RC|code=TIMEVAR_NOT_UNIQUE|var=`time_var'|severity=warn"
+    }
+}
+if `_ss_need_index' == 1 {
+    sort `time_var'
+    capture drop ss_time_index
+    local rc_drop = _rc
+    if `rc_drop' != 0 & `rc_drop' != 111 {
+        display "SS_RC|code=`rc_drop'|cmd=drop ss_time_index|msg=drop_failed|severity=warn"
+    }
+    gen long ss_time_index = _n
+    local tsvar "ss_time_index"
+    display "SS_METRIC|name=ts_timevar|value=ss_time_index"
+}
+capture tsset `tsvar'
+if _rc {
+    ss_fail_TQ02 `=_rc' "tsset `tsvar'" "tsset_failed"
+}
+capture tsreport, report
+if _rc == 0 {
+    display "SS_METRIC|name=ts_n_gaps|value=`=r(N_gaps)'"
+    if r(N_gaps) > 0 {
+        display "SS_RC|code=TIME_GAPS|n_gaps=`=r(N_gaps)'|severity=warn"
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
@@ -96,7 +151,10 @@ display "═══════════════════════�
 display "SECTION 1: VAR(`lags')估计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-var `valid_endog', lags(1/`lags')
+capture noisily var `valid_endog', lags(1/`lags')
+if _rc {
+    ss_fail_TQ02 `=_rc' "var" "var_failed"
+}
 
 local ll = e(ll)
 local aic = e(aic)
@@ -124,7 +182,6 @@ postfile `granger_results' str32 equation str32 excluded double chi2 int df doub
 foreach eq of local valid_endog {
     foreach excl of local valid_endog {
         if "`eq'" != "`excl'" {
-            quietly vargranger, estimates(.)
             capture test [`eq']: L.`excl'
             if _rc == 0 {
                 forvalues i = 2/`lags' {
@@ -145,11 +202,17 @@ foreach eq of local valid_endog {
 
 postclose `granger_results'
 
-vargranger
+capture noisily vargranger
+if _rc {
+    display "SS_RC|code=`=_rc'|cmd=vargranger|msg=vargranger_failed|severity=warn"
+}
 
 preserve
 use "temp_granger.dta", clear
-export delimited using "table_TQ02_granger.csv", replace
+capture export delimited using "table_TQ02_granger.csv", replace
+if _rc {
+    ss_fail_TQ02 `=_rc' "export delimited table_TQ02_granger.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TQ02_granger.csv|type=table|desc=granger_tests"
 restore
 
@@ -159,15 +222,31 @@ display "═══════════════════════�
 display "SECTION 3: 脉冲响应分析"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-irf create var_irf, set(irf_results) replace step(20)
+local has_irf = 1
+capture irf create var_irf, set(irf_results) replace step(20)
+if _rc {
+    local has_irf = 0
+    display "SS_RC|code=`=_rc'|cmd=irf create|msg=irf_create_failed|severity=warn"
+}
 
 local var1 : word 1 of `valid_endog'
 local var2 : word 2 of `valid_endog'
 
-irf graph oirf, impulse(`var1') response(`var2') ///
-    title("正交化脉冲响应: `var1' -> `var2'")
-graph export "fig_TQ02_irf.png", replace width(1200)
-display "SS_OUTPUT_FILE|file=fig_TQ02_irf.png|type=figure|desc=irf_plot"
+if `has_irf' {
+    capture irf graph oirf, impulse(`var1') response(`var2') ///
+        title("OIRF: `var1' -> `var2'")
+    if _rc {
+        display "SS_RC|code=`=_rc'|cmd=irf graph|msg=irf_graph_failed|severity=warn"
+        local has_irf = 0
+    }
+}
+if `has_irf' {
+    capture graph export "fig_TQ02_irf.png", replace width(1200)
+    if _rc {
+        display "SS_RC|code=`=_rc'|cmd=graph export fig_TQ02_irf.png|msg=graph_export_failed|severity=warn"
+    }
+    display "SS_OUTPUT_FILE|file=fig_TQ02_irf.png|type=figure|desc=irf_plot"
+}
 
 capture erase "irf_results.irf"
 local rc_last = _rc
@@ -199,7 +278,10 @@ postclose `var_results'
 
 preserve
 use "temp_var_results.dta", clear
-export delimited using "table_TQ02_var_result.csv", replace
+capture export delimited using "table_TQ02_var_result.csv", replace
+if _rc {
+    ss_fail_TQ02 `=_rc' "export delimited table_TQ02_var_result.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TQ02_var_result.csv|type=table|desc=var_results"
 restore
 
@@ -217,7 +299,10 @@ if `rc_last' != 0 {
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 
-save "data_TQ02_var.dta", replace
+capture save "data_TQ02_var.dta", replace
+if _rc {
+    ss_fail_TQ02 `=_rc' "save data_TQ02_var.dta" "save_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TQ02_var.dta|type=data|desc=var_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -245,6 +330,7 @@ display "SS_SUMMARY|key=aic|value=`aic'"
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
