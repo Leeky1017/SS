@@ -25,20 +25,43 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TP03
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TP03|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        display "SS_RC|code=`=_rc'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TP03|level=L2|title=Panel_GMM"
 display "SS_TASK_VERSION|version=2.0.1"
 
+* ==============================================================================
+* PHASE 5.14 REVIEW (Issue #363) / 最佳实践审查（阶段 5.14）
+* - Best practice: report AR(2) + Hansen p-values; avoid instrument proliferation; interpret with care. /
+*   最佳实践：关注 AR(2) 与 Hansen 的 p 值；避免工具变量过多；谨慎解读。
+* - SSC deps: required:xtabond2 (widely used system/diff GMM implementation; built-in alternatives differ) /
+*   SSC 依赖：必需 xtabond2（常用系统/差分 GMM 实现；内置替代在语法/输出上不等价）
+* - Error policy: fail on missing inputs/xtset/estimation; warn on singleton groups /
+*   错误策略：缺少输入/xtset/估计失败→fail；单成员组→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=363|template_id=TP03|ssc=required:xtabond2|output=csv_dta|policy=warn_fail"
+
 * ============ 依赖检测 ============
-local required_deps "xtabond2"
-foreach dep of local required_deps {
-    capture which `dep'
-    if _rc {
-        display "SS_DEP_MISSING|pkg=`dep'|hint=ssc_install_`dep'"
-        display "SS_RC|code=199|cmd=which `dep'|msg=dependency_missing|severity=fail|pkg=`dep'"
-        display "SS_TASK_END|id=TP03|status=fail|elapsed_sec=."
-        log close
-        exit 199
-    }
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
+capture which xtabond2
+if _rc {
+    display "SS_DEP_CHECK|pkg=xtabond2|source=ssc|status=missing"
+    display "SS_DEP_MISSING|pkg=xtabond2"
+    ss_fail_TP03 199 "which xtabond2" "dependency_missing"
 }
 display "SS_DEP_CHECK|pkg=xtabond2|source=ssc|status=ok"
 
@@ -57,21 +80,11 @@ if `lags' < 1 | `lags' > 5 {
     local lags = 1
 }
 
-display ""
-display ">>> 动态面板GMM参数:"
-display "    因变量: `depvar'"
-display "    自变量: `indepvars'"
-display "    GMM类型: `gmm_type'"
-display "    滞后阶数: `lags'"
-
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
-    display "SS_TASK_END|id=TP03|status=fail|elapsed_sec=."
-    log close
-    exit 601
+    ss_fail_TP03 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -84,10 +97,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `depvar' `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`var'"
-        display "SS_TASK_END|id=TP03|status=fail|elapsed_sec=."
-        log close
-        exit 200
+        ss_fail_TP03 200 "confirm variable `var'" "var_not_found"
     }
 }
 
@@ -98,24 +108,29 @@ foreach var of local indepvars {
         local valid_indep "`valid_indep' `var'"
     }
 }
+if "`valid_indep'" == "" {
+    ss_fail_TP03 200 "confirm numeric indepvars" "no_valid_indepvars"
+}
 
 capture xtset `id_var' `time_var'
 if _rc {
-    local rc_xtset = _rc
-    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed|severity=fail"
-    display "SS_TASK_END|id=TP03|status=fail|elapsed_sec=."
-    log close
-    exit `rc_xtset'
+    ss_fail_TP03 `=_rc' "xtset `id_var' `time_var'" "xtset_failed"
+}
+tempvar _ss_n_i
+bysort `id_var': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=xtset|msg=singleton_groups_present|severity=warn"
 }
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
 * ============ GMM估计 ============
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
-display "SECTION 1: `=upper("`gmm_type'")'GMM估计"
-display "═══════════════════════════════════════════════════════════════════════════════"
+display "SECTION 1: GMM"
 
 * 构建滞后因变量
 local lag_depvars ""
@@ -124,12 +139,18 @@ forvalues i = 1/`lags' {
 }
 
 if "`gmm_type'" == "difference" {
-    xtabond2 `depvar' `lag_depvars' `valid_indep', gmm(L.`depvar') iv(`valid_indep') ///
+    capture noisily xtabond2 `depvar' `lag_depvars' `valid_indep', gmm(L.`depvar') iv(`valid_indep') ///
         noleveleq robust small
+    if _rc {
+        ss_fail_TP03 `=_rc' "xtabond2" "xtabond2_failed"
+    }
 }
 else {
-    xtabond2 `depvar' `lag_depvars' `valid_indep', gmm(L.`depvar') iv(`valid_indep') ///
+    capture noisily xtabond2 `depvar' `lag_depvars' `valid_indep', gmm(L.`depvar') iv(`valid_indep') ///
         robust small
+    if _rc {
+        ss_fail_TP03 `=_rc' "xtabond2" "xtabond2_failed"
+    }
 }
 
 local n_obs = e(N)
@@ -165,15 +186,15 @@ postclose `gmm_results'
 
 preserve
 use "temp_gmm_results.dta", clear
-export delimited using "table_TP03_gmm_result.csv", replace
+capture export delimited using "table_TP03_gmm_result.csv", replace
+if _rc {
+    ss_fail_TP03 `=_rc' "export delimited table_TP03_gmm_result.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TP03_gmm_result.csv|type=table|desc=gmm_results"
 restore
 
 * ============ 诊断检验 ============
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
-display "SECTION 2: 诊断检验"
-display "═══════════════════════════════════════════════════════════════════════════════"
+display "SECTION 2: Diagnostics"
 
 * AR(1)和AR(2)检验
 local ar1 = e(ar1)
@@ -231,7 +252,10 @@ replace test = "Hansen J" in 3
 replace statistic = `hansen' in 3
 replace p_value = `hansen_p' in 3
 
-export delimited using "table_TP03_diagnostics.csv", replace
+capture export delimited using "table_TP03_diagnostics.csv", replace
+if _rc {
+    ss_fail_TP03 `=_rc' "export delimited table_TP03_diagnostics.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TP03_diagnostics.csv|type=table|desc=diagnostics"
 restore
 
@@ -245,25 +269,12 @@ if `rc_last' != 0 {
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 
-save "data_TP03_gmm.dta", replace
+capture save "data_TP03_gmm.dta", replace
+if _rc {
+    ss_fail_TP03 `=_rc' "save data_TP03_gmm.dta" "save_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TP03_gmm.dta|type=data|desc=gmm_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
-
-* ============ 任务完成摘要 ============
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
-display "TP03 任务完成摘要"
-display "═══════════════════════════════════════════════════════════════════════════════"
-display ""
-display "  样本量:          " %10.0fc `n_obs'
-display "  组数:            " %10.0fc `n_groups'
-display "  工具变量数:      " %10.0fc `n_inst'
-display ""
-display "  诊断检验:"
-display "    AR(2) p值:     " %10.4f `ar2_p'
-display "    Hansen p值:    " %10.4f `hansen_p'
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
 
 local n_dropped = 0
 display "SS_METRIC|name=n_dropped|value=`n_dropped'"
@@ -275,6 +286,7 @@ display "SS_SUMMARY|key=hansen_p|value=`hansen_p'"
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"

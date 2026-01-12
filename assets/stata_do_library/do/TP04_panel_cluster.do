@@ -25,9 +25,35 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TP04
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TP04|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        display "SS_RC|code=`=_rc'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TP04|level=L2|title=Panel_Cluster"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+* ==============================================================================
+* PHASE 5.14 REVIEW (Issue #363) / 最佳实践审查（阶段 5.14）
+* - Best practice: cluster-robust SE is a common default for panel data; multiway clustering needs specialized estimators. /
+*   最佳实践：面板数据常用按个体聚类稳健标准误；多维聚类需专门方法/命令支持。
+* - SSC deps: none (template does not implement multiway clustering) / SSC 依赖：无（本模板不实现多维聚类）
+* - Error policy: fail on missing inputs/xtset/regression; warn on unsupported options /
+*   错误策略：缺少输入/xtset/回归失败→fail；不支持选项→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=363|template_id=TP04|ssc=none|output=csv_dta|policy=warn_fail"
 
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
@@ -52,10 +78,7 @@ display "    聚类类型: `cluster_type'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
-    display "SS_TASK_END|id=TP04|status=fail|elapsed_sec=."
-    log close
-    exit 601
+    ss_fail_TP04 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -68,10 +91,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `depvar' `id_var' `time_var' `cluster_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`var'"
-        display "SS_TASK_END|id=TP04|status=fail|elapsed_sec=."
-        log close
-        exit 200
+        ss_fail_TP04 200 "confirm variable `var'" "var_not_found"
     }
 }
 
@@ -82,14 +102,22 @@ foreach var of local indepvars {
         local valid_indep "`valid_indep' `var'"
     }
 }
+if "`valid_indep'" == "" {
+    ss_fail_TP04 200 "confirm numeric indepvars" "no_valid_indepvars"
+}
 
 capture xtset `id_var' `time_var'
 if _rc {
-    local rc_xtset = _rc
-    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed|severity=fail"
-    display "SS_TASK_END|id=TP04|status=fail|elapsed_sec=."
-    log close
-    exit `rc_xtset'
+    ss_fail_TP04 `=_rc' "xtset `id_var' `time_var'" "xtset_failed"
+}
+tempvar _ss_n_i
+bysort `id_var': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=xtset|msg=singleton_groups_present|severity=warn"
 }
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
@@ -102,23 +130,30 @@ display "SECTION 1: 标准误比较"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
 * 1. OLS标准误
-quietly regress `depvar' `valid_indep'
+capture quietly regress `depvar' `valid_indep'
+if _rc {
+    ss_fail_TP04 `=_rc' "regress (ols)" "regress_failed"
+}
 matrix b_ols = e(b)
 matrix se_ols = vecdiag(cholesky(diag(vecdiag(e(V)))))
 
 * 2. 稳健标准误
-quietly regress `depvar' `valid_indep', robust
+capture quietly regress `depvar' `valid_indep', robust
+if _rc {
+    ss_fail_TP04 `=_rc' "regress, robust" "regress_failed"
+}
 matrix se_robust = vecdiag(cholesky(diag(vecdiag(e(V)))))
 
 * 3. 单向聚类标准误
-quietly regress `depvar' `valid_indep', vce(cluster `cluster_var')
+capture quietly regress `depvar' `valid_indep', vce(cluster `cluster_var')
+if _rc {
+    ss_fail_TP04 `=_rc' "regress, vce(cluster)" "regress_failed"
+}
 matrix se_cluster1 = vecdiag(cholesky(diag(vecdiag(e(V)))))
 local n_clusters = e(N_clust)
 
-* 4. 双向聚类（如果选择）
 if "`cluster_type'" == "two" {
-    quietly regress `depvar' `valid_indep', vce(cluster `id_var' `time_var')
-    matrix se_cluster2 = vecdiag(cholesky(diag(vecdiag(e(V)))))
+    display "SS_RC|code=MULTIWAY_CLUSTER_UNSUPPORTED|cmd=vce(cluster a b)|msg=fallback_to_one_way_cluster|severity=warn"
 }
 
 display ""
@@ -152,7 +187,10 @@ postclose `se_comparison'
 
 preserve
 use "temp_se_comparison.dta", clear
-export delimited using "table_TP04_comparison.csv", replace
+capture export delimited using "table_TP04_comparison.csv", replace
+if _rc {
+    ss_fail_TP04 `=_rc' "export delimited table_TP04_comparison.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TP04_comparison.csv|type=table|desc=se_comparison"
 restore
 
@@ -162,7 +200,10 @@ display "═══════════════════════�
 display "SECTION 2: 聚类回归结果"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-regress `depvar' `valid_indep', vce(cluster `cluster_var')
+capture noisily regress `depvar' `valid_indep', vce(cluster `cluster_var')
+if _rc {
+    ss_fail_TP04 `=_rc' "regress, vce(cluster)" "regress_failed"
+}
 
 tempname cluster_results
 postfile `cluster_results' str32 variable double coef double se double t double p ///
@@ -186,7 +227,10 @@ postclose `cluster_results'
 
 preserve
 use "temp_cluster_results.dta", clear
-export delimited using "table_TP04_cluster_result.csv", replace
+capture export delimited using "table_TP04_cluster_result.csv", replace
+if _rc {
+    ss_fail_TP04 `=_rc' "export delimited table_TP04_cluster_result.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TP04_cluster_result.csv|type=table|desc=cluster_results"
 restore
 
@@ -207,7 +251,10 @@ if `rc_last' != 0 {
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 
-save "data_TP04_cluster.dta", replace
+capture save "data_TP04_cluster.dta", replace
+if _rc {
+    ss_fail_TP04 `=_rc' "save data_TP04_cluster.dta" "save_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TP04_cluster.dta|type=data|desc=cluster_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -233,6 +280,7 @@ display "SS_SUMMARY|key=n_clusters|value=`n_clusters'"
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"

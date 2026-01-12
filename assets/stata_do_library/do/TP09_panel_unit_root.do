@@ -24,9 +24,35 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TP09
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TP09|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        display "SS_RC|code=`=_rc'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TP09|level=L2|title=Panel_Unit_Root"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+* ==============================================================================
+* PHASE 5.14 REVIEW (Issue #363) / 最佳实践审查（阶段 5.14）
+* - Best practice: panel unit-root results depend on lag choice and cross-sectional dependence; treat as input to downstream cointegration/levels vs differences. /
+*   最佳实践：面板单位根结果受滞后与截面相关影响；用于指导后续协整检验/差分处理。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing inputs/xtset/tests; warn on singleton panels /
+*   错误策略：缺少输入/xtset/检验失败→fail；单成员组→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=363|template_id=TP09|ssc=none|output=csv_dta|policy=warn_fail"
 
 * ============ 参数设置 ============
 local var = "__VAR__"
@@ -47,10 +73,7 @@ display "    滞后阶数: `lags'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
-    display "SS_TASK_END|id=TP09|status=fail|elapsed_sec=."
-    log close
-    exit 601
+    ss_fail_TP09 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -63,20 +86,26 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach v in `var' `id_var' `time_var' {
     capture confirm variable `v'
     if _rc {
-        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`v'"
-        display "SS_TASK_END|id=TP09|status=fail|elapsed_sec=."
-        log close
-        exit 200
+        ss_fail_TP09 200 "confirm variable `v'" "var_not_found"
     }
+}
+capture confirm numeric variable `var'
+if _rc {
+    ss_fail_TP09 200 "confirm numeric variable `var'" "series_var_not_numeric"
 }
 
 capture xtset `id_var' `time_var'
 if _rc {
-    local rc_xtset = _rc
-    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed|severity=fail"
-    display "SS_TASK_END|id=TP09|status=fail|elapsed_sec=."
-    log close
-    exit `rc_xtset'
+    ss_fail_TP09 `=_rc' "xtset `id_var' `time_var'" "xtset_failed"
+}
+tempvar _ss_n_i
+bysort `id_var': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=xtset|msg=singleton_groups_present|severity=warn"
 }
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
@@ -88,7 +117,10 @@ display "═══════════════════════�
 display "SECTION 1: Levin-Lin-Chu检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-xtunitroot llc `var', lags(`lags')
+capture noisily xtunitroot llc `var', lags(`lags')
+if _rc {
+    ss_fail_TP09 `=_rc' "xtunitroot llc" "unit_root_test_failed"
+}
 
 local llc_stat = r(z_adj)
 local llc_p = r(p_adj)
@@ -107,7 +139,10 @@ display "═══════════════════════�
 display "SECTION 2: Im-Pesaran-Shin检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-xtunitroot ips `var', lags(`lags')
+capture noisily xtunitroot ips `var', lags(`lags')
+if _rc {
+    ss_fail_TP09 `=_rc' "xtunitroot ips" "unit_root_test_failed"
+}
 
 local ips_stat = r(Wtbar)
 local ips_p = r(p_Wtbar)
@@ -126,10 +161,15 @@ display "═══════════════════════�
 display "SECTION 3: Fisher-ADF检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-xtunitroot fisher `var', dfuller lags(`lags')
+capture noisily xtunitroot fisher `var', dfuller lags(`lags')
+if _rc {
+    ss_fail_TP09 `=_rc' "xtunitroot fisher" "unit_root_test_failed"
+}
 
 local fisher_chi2 = r(chi2_p)
 local fisher_p = r(P_chi2_p)
+display "SS_METRIC|name=fisher_chi2|value=`fisher_chi2'"
+display "SS_METRIC|name=fisher_p|value=`fisher_p'"
 
 display ""
 display ">>> Fisher-ADF检验 (H0: 所有面板有单位根):"
@@ -170,14 +210,20 @@ replace test = "Fisher-ADF" in 3
 replace statistic = `fisher_chi2' in 3
 replace p_value = `fisher_p' in 3
 
-export delimited using "table_TP09_unit_root.csv", replace
+capture export delimited using "table_TP09_unit_root.csv", replace
+if _rc {
+    ss_fail_TP09 `=_rc' "export delimited table_TP09_unit_root.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TP09_unit_root.csv|type=table|desc=unit_root_tests"
 restore
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 
-save "data_TP09_unit_root.dta", replace
+capture save "data_TP09_unit_root.dta", replace
+if _rc {
+    ss_fail_TP09 `=_rc' "save data_TP09_unit_root.dta" "save_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TP09_unit_root.dta|type=data|desc=unit_root_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -207,6 +253,7 @@ display "SS_SUMMARY|key=llc_p|value=`llc_p'"
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"

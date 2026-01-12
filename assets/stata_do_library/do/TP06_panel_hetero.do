@@ -24,9 +24,35 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TP06
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TP06|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        display "SS_RC|code=`=_rc'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TP06|level=L2|title=Panel_Hetero"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+* ==============================================================================
+* PHASE 5.14 REVIEW (Issue #363) / 最佳实践审查（阶段 5.14）
+* - Best practice: heteroskedasticity evidence should guide robust inference choices (cluster/robust/GLS) rather than be treated as a checkbox. /
+*   最佳实践：异方差证据应服务于推断选择（robust/cluster/GLS），而非“做完就算”。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing inputs/xtset/test regressions; warn on singleton groups /
+*   错误策略：缺少输入/xtset/检验回归失败→fail；单成员组→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=363|template_id=TP06|ssc=none|output=csv_dta|policy=warn_fail"
 
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
@@ -43,10 +69,7 @@ display "    自变量: `indepvars'"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
-    display "SS_TASK_END|id=TP06|status=fail|elapsed_sec=."
-    log close
-    exit 601
+    ss_fail_TP06 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -59,10 +82,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `depvar' `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`var'"
-        display "SS_TASK_END|id=TP06|status=fail|elapsed_sec=."
-        log close
-        exit 200
+        ss_fail_TP06 200 "confirm variable `var'" "var_not_found"
     }
 }
 
@@ -73,14 +93,22 @@ foreach var of local indepvars {
         local valid_indep "`valid_indep' `var'"
     }
 }
+if "`valid_indep'" == "" {
+    ss_fail_TP06 200 "confirm numeric indepvars" "no_valid_indepvars"
+}
 
 capture xtset `id_var' `time_var'
 if _rc {
-    local rc_xtset = _rc
-    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed|severity=fail"
-    display "SS_TASK_END|id=TP06|status=fail|elapsed_sec=."
-    log close
-    exit `rc_xtset'
+    ss_fail_TP06 `=_rc' "xtset `id_var' `time_var'" "xtset_failed"
+}
+tempvar _ss_n_i
+bysort `id_var': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=xtset|msg=singleton_groups_present|severity=warn"
 }
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
@@ -92,8 +120,14 @@ display "═══════════════════════�
 display "SECTION 1: Modified Wald检验（组间异方差）"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-quietly xtreg `depvar' `valid_indep', fe
-predict double resid_fe, e
+capture quietly xtreg `depvar' `valid_indep', fe
+if _rc {
+    ss_fail_TP06 `=_rc' "xtreg fe" "estimation_failed"
+}
+capture predict double resid_fe, e
+if _rc {
+    ss_fail_TP06 `=_rc' "predict resid_fe, e" "predict_failed"
+}
 
 * 计算各组残差方差
 bysort `id_var': egen double var_resid = sd(resid_fe)
@@ -136,15 +170,24 @@ display "═══════════════════════�
 display "SECTION 2: Breusch-Pagan检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-quietly regress `depvar' `valid_indep'
-predict double resid_ols, residuals
+capture quietly regress `depvar' `valid_indep'
+if _rc {
+    ss_fail_TP06 `=_rc' "regress" "regress_failed"
+}
+capture predict double resid_ols, residuals
+if _rc {
+    ss_fail_TP06 `=_rc' "predict resid_ols, residuals" "predict_failed"
+}
 
 generate double resid2 = resid_ols^2
 quietly summarize resid2
 local mean_resid2 = r(mean)
 generate double g = resid2 / `mean_resid2' - 1
 
-quietly regress g `valid_indep'
+capture quietly regress g `valid_indep'
+if _rc {
+    ss_fail_TP06 `=_rc' "regress g indepvars" "regress_failed"
+}
 local bp_chi2 = e(mss) / 2
 local bp_df = e(df_m)
 local bp_p = chi2tail(`bp_df', `bp_chi2')
@@ -177,7 +220,10 @@ replace statistic = `bp_chi2' in 2
 replace p_value = `bp_p' in 2
 replace conclusion = cond(`bp_p' < 0.05, "存在异方差", "无异方差") in 2
 
-export delimited using "table_TP06_hetero_tests.csv", replace
+capture export delimited using "table_TP06_hetero_tests.csv", replace
+if _rc {
+    ss_fail_TP06 `=_rc' "export delimited table_TP06_hetero_tests.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TP06_hetero_tests.csv|type=table|desc=hetero_tests"
 restore
 
@@ -185,7 +231,10 @@ restore
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 
-save "data_TP06_hetero.dta", replace
+capture save "data_TP06_hetero.dta", replace
+if _rc {
+    ss_fail_TP06 `=_rc' "save data_TP06_hetero.dta" "save_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TP06_hetero.dta|type=data|desc=hetero_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -216,6 +265,7 @@ display "SS_SUMMARY|key=wald_p|value=`wald_p'"
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"

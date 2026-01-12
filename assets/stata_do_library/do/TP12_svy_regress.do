@@ -22,9 +22,35 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TP12
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TP12|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        display "SS_RC|code=`=_rc'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TP12|level=L1|title=Svy_Regress"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+* ==============================================================================
+* PHASE 5.14 REVIEW (Issue #363) / 最佳实践审查（阶段 5.14）
+* - Best practice: declare survey design via svyset and use svy-prefixed estimators; report design-based SE and df. /
+*   最佳实践：用 svyset 声明抽样设计并使用 svy 前缀估计；报告设计型标准误与自由度。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing inputs/svyset/estimation; warn on single-PSU strata /
+*   错误策略：缺少输入/svyset/估计失败→fail；单 PSU 分层→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=363|template_id=TP12|ssc=none|output=csv_dta|policy=warn_fail"
 
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
@@ -35,10 +61,7 @@ local psu = "__PSU__"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
-    display "SS_TASK_END|id=TP12|status=fail|elapsed_sec=."
-    log close
-    exit 601
+    ss_fail_TP12 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -46,27 +69,83 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+capture confirm variable `depvar'
+if _rc {
+    ss_fail_TP12 200 "confirm variable `depvar'" "var_not_found"
+}
+local valid_indep ""
+foreach v of local indepvars {
+    capture confirm numeric variable `v'
+    if !_rc {
+        local valid_indep "`valid_indep' `v'"
+    }
+}
+if "`valid_indep'" == "" {
+    ss_fail_TP12 200 "confirm numeric indepvars" "no_valid_indepvars"
+}
+foreach v in `psu' `strata' `pweight' {
+    capture confirm variable `v'
+    if _rc {
+        ss_fail_TP12 200 "confirm variable `v'" "var_not_found"
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
-svyset `psu' [pweight=`pweight'], strata(`strata')
-svy: regress `depvar' `indepvars'
-local r2 = e(r2)
-display "SS_METRIC|name=r2|value=`r2'"
+capture svyset `psu' [pweight=`pweight'], strata(`strata')
+if _rc {
+    ss_fail_TP12 `=_rc' "svyset" "svyset_failed"
+}
+capture svy: regress `depvar' `valid_indep'
+if _rc {
+    ss_fail_TP12 `=_rc' "svy: regress" "estimation_failed"
+}
+local n_obs = e(N)
+display "SS_METRIC|name=n_obs|value=`n_obs'"
+capture noisily svydescribe
+local rc_svydescribe = _rc
+if `rc_svydescribe' != 0 {
+    display "SS_RC|code=`rc_svydescribe'|cmd=svydescribe|msg=svydescribe_failed|severity=warn"
+}
+
+tempname reg_results
+postfile `reg_results' str64 term double coef double se double t double p using "temp_svy_regress.dta", replace
+matrix b = e(b)
+matrix V = e(V)
+local colnames : colnames b
+local k : word count `colnames'
+forvalues i = 1/`k' {
+    local term : word `i' of `colnames'
+    local coef = b[1, `i']
+    local se = sqrt(V[`i', `i'])
+    local t = `coef' / `se'
+    local p = 2 * ttail(e(df_r), abs(`t'))
+    post `reg_results' ("`term'") (`coef') (`se') (`t') (`p')
+}
+postclose `reg_results'
 
 preserve
-clear
-set obs 1
-gen str32 model = "Survey Regression"
-gen double r2 = `r2'
-export delimited using "table_TP12_svyreg.csv", replace
+use "temp_svy_regress.dta", clear
+capture export delimited using "table_TP12_svyreg.csv", replace
+if _rc {
+    ss_fail_TP12 `=_rc' "export delimited table_TP12_svyreg.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TP12_svyreg.csv|type=table|desc=svy_reg"
 restore
 
+capture erase "temp_svy_regress.dta"
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
-save "data_TP12_svy.dta", replace
+capture save "data_TP12_svy.dta", replace
+if _rc {
+    ss_fail_TP12 `=_rc' "save data_TP12_svy.dta" "save_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TP12_svy.dta|type=data|desc=svy_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -75,11 +154,12 @@ display "SS_METRIC|name=n_dropped|value=`n_dropped'"
 
 display "SS_SUMMARY|key=n_input|value=`n_input'"
 display "SS_SUMMARY|key=n_output|value=`n_output'"
-display "SS_SUMMARY|key=r2|value=`r2'"
+display "SS_SUMMARY|key=df_r|value=`=e(df_r)'"
 
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"

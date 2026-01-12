@@ -22,9 +22,35 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TP11
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TP11|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        display "SS_RC|code=`=_rc'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TP11|level=L1|title=Svy_Mean"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+* ==============================================================================
+* PHASE 5.14 REVIEW (Issue #363) / 最佳实践审查（阶段 5.14）
+* - Best practice: always declare survey design (PSU/strata/weights) before estimation; interpret SE/df based on design. /
+*   最佳实践：估计前必须声明抽样设计（PSU/分层/权重）；标准误与自由度依赖设计设定。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing inputs/svyset/estimation; warn on small PSU counts /
+*   错误策略：缺少输入/svyset/估计失败→fail；PSU 过少→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=363|template_id=TP11|ssc=none|output=csv_dta|policy=warn_fail"
 
 local vars = "__VARS__"
 local pweight = "__PWEIGHT__"
@@ -34,10 +60,7 @@ local psu = "__PSU__"
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
-    display "SS_TASK_END|id=TP11|status=fail|elapsed_sec=."
-    log close
-    exit 601
+    ss_fail_TP11 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -45,28 +68,78 @@ display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+foreach v in `psu' `strata' `pweight' {
+    capture confirm variable `v'
+    if _rc {
+        ss_fail_TP11 200 "confirm variable `v'" "var_not_found"
+    }
+}
+local valid_vars ""
+foreach v of local vars {
+    capture confirm numeric variable `v'
+    if !_rc {
+        local valid_vars "`valid_vars' `v'"
+    }
+}
+if "`valid_vars'" == "" {
+    ss_fail_TP11 200 "confirm numeric vars" "no_valid_vars"
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
 
-svyset `psu' [pweight=`pweight'], strata(`strata')
-svy: mean `vars'
+capture svyset `psu' [pweight=`pweight'], strata(`strata')
+if _rc {
+    ss_fail_TP11 `=_rc' "svyset" "svyset_failed"
+}
+capture svy: mean `valid_vars'
+if _rc {
+    ss_fail_TP11 `=_rc' "svy: mean" "estimation_failed"
+}
 
 matrix b = e(b)
 matrix V = e(V)
-display "SS_METRIC|name=n_obs|value=`e(N)'"
+local n_obs = e(N)
+display "SS_METRIC|name=n_obs|value=`n_obs'"
+capture noisily svydescribe
+local rc_svydescribe = _rc
+if `rc_svydescribe' != 0 {
+    display "SS_RC|code=`rc_svydescribe'|cmd=svydescribe|msg=svydescribe_failed|severity=warn"
+}
+
+tempname mean_results
+postfile `mean_results' str64 variable double mean double se using "temp_svy_mean.dta", replace
+local colnames : colnames b
+local k : word count `colnames'
+forvalues i = 1/`k' {
+    local vname : word `i' of `colnames'
+    local mean = b[1, `i']
+    local se = sqrt(V[`i', `i'])
+    post `mean_results' ("`vname'") (`mean') (`se')
+}
+postclose `mean_results'
 
 preserve
-clear
-set obs 1
-gen str32 analysis = "Survey Mean"
-export delimited using "table_TP11_svymean.csv", replace
+use "temp_svy_mean.dta", clear
+capture export delimited using "table_TP11_svymean.csv", replace
+if _rc {
+    ss_fail_TP11 `=_rc' "export delimited table_TP11_svymean.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TP11_svymean.csv|type=table|desc=svy_mean"
 restore
 
+capture erase "temp_svy_mean.dta"
+local rc_last = _rc
+if `rc_last' != 0 {
+    display "SS_RC|code=`rc_last'|cmd=capture|msg=nonzero_rc|severity=warn"
+}
+
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
-save "data_TP11_svy.dta", replace
+capture save "data_TP11_svy.dta", replace
+if _rc {
+    ss_fail_TP11 `=_rc' "save data_TP11_svy.dta" "save_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TP11_svy.dta|type=data|desc=svy_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 
@@ -80,6 +153,7 @@ display "SS_SUMMARY|key=n_dropped|value=`n_dropped'"
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"

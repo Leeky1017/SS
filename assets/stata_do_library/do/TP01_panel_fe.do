@@ -25,9 +25,35 @@ timer on 1
 
 log using "result.log", text replace
 
+program define ss_fail_TP01
+    args code cmd msg
+    timer off 1
+    quietly timer list 1
+    local elapsed = r(t1)
+    display "SS_RC|code=`code'|cmd=`cmd'|msg=`msg'|severity=fail"
+    display "SS_METRIC|name=task_success|value=0"
+    display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
+    display "SS_TASK_END|id=TP01|status=fail|elapsed_sec=`elapsed'"
+    capture log close
+    if _rc != 0 {
+        display "SS_RC|code=`=_rc'|cmd=log close|msg=log_close_failed|severity=warn"
+    }
+    exit `code'
+end
+
 display "SS_TASK_BEGIN|id=TP01|level=L2|title=Panel_FE"
 display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+* ==============================================================================
+* PHASE 5.14 REVIEW (Issue #363) / 最佳实践审查（阶段 5.14）
+* - Best practice: FE is preferred when unobserved heterogeneity correlates with regressors; cluster SE at panel level by default. /
+*   最佳实践：当不可观测异质性与解释变量相关时优先使用 FE；默认按个体聚类稳健标准误。
+* - SSC deps: none / SSC 依赖：无
+* - Error policy: fail on missing inputs/xtset/estimation; warn on singleton groups /
+*   错误策略：缺少输入/xtset/估计失败→fail；单成员组→warn
+* ==============================================================================
+display "SS_BP_REVIEW|issue=363|template_id=TP01|ssc=none|output=csv_dta|policy=warn_fail"
 
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
@@ -41,22 +67,11 @@ if "`fe_type'" == "" {
     local fe_type = "individual"
 }
 
-display ""
-display ">>> 固定效应模型参数:"
-display "    因变量: `depvar'"
-display "    自变量: `indepvars'"
-display "    个体ID: `id_var'"
-display "    时间: `time_var'"
-display "    FE类型: `fe_type'"
-
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
-    display "SS_RC|code=601|cmd=confirm file data.csv|msg=input_file_not_found|severity=fail"
-    display "SS_TASK_END|id=TP01|status=fail|elapsed_sec=."
-    log close
-    exit 601
+    ss_fail_TP01 601 "confirm file data.csv" "input_file_not_found"
 }
 import delimited "data.csv", clear
 local n_input = _N
@@ -69,10 +84,7 @@ display "SS_STEP_BEGIN|step=S02_validate_inputs"
 foreach var in `depvar' `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
-        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail|var=`var'"
-        display "SS_TASK_END|id=TP01|status=fail|elapsed_sec=."
-        log close
-        exit 200
+        ss_fail_TP01 200 "confirm variable `var'" "var_not_found"
     }
 }
 
@@ -83,6 +95,9 @@ foreach var of local indepvars {
         local valid_indep "`valid_indep' `var'"
     }
 }
+if "`valid_indep'" == "" {
+    ss_fail_TP01 200 "confirm numeric indepvars" "no_valid_indepvars"
+}
 
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
@@ -91,67 +106,72 @@ display "SS_STEP_BEGIN|step=S03_analysis"
 * 设置面板
 capture xtset `id_var' `time_var'
 if _rc {
-    local rc_xtset = _rc
-    display "SS_RC|code=`rc_xtset'|cmd=xtset|msg=xtset_failed|severity=fail"
-    display "SS_TASK_END|id=TP01|status=fail|elapsed_sec=."
-    log close
-    exit `rc_xtset'
+    ss_fail_TP01 `=_rc' "xtset `id_var' `time_var'" "xtset_failed"
 }
 
 quietly xtdescribe
 local n_panels = r(n)
 local n_times = r(max)
+tempvar _ss_n_i
+bysort `id_var': gen long `_ss_n_i' = _N
+quietly count if `_ss_n_i' == 1
+local n_singletons = r(N)
+drop `_ss_n_i'
+display "SS_METRIC|name=n_singletons|value=`n_singletons'"
+if `n_singletons' > 0 {
+    display "SS_RC|code=312|cmd=xtset|msg=singleton_groups_present|severity=warn"
+}
 
-display ""
-display ">>> 面板结构:"
-display "    个体数: `n_panels'"
-display "    时间数: `n_times'"
-
-* ============ 固定效应估计 ============
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
-display "SECTION 1: 固定效应模型估计"
-display "═══════════════════════════════════════════════════════════════════════════════"
-
-* 构建命令
-local vce_opt "robust"
+* Inference default / 推断默认：按个体聚类；如提供 cluster_var 且存在则使用其聚类
+local cluster_for_vce "`id_var'"
 if "`cluster_var'" != "" {
     capture confirm variable `cluster_var'
     if !_rc {
-        local vce_opt "cluster `cluster_var'"
+        local cluster_for_vce "`cluster_var'"
     }
 }
+local vce_opt "cluster `cluster_for_vce'"
 
 if "`fe_type'" == "individual" {
     display ">>> 个体固定效应模型..."
-    xtreg `depvar' `valid_indep', fe vce(`vce_opt')
+    capture noisily xtreg `depvar' `valid_indep', fe vce(`vce_opt')
+    if _rc {
+        ss_fail_TP01 `=_rc' "fe_estimation" "estimation_failed"
+    }
 }
 else if "`fe_type'" == "time" {
-    display ">>> 时间固定效应模型..."
-    regress `depvar' `valid_indep' i.`time_var', vce(`vce_opt')
+    capture noisily regress `depvar' `valid_indep' i.`time_var', vce(cluster `cluster_for_vce')
+    if _rc {
+        ss_fail_TP01 `=_rc' "fe_estimation" "estimation_failed"
+    }
 }
 else {
-    display ">>> 双向固定效应模型..."
-    xtreg `depvar' `valid_indep' i.`time_var', fe vce(`vce_opt')
+    capture noisily xtreg `depvar' `valid_indep' i.`time_var', fe vce(`vce_opt')
+    if _rc {
+        ss_fail_TP01 `=_rc' "fe_estimation" "estimation_failed"
+    }
 }
 
-local r2_within = e(r2_w)
-local r2_between = e(r2_b)
-local r2_overall = e(r2_o)
-local sigma_u = e(sigma_u)
-local sigma_e = e(sigma_e)
-local rho = e(rho)
+local r2_within = .
+local r2_between = .
+local r2_overall = .
+local sigma_u = .
+local sigma_e = .
+local rho = .
 local n_obs = e(N)
-local n_groups = e(N_g)
-
-display ""
-display ">>> 模型拟合:"
-display "    R2 (within): " %8.4f `r2_within'
-display "    R2 (between): " %8.4f `r2_between'
-display "    R2 (overall): " %8.4f `r2_overall'
-display "    sigma_u: " %8.4f `sigma_u'
-display "    sigma_e: " %8.4f `sigma_e'
-display "    rho (个体效应占比): " %8.4f `rho'
+local n_groups = `n_panels'
+if "`fe_type'" == "time" {
+    local r2_overall = e(r2)
+    local sigma_e = e(rmse)
+}
+else {
+    local r2_within = e(r2_w)
+    local r2_between = e(r2_b)
+    local r2_overall = e(r2_o)
+    local sigma_u = e(sigma_u)
+    local sigma_e = e(sigma_e)
+    local rho = e(rho)
+}
 
 display "SS_METRIC|name=r2_within|value=`r2_within'"
 display "SS_METRIC|name=rho|value=`rho'"
@@ -182,29 +202,19 @@ postclose `fe_results'
 
 preserve
 use "temp_fe_results.dta", clear
-export delimited using "table_TP01_fe_result.csv", replace
+capture export delimited using "table_TP01_fe_result.csv", replace
+if _rc {
+    ss_fail_TP01 `=_rc' "export delimited table_TP01_fe_result.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TP01_fe_result.csv|type=table|desc=fe_results"
 restore
 
-* ============ 固定效应检验 ============
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
-display "SECTION 2: 固定效应检验"
-display "═══════════════════════════════════════════════════════════════════════════════"
-
 * F检验：所有固定效应=0
+local f_test = .
+local f_p = .
 if "`fe_type'" != "time" {
-    display ""
-    display ">>> F检验 (H0: 所有个体效应=0):"
     local f_test = e(F_f)
     local f_p = Ftail(e(df_a), e(df_r), `f_test')
-    display "    F统计量: " %10.4f `f_test'
-    display "    p值: " %10.4f `f_p'
-    
-    if `f_p' < 0.05 {
-        display "    结论: 拒绝H0，存在显著个体效应"
-    }
-    
     display "SS_METRIC|name=f_test|value=`f_test'"
 }
 
@@ -220,12 +230,15 @@ generate str50 conclusion = ""
 replace test = "F-test (individual effects)" in 1
 replace statistic = `f_test' in 1
 replace p_value = `f_p' in 1
-replace conclusion = cond(`f_p' < 0.05, "显著个体效应", "无显著个体效应") in 1
+replace conclusion = cond(`f_p' < 0.05, "sig_fe", "no_sig_fe") in 1
 
 replace test = "rho (个体效应占比)" in 2
 replace statistic = `rho' in 2
 
-export delimited using "table_TP01_fe_test.csv", replace
+capture export delimited using "table_TP01_fe_test.csv", replace
+if _rc {
+    ss_fail_TP01 `=_rc' "export delimited table_TP01_fe_test.csv" "export_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TP01_fe_test.csv|type=table|desc=fe_test"
 restore
 
@@ -239,25 +252,12 @@ if `rc_last' != 0 {
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
 
-save "data_TP01_fe.dta", replace
+capture save "data_TP01_fe.dta", replace
+if _rc {
+    ss_fail_TP01 `=_rc' "save data_TP01_fe.dta" "save_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TP01_fe.dta|type=data|desc=fe_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
-
-* ============ 任务完成摘要 ============
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
-display "TP01 任务完成摘要"
-display "═══════════════════════════════════════════════════════════════════════════════"
-display ""
-display "  样本量:          " %10.0fc `n_obs'
-display "  个体数:          " %10.0fc `n_groups'
-display "  FE类型:          `fe_type'"
-display ""
-display "  模型拟合:"
-display "    R2(within):    " %10.4f `r2_within'
-display "    rho:           " %10.4f `rho'
-display ""
-display "═══════════════════════════════════════════════════════════════════════════════"
 
 local n_dropped = 0
 display "SS_METRIC|name=n_dropped|value=`n_dropped'"
@@ -269,6 +269,7 @@ display "SS_SUMMARY|key=r2_within|value=`r2_within'"
 timer off 1
 quietly timer list 1
 local elapsed = r(t1)
+display "SS_METRIC|name=n_obs|value=`n_output'"
 display "SS_METRIC|name=n_missing|value=0"
 display "SS_METRIC|name=task_success|value=1"
 display "SS_METRIC|name=elapsed_sec|value=`elapsed'"
