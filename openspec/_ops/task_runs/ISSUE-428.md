@@ -1,7 +1,7 @@
 # ISSUE-428
 - Issue: #428
 - Branch: task/428-backfill-issue-422-runlog
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/429
 
 ## Goal
 - Backfill missing PR link and final status in `openspec/_ops/task_runs/ISSUE-422.md`.
@@ -71,5 +71,13 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - N/A
+
+### 2026-01-12 Create PR
+- Command:
+  - `gh pr create --title "[DOCS] Backfill ISSUE-422 run log (#428)" --body "Closes #428 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/429`
 - Evidence:
   - N/A
