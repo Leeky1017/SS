@@ -1,7 +1,7 @@
 # ISSUE-383
 - Issue: #383
 - Branch: task/383-fix-issue-372-evidence-pointers
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/384
 
 ## Plan
 - Update `openspec/_ops/task_runs/ISSUE-372.md` evidence pointers to the archived Rulebook task path.
