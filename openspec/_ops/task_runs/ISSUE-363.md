@@ -20,12 +20,12 @@
   - `rulebook task validate issue-363-phase-5-14-panel-hlm-tp-tq`
 - Key output:
   - `Worktree: .worktrees/issue-363-phase-5-14-panel-hlm-tp-tq`
-  - `Task: rulebook/tasks/issue-363-phase-5-14-panel-hlm-tp-tq/`
+  - `Task: rulebook/tasks/archive/2026-01-12-issue-363-phase-5-14-panel-hlm-tp-tq/`
 - Evidence:
   - `openspec/specs/ss-do-template-optimization/task_cards/phase-5.14__panel-hlm-TP-TQ.md`
-  - `rulebook/tasks/issue-363-phase-5-14-panel-hlm-tp-tq/proposal.md`
-  - `rulebook/tasks/issue-363-phase-5-14-panel-hlm-tp-tq/tasks.md`
-  - `rulebook/tasks/issue-363-phase-5-14-panel-hlm-tp-tq/specs/ss-do-template-optimization/spec.md`
+  - `rulebook/tasks/archive/2026-01-12-issue-363-phase-5-14-panel-hlm-tp-tq/proposal.md`
+  - `rulebook/tasks/archive/2026-01-12-issue-363-phase-5-14-panel-hlm-tp-tq/tasks.md`
+  - `rulebook/tasks/archive/2026-01-12-issue-363-phase-5-14-panel-hlm-tp-tq/specs/ss-do-template-optimization/spec.md`
 
 ### 2026-01-12 13:02 Review record coverage (TP/TQ)
 - Command:
@@ -83,3 +83,24 @@
   - `gh pr merge --auto --squash 369`
 - Key output:
   - `will be automatically merged via squash when all requirements are met`
+
+### 2026-01-12 13:17 Merge verified
+- Command:
+  - `gh pr view 369 --json state,mergedAt -q '"state=" + .state + "\nmergedAt=" + (.mergedAt // "")'`
+- Key output:
+  - `state=MERGED`
+  - `mergedAt=2026-01-12T05:17:23Z`
+
+### 2026-01-12 13:18 Controlplane sync
+- Command:
+  - `scripts/agent_controlplane_sync.sh`
+- Key output:
+  - `Already up to date.`
+
+### 2026-01-12 13:20 Rulebook archive
+- Command:
+  - `rulebook task archive issue-363-phase-5-14-panel-hlm-tp-tq`
+- Key output:
+  - `✅ Task issue-363-phase-5-14-panel-hlm-tp-tq archived successfully`
+- Evidence:
+  - `rulebook/tasks/archive/2026-01-12-issue-363-phase-5-14-panel-hlm-tp-tq/`
