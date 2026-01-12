@@ -53,3 +53,13 @@
 - Command: `gh pr create --base main --head task/414-step1-method-guidance ...`
 - Key output: `https://github.com/Leeky1017/SS/pull/417`
 - Evidence: `.worktrees/issue-414-step1-method-guidance/openspec/_ops/task_runs/ISSUE-414.md`
+
+### 2026-01-12 22:16 triage ci failure (openspec validate)
+- Command: `openspec validate --specs --strict --no-interactive --json`
+- Key output: `ss-frontend-desktop-pro: Requirement must contain SHALL or MUST keyword`
+- Evidence: `.worktrees/issue-414-step1-method-guidance/openspec/specs/ss-frontend-desktop-pro/spec.md`
+
+### 2026-01-12 22:16 validate openspec specs
+- Command: `openspec validate --specs --strict --no-interactive`
+- Key output: `Totals: 29 passed, 0 failed (29 items)`
+- Evidence: `.worktrees/issue-414-step1-method-guidance/openspec/specs/ss-frontend-desktop-pro/spec.md`

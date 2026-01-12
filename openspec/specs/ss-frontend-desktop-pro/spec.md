@@ -73,7 +73,7 @@ The frontend MUST persist:
 
 ### Requirement: Step 1 MUST provide guided analysis method selection for requirement drafting
 
-To reduce vague requirements and improve downstream template/capability selection, Step 1 SHOULD provide an optional guided method selection UI (category → sub-method) that generates an editable structured requirement template.
+To reduce vague requirements and improve downstream template/capability selection, Step 1 MUST provide an optional guided method selection UI (category → sub-method) that generates an editable structured requirement template.
 
 This MUST:
 - render a small set of analysis categories as clickable cards (including a “free description” option)
