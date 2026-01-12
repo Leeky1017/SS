@@ -165,3 +165,8 @@
 - Command: `gh pr view 411 --json number,state,mergedAt,url`
 - Key output: `state=MERGED mergedAt=2026-01-12T13:05:51Z`
 - Evidence: PR
+
+### 2026-01-12 21:19 Archive Rulebook task (PASS)
+- Command: `rulebook_task_archive issue-406-deploy-ready-r090`
+- Key output: `Task issue-406-deploy-ready-r090 archived successfully`
+- Evidence: `rulebook/tasks/archive/2026-01-12-issue-406-deploy-ready-r090/`
