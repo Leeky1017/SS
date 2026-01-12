@@ -1,7 +1,7 @@
 # ISSUE-391
 - Issue: #391
 - Branch: task/391-deploy-ready-r031, task/391-deploy-ready-r031-closeout
-- PR: https://github.com/Leeky1017/SS/pull/400
+- PR: https://github.com/Leeky1017/SS/pull/400, https://github.com/Leeky1017/SS/pull/402
 
 ## Plan
 - Add `output_formats` request + defaults.
