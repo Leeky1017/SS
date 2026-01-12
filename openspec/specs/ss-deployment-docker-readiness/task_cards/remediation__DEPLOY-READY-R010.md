@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #387
 - Spec: `openspec/specs/ss-deployment-docker-readiness/spec.md`
 - Related specs:
   - `openspec/specs/ss-ports-and-services/spec.md`
@@ -43,4 +43,3 @@
 - [ ] 镜像可分别启动 API 与 Worker（不要求真正跑 Stata，但启动链路明确）
 - [ ] 依赖锁定策略明确（requirements.txt 或 lock file）且被 Dockerfile 使用
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
-
