@@ -3,6 +3,7 @@ import type { ApiClient } from '../../api/client'
 import type { ApiError } from '../../api/errors'
 import { ErrorPanel } from '../../components/ErrorPanel'
 import { loadAppState, saveAppState, setAuthToken, setLastJobId } from '../../state/storage'
+import { AnalysisGuidePanel } from './AnalysisGuidePanel'
 
 type Step1Props = { api: ApiClient }
 
@@ -15,13 +16,6 @@ type Step1Model = {
   setTaskCode: (next: string) => void
   setRequirement: (next: string) => void
   submit: () => Promise<void>
-}
-
-function tplText(id: 'ols' | 'diff'): string {
-  if (id === 'diff') {
-    return '希望采用 DID（双重差分）检验政策冲击对企业表现的影响，需要控制个体与时间固定效应，并进行并行趋势检验。'
-  }
-  return '希望进行面板回归（OLS/FE/RE），分析核心解释变量对被解释变量的影响，需要控制个体与时间固定效应，并进行稳健性检验。'
 }
 
 function formError(message: string, requestId: string): ApiError {
@@ -133,14 +127,6 @@ function RequirementField(props: { value: string; busy: boolean; onChange: (v: s
         <span className="section-label required" style={{ margin: 0 }}>
           研究设想与需求
         </span>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn btn-secondary" type="button" style={{ height: 28 }} onClick={() => props.onChange(tplText('ols'))}>
-            面板回归
-          </button>
-          <button className="btn btn-secondary" type="button" style={{ height: 28 }} onClick={() => props.onChange(tplText('diff'))}>
-            DID 模型
-          </button>
-        </div>
       </div>
       <textarea
         placeholder="例如：分析 ESG 表现对企业价值的影响，需要控制个体与时间效应..."
@@ -181,6 +167,7 @@ export function Step1(props: Step1Props) {
       <DevHintPanel hint={model.hint} />
       <ErrorPanel error={model.error} />
       <TaskCodeField value={model.taskCode} busy={model.busy} onChange={model.setTaskCode} />
+      <AnalysisGuidePanel busy={model.busy} onApplyTemplate={model.setRequirement} />
       <RequirementField value={model.requirement} busy={model.busy} onChange={model.setRequirement} onSubmit={onSubmit} />
       <Step1Actions busy={model.busy} onSubmit={onSubmit} />
     </div>
