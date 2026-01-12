@@ -11,11 +11,12 @@ WORKDIR /app
 
 RUN mkdir -p /data/jobs /data/queue
 
-COPY pyproject.toml /app/pyproject.toml
-COPY src /app/src
+COPY requirements.txt /app/requirements.txt
 
 RUN python -m pip install --no-cache-dir --upgrade pip \
-    && python -m pip install --no-cache-dir .
+    && python -m pip install --no-cache-dir -r requirements.txt
+
+COPY src /app/src
 
 COPY assets /app/assets
 
