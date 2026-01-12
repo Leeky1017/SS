@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #372
 - Spec: `openspec/specs/ss-deployment-docker-readiness/spec.md`
 - Related specs:
   - `openspec/specs/ss-do-template-library/spec.md`
@@ -48,4 +48,3 @@
 - [ ] 明确“必须支持/可选支持/不支持”的边界，并列出风险项与建议处置
 - [ ] 把缺口映射到整改任务（至少覆盖 DEPLOY-READY-R030）
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
-
