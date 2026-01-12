@@ -22,7 +22,6 @@ from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
 
-
 class JobService:
     """Job lifecycle: create → confirm → queue."""
 
@@ -112,29 +111,17 @@ class JobService:
                 extra={"tenant_id": tenant_id, "job_id": job_id, "status": job.status.value},
             )
             emit_job_audit(
-                audit=self._audit,
-                audit_context=self._audit_context,
-                action="job.confirm",
-                tenant_id=tenant_id,
-                job_id=job_id,
-                result="noop",
-                changes={"status": job.status.value},
-                metadata={"confirmed": False},
+                audit=self._audit, audit_context=self._audit_context, action="job.confirm",
+                tenant_id=tenant_id, job_id=job_id, result="noop",
+                changes={"status": job.status.value}, metadata={"confirmed": False},
             )
             return job
         validate_confirm_not_blocked(
-            store=self._store,
-            tenant_id=tenant_id,
-            job_id=job_id,
-            answers=answers,
+            store=self._store, tenant_id=tenant_id, job_id=job_id, answers=answers
         )
         updated = self.trigger_run(
-            tenant_id=tenant_id,
-            job_id=job_id,
-            notes=notes,
-            output_formats=output_formats,
-            variable_corrections=variable_corrections,
-            answers=answers,
+            tenant_id=tenant_id, job_id=job_id, notes=notes, output_formats=output_formats,
+            variable_corrections=variable_corrections, answers=answers,
             default_overrides=default_overrides,
             expert_suggestions_feedback=expert_suggestions_feedback,
         )
@@ -143,14 +130,9 @@ class JobService:
             extra={"tenant_id": tenant_id, "job_id": job_id, "status": updated.status.value},
         )
         emit_job_audit(
-            audit=self._audit,
-            audit_context=self._audit_context,
-            action="job.confirm",
-            tenant_id=tenant_id,
-            job_id=job_id,
-            result="success",
-            changes={"status": updated.status.value},
-            metadata={"confirmed": True},
+            audit=self._audit, audit_context=self._audit_context, action="job.confirm",
+            tenant_id=tenant_id, job_id=job_id, result="success",
+            changes={"status": updated.status.value}, metadata={"confirmed": True},
         )
         return updated
 
@@ -181,6 +163,7 @@ class JobService:
                 output_formats=output_formats,
             )
         job.output_formats = list(normalize_output_formats(output_formats))
+        self._store.save(tenant_id=tenant_id, job=job)
         self._state_machine.ensure_transition(
             job_id=job_id,
             from_status=job.status,

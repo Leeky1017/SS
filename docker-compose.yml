@@ -39,7 +39,7 @@ services:
       SS_JOBS_DIR: "/var/lib/ss/jobs"
       SS_QUEUE_DIR: "/var/lib/ss/queue"
       SS_DO_TEMPLATE_LIBRARY_DIR: "/app/assets/stata_do_library"
-      SS_STATA_CMD: "/mnt/stata/stata-mp"
+      SS_STATA_CMD: "${SS_STATA_CMD:?missing}"
       SS_LLM_PROVIDER: "${SS_LLM_PROVIDER:?missing}"
       SS_LLM_BASE_URL: "${SS_LLM_BASE_URL:-https://yunwu.ai/v1}"
       SS_LLM_API_KEY: "${SS_LLM_API_KEY:?missing}"
@@ -60,20 +60,18 @@ services:
     volumes:
       - ss-jobs:/var/lib/ss/jobs
       - ss-queue:/var/lib/ss/queue
-      - /opt/stata18:/mnt/stata:ro
+      - "${SS_STATA_HOST_DIR:-/opt/stata18}:${SS_STATA_CONTAINER_DIR:-/mnt/stata}:ro"
     command: ["python", "-m", "src.main"]
     restart: unless-stopped
 
   ss-worker:
-    build:
-      context: .
     image: ss:prod
     environment:
       SS_ENV: "production"
       SS_JOBS_DIR: "/var/lib/ss/jobs"
       SS_QUEUE_DIR: "/var/lib/ss/queue"
       SS_DO_TEMPLATE_LIBRARY_DIR: "/app/assets/stata_do_library"
-      SS_STATA_CMD: "/mnt/stata/stata-mp"
+      SS_STATA_CMD: "${SS_STATA_CMD:?missing}"
       SS_LLM_PROVIDER: "${SS_LLM_PROVIDER:?missing}"
       SS_LLM_BASE_URL: "${SS_LLM_BASE_URL:-https://yunwu.ai/v1}"
       SS_LLM_API_KEY: "${SS_LLM_API_KEY:?missing}"
@@ -93,7 +91,7 @@ services:
     volumes:
       - ss-jobs:/var/lib/ss/jobs
       - ss-queue:/var/lib/ss/queue
-      - /opt/stata18:/mnt/stata:ro
+      - "${SS_STATA_HOST_DIR:-/opt/stata18}:${SS_STATA_CONTAINER_DIR:-/mnt/stata}:ro"
     command: ["python", "-m", "src.worker"]
     restart: unless-stopped
 

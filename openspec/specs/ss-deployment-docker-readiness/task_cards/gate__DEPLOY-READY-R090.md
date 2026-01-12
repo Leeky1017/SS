@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #406
 - Spec: `openspec/specs/ss-deployment-docker-readiness/spec.md`
 - Related specs:
   - `openspec/specs/ss-production-e2e-audit/spec.md`
@@ -18,13 +18,19 @@
 - MinIO 可用（如启用 uploads）
 - 输出产物可下载且格式满足用户指定
 
+目标部署环境为 **Windows Server + Docker Desktop（WSL2 后端）+ Windows Stata 18 MP**。部署验证必须覆盖：
+- `SS_STATA_CMD` 支持 Windows 路径（包含空格）示例：`/mnt/c/Program Files/Stata18/StataMP-64.exe`
+- 在 docker-compose 拓扑中，worker 的 Stata 调用链路与证据可审计（启动日志/runner meta/artifacts）
+
 ## Goal
 
 提供一条从 `docker-compose up` 到 “READY” 的端到端验证流程与证据，覆盖最小用户旅程：
 1) 启动 services（minio + ss-api + ss-worker）
-2) 创建 job 并上传数据（至少 CSV；如支持则覆盖 XLSX/XLS/DTA）
-3) 触发执行并等待完成
-4) 验证 artifacts 可下载，且包含 `output_formats` 请求的格式
+2) 验证健康检查（`/health/live` + `/health/ready`）与 MinIO 可用性
+3) 创建 job 并上传数据（至少 CSV；如支持则覆盖 XLSX/XLS/DTA）
+4) 触发执行并等待完成
+5) 验证 artifacts 可下载，且包含 `output_formats` 请求的格式
+6) 重启 `ss-api`/`ss-worker` 后验证 job 状态与 artifacts 可恢复
 
 ## In scope
 
@@ -42,9 +48,15 @@
 
 ## Acceptance checklist
 
-- [ ] `docker-compose up` 可启动并保持 ss-api/ss-worker 稳定运行
-- [ ] 完整旅程可达终态（succeeded），且 artifacts 可下载
-- [ ] 若指定 `output_formats`，对应格式产物存在（至少覆盖 csv/log/do + 选配 docx/pdf/xlsx/dta）
+- [ ] Spec/task card 已明确 Windows + Docker Desktop + WSL2 部署场景（含 `SS_STATA_CMD=/mnt/c/...` 示例）
+- [ ] `docker-compose up -d` 可启动并保持 `ss-api`/`ss-worker` 稳定运行
+- [ ] MinIO 可访问（console/API）且 bucket 初始化完成（如启用 uploads）
+- [ ] `ss-api` 响应 `/health/live` 与 `/health/ready`
+- [ ] `ss-worker` 启动成功且以 Windows 路径 `SS_STATA_CMD=/mnt/c/Program Files/Stata18/StataMP-64.exe` 完成 runner 配置（日志/runner meta 可审计）
+- [ ] 完整旅程可达终态（`succeeded`），且 artifacts 可下载
+- [ ] `output_formats` 默认 `["csv","log","do"]` 生效并产物可下载
+- [ ] `output_formats=["docx","pdf","xlsx","csv"]` 生效并产物可下载
+- [ ] `output_formats` 包含 `dta` 时（例如 `output_formats=["docx","pdf","xlsx","csv","dta"]`），`dta` 产物存在/可下载
+- [ ] `docker-compose restart ss-api ss-worker` 后 job 状态与 artifacts 可恢复且仍可下载；redeem 幂等
 - [ ] 关键命令与关键输出已记录（可回放）
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
-
+- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-406.md`
