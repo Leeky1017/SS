@@ -1,7 +1,7 @@
 # ISSUE-389
 - Issue: #389
 - Branch: task/389-deploy-ready-r020
-- PR: https://github.com/Leeky1017/SS/pull/392, https://github.com/Leeky1017/SS/pull/399
+- PR: https://github.com/Leeky1017/SS/pull/392, https://github.com/Leeky1017/SS/pull/399, https://github.com/Leeky1017/SS/pull/401
 
 ## Plan
 - Generate pinned `requirements.txt` from `pyproject.toml`.
