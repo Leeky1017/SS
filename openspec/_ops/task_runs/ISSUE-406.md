@@ -7,12 +7,16 @@
 - Validate SS Docker deployment end-to-end on Windows Server + Docker Desktop (WSL2) with Windows Stata 18 MP, from `docker-compose up` to a terminal `succeeded` job with downloadable artifacts.
 
 ## Status
-- CURRENT: Local checks green; preparing commits + PR (auto-merge) and final verdict.
+- CURRENT: Verdict ready; PR merged; final gate satisfied.
 
 ## Next Actions
-- [ ] Append final verdict to this run log.
+- [x] Append final verdict to this run log.
 - [x] Run `ruff check .` and `pytest -q`.
-- [ ] Open PR (`Closes #406`), enable auto-merge, then verify merge and cleanup worktree.
+- [x] Open PR (`Closes #406`), enable auto-merge, then verify merge.
+
+## Verdict
+- Verdict: READY
+- Blockers: none
 
 ## Decisions Made
 - 2026-01-12 Use a single run log (`openspec/_ops/task_runs/ISSUE-406.md`) as the plan + evidence index (Org Memory Overlay).
@@ -146,4 +150,18 @@
 ### 2026-01-12 21:03 Create PR (PASS)
 - Command: `gh pr create --base main --head task/406-deploy-ready-r090 ...`
 - Key output: `https://github.com/Leeky1017/SS/pull/411`
+- Evidence: PR
+
+### 2026-01-12 21:05 Enable auto-merge + wait checks (PASS)
+- Command:
+  - `gh pr merge --auto --squash 411`
+  - `gh pr checks --watch 411`
+- Key output:
+  - `will be automatically merged via squash when all requirements are met`
+  - `All checks were successful` (`ci`, `openspec-log-guard`, `merge-serial`)
+- Evidence: PR
+
+### 2026-01-12 21:06 Verify merged (PASS)
+- Command: `gh pr view 411 --json number,state,mergedAt,url`
+- Key output: `state=MERGED mergedAt=2026-01-12T13:05:51Z`
 - Evidence: PR
