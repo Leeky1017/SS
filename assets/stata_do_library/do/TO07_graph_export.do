@@ -38,11 +38,22 @@ end
 
 display "SS_TASK_BEGIN|id=TO07|level=L1|title=Graph_Export"
 display "SS_TASK_VERSION|version=2.0.1"
-display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
+
+* ==============================================================================
+* PHASE 5.13 REVIEW (Issue #362) / 最佳实践审查（阶段 5.13）
+* - SSC deps: none (built-in graphs) / SSC 依赖：无（官方作图命令）
+* - Output: PNG+PDF graphs / 输出：PNG+PDF 图形文件
+* - Error policy: fail on graph/export errors / 错误策略：作图或导出失败→fail
+* ==============================================================================
+display "SS_BP_REVIEW|issue=362|template_id=TO07|ssc=none|output=png_pdf_dta|policy=warn_fail"
+
+display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 local yvar = "__YVAR__"
 local xvar = "__XVAR__"
 
+* [ZH] S01 加载数据（data.csv）
+* [EN] S01 Load data (data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
@@ -53,6 +64,8 @@ local n_input = _N
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
+* [ZH] S02 校验输入变量（X/Y 必须为数值变量）
+* [EN] S02 Validate inputs (X/Y must be numeric)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
 capture confirm variable `xvar'
 if _rc {
@@ -62,23 +75,45 @@ capture confirm variable `yvar'
 if _rc {
     ss_fail_TO07 111 "confirm variable `yvar'" "yvar_not_found"
 }
+capture confirm numeric variable `xvar'
+if _rc {
+    ss_fail_TO07 109 "confirm numeric variable `xvar'" "xvar_not_numeric"
+}
+capture confirm numeric variable `yvar'
+if _rc {
+    ss_fail_TO07 109 "confirm numeric variable `yvar'" "yvar_not_numeric"
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
+* [ZH] S03 作图并导出（PNG/PDF）
+* [EN] S03 Plot and export (PNG/PDF)
 display "SS_STEP_BEGIN|step=S03_analysis"
 
-twoway (scatter `yvar' `xvar') (lfit `yvar' `xvar'), ///
+capture noisily twoway (scatter `yvar' `xvar') (lfit `yvar' `xvar'), ///
     title("Scatter Plot with Fitted Line") ///
     xtitle("`xvar'") ytitle("`yvar'")
+if _rc {
+    ss_fail_TO07 459 "twoway" "graph_failed"
+}
 
-graph export "fig_TO07_scatter.png", replace width(1200)
+capture noisily graph export "fig_TO07_scatter.png", replace width(1200)
+if _rc {
+    ss_fail_TO07 459 "graph export png" "graph_export_png_failed"
+}
 display "SS_OUTPUT_FILE|file=fig_TO07_scatter.png|type=figure|desc=png_scatter"
 
-graph export "fig_TO07_scatter.pdf", replace
+capture noisily graph export "fig_TO07_scatter.pdf", replace
+if _rc {
+    ss_fail_TO07 459 "graph export pdf" "graph_export_pdf_failed"
+}
 display "SS_OUTPUT_FILE|file=fig_TO07_scatter.pdf|type=figure|desc=pdf_scatter"
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
-save "data_TO07_export.dta", replace
+capture noisily save "data_TO07_export.dta", replace
+if _rc {
+    ss_fail_TO07 459 "save data_TO07_export.dta" "save_output_data_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TO07_export.dta|type=data|desc=export_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 

@@ -37,11 +37,22 @@ end
 
 display "SS_TASK_BEGIN|id=TN03|level=L1|title=SAR"
 display "SS_TASK_VERSION|version=2.0.1"
+
+* ==============================================================================
+* PHASE 5.13 REVIEW (Issue #362) / 最佳实践审查（阶段 5.13）
+* - SSC deps: none (built-in spatial suite) / SSC 依赖：无（官方空间计量命令）
+* - Output: CSV + DTA / 输出：CSV 表格 + DTA 数据
+* - Notes: W uses idistance; ensure meaningful coords / 备注：W=逆距离权重；请使用有意义的坐标变量
+* ==============================================================================
+display "SS_BP_REVIEW|issue=362|template_id=TN03|ssc=none|output=csv_dta|policy=warn_fail"
+
 display "SS_DEP_CHECK|pkg=none|source=builtin|status=ok"
 
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
 
+* [ZH] S01 加载数据（data.csv）
+* [EN] S01 Load data (data.csv)
 display "SS_STEP_BEGIN|step=S01_load_data"
 capture confirm file "data.csv"
 if _rc {
@@ -52,9 +63,29 @@ local n_input = _N
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
+* [ZH] S02 校验输入变量（因变量/自变量）
+* [EN] S02 Validate inputs (depvar/indepvars)
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+capture confirm variable `depvar'
+if _rc {
+    ss_fail_TN03 111 "confirm variable `depvar'" "depvar_not_found"
+}
+capture confirm numeric variable `depvar'
+if _rc {
+    ss_fail_TN03 109 "confirm numeric variable `depvar'" "depvar_not_numeric"
+}
+capture fvunab indepvars_fv : `indepvars'
+if _rc {
+    ss_fail_TN03 111 "fvunab indepvars" "indepvars_invalid"
+}
+local indepvars "`indepvars_fv'"
+if "`indepvars'" == "" {
+    ss_fail_TN03 111 "indepvars" "indepvars_empty"
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
+* [ZH] S03 构建 W 并估计 SAR（空间滞后模型）
+* [EN] S03 Build W and estimate SAR (spatial lag model)
 display "SS_STEP_BEGIN|step=S03_analysis"
 
 capture confirm variable x
@@ -68,10 +99,22 @@ if _rc {
     display "SS_RC|code=0|cmd=gen cluster=0|msg=coord_y_defaulted|severity=warn"
 }
 gen long ss_sid = _n
-spset ss_sid
-spset, modify coord(x cluster)
-spmatrix create idistance W, normalize(row)
-spregress `depvar' `indepvars', ml dvarlag(W)
+capture noisily spset ss_sid
+if _rc {
+    ss_fail_TN03 459 "spset ss_sid" "spset_failed"
+}
+capture noisily spset, modify coord(x cluster)
+if _rc {
+    ss_fail_TN03 459 "spset modify coord" "spset_coord_failed"
+}
+capture noisily spmatrix create idistance W, normalize(row)
+if _rc {
+    ss_fail_TN03 459 "spmatrix create idistance" "spmatrix_create_failed"
+}
+capture noisily spregress `depvar' `indepvars', ml dvarlag(W)
+if _rc {
+    ss_fail_TN03 459 "spregress" "sar_model_fit_failed"
+}
 local rho = e(rho)
 local ll = e(ll)
 display "SS_METRIC|name=rho|value=`rho'"
@@ -83,13 +126,19 @@ set obs 1
 gen str32 model = "SAR"
 gen double rho = `rho'
 gen double ll = `ll'
-export delimited using "table_TN03_sar.csv", replace
+capture noisily export delimited using "table_TN03_sar.csv", replace
+if _rc {
+    ss_fail_TN03 459 "export delimited table_TN03_sar.csv" "export_table_failed"
+}
 display "SS_OUTPUT_FILE|file=table_TN03_sar.csv|type=table|desc=sar_results"
 restore
 
 local n_output = _N
 display "SS_METRIC|name=n_output|value=`n_output'"
-save "data_TN03_sar.dta", replace
+capture noisily save "data_TN03_sar.dta", replace
+if _rc {
+    ss_fail_TN03 459 "save data_TN03_sar.dta" "save_output_data_failed"
+}
 display "SS_OUTPUT_FILE|file=data_TN03_sar.dta|type=data|desc=sar_data"
 display "SS_STEP_END|step=S03_analysis|status=ok|elapsed_sec=0"
 

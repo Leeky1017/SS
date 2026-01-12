@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #362
 - Parent: #125
 - Superphase: Phase 5 (content enhancement)
 - Templates: `TN*` + `TO*` (~18 templates, current inventory)
@@ -34,5 +34,4 @@ Enhance spatial and output/reporting templates with best practices (最佳实践
 - [ ] Outputs are upgraded with Stata 18-native tooling where feasible
 - [ ] Error handling and diagnostics are strengthened (no silent failure)
 - [ ] Key steps have bilingual comments (中英文注释)
-- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
-
+- [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-362.md`
