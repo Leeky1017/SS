@@ -1,7 +1,7 @@
 # ISSUE-409
 - Issue: #409
 - Branch: task/409-layering-shared-app-infra
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/410
 
 ## Plan
 - Clarify layering terminology (adapters vs shared infra)
