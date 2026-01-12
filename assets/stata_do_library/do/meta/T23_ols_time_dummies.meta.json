@@ -5,6 +5,11 @@
       "pkg": "stata",
       "purpose": "Core regression commands",
       "source": "built-in"
+    },
+    {
+      "pkg": "putdocx",
+      "purpose": "DOCX report export",
+      "source": "built-in"
     }
   ],
   "description": "Add time dummy variables to control for time effects and eliminate common time trends",

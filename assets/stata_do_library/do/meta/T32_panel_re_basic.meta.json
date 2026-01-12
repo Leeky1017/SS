@@ -5,6 +5,11 @@
       "pkg": "stata",
       "purpose": "Panel regression commands",
       "source": "built-in"
+    },
+    {
+      "pkg": "putdocx",
+      "purpose": "DOCX report export",
+      "source": "built-in"
     }
   ],
   "description": "Estimate panel random effects regression with GLS, BP-LM test for individual effects, and robust standard errors",

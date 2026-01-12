@@ -5,6 +5,11 @@
       "pkg": "stata",
       "purpose": "Core regression commands",
       "source": "built-in"
+    },
+    {
+      "pkg": "putdocx",
+      "purpose": "DOCX report export",
+      "source": "built-in"
     }
   ],
   "description": "Estimate regression models with interaction terms for moderation analysis, including marginal effects analysis and visualization",

@@ -5,6 +5,11 @@
       "pkg": "stata",
       "purpose": "Panel regression commands",
       "source": "built-in"
+    },
+    {
+      "pkg": "putdocx",
+      "purpose": "DOCX report export",
+      "source": "built-in"
     }
   ],
   "description": "Estimate event study DID model with dynamic treatment effects and parallel trends test",

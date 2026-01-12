@@ -5,6 +5,7 @@ from pathlib import Path
 
 from src.domain.do_file_generator import DoFileGenerator
 from src.domain.models import ArtifactKind, JobStatus
+from src.domain.output_formatter_service import OutputFormatterService
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.file_worker_queue import FileWorkerQueue
@@ -30,6 +31,7 @@ def test_worker_service_with_success_once_marks_job_succeeded(tmp_path: Path) ->
         queue=queue,
         jobs_dir=jobs_dir,
         runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[True]),
+        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
         do_file_generator=DoFileGenerator(do_template_repo=repo),
@@ -106,6 +108,7 @@ def test_worker_service_with_failure_then_success_retries_and_succeeds(tmp_path:
         queue=queue,
         jobs_dir=jobs_dir,
         runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[False, True]),
+        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
         do_file_generator=DoFileGenerator(do_template_repo=repo),
@@ -145,6 +148,7 @@ def test_worker_service_with_failures_until_max_marks_job_failed(tmp_path: Path)
         queue=queue,
         jobs_dir=jobs_dir,
         runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[False, False]),
+        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=2, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
         do_file_generator=DoFileGenerator(do_template_repo=repo),
@@ -167,3 +171,52 @@ def test_worker_service_with_failures_until_max_marks_job_failed(tmp_path: Path)
         assert (job_dir / "runs" / attempt.run_id / "artifacts" / META_FILENAME).exists()
     assert list((queue_dir / "queued").glob("*.json")) == []
     assert list((queue_dir / "claimed").glob("*.json")) == []
+
+
+def test_worker_service_with_output_formats_produces_converted_artifacts(tmp_path: Path) -> None:
+    jobs_dir = tmp_path / "jobs"
+    queue_dir = tmp_path / "queue"
+    queue = FileWorkerQueue(queue_dir=queue_dir, lease_ttl_seconds=60)
+    library_dir = stata_do_library_dir()
+    job_id = prepare_queued_job(jobs_dir=jobs_dir, queue=queue, library_dir=library_dir)
+
+    store = JobStore(jobs_dir=jobs_dir)
+    job = store.load(job_id)
+    job.output_formats = ["csv", "xlsx", "dta", "docx", "pdf", "log", "do"]
+    store.save(job)
+
+    repo = FileSystemDoTemplateRepository(library_dir=library_dir)
+    service = WorkerService(
+        store=store,
+        queue=queue,
+        jobs_dir=jobs_dir,
+        runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[True]),
+        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
+        state_machine=JobStateMachine(),
+        retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
+        do_file_generator=DoFileGenerator(do_template_repo=repo),
+        sleep=noop_sleep,
+    )
+
+    processed = service.process_next(worker_id="worker-1")
+
+    assert processed is True
+    updated = store.load(job_id)
+    assert updated.status == JobStatus.SUCCEEDED
+    assert updated.runs
+
+    run_id = updated.runs[-1].run_id
+    job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job_id)
+    assert job_dir is not None
+    formatted_dir = job_dir / "runs" / run_id / "artifacts" / "formatted"
+    assert (formatted_dir / "tables.xlsx").exists()
+    assert (formatted_dir / "output.dta").exists()
+    assert (formatted_dir / "report.docx").exists()
+    assert (formatted_dir / "report.pdf").exists()
+
+    rels = {ref.rel_path for ref in updated.artifacts_index}
+    assert f"runs/{run_id}/artifacts/formatted/tables.xlsx" in rels
+    assert f"runs/{run_id}/artifacts/formatted/output.dta" in rels
+    assert f"runs/{run_id}/artifacts/formatted/report.docx" in rels
+    assert f"runs/{run_id}/artifacts/formatted/report.pdf" in rels
+    assert any(ref.kind == ArtifactKind.STATA_EXPORT_REPORT for ref in updated.artifacts_index)

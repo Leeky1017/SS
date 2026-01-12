@@ -14,6 +14,7 @@ from src.domain.models import (
     PlanStep,
     PlanStepType,
 )
+from src.domain.output_formatter_service import OutputFormatterService
 from src.domain.plan_service import PlanService
 from src.domain.stata_dependency_checker import StataDependencyCheckResult
 from src.domain.state_machine import JobStateMachine
@@ -54,6 +55,7 @@ def test_worker_service_when_plan_missing_persists_error_artifacts_and_marks_job
         queue=queue,
         jobs_dir=jobs_dir,
         runner=FakeStataRunner(jobs_dir=jobs_dir),
+        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
         sleep=noop_sleep,
@@ -95,6 +97,7 @@ def test_worker_service_when_inputs_manifest_missing_persists_error_artifacts_an
         queue=queue,
         jobs_dir=jobs_dir,
         runner=FakeStataRunner(jobs_dir=jobs_dir),
+        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
         sleep=noop_sleep,
@@ -192,6 +195,7 @@ def test_worker_service_when_dependency_missing_writes_structured_error_and_retr
         queue=queue,
         jobs_dir=jobs_dir,
         runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[True]),
+        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
         dependency_checker=_FakeDependencyChecker(missing_pkgs={"outreg2"}),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
@@ -225,6 +229,7 @@ def test_worker_service_when_dependency_missing_writes_structured_error_and_retr
         queue=queue,
         jobs_dir=jobs_dir,
         runner=FakeStataRunner(jobs_dir=jobs_dir, scripted_ok=[True]),
+        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
         dependency_checker=_FakeDependencyChecker(missing_pkgs=set()),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=0.0, backoff_max_seconds=0.0),

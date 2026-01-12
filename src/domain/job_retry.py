@@ -6,6 +6,7 @@ from src.domain.audit import AuditContext, AuditLogger
 from src.domain.job_store import JobStore
 from src.domain.job_support import JobScheduler, emit_job_audit
 from src.domain.models import Job, JobStatus
+from src.domain.output_formats import normalize_output_formats
 from src.domain.state_machine import JobStateMachine
 from src.utils.tenancy import DEFAULT_TENANT_ID
 from src.utils.time import utc_now
@@ -22,8 +23,11 @@ def retry_failed_job(
     audit_context: AuditContext,
     tenant_id: str = DEFAULT_TENANT_ID,
     job: Job,
+    output_formats: list[str] | None,
 ) -> Job:
     from_status = job.status.value
+    if output_formats is not None or job.output_formats is None:
+        job.output_formats = list(normalize_output_formats(output_formats))
     state_machine.ensure_transition(
         job_id=job.job_id,
         from_status=job.status,

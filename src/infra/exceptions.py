@@ -169,6 +169,16 @@ class QueueDataCorruptedError(SSError):
         )
 
 
+class OutputFormatsInvalidError(SSError):
+    def __init__(self, *, reason: str, supported: tuple[str, ...]):
+        supported_csv = ",".join(supported)
+        super().__init__(
+            error_code="OUTPUT_FORMATS_INVALID",
+            message=f"output_formats invalid: {reason} (supported={supported_csv})",
+            status_code=400,
+        )
+
+
 class DoTemplateIndexNotFoundError(SSError):
     def __init__(self, *, path: str):
         super().__init__(

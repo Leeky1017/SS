@@ -14,6 +14,7 @@ from src.domain.do_file_generator import DoFileGenerator
 from src.domain.job_store import JobStore
 from src.domain.metrics import NoopMetrics, RuntimeMetrics
 from src.domain.models import Job, JobStatus
+from src.domain.output_formatter_service import OutputFormatterService
 from src.domain.stata_dependency_checker import StataDependencyChecker
 from src.domain.stata_runner import RunResult, StataRunner
 from src.domain.state_machine import JobStateMachine
@@ -48,6 +49,8 @@ _NON_RETRIABLE_ERROR_CODES = {
     "PLAN_COMPOSITION_INVALID",
     "STATA_INPUTS_UNSAFE",
     "STATA_DEPENDENCY_MISSING",
+    "OUTPUT_FORMATS_INVALID",
+    "OUTPUT_FORMATTER_FAILED",
 }
 
 _NEVER_STOP = repeat(False).__next__
@@ -67,6 +70,7 @@ class WorkerService:
         queue: WorkerQueue,
         jobs_dir: Path,
         runner: StataRunner,
+        output_formatter: OutputFormatterService,
         state_machine: JobStateMachine,
         retry: WorkerRetryPolicy,
         do_file_generator: DoFileGenerator | None = None,
@@ -80,6 +84,7 @@ class WorkerService:
         self._queue = queue
         self._jobs_dir = Path(jobs_dir)
         self._runner = runner
+        self._output_formatter = output_formatter
         self._state_machine = state_machine
         self._retry = retry
         self._do_file_generator = do_file_generator
@@ -217,6 +222,22 @@ class WorkerService:
                 clock=self._clock,
                 do_file_generator=self._do_file_generator,
             )
+            if result.ok:
+                formatted = self._output_formatter.format_run_outputs(
+                    job=job,
+                    run_id=run_id,
+                    artifacts=result.artifacts,
+                )
+                if formatted.error is not None or formatted.artifacts:
+                    result = RunResult(
+                        job_id=result.job_id,
+                        run_id=result.run_id,
+                        ok=result.ok if formatted.error is None else False,
+                        exit_code=result.exit_code,
+                        timed_out=result.timed_out,
+                        artifacts=(*result.artifacts, *formatted.artifacts),
+                        error=formatted.error if formatted.error is not None else result.error,
+                    )
             record_attempt_finished(
                 job=job,
                 run_id=run_id,
