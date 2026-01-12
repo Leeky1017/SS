@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #390
 - Spec: `openspec/specs/ss-deployment-docker-readiness/spec.md`
 - Related specs:
   - `openspec/specs/ss-stata-runner/spec.md`
@@ -42,5 +42,4 @@ worker 依赖 Stata 执行 do-template，但生产部署场景下 Stata 的安�
 - [ ] 给出明确的 Stata provisioning 方案与操作步骤（包含 `SS_STATA_CMD` 口径）
 - [ ] Docker compose 环境中可复现（worker 启动链路清晰，缺配置时 fail fast）
 - [ ] 明确安全/合规边界（不在仓库内传播 license/installer）
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
-
+- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-390.md`

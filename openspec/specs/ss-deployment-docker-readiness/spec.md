@@ -50,9 +50,28 @@ The SS worker requires Stata to execute templates. Deployments MUST support at l
 
 Deployments MUST treat the Stata strategy as explicit configuration and MUST NOT rely on silent runtime fallbacks.
 
+#### Production recommendation: host-mounted Stata (default strategy)
+
+For SS production deployments, SS SHOULD prefer the **host-mounted** strategy by default because Stata is proprietary and operators typically need to manage license/installers outside of SS images and repos.
+
+Host-mounted provisioning contract (normative defaults):
+- Host pre-installs **Linux** Stata (example install dir: `/opt/stata18`).
+- `ss-worker` bind-mounts the host install directory into the container at a stable path: `/mnt/stata:ro`.
+- `SS_STATA_CMD` MUST be set to the mounted executable path (example: `/mnt/stata/stata-mp`).
+- The mount MUST be read-only and SS MUST NOT ship Stata installers/licenses in git or container images.
+
+Operator verification tips:
+- Confirm the host path exists: `ls -la /opt/stata18` (example).
+- Confirm the container sees the executable: `ls -la /mnt/stata/stata-mp`.
+- If Stata fails to start due to missing shared libs, use `ldd /mnt/stata/stata-mp | rg "not found"` inside the container and install the missing OS packages in the SS image.
+
 #### Scenario: Worker startup is gated on SS_STATA_CMD
 - **WHEN** `ss-worker` starts without `SS_STATA_CMD` configured
-- **THEN** startup fails fast with a structured error and does not attempt to run jobs
+- **THEN** startup fails fast with a structured error (stable `error_code=STATA_CMD_NOT_CONFIGURED`) and does not attempt to run jobs
+
+#### Scenario: Worker startup fails when the mounted Stata binary is missing
+- **WHEN** `SS_STATA_CMD` is configured but the referenced executable is not present/executable in the container (for example the host mount is missing)
+- **THEN** startup fails fast with a structured error (stable `error_code=STATA_CMD_INVALID`) and does not attempt to run jobs
 
 ### Requirement: Python dependencies are explicitly pinned for production builds
 
