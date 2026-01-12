@@ -103,3 +103,9 @@
   - `gh pr create --title "[DEPLOY-READY-R002] Audit do-template output formats (#370)" --body "Closes #370 ..."`
 - Key output:
   - `PR: https://github.com/Leeky1017/SS/pull/385`
+
+### 2026-01-12 14:31 Enable auto-merge
+- Command:
+  - `gh pr merge --auto --squash 385`
+- Key output:
+  - `will be automatically merged via squash when all requirements are met`
