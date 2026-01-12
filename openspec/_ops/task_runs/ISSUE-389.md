@@ -1,7 +1,7 @@
 # ISSUE-389
 - Issue: #389
 - Branch: task/389-deploy-ready-r020
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/392
 
 ## Plan
 - Generate pinned `requirements.txt` from `pyproject.toml`.
@@ -46,3 +46,28 @@
 - Command: `. .venv/bin/activate && pytest -q`
 - Key output: `184 passed, 5 skipped in 10.65s`
 - Evidence: `pytest -q`
+
+### 2026-01-12 15:25 PR preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+- Evidence: `scripts/agent_pr_preflight.sh`
+
+### 2026-01-12 15:26 PR create
+- Command: `gh pr create ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/392`
+- Evidence: `gh pr view --web`
+
+### 2026-01-12 15:26 Enable auto-merge
+- Command: `gh pr merge --auto --squash 392`
+- Key output: `will be automatically merged via squash when all requirements are met`
+- Evidence: `gh pr merge --auto --squash`
+
+### 2026-01-12 15:27 Check status
+- Command: `gh pr checks --watch 392`
+- Key output: `All checks were successful`
+- Evidence: `gh pr checks --watch`
+
+### 2026-01-12 15:28 Merge verification
+- Command: `gh pr view 392 --json state,mergedAt,mergeStateStatus,reviewDecision`
+- Key output: `state=MERGED mergedAt=2026-01-12T07:22:41Z`
+- Evidence: `gh pr view 392`
