@@ -71,3 +71,8 @@
 - Command: `gh pr view 392 --json state,mergedAt,mergeStateStatus,reviewDecision`
 - Key output: `state=MERGED mergedAt=2026-01-12T07:22:41Z`
 - Evidence: `gh pr view 392`
+
+### 2026-01-12 15:45 Archive Rulebook task
+- Command: `rulebook task archive issue-389-deploy-ready-r020`
+- Key output: `✅ Task issue-389-deploy-ready-r020 archived successfully`
+- Evidence: `rulebook/tasks/archive/2026-01-12-issue-389-deploy-ready-r020/`
