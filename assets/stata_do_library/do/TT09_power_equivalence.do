@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Equivalence/non-inferiority requires pre-specified margins; justify clinically/substantively and sensitivity-test.
+* - Power depends on SD and design assumptions; validate inputs and consider simulation for non-standard designs.
+* - Interpretation differs from superiority testing; plan reporting accordingly.
+* 最佳实践审查（ZH）:
+* - 等价/非劣效检验需要预先设定界值；应有明确依据并做敏感性分析。
+* - 功效依赖标准差与设计假设；请校验输入，复杂设计建议用仿真验证。
+* - 等价检验的解释不同于优效检验；请在报告中明确区分。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -29,25 +38,30 @@ display "SS_TASK_VERSION|version=2.0.1"
 display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
-local delta = __DELTA__
-local sd = __SD__
-local margin = __MARGIN__
-local alpha = __ALPHA__
-local power = __POWER__
+local delta_raw = "__DELTA__"
+local sd_raw = "__SD__"
+local margin_raw = "__MARGIN__"
+local alpha_raw = "__ALPHA__"
+local power_raw = "__POWER__"
+local delta = real("`delta_raw'")
+local sd = real("`sd_raw'")
+local margin = real("`margin_raw'")
+local alpha = real("`alpha_raw'")
+local power = real("`power_raw'")
 
-if `delta' < 0 {
+if missing(`delta') | `delta' < 0 {
     local delta = 0
 }
-if `sd' <= 0 {
+if missing(`sd') | `sd' <= 0 {
     local sd = 1
 }
-if `margin' <= 0 {
+if missing(`margin') | `margin' <= 0 {
     local margin = 0.5
 }
-if `alpha' <= 0 | `alpha' >= 1 {
+if missing(`alpha') | `alpha' <= 0 | `alpha' >= 1 {
     local alpha = 0.05
 }
-if `power' <= 0 | `power' >= 1 {
+if missing(`power') | `power' <= 0 | `power' >= 1 {
     local power = 0.8
 }
 
@@ -60,11 +74,17 @@ display "    显著性水平: `alpha'"
 display "    检验功效: `power'"
 
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: No data inputs (parameters only).
+* ZH: 无数据输入（仅参数计算）。
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Parameters validated via bounds/defaults.
+* ZH: 参数已通过取值范围/默认值进行校验。
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Run Stata power command and export results.
+* ZH: 调用 Stata power 命令并导出结果。
 
 * ============ 样本量计算 ============
 display ""

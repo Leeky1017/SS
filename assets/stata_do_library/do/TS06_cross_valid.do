@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Cross-validation must avoid leakage: preprocessing/feature engineering should be learned within training folds only.
+* - For classification, consider stratified folds and metrics beyond accuracy (AUC, F1), especially under class imbalance.
+* - Report variability across folds (mean/SD) and keep a final hold-out test when possible.
+* 最佳实践审查（ZH）:
+* - 交叉验证要避免信息泄露：标准化/特征工程等预处理应仅在训练折中拟合。
+* - 分类任务建议分层抽样并使用多指标（AUC、F1 等），尤其在类别不平衡时。
+* - 报告各折波动（均值/标准差）；条件允许时保留最终独立测试集。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -32,13 +41,19 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
-local k_folds = __K_FOLDS__
+local k_folds_raw = "__K_FOLDS__"
+local k_folds = real("`k_folds_raw'")
 local model = "__MODEL__"
 
-if `k_folds' < 2 | `k_folds' > 20 {
+if missing(`k_folds') | `k_folds' < 2 | `k_folds' > 20 {
     local k_folds = 5
 }
+local k_folds = floor(`k_folds')
 if "`model'" == "" {
+    local model = "ols"
+}
+if !inlist("`model'", "ols", "logit") {
+    display "SS_RC|code=11|cmd=param_check|msg=invalid_model_defaulted|value=`model'|severity=warn"
     local model = "ols"
 }
 
@@ -50,6 +65,8 @@ display "    模型: `model'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -58,10 +75,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and basic types.
+* ZH: 校验关键变量存在且类型合理。
 
 * ============ 变量检查 ============
 capture confirm numeric variable `depvar'
@@ -78,9 +102,22 @@ foreach var of local indepvars {
         local valid_indep "`valid_indep' `var'"
     }
 }
+if "`valid_indep'" == "" {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=no_valid_indepvars|severity=fail"
+    log close
+    exit 200
+}
+if "`model'" == "logit" {
+    quietly count if !inlist(`depvar', 0, 1) & !missing(`depvar')
+    if r(N) > 0 {
+        display "SS_RC|code=10|cmd=depvar_check|msg=depvar_not_binary_for_logit|severity=warn"
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Run K-fold CV and summarize fold metrics.
+* ZH: 执行 K 折交叉验证并汇总各折指标。
 
 * ============ 创建折 ============
 display ""
@@ -133,7 +170,7 @@ forvalues k = 1/`k_folds' {
     * 计算性能指标
     if "`model'" == "logit" {
         * 准确率
-        generate byte _correct = (`depvar' == round(_temp_pred)) if _fold == `k'
+        generate byte _correct = (`depvar' == (_temp_pred > 0.5)) if _fold == `k'
         quietly summarize _correct if _fold == `k'
         local metric = r(mean)
         drop _correct

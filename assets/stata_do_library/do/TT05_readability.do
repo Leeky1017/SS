@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Readability formulas are language-specific; Flesch-style metrics are designed for English and may not suit Chinese text.
+* - Tokenization and sentence splitting strongly affect scores; document rules and run sensitivity checks.
+* - Treat readability as a proxy, not ground truth; validate against human judgement where possible.
+* 最佳实践审查（ZH）:
+* - 可读性公式与语言强相关；Flesch 类指标主要面向英文，对中文可能不适用。
+* - 分词与断句规则会显著影响得分；建议记录规则并做敏感性分析。
+* - 可读性是代理指标而非真值；条件允许时应与人工判断对照验证。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -37,6 +46,8 @@ display "    文本变量: `text_var'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -45,10 +56,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate text variable existence/type.
+* ZH: 校验文本变量存在且为字符串。
 
 * ============ 变量检查 ============
 capture confirm string variable `text_var'
@@ -60,6 +78,8 @@ if _rc {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute readability proxies and export summary outputs.
+* ZH: 计算可读性代理指标并导出统计摘要。
 
 * ============ 计算可读性指标 ============
 display ""

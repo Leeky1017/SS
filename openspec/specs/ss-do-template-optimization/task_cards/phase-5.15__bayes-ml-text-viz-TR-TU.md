@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Issue: TBD
+- Issue: #364
 - Parent: #125
 - Superphase: Phase 5 (content enhancement)
 - Templates: `TR*` + `TS*` + `TT*` + `TU*` (~47 templates, current inventory)
@@ -38,4 +38,3 @@ Enhance Bayes/ML/text/viz templates with best practices (最佳实践), Stata 18
 - [ ] Error handling and diagnostics are strengthened (no silent failure)
 - [ ] Key steps have bilingual comments (中英文注释)
 - [ ] Evidence (runs + outputs) is linked from `openspec/_ops/task_runs/ISSUE-<N>.md`
-

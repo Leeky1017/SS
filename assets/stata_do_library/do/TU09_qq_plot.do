@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Q-Q plots are diagnostic, not definitive; interpret with sample size and context (heavy tails/outliers).
+* - Formal normality tests can be overly sensitive for large N; combine tests with visual diagnostics.
+* - Consider transformations or robust methods when normality assumptions are violated.
+* 最佳实践审查（ZH）:
+* - Q-Q 图是诊断工具而非定论；需结合样本量与上下文（厚尾/离群点）解释。
+* - 大样本下正态性检验可能“过敏”；建议结合检验与可视化共同判断。
+* - 正态性不满足时可考虑变换或采用稳健方法。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -38,6 +47,8 @@ display "    变量: `var'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -46,10 +57,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate variable existence/type.
+* ZH: 校验变量存在且为数值型。
 
 * ============ 变量检查 ============
 capture confirm numeric variable `var'
@@ -61,6 +79,8 @@ if _rc {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Run normality diagnostics and export Q-Q plot + test table.
+* ZH: 进行正态性诊断并导出 Q-Q 图与检验表。
 
 * ============ 正态性检验 ============
 display ""
@@ -68,22 +88,33 @@ display "═══════════════════════�
 display "SECTION 1: 正态性检验"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-swilk `var'
-local sw_stat = r(W)
-local sw_p = r(p)
+local sw_stat = .
+local sw_p = .
+local conclusion = "未知"
+capture noisily swilk `var'
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=swilk|msg=swilk_failed|severity=warn"
+}
+else {
+    local sw_stat = r(W)
+    local sw_p = r(p)
+}
 
 display ""
 display ">>> Shapiro-Wilk检验:"
 display "    W统计量: " %10.6f `sw_stat'
 display "    p值: " %10.4f `sw_p'
 
-if `sw_p' >= 0.05 {
-    display "    结论: 不能拒绝正态性假设"
-    local conclusion = "近似正态"
-}
-else {
-    display "    结论: 拒绝正态性假设"
-    local conclusion = "非正态"
+if !missing(`sw_p') {
+    if `sw_p' >= 0.05 {
+        display "    结论: 不能拒绝正态性假设"
+        local conclusion = "近似正态"
+    }
+    else {
+        display "    结论: 拒绝正态性假设"
+        local conclusion = "非正态"
+    }
 }
 
 display "SS_METRIC|name=sw_stat|value=`sw_stat'"

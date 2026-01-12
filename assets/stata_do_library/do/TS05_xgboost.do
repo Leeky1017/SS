@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Gradient boosting requires careful tuning and honest evaluation (train/valid/test or CV); avoid leakage.
+* - This template provides a simplified boosting-like routine (not full XGBoost); use it as a baseline/demo.
+* - Learning rate/rounds trade off bias/variance; use early stopping or CV in production workflows.
+* 最佳实践审查（ZH）:
+* - 梯度提升需要调参并严格评估（训练/验证/测试或 CV）；注意避免信息泄露。
+* - 本模板为简化版提升算法（并非完整 XGBoost）；更适合作为基线/演示。
+* - 学习率与轮数存在权衡；正式流程建议使用早停或交叉验证。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -32,17 +41,22 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
-local n_rounds = __N_ROUNDS__
-local max_depth = __MAX_DEPTH__
-local learning_rate = __LEARNING_RATE__
+local n_rounds_raw = "__N_ROUNDS__"
+local max_depth_raw = "__MAX_DEPTH__"
+local learning_rate_raw = "__LEARNING_RATE__"
+local n_rounds = real("`n_rounds_raw'")
+local max_depth = real("`max_depth_raw'")
+local learning_rate = real("`learning_rate_raw'")
 
-if `n_rounds' < 10 | `n_rounds' > 1000 {
+if missing(`n_rounds') | `n_rounds' < 10 | `n_rounds' > 1000 {
     local n_rounds = 100
 }
-if `max_depth' < 1 | `max_depth' > 20 {
+local n_rounds = floor(`n_rounds')
+if missing(`max_depth') | `max_depth' < 1 | `max_depth' > 20 {
     local max_depth = 6
 }
-if `learning_rate' <= 0 | `learning_rate' > 1 {
+local max_depth = floor(`max_depth')
+if missing(`learning_rate') | `learning_rate' <= 0 | `learning_rate' > 1 {
     local learning_rate = 0.1
 }
 
@@ -55,6 +69,8 @@ display "    学习率: " %6.3f `learning_rate'
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -63,10 +79,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and basic types.
+* ZH: 校验关键变量存在且类型合理。
 
 * ============ 变量检查 ============
 capture confirm numeric variable `depvar'
@@ -85,9 +108,16 @@ foreach var of local indepvars {
         local n_vars = `n_vars' + 1
     }
 }
+if `n_vars' <= 0 {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=no_valid_indepvars|severity=fail"
+    log close
+    exit 200
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Fit a boosting-like model and export performance/importance outputs.
+* ZH: 训练提升模型并导出性能与重要性输出。
 
 * ============ 梯度提升 ============
 display ""

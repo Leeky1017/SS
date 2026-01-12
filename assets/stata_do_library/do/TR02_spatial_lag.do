@@ -9,6 +9,15 @@
 * DEPENDENCIES: spregress
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Spatial lag models can face endogeneity; consider IV/GMM variants or robustness checks where appropriate.
+* - Weight matrix W is a modeling choice; document construction and test sensitivity (band/KNN/standardization).
+* - Check diagnostics (e.g., Moran's I on residuals) and compare with non-spatial baselines.
+* 最佳实践审查（ZH）:
+* - 空间滞后模型可能存在内生性；必要时考虑 IV/GMM 或稳健性检验。
+* - 权重矩阵 W 属于建模假设；请记录构建方式并做敏感性分析（阈值/KNN/标准化）。
+* - 建议做诊断（如残差 Moran's I）并与非空间基准模型对照。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -43,6 +52,8 @@ display "    地区ID: `id_var'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -51,16 +62,35 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and basic types.
+* ZH: 校验关键变量存在且类型合理。
 
 * ============ 变量检查 ============
-foreach var in `depvar' `id_var' `x_coord' `y_coord' {
-    capture confirm variable `var'
+capture confirm numeric variable `depvar'
+if _rc {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=depvar_not_found_or_not_numeric|var=`depvar'|severity=fail"
+    log close
+    exit 200
+}
+capture confirm variable `id_var'
+if _rc {
+    display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|var=`id_var'|severity=fail"
+    log close
+    exit 200
+}
+foreach var in `x_coord' `y_coord' {
+    capture confirm numeric variable `var'
     if _rc {
-        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail"
+        display "SS_RC|code=200|cmd=confirm numeric variable|msg=coord_var_not_found_or_not_numeric|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -73,9 +103,16 @@ foreach var of local indepvars {
         local valid_indep "`valid_indep' `var'"
     }
 }
+if "`valid_indep'" == "" {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=no_valid_indepvars|severity=fail"
+    log close
+    exit 200
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Build W and estimate a spatial lag-style model (approximation).
+* ZH: 构建 W 并估计空间滞后模型（近似实现）。
 
 * ============ 构建空间权重 ============
 display ""

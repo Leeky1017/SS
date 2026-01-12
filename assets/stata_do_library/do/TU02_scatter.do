@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Scatter plots can hide overplotting; consider transparency, jitter, or hexbin/density overlays for large N.
+* - Fit lines are descriptive; do not infer causality from visual association without design/identification.
+* - Always label axes/units and consider grouping (facets) to reveal heterogeneity.
+* 最佳实践审查（ZH）:
+* - 大样本散点图可能严重遮挡；可用透明度、抖动或六边形/密度叠加。
+* - 拟合线只是描述性；没有识别设计时不要从相关性推断因果。
+* - 需标注坐标轴/单位，并可用分组（分面）揭示异质性。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -34,7 +43,7 @@ local yvar = "__YVAR__"
 local fitline = "__FITLINE__"
 local group_var = "__GROUP_VAR__"
 
-if "`fitline'" == "" {
+if "`fitline'" == "" | "`fitline'" == "__FITLINE__" {
     local fitline = "linear"
 }
 
@@ -46,6 +55,8 @@ display "    拟合线: `fitline'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -54,10 +65,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate plotting variables and optional grouping.
+* ZH: 校验绘图变量并处理可选分组参数。
 
 * ============ 变量检查 ============
 foreach var in `xvar' `yvar' {
@@ -68,9 +86,21 @@ foreach var in `xvar' `yvar' {
         exit 200
     }
 }
+local by_opt ""
+if "`group_var'" != "" & "`group_var'" != "__GROUP_VAR__" {
+    capture confirm variable `group_var'
+    if !_rc {
+        local by_opt "by(`group_var')"
+    }
+    else {
+        display "SS_RC|code=10|cmd=confirm variable|msg=group_var_not_found_ignored|var=`group_var'|severity=warn"
+    }
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute correlation and export scatter plot.
+* ZH: 计算相关系数并导出散点图。
 
 * ============ 相关性分析 ============
 display ""
@@ -98,7 +128,7 @@ if "`fitline'" == "linear" {
            title("散点图: `yvar' vs `xvar'") ///
            xtitle("`xvar'") ytitle("`yvar'") ///
            note("N=`n_input', r=`=round(`corr', 0.001)'") ///
-           legend(order(1 "观测值" 2 "线性拟合"))
+           legend(order(1 "观测值" 2 "线性拟合")) `by_opt'
 }
 else if "`fitline'" == "lowess" {
     twoway (scatter `yvar' `xvar', mcolor(navy%50) msize(small)) ///
@@ -106,13 +136,13 @@ else if "`fitline'" == "lowess" {
            title("散点图: `yvar' vs `xvar'") ///
            xtitle("`xvar'") ytitle("`yvar'") ///
            note("N=`n_input', r=`=round(`corr', 0.001)'") ///
-           legend(order(1 "观测值" 2 "Lowess拟合"))
+           legend(order(1 "观测值" 2 "Lowess拟合")) `by_opt'
 }
 else {
     twoway (scatter `yvar' `xvar', mcolor(navy%50) msize(small)), ///
            title("散点图: `yvar' vs `xvar'") ///
            xtitle("`xvar'") ytitle("`yvar'") ///
-           note("N=`n_input', r=`=round(`corr', 0.001)'")
+           note("N=`n_input', r=`=round(`corr', 0.001)'") `by_opt'
 }
 
 graph export "fig_TU02_scatter.png", replace width(1200)

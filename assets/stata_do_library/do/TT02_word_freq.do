@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Tokenization is language-dependent; whitespace splitting is a simplification and may be inappropriate for Chinese or noisy text.
+* - Consider stopwords, stemming/lemmatization, and normalization (case, punctuation) aligned with your research question.
+* - Report sensitivity to preprocessing choices (min frequency, top-N cutoff).
+* 最佳实践审查（ZH）:
+* - 分词与语言相关；按空格切分是简化做法，对中文/噪声文本可能不适用。
+* - 建议结合研究问题处理停用词、词干化/词形还原与规范化（大小写、标点）。
+* - 建议报告不同预处理设置（最小词频、Top-N）的敏感性。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -30,15 +39,19 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local text_var = "__TEXT_VAR__"
-local top_n = __TOP_N__
-local min_freq = __MIN_FREQ__
+local top_n_raw = "__TOP_N__"
+local min_freq_raw = "__MIN_FREQ__"
+local top_n = real("`top_n_raw'")
+local min_freq = real("`min_freq_raw'")
 
-if `top_n' < 10 | `top_n' > 500 {
+if missing(`top_n') | `top_n' < 10 | `top_n' > 500 {
     local top_n = 50
 }
-if `min_freq' < 1 | `min_freq' > 100 {
+local top_n = floor(`top_n')
+if missing(`min_freq') | `min_freq' < 1 | `min_freq' > 100 {
     local min_freq = 2
 }
+local min_freq = floor(`min_freq')
 
 display ""
 display ">>> 词频统计参数:"
@@ -48,6 +61,8 @@ display "    最小词频: `min_freq'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -56,10 +71,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate text variable existence/type.
+* ZH: 校验文本变量存在且为字符串。
 
 * ============ 变量检查 ============
 capture confirm string variable `text_var'
@@ -71,6 +93,8 @@ if _rc {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Tokenize text and compute word frequency table.
+* ZH: 对文本分词并统计词频表。
 
 * ============ 分词和词频统计 ============
 display ""
@@ -109,6 +133,19 @@ display "═══════════════════════�
 display "SECTION 2: 词频统计"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
+if `total_words' <= 0 {
+    display "SS_RC|code=112|cmd=tokenize|msg=no_tokens_found|severity=warn"
+    gen str32 word = ""
+    gen long frequency = .
+    gen double proportion = .
+    keep word frequency proportion
+    keep in 1/0
+
+    local n_unique = 0
+    local top_word = ""
+    local max_freq = 0
+}
+else {
 contract _word, freq(_freq)
 gsort -_freq
 
@@ -155,6 +192,7 @@ else {
     quietly summarize frequency
     local max_freq = r(max)
     local top_word = word[1]
+}
 }
 
 display ""

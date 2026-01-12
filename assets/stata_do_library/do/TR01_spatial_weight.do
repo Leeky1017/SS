@@ -9,6 +9,15 @@
 * DEPENDENCIES: spmatrix
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Weight specification (distance/band/knn) should be justified and stress-tested; results can be sensitive to W.
+* - Coordinate units matter; for lat/long consider projecting or using appropriate distance metrics.
+* - Row-standardization is common but not universal; document the normalization choice.
+* 最佳实践审查（ZH）:
+* - 权重设定（距离/阈值/KNN）需有依据并做敏感性分析；结果可能对 W 很敏感。
+* - 坐标单位很关键；若为经纬度，建议投影或使用合适的距离度量。
+* - 行标准化常用但并非唯一选择；请明确记录标准化方式。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -33,15 +42,25 @@ local id_var = "__ID_VAR__"
 local x_coord = "__X_COORD__"
 local y_coord = "__Y_COORD__"
 local weight_type = "__WEIGHT_TYPE__"
-local k_neighbors = __K_NEIGHBORS__
-local distance_band = __DISTANCE_BAND__
+local k_neighbors_raw = "__K_NEIGHBORS__"
+local distance_band_raw = "__DISTANCE_BAND__"
+local k_neighbors = real("`k_neighbors_raw'")
+local distance_band = real("`distance_band_raw'")
+if missing(`distance_band') {
+    local distance_band = 0
+}
 
 if "`weight_type'" == "" {
     local weight_type = "distance"
 }
-if `k_neighbors' < 1 | `k_neighbors' > 20 {
+if !inlist("`weight_type'", "distance", "knn", "band") {
+    display "SS_RC|code=11|cmd=param_check|msg=invalid_weight_type_defaulted|value=`weight_type'|severity=warn"
+    local weight_type = "distance"
+}
+if missing(`k_neighbors') | `k_neighbors' < 1 | `k_neighbors' > 20 {
     local k_neighbors = 5
 }
+local k_neighbors = floor(`k_neighbors')
 
 display ""
 display ">>> 空间权重矩阵参数:"
@@ -54,6 +73,8 @@ if "`weight_type'" == "knn" {
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -62,16 +83,29 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and coordinate types.
+* ZH: 校验关键变量存在且坐标为数值型。
 
 * ============ 变量检查 ============
-foreach var in `id_var' `x_coord' `y_coord' {
-    capture confirm variable `var'
+capture confirm variable `id_var'
+if _rc {
+    display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|var=`id_var'|severity=fail"
+    log close
+    exit 200
+}
+foreach var in `x_coord' `y_coord' {
+    capture confirm numeric variable `var'
     if _rc {
-        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail"
+        display "SS_RC|code=200|cmd=confirm numeric variable|msg=coord_var_not_found_or_not_numeric|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -79,6 +113,8 @@ foreach var in `id_var' `x_coord' `y_coord' {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Build and summarize the spatial weight matrix W.
+* ZH: 构建并汇总空间权重矩阵 W。
 
 * ============ 构建空间权重矩阵 ============
 display ""

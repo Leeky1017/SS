@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Bar charts are best for aggregated comparisons; show uncertainty (CI/SE) when comparing estimates.
+* - Avoid too many categories; sort bars and use clear labels/units.
+* - Be explicit about the aggregation statistic (mean/sum/median) and missing-data handling.
+* 最佳实践审查（ZH）:
+* - 柱状图适合展示聚合对比；比较估计量时建议展示不确定性（CI/SE）。
+* - 避免类别过多；可排序并使用清晰标签/单位。
+* - 明确聚合统计量（均值/总和/中位数）与缺失值处理方式。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -33,7 +42,11 @@ local var = "__VAR__"
 local cat_var = "__CAT_VAR__"
 local stat = "__STAT__"
 
-if "`stat'" == "" {
+if "`stat'" == "" | "`stat'" == "__STAT__" {
+    local stat = "mean"
+}
+if !inlist("`stat'", "mean", "sum", "median", "count") {
+    display "SS_RC|code=11|cmd=param_check|msg=invalid_stat_defaulted|value=`stat'|severity=warn"
     local stat = "mean"
 }
 
@@ -45,6 +58,8 @@ display "    统计量: `stat'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -53,10 +68,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate plotting variables existence/type.
+* ZH: 校验绘图变量存在且类型合理。
 
 * ============ 变量检查 ============
 capture confirm numeric variable `var'
@@ -75,6 +97,8 @@ if _rc {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Aggregate by category and export bar chart figure.
+* ZH: 按类别聚合并导出柱状图。
 
 * ============ 绘制柱状图 ============
 display ""

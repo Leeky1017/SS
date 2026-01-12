@@ -11,6 +11,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - PCA is sensitive to scaling; standardize/center variables when units differ.
+* - Choose components based on explained variance and domain interpretability; avoid over-interpreting small PCs.
+* - Use out-of-sample validation if PCA scores are used for prediction.
+* 最佳实践审查（ZH）:
+* - PCA 对尺度敏感；若变量量纲不同，建议标准化/中心化。
+* - 选取主成分需结合解释方差与可解释性；避免过度解读较小主成分。
+* - 若将主成分得分用于预测，建议做样本外验证。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -32,7 +41,12 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local vars = "__VARS__"
-local n_components = __N_COMPONENTS__
+local n_components_raw = "__N_COMPONENTS__"
+local n_components = real("`n_components_raw'")
+if missing(`n_components') | `n_components' < 0 {
+    local n_components = 0
+}
+local n_components = floor(`n_components')
 
 display ""
 display ">>> PCA参数:"
@@ -40,6 +54,8 @@ display "    分析变量: `vars'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -48,10 +64,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate variables for PCA (numeric, >=2).
+* ZH: 校验 PCA 变量（数值型且至少 2 个）。
 
 * ============ 变量检查 ============
 local valid_vars ""
@@ -74,6 +97,8 @@ display ">>> 有效变量数: `n_vars'"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Run PCA and export eigenvalues/loadings/plots.
+* ZH: 执行 PCA 并导出特征值、载荷与图形。
 
 * ============ PCA分析 ============
 display ""

@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "xsmle",
-      "purpose": "Spatial panel",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "Spatial panel (manual W + xtivreg)",
+      "source": "built-in"
     }
   ],
   "description": "Spatial panel data model",

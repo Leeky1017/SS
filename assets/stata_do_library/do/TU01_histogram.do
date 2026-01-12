@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Choose binning intentionally (rules-of-thumb vs domain-driven) and report sensitivity; bins can change perceived distribution.
+* - Use density vs frequency consistently and label axes; consider adding reference lines (mean/median) for interpretation.
+* - For heavy tails/outliers, consider log scale or robust summaries alongside histograms.
+* 最佳实践审查（ZH）:
+* - 分箱应有依据（经验法则/领域知识）并做敏感性分析；分箱会影响分布观感。
+* - 统一使用密度或频数并标注坐标轴；可加入均值/中位数参考线便于解释。
+* - 对厚尾/离群值可考虑对数尺度或搭配稳健统计量。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -31,14 +40,16 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local var = "__VAR__"
-local bins = __BINS__
+local bins_raw = "__BINS__"
+local bins = real("`bins_raw'")
 local normal = "__NORMAL__"
 local title = "__TITLE__"
 
-if `bins' < 5 | `bins' > 100 {
+if missing(`bins') | `bins' < 5 | `bins' > 100 {
     local bins = 0
 }
-if "`normal'" == "" {
+local bins = floor(`bins')
+if "`normal'" == "" | "`normal'" == "__NORMAL__" {
     local normal = "yes"
 }
 if "`title'" == "" | "`title'" == "__TITLE__" {
@@ -53,6 +64,8 @@ display "    正态曲线: `normal'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -61,10 +74,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate plotting variable existence/type.
+* ZH: 校验绘图变量存在且为数值型。
 
 * ============ 变量检查 ============
 capture confirm numeric variable `var'
@@ -76,6 +96,8 @@ if _rc {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Compute summary stats and export histogram figure/table outputs.
+* ZH: 计算统计量并导出直方图与表格输出。
 
 * ============ 统计计算 ============
 display ""

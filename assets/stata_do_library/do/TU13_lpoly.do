@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Degree and bandwidth drive bias–variance tradeoff; report them and run sensitivity checks (bandwidth especially).
+* - Avoid interpreting local-polynomial fits causally; ensure x is appropriately scaled and consider boundary issues.
+* - For inference, prefer methods providing confidence bands; the smooth line is primarily descriptive.
+* 最佳实践审查（ZH）:
+* - 阶数与带宽决定偏差-方差权衡；应报告设定并做敏感性分析（尤其带宽）。
+* - 局部多项式拟合主要用于描述；避免因果解读，并注意 x 的尺度与边界问题。
+* - 若需要推断，优先采用能给出置信带的方法；平滑曲线多用于可视化。 
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -32,13 +41,16 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 * ============ 参数设置 ============
 local yvar = "__YVAR__"
 local xvar = "__XVAR__"
-local degree = __DEGREE__
-local bandwidth = __BANDWIDTH__
+local degree_raw = "__DEGREE__"
+local bandwidth_raw = "__BANDWIDTH__"
+local degree = real("`degree_raw'")
+local bandwidth = real("`bandwidth_raw'")
 
-if `degree' < 0 | `degree' > 6 {
+if missing(`degree') | `degree' < 0 | `degree' > 6 {
     local degree = 1
 }
-if `bandwidth' <= 0 {
+local degree = floor(`degree')
+if missing(`bandwidth') | `bandwidth' <= 0 {
     local bandwidth = 0
 }
 
@@ -59,10 +71,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables existence/type.
+* ZH: 校验关键变量存在且为数值型。
 capture confirm numeric variable `yvar' `xvar'
 if _rc {
     display "SS_RC|code=200|cmd=confirm numeric variable|msg=vars_not_found|severity=fail"
@@ -85,7 +104,13 @@ if `bandwidth' > 0 {
     local bw_opt "bwidth(`bandwidth')"
 }
 
-lpoly `yvar' `xvar', degree(`degree') `bw_opt' generate(xgrid yhat) nograph
+capture noisily lpoly `yvar' `xvar', degree(`degree') `bw_opt' generate(xgrid yhat) nograph
+local rc = _rc
+if `rc' != 0 {
+    display "SS_RC|code=`rc'|cmd=lpoly|msg=lpoly_failed|severity=fail"
+    log close
+    exit `rc'
+}
 
 * 绘图
 twoway (scatter `yvar' `xvar', msize(small) mcolor(gray%50)) ///

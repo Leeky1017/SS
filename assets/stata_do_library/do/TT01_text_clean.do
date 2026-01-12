@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Text cleaning is language-dependent; define rules (punctuation/stopwords/numbers) aligned with your downstream task.
+* - Preserve raw text and audit cleaning impact (length, missingness); overly aggressive regex can remove informative tokens.
+* - Ensure encoding/Unicode handling is consistent (ustr* functions) and document decisions.
+* 最佳实践审查（ZH）:
+* - 文本清洗与语言相关；请根据下游任务明确规则（标点/停用词/数字等）。
+* - 保留原始文本并审计清洗影响（长度、缺失）；过强的正则可能误删有效信息。
+* - 注意编码/Unicode 一致性（使用 ustr* 函数）并记录关键决策。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -34,13 +43,13 @@ local lowercase = "__LOWERCASE__"
 local remove_punct = "__REMOVE_PUNCT__"
 local remove_num = "__REMOVE_NUM__"
 
-if "`lowercase'" == "" {
+if "`lowercase'" == "" | "`lowercase'" == "__LOWERCASE__" {
     local lowercase = "yes"
 }
-if "`remove_punct'" == "" {
+if "`remove_punct'" == "" | "`remove_punct'" == "__REMOVE_PUNCT__" {
     local remove_punct = "yes"
 }
-if "`remove_num'" == "" {
+if "`remove_num'" == "" | "`remove_num'" == "__REMOVE_NUM__" {
     local remove_num = "no"
 }
 
@@ -53,6 +62,8 @@ display "    去数字: `remove_num'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -61,10 +72,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate text variable existence/type.
+* ZH: 校验文本变量存在且为字符串。
 
 * ============ 变量检查 ============
 capture confirm string variable `text_var'
@@ -76,6 +94,8 @@ if _rc {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Clean text and export cleaned dataset + summary stats.
+* ZH: 清洗文本并导出清洗后数据与统计摘要。
 
 * ============ 原始文本统计 ============
 display ""
@@ -144,15 +164,23 @@ local clean_avg_len = r(mean)
 
 quietly summarize len_change
 local avg_removed = r(mean)
+local pct_removed = 0
+if `orig_avg_len' > 0 {
+    local pct_removed = (`orig_avg_len' - `clean_avg_len') / `orig_avg_len' * 100
+}
+else {
+    display "SS_RC|code=10|cmd=length_check|msg=orig_avg_len_zero|severity=warn"
+}
 
 display ""
 display ">>> 清洗后统计:"
 display "    清洗后平均长度: " %8.1f `clean_avg_len'
 display "    平均减少字符: " %8.1f `avg_removed'
-display "    长度变化比: " %8.1f `=(`orig_avg_len'-`clean_avg_len')/`orig_avg_len'*100' "%"
+display "    长度变化比: " %8.1f `pct_removed' "%"
 
 display "SS_METRIC|name=orig_avg_len|value=`orig_avg_len'"
 display "SS_METRIC|name=clean_avg_len|value=`clean_avg_len'"
+display "SS_METRIC|name=pct_len_reduction|value=`pct_removed'"
 
 * 导出统计
 preserve

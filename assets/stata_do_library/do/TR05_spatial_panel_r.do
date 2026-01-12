@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Spatial panel models are sensitive to W and identification; document W and justify FE/RE choice with robustness checks.
+* - This template uses a simplified manual W-lag construction and requires a balanced panel; for production consider specialized spatial panel tooling.
+* - Check diagnostics and report uncertainty; interpretation of ρ depends on model assumptions and scaling.
+* 最佳实践审查（ZH）:
+* - 空间面板模型对 W 与识别假设敏感；请记录 W 并通过稳健性分析支持 FE/RE 选择。
+* - 本模板使用简化的手工空间滞后构造并要求平衡面板；正式研究建议使用更专业的空间面板工具链。
+* - 请做诊断并报告不确定性；ρ 的解释依赖模型假设与变量尺度。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -40,6 +49,10 @@ local model_type = "__MODEL_TYPE__"
 if "`model_type'" == "" {
     local model_type = "fe"
 }
+if !inlist("`model_type'", "fe", "re") {
+    display "SS_RC|code=11|cmd=param_check|msg=invalid_model_type_defaulted|value=`model_type'|severity=warn"
+    local model_type = "fe"
+}
 
 display ""
 display ">>> 空间面板模型参数:"
@@ -49,6 +62,8 @@ display "    模型类型: `model_type'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -57,13 +72,26 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate inputs and enforce balanced panel assumptions.
+* ZH: 校验输入并强制平衡面板假设。
 
 * ============ 变量检查 ============
-foreach var in `depvar' `id_var' `time_var' {
+capture confirm numeric variable `depvar'
+if _rc {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=depvar_not_found_or_not_numeric|var=`depvar'|severity=fail"
+    log close
+    exit 200
+}
+foreach var in `id_var' `time_var' {
     capture confirm variable `var'
     if _rc {
         display "SS_RC|code=200|cmd=confirm variable|msg=required_var_not_found|var=`var'|severity=fail"
@@ -87,6 +115,11 @@ foreach var of local indepvars {
         local valid_indep "`valid_indep' `var'"
     }
 }
+if "`valid_indep'" == "" {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=no_valid_indepvars|severity=fail"
+    log close
+    exit 200
+}
 
 capture xtset `id_var' `time_var'
 if _rc {
@@ -95,18 +128,38 @@ if _rc {
     log close
     exit `rc'
 }
-sort `time_var' `id_var'
+tempvar region_idx time_idx
+egen int `region_idx' = group(`id_var')
+egen int `time_idx' = group(`time_var')
 
-quietly levelsof `id_var', local(region_levels)
-local n_regions : word count `region_levels'
-quietly levelsof `time_var', local(time_levels)
-local n_times : word count `time_levels'
+capture isid `region_idx' `time_idx'
+if _rc {
+    display "SS_RC|code=459|cmd=isid|msg=duplicate_panel_keys|severity=fail"
+    log close
+    exit 459
+}
+
+quietly summarize `region_idx', meanonly
+local n_regions = r(max)
+quietly summarize `time_idx', meanonly
+local n_times = r(max)
+local n_obs = _N
+local expected_n = `n_regions' * `n_times'
+if `n_obs' != `expected_n' {
+    display "SS_RC|code=459|cmd=panel_balance_check|msg=unbalanced_panel_not_supported|n_obs=`n_obs'|expected=`expected_n'|severity=fail"
+    log close
+    exit 459
+}
+
+sort `time_idx' `region_idx'
 
 display ""
 display ">>> 面板结构: `n_regions' 地区 x `n_times' 时期"
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Build W, compute spatial lags, then fit a panel IV model.
+* ZH: 构建 W、计算空间滞后变量，并估计面板 IV 模型。
 
 * ============ 构建空间权重（基于首期坐标） ============
 display ""
@@ -114,10 +167,13 @@ display "═══════════════════════�
 display "SECTION 1: 构建空间权重矩阵"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 提取首期坐标
+* 提取首期坐标（按 region_idx 对齐）
 preserve
-bysort `id_var' (`time_var'): keep if _n == 1
-keep `id_var' `x_coord' `y_coord'
+keep `id_var' `time_var' `x_coord' `y_coord' `region_idx' `time_idx'
+sort `region_idx' `time_idx'
+bysort `region_idx': keep if _n == 1
+keep `region_idx' `x_coord' `y_coord'
+sort `region_idx'
 tempfile coords
 save `coords'
 restore
@@ -162,12 +218,12 @@ display "═══════════════════════�
 display "SECTION 2: 计算空间滞后变量"
 display "═══════════════════════════════════════════════════════════════════════════════"
 
-* 对每个时期计算空间滞后
-sort `time_var' `id_var'
+* 对每个时期计算空间滞后（要求平衡面板 + 已按 time_idx/region_idx 排序）
+sort `time_idx' `region_idx'
 
 generate double W_`depvar' = .
 
-quietly levelsof `time_var', local(times)
+quietly levelsof `time_idx', local(times)
 foreach t of local times {
     * 提取该期数据
     forvalues i = 1/`n_regions' {

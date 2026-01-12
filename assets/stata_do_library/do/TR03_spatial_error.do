@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Spatial error models assume residual spatial correlation; always report diagnostics and compare to SAR/OLS baselines.
+* - Weight matrix W is a modeling choice; document construction and run sensitivity checks.
+* - Ensure iteration/convergence checks are reported; non-convergence suggests model misspecification or scaling issues.
+* 最佳实践审查（ZH）:
+* - 空间误差模型假设残差存在空间相关；请报告诊断并与 SAR/OLS 基准模型对照。
+* - 权重矩阵 W 属于建模假设；请记录构建方式并做敏感性分析。
+* - 需要报告迭代/收敛情况；不收敛可能意味着模型设定或变量尺度存在问题。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -42,6 +51,8 @@ display "    自变量: `indepvars'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -50,16 +61,35 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and basic types.
+* ZH: 校验关键变量存在且类型合理。
 
 * ============ 变量检查 ============
-foreach var in `depvar' `id_var' `x_coord' `y_coord' {
-    capture confirm variable `var'
+capture confirm numeric variable `depvar'
+if _rc {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=depvar_not_found_or_not_numeric|var=`depvar'|severity=fail"
+    log close
+    exit 200
+}
+capture confirm variable `id_var'
+if _rc {
+    display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|var=`id_var'|severity=fail"
+    log close
+    exit 200
+}
+foreach var in `x_coord' `y_coord' {
+    capture confirm numeric variable `var'
     if _rc {
-        display "SS_RC|code=200|cmd=confirm variable|msg=var_not_found|severity=fail"
+        display "SS_RC|code=200|cmd=confirm numeric variable|msg=coord_var_not_found_or_not_numeric|var=`var'|severity=fail"
         log close
         exit 200
     }
@@ -72,9 +102,16 @@ foreach var of local indepvars {
         local valid_indep "`valid_indep' `var'"
     }
 }
+if "`valid_indep'" == "" {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=no_valid_indepvars|severity=fail"
+    log close
+    exit 200
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Estimate a spatial error-style model and report convergence.
+* ZH: 估计空间误差模型并报告收敛情况。
 
 * ============ 构建空间权重 ============
 display ""

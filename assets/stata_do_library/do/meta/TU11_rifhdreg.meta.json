@@ -2,9 +2,9 @@
   "contract_version": "1.1",
   "dependencies": [
     {
-      "pkg": "rifreg",
-      "purpose": "RIF regression",
-      "source": "ssc"
+      "pkg": "stata",
+      "purpose": "RIF regression via kdensity + regress",
+      "source": "built-in"
     }
   ],
   "description": "Unconditional quantile regression using RIF (Recentered Influence Function)",

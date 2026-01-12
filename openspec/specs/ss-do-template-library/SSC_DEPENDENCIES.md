@@ -32,12 +32,11 @@ Notes:
 | `rddensity` | `TG12` | RDD density test | `ssc install rddensity, replace` |
 | `rdrobust` | `TG09`, `TG10`, `TG11` | RDD bandwidth; RDD estimation | `ssc install rdrobust, replace` |
 | `reghdfe` | `TD02` | high-dimensional fixed effects | `ssc install reghdfe, replace` |
-| `rifreg` | `TU11` | RIF regression | `ssc install rifreg, replace` |
 | `spatdiag` | `TN10` | Spatial diagnostics | `ssc install spatdiag, replace` |
-| `spatwmat` | `TN02`, `TR04` | Spatial tests | `ssc install spatwmat, replace` |
+| `spatwmat` | `TN02` | Spatial tests | `ssc install spatwmat, replace` |
 | `synth` | `TG17`, `TG18` | Synthetic control | `ssc install synth, replace` |
 | `table1_mc` | `TO08` | Table 1 creation | `ssc install table1_mc, replace` |
-| `xsmle` | `TN08`, `TR05` | Spatial panel | `ssc install xsmle, replace` |
+| `xsmle` | `TN08` | Spatial panel | `ssc install xsmle, replace` |
 | `xtabond2` | `TF05`, `TP03` | System GMM; System GMM estimation | `ssc install xtabond2, replace` |
 | `xtcointtest` | `TP10` | Panel cointegration | `ssc install xtcointtest, replace` |
 | `xthreg` | `TF07` | Panel threshold model | `ssc install xthreg, replace` |

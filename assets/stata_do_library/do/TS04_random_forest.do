@@ -10,6 +10,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - Use out-of-bag/CV metrics and a proper test set; avoid leakage from preprocessing or feature engineering.
+* - Tune key hyperparameters (trees, depth, mtry) and report stability; importance can be biased with correlated predictors.
+* - Set seeds for reproducibility and document class imbalance handling for classification.
+* 最佳实践审查（ZH）:
+* - 使用 OOB/CV 指标与独立测试集评估；避免预处理/特征工程带来的信息泄露。
+* - 调参并报告稳定性；相关自变量下变量重要性可能有偏。
+* - 设置随机种子以保证可复现；分类任务请关注类别不平衡处理。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -49,13 +58,19 @@ display "SS_METRIC|name=rforest_available|value=`has_rforest'"
 * ============ 参数设置 ============
 local depvar = "__DEPVAR__"
 local indepvars = "__INDEPVARS__"
-local n_trees = __N_TREES__
+local n_trees_raw = "__N_TREES__"
+local n_trees = real("`n_trees_raw'")
 local type = "__TYPE__"
 
-if `n_trees' < 10 | `n_trees' > 1000 {
+if missing(`n_trees') | `n_trees' < 10 | `n_trees' > 1000 {
     local n_trees = 100
 }
+local n_trees = floor(`n_trees')
 if "`type'" == "" {
+    local type = "regress"
+}
+if !inlist("`type'", "regress", "classify") {
+    display "SS_RC|code=11|cmd=param_check|msg=invalid_type_defaulted|value=`type'|severity=warn"
     local type = "regress"
 }
 
@@ -67,6 +82,8 @@ display "    类型: `type'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -75,15 +92,22 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate required variables and basic types.
+* ZH: 校验关键变量存在且类型合理。
 
 * ============ 变量检查 ============
-capture confirm variable `depvar'
+capture confirm numeric variable `depvar'
 if _rc {
-    display "SS_RC|code=200|cmd=confirm variable|msg=depvar_not_found|severity=fail"
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=depvar_not_found_or_not_numeric|var=`depvar'|severity=fail"
     log close
     exit 200
 }
@@ -97,9 +121,16 @@ foreach var of local indepvars {
         local n_vars = `n_vars' + 1
     }
 }
+if `n_vars' <= 0 {
+    display "SS_RC|code=200|cmd=confirm numeric variable|msg=no_valid_indepvars|severity=fail"
+    log close
+    exit 200
+}
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Train random forest (or fallback) and export importance/performance metrics.
+* ZH: 训练随机森林（或回退模型）并导出重要性与性能指标。
 
 * ============ 随机森林 ============
 display ""

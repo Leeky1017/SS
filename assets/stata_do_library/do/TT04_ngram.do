@@ -9,6 +9,15 @@
 * DEPENDENCIES: none
 * ==============================================================================
 
+* BEST_PRACTICE_REVIEW (EN):
+* - N-grams depend heavily on tokenization/normalization; define preprocessing aligned with the research question.
+* - Higher-order n-grams quickly become sparse; use frequency thresholds and consider collocations/PMI for interpretability.
+* - Report sensitivity to N and top-N cutoffs; avoid over-interpreting small samples.
+* 最佳实践审查（ZH）:
+* - N-gram 强依赖分词与规范化；请明确预处理规则并与研究问题对齐。
+* - 高阶 n-gram 很快变稀疏；可配合频率阈值，并考虑搭配词/PMI 提升可解释性。
+* - 建议报告对 N 与 Top-N 设置的敏感性；小样本下避免过度解释。
+
 * ============ 初始化 ============
 capture log close _all
 local rc = _rc
@@ -30,15 +39,19 @@ display "SS_DEP_CHECK|pkg=stata|source=built-in|status=ok"
 
 * ============ 参数设置 ============
 local text_var = "__TEXT_VAR__"
-local n_gram = __N__
-local top_n = __TOP_N__
+local n_gram_raw = "__N__"
+local top_n_raw = "__TOP_N__"
+local n_gram = real("`n_gram_raw'")
+local top_n = real("`top_n_raw'")
 
-if `n_gram' < 2 | `n_gram' > 5 {
+if missing(`n_gram') | `n_gram' < 2 | `n_gram' > 5 {
     local n_gram = 2
 }
-if `top_n' < 10 | `top_n' > 200 {
+local n_gram = floor(`n_gram')
+if missing(`top_n') | `top_n' < 10 | `top_n' > 200 {
     local top_n = 30
 }
+local top_n = floor(`top_n')
 
 display ""
 display ">>> N-gram分析参数:"
@@ -48,6 +61,8 @@ display "    Top N: `top_n'"
 
 * ============ 数据加载 ============
 display "SS_STEP_BEGIN|step=S01_load_data"
+* EN: Load main dataset from data.csv.
+* ZH: 从 data.csv 载入主数据集。
 capture confirm file "data.csv"
 if _rc {
     display "SS_RC|code=601|cmd=confirm file|msg=data_file_not_found|severity=fail"
@@ -56,10 +71,17 @@ if _rc {
 }
 import delimited "data.csv", clear
 local n_input = _N
+if `n_input' <= 0 {
+    display "SS_RC|code=2000|cmd=import delimited|msg=empty_dataset|severity=fail"
+    log close
+    exit 2000
+}
 display "SS_METRIC|name=n_input|value=`n_input'"
 display "SS_STEP_END|step=S01_load_data|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S02_validate_inputs"
+* EN: Validate text variable existence/type.
+* ZH: 校验文本变量存在且为字符串。
 
 * ============ 变量检查 ============
 capture confirm string variable `text_var'
@@ -71,6 +93,8 @@ if _rc {
 display "SS_STEP_END|step=S02_validate_inputs|status=ok|elapsed_sec=0"
 
 display "SS_STEP_BEGIN|step=S03_analysis"
+* EN: Generate n-grams and export frequency table.
+* ZH: 生成 n-gram 并导出频率表。
 
 * ============ 生成N-gram ============
 display ""
