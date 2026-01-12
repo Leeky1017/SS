@@ -1,7 +1,7 @@
 # ISSUE-391
 - Issue: #391
-- Branch: task/391-deploy-ready-r031
-- PR: https://github.com/Leeky1017/SS/pull/400
+- Branch: task/391-deploy-ready-r031, task/391-deploy-ready-r031-closeout
+- PR: https://github.com/Leeky1017/SS/pull/400, https://github.com/Leeky1017/SS/pull/402
 
 ## Plan
 - Add `output_formats` request + defaults.
@@ -49,3 +49,12 @@
 - Key output:
   - `Success: no issues found in 175 source files`
   - `194 passed, 5 skipped in 9.16s`
+
+### 2026-01-12 Closeout (archive Rulebook task + task card)
+- Command:
+  - `rulebook task archive issue-391-deploy-ready-r031`
+- Key output:
+  - `✅ Task issue-391-deploy-ready-r031 archived successfully`
+- Evidence:
+  - `rulebook/tasks/archive/2026-01-12-issue-391-deploy-ready-r031/`
+  - `openspec/specs/ss-deployment-docker-readiness/task_cards/remediation__DEPLOY-READY-R031.md`
