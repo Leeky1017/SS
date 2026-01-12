@@ -1,7 +1,7 @@
 # ISSUE-424
 - Issue: #424
 - Branch: task/424-stata-infra-coverage
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/425
 
 ## Goal
 - Add deterministic unit tests for Stata infra helpers to lift overall coverage above 80% (preparing for a stricter CI coverage gate).
@@ -82,5 +82,22 @@
   - `src/infra/stata_cmd.py                              62      5    92%`
   - `Required test coverage of 75% reached. Total coverage: 80.25%`
   - `270 passed, 5 skipped`
+- Evidence:
+  - N/A
+
+### 2026-01-12 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - N/A
+
+### 2026-01-12 Create PR
+- Command:
+  - `gh pr create --title "[COVERAGE] Stata infra: add unit tests (#424)" --body "Closes #424 ..."`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/425`
 - Evidence:
   - N/A
