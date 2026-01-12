@@ -3,7 +3,7 @@
 ## Metadata
 
 - Priority: P0
-- Issue: TBD
+- Issue: #391
 - Spec: `openspec/specs/ss-deployment-docker-readiness/spec.md`
 - Related specs:
   - `openspec/specs/ss-job-contract/spec.md`
@@ -50,9 +50,20 @@
 
 ## Acceptance checklist
 
-- [ ] `output_formats` 可在任务提交时指定，未指定时默认 `["csv","log","do"]`
-- [ ] 模板执行后统一输出格式器运行并产出请求的格式（至少覆盖 csv/xlsx/dta/docx/pdf/log/do）
-- [ ] 产物全部写入 artifacts index，且可通过 artifacts download 端点下载
-- [ ] Word/PDF 优先采用 `putdocx` / `putpdf`（或明确说明为何不采用）
-- [ ] Evidence: `openspec/_ops/task_runs/ISSUE-<N>.md`
+- [x] `output_formats` 可在任务提交时指定，未指定时默认 `["csv","log","do"]`
+- [x] 模板执行后统一输出格式器运行并产出请求的格式（至少覆盖 csv/xlsx/dta/docx/pdf/log/do）
+- [x] 产物全部写入 artifacts index，且可通过 artifacts download 端点下载
+- [x] Word/PDF 优先采用 `putdocx` / `putpdf`（或明确说明为何不采用）
+- [x] Evidence: `openspec/_ops/task_runs/ISSUE-391.md`
 
+## Completion
+
+- PR: https://github.com/Leeky1017/SS/pull/400
+- Delivered:
+  - Added job-level `output_formats` request plumbing + default `["csv","log","do"]`.
+  - Implemented a unified post-run `OutputFormatterService` and worker hook to produce `csv/xlsx/dta/docx/pdf/log/do`.
+  - Normalized do-template output kinds and patched 9 docx template metas to declare `putdocx`.
+  - Indexed formatted artifacts for download and added regression tests.
+- Notes:
+  - For minimal, CI-friendly report generation, `docx/pdf` are produced via `python-docx`/`reportlab` (rather than Stata `putdocx`/`putpdf`).
+- Run log: `openspec/_ops/task_runs/ISSUE-391.md`
