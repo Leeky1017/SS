@@ -77,3 +77,9 @@
   - `gh pr create --title "Phase 5.14: Panel + HLM templates (TP01–TP15, TQ01–TQ12) (#363)" --body "Closes #363 ..."`
 - Key output:
   - `PR: https://github.com/Leeky1017/SS/pull/369`
+
+### 2026-01-12 13:14 Enable auto-merge
+- Command:
+  - `gh pr merge --auto --squash 369`
+- Key output:
+  - `will be automatically merged via squash when all requirements are met`
