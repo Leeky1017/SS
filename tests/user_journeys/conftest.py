@@ -20,6 +20,7 @@ from src.domain.job_inputs_service import JobInputsService
 from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobService
 from src.domain.models import JobInputs
+from src.domain.output_formatter_service import OutputFormatterService
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.domain.task_code_redeem_service import TaskCodeRedeemService
@@ -144,6 +145,7 @@ def journey_worker_service(
         queue=journey_queue,
         jobs_dir=journey_jobs_dir,
         runner=runner,
+        output_formatter=OutputFormatterService(jobs_dir=journey_jobs_dir),
         state_machine=journey_state_machine,
         retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
         do_file_generator=DoFileGenerator(

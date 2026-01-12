@@ -57,6 +57,10 @@ class ArtifactKind(str, Enum):
     RUN_ERROR_JSON = "run.error.json"
     STATA_EXPORT_TABLE = "stata.export.table"
     STATA_EXPORT_FIGURE = "stata.export.figure"
+    STATA_EXPORT_DATASET = "stata.export.dataset"
+    STATA_EXPORT_REPORT = "stata.export.report"
+    STATA_EXPORT_MANIFEST = "stata.export.manifest"
+    STATA_EXPORT_OTHER = "stata.export.other"
 
 
 def _is_safe_job_rel_path(value: str) -> bool:
@@ -233,6 +237,7 @@ class Job(BaseModel):
     draft: Draft | None = None
     llm_plan: LLMPlan | None = None
     selected_template_id: str | None = None
+    output_formats: list[str] | None = None
     runs: list[RunAttempt] = Field(default_factory=list)
     artifacts_index: list[ArtifactRef] = Field(default_factory=list)
     redeem_task_code: str | None = None

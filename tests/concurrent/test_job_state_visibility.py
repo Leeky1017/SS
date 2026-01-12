@@ -7,14 +7,17 @@ from pathlib import Path
 
 from src.domain.do_file_generator import DoFileGenerator
 from src.domain.models import JobStatus
+from src.domain.output_formatter_service import OutputFormatterService
 from src.domain.stata_runner import RunResult, StataRunner
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store import JobStore
+from tests.fakes.fake_stata_runner import FakeStataRunner
 
 
 @dataclass(frozen=True)
 class BlockingStataRunner(StataRunner):
+    jobs_dir: Path
     allow_finish: threading.Event
     started: threading.Event
 
@@ -26,17 +29,17 @@ class BlockingStataRunner(StataRunner):
         run_id: str,
         do_file: str,
         timeout_seconds: int | None = None,
+        inputs_dir_rel: str | None = None,
     ) -> RunResult:
         self.started.set()
         self.allow_finish.wait(timeout=5.0)
-        return RunResult(
+        return FakeStataRunner(jobs_dir=self.jobs_dir).run(
+            tenant_id=tenant_id,
             job_id=job_id,
             run_id=run_id,
-            ok=True,
-            exit_code=0,
-            timed_out=False,
-            artifacts=tuple(),
-            error=None,
+            do_file=do_file,
+            timeout_seconds=timeout_seconds,
+            inputs_dir_rel=inputs_dir_rel,
         )
 
 
@@ -59,7 +62,8 @@ def test_worker_progress_is_visible_while_user_polls_status(
         store=store,
         queue=queue,
         jobs_dir=jobs_dir,
-        runner=BlockingStataRunner(allow_finish=allow_finish, started=started),
+        runner=BlockingStataRunner(jobs_dir=jobs_dir, allow_finish=allow_finish, started=started),
+        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
         state_machine=state_machine,
         retry=WorkerRetryPolicy(max_attempts=1, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
         do_file_generator=DoFileGenerator(do_template_repo=repo),

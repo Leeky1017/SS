@@ -14,6 +14,7 @@ from opentelemetry.trace import get_tracer
 
 from src.config import Config, load_config
 from src.domain.do_file_generator import DoFileGenerator
+from src.domain.output_formatter_service import OutputFormatterService
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.audit_logger import LoggingAuditLogger
@@ -196,6 +197,7 @@ def _build_worker_service(
         queue=queue,
         jobs_dir=config.jobs_dir,
         runner=runner,
+        output_formatter=OutputFormatterService(jobs_dir=config.jobs_dir),
         dependency_checker=dependency_checker,
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(

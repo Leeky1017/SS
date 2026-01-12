@@ -17,6 +17,7 @@ from src.domain.draft_service import DraftService
 from src.domain.idempotency import JobIdempotency
 from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobService
+from src.domain.output_formatter_service import OutputFormatterService
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.domain.task_code_redeem_service import TaskCodeRedeemService
@@ -151,6 +152,7 @@ def stress_worker_factory(
             queue=stress_queue,
             jobs_dir=stress_jobs_dir,
             runner=runner,
+            output_formatter=OutputFormatterService(jobs_dir=stress_jobs_dir),
             state_machine=stress_state_machine,
             retry=WorkerRetryPolicy(
                 max_attempts=1,

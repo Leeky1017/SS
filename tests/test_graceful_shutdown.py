@@ -12,6 +12,7 @@ from src.domain.idempotency import JobIdempotency
 from src.domain.job_service import JobService
 from src.domain.job_support import NoopJobScheduler
 from src.domain.models import JobConfirmation, JobInputs, JobStatus
+from src.domain.output_formatter_service import OutputFormatterService
 from src.domain.plan_service import PlanService
 from src.domain.stata_runner import RunResult
 from src.domain.state_machine import JobStateMachine
@@ -104,6 +105,7 @@ def test_worker_service_when_shutdown_requested_after_claim_releases_claim_and_s
         queue=queue,
         jobs_dir=jobs_dir,
         runner=_CapturingRunner(),
+        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=3, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
     )

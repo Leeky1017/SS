@@ -15,6 +15,7 @@ from src.domain.models import (
     PlanStep,
     PlanStepType,
 )
+from src.domain.output_formatter_service import OutputFormatterService
 from src.domain.state_machine import JobStateMachine
 from src.domain.worker_service import WorkerRetryPolicy, WorkerService
 from src.infra.file_worker_queue import FileWorkerQueue
@@ -73,6 +74,7 @@ def _worker(*, jobs_dir: Path, queue: FileWorkerQueue) -> WorkerService:
         queue=queue,
         jobs_dir=jobs_dir,
         runner=FakeStataRunner(jobs_dir=jobs_dir),
+        output_formatter=OutputFormatterService(jobs_dir=jobs_dir),
         state_machine=JobStateMachine(),
         retry=WorkerRetryPolicy(max_attempts=2, backoff_base_seconds=0.0, backoff_max_seconds=0.0),
         do_file_generator=DoFileGenerator(

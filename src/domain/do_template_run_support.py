@@ -39,11 +39,17 @@ def output_kind(output: JsonObject) -> ArtifactKind:
     output_type = output.get("type", "")
     if output_type == "table":
         return ArtifactKind.STATA_EXPORT_TABLE
+    if output_type == "data":
+        return ArtifactKind.STATA_EXPORT_DATASET
+    if output_type == "report":
+        return ArtifactKind.STATA_EXPORT_REPORT
+    if output_type == "manifest":
+        return ArtifactKind.STATA_EXPORT_MANIFEST
     if output_type in {"figure", "graph"}:
         return ArtifactKind.STATA_EXPORT_FIGURE
     if output_type == "log":
         return ArtifactKind.STATA_RESULT_LOG
-    return ArtifactKind.STATA_RESULT_LOG
+    return ArtifactKind.STATA_EXPORT_OTHER
 
 
 def declared_outputs(*, template_id: str, meta: JsonObject) -> tuple[JsonObject, ...]:

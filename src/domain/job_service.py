@@ -12,6 +12,7 @@ from src.domain.job_store import JobStore
 from src.domain.job_support import JobScheduler, emit_job_audit, new_trace_id
 from src.domain.metrics import NoopMetrics, RuntimeMetrics
 from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobInputs, JobStatus
+from src.domain.output_formats import normalize_output_formats
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
 from src.infra.exceptions import JobAlreadyExistsError
@@ -98,6 +99,7 @@ class JobService:
         job_id: str,
         confirmed: bool,
         notes: str | None = None,
+        output_formats: list[str] | None = None,
         variable_corrections: dict[str, str] | None = None,
         answers: dict[str, JsonValue] | None = None,
         default_overrides: dict[str, JsonValue] | None = None,
@@ -130,6 +132,7 @@ class JobService:
             tenant_id=tenant_id,
             job_id=job_id,
             notes=notes,
+            output_formats=output_formats,
             variable_corrections=variable_corrections,
             answers=answers,
             default_overrides=default_overrides,
@@ -157,6 +160,7 @@ class JobService:
         tenant_id: str = DEFAULT_TENANT_ID,
         job_id: str,
         notes: str | None = None,
+        output_formats: list[str] | None = None,
         variable_corrections: dict[str, str] | None = None,
         answers: dict[str, JsonValue] | None = None,
         default_overrides: dict[str, JsonValue] | None = None,
@@ -174,7 +178,9 @@ class JobService:
                 audit_context=self._audit_context,
                 tenant_id=tenant_id,
                 job=job,
+                output_formats=output_formats,
             )
+        job.output_formats = list(normalize_output_formats(output_formats))
         self._state_machine.ensure_transition(
             job_id=job_id,
             from_status=job.status,

@@ -135,10 +135,11 @@ async def download_job_artifact(
 @router.post("/jobs/{job_id}/run", response_model=RunJobResponse)
 async def run_job(
     job_id: str,
+    output_formats: list[str] | None = Query(default=None),
     tenant_id: str = Depends(get_tenant_id),
     svc: JobService = Depends(get_job_service),
 ) -> RunJobResponse:
-    job = svc.trigger_run(tenant_id=tenant_id, job_id=job_id)
+    job = svc.trigger_run(tenant_id=tenant_id, job_id=job_id, output_formats=output_formats)
     return RunJobResponse(job_id=job.job_id, status=job.status.value, scheduled_at=job.scheduled_at)
 
 
@@ -154,6 +155,7 @@ async def confirm_job(
         job_id=job_id,
         confirmed=payload.confirmed,
         notes=payload.notes,
+        output_formats=payload.output_formats,
         variable_corrections=payload.variable_corrections,
         answers=payload.answers,
         default_overrides=payload.default_overrides,
