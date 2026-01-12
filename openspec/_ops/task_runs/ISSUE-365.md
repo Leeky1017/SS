@@ -1,7 +1,7 @@
 # ISSUE-365
 - Issue: #365
 - Branch: task/365-deploy-docker-readiness
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/366
 
 ## Plan
 - Define Docker deployment readiness requirements + acceptance for SS (API + Worker + MinIO + Stata strategy).
