@@ -1,7 +1,7 @@
 # ISSUE-420
 - Issue: #420
 - Branch: task/420-output-formatter-coverage
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/421
 
 ## Goal
 - Add deterministic unit tests for output formatter data/error modules and raise coverage of user-facing formatting paths.
@@ -84,5 +84,30 @@
 - Key output:
   - `src/domain/output_formatter_data.py ... 89%`
   - `src/domain/output_formatter_error.py ... 100%`
+- Evidence:
+  - N/A
+
+### 2026-01-12 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - N/A
+
+### 2026-01-12 Push branch
+- Command:
+  - `git push -u origin HEAD`
+- Key output:
+  - `HEAD -> task/420-output-formatter-coverage`
+- Evidence:
+  - N/A
+
+### 2026-01-12 Open PR
+- Command:
+  - `gh pr create ...`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/421`
 - Evidence:
   - N/A
