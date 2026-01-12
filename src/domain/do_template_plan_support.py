@@ -27,6 +27,8 @@ def template_params_for(*, template_id: str, analysis_vars: list[str]) -> JsonOb
     joined = " ".join(analysis_vars)
     if template_id == "T01":
         return cast(JsonObject, {"__NUMERIC_VARS__": joined, "__ID_VAR__": "", "__TIME_VAR__": ""})
+    if template_id == "T07":
+        return cast(JsonObject, {"__NUMERIC_VARS__": joined})
     if template_id == "TA14":
         return cast(
             JsonObject,
@@ -53,4 +55,3 @@ def select_template_id(
     if available:
         return sorted(available)[0]
     raise DoTemplateIndexCorruptedError(reason="index.no_tasks")
-

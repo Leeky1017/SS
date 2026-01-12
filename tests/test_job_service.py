@@ -130,3 +130,16 @@ def test_confirm_job_when_already_queued_is_idempotent(job_service, draft_servic
     second = job_service.confirm_job(job_id=job.job_id, confirmed=True)
     assert second.status == JobStatus.QUEUED
     assert second.scheduled_at == first.scheduled_at
+
+
+def test_trigger_run_with_output_formats_persists_output_formats(job_service, draft_service, store):
+    # Arrange
+    job = job_service.create_job(requirement=None)
+    asyncio.run(draft_service.preview(job_id=job.job_id))
+
+    # Act
+    job_service.trigger_run(job_id=job.job_id, output_formats=["docx", "pdf", "xlsx", "csv"])
+
+    # Assert
+    loaded = store.load(job.job_id)
+    assert loaded.output_formats == ["docx", "pdf", "xlsx", "csv"]

@@ -273,7 +273,10 @@ if __name__ == "__main__":
     try:
         main()
     except SSError as e:
-        logger.error("SS_WORKER_FATAL", extra={"error_code": e.error_code, "message": e.message})
+        logger.error(
+            "SS_WORKER_FATAL",
+            extra={"error_code": e.error_code, "error_message": e.message},
+        )
         raise SystemExit(1) from e
     except KeyboardInterrupt:
         raise SystemExit(0) from None

@@ -65,6 +65,19 @@ Operator verification tips:
 - Confirm the container sees the executable: `ls -la /mnt/stata/stata-mp`.
 - If Stata fails to start due to missing shared libs, use `ldd /mnt/stata/stata-mp | rg "not found"` inside the container and install the missing OS packages in the SS image.
 
+#### Windows Server + Docker Desktop (WSL2 backend) deployment notes
+
+Some deployments may need to use a host-installed **Windows** Stata binary via WSL (for example when operators only have a Windows install/license).
+
+Example `SS_STATA_CMD` for Windows Stata 18 MP:
+- `/mnt/c/Program Files/Stata18/StataMP-64.exe`
+
+Operational notes:
+- When injecting a path with spaces via a `.env` file, operators SHOULD quote it (example: `SS_STATA_CMD="/mnt/c/Program Files/Stata18/StataMP-64.exe"`).
+- When running `ss-worker` inside Docker, the configured Windows path MUST be visible inside the container (for example by bind-mounting the host directory at the same container path; `docker-compose.yml` supports this via `SS_STATA_HOST_DIR` + `SS_STATA_CONTAINER_DIR`).
+- Operators MUST ensure the configured `SS_STATA_CMD` is executable from the worker runtime environment.
+- Docker Desktop Linux containers do not provide WSL Windows interop by default; if interop is unavailable inside containers, operators SHOULD use a Linux Stata binary mounted into the container (the default `/mnt/stata:ro` strategy) or run the worker directly in WSL2 (non-containerized).
+
 #### Scenario: Worker startup is gated on SS_STATA_CMD
 - **WHEN** `ss-worker` starts without `SS_STATA_CMD` configured
 - **THEN** startup fails fast with a structured error (stable `error_code=STATA_CMD_NOT_CONFIGURED`) and does not attempt to run jobs
