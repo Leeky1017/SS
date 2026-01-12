@@ -26,7 +26,7 @@
 - Key output:
   - `Task issue-372-deploy-ready-r001 created successfully`
   - `Task issue-372-deploy-ready-r001 is valid (warnings: no specs)`
-- Evidence: `rulebook/tasks/issue-372-deploy-ready-r001/`
+- Evidence: `rulebook/tasks/archive/2026-01-12-issue-372-deploy-ready-r001/`
 
 ### 2026-01-12 00:03 Library inventory counts
 - Command:
@@ -60,7 +60,7 @@
   - `assets/stata_do_library/do/meta/T30_panel_setup_check.meta.json`
 
 ### 2026-01-12 00:06 Capability matrix report
-- Evidence: `rulebook/tasks/issue-372-deploy-ready-r001/evidence/do_template_data_shape_audit.md`
+- Evidence: `rulebook/tasks/archive/2026-01-12-issue-372-deploy-ready-r001/evidence/do_template_data_shape_audit.md`
 
 ### 2026-01-12 00:07 Local checks (ruff + pytest)
 - Command:
