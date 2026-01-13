@@ -48,9 +48,18 @@ Each LLM call MUST write prompt/response/meta artifacts and MUST index them in t
 
 LLM outputs used for downstream behavior MUST be schema-bound (especially plans) and parse failures MUST be treated as error paths.
 
-#### Scenario: Plan parsing failure is not silent
-- **WHEN** an LLM plan output cannot be parsed/validated
-- **THEN** the operation fails with a structured error and evidence artifacts
+#### Scenario: Plan parsing failure triggers rule fallback
+- **WHEN** a plan generation response cannot be parsed/validated or contains unsupported step types
+- **THEN** SS falls back to the existing rule-based plan and records `plan_source=rule_fallback` with a structured `fallback_reason` in `artifacts/plan.json`
+
+### Requirement: Plan generation operation is schema-bound (v1)
+
+The `plan.generate` LLM operation MUST return a versioned JSON object that can be parsed into plan steps.
+
+#### Scenario: Plan generation returns JSON
+- **GIVEN** a job requirement, draft context, selected templates, data schema, and constraints (e.g., `max_steps`)
+- **WHEN** SS asks the LLM to generate a plan (`operation=plan.generate`)
+- **THEN** the LLM returns ONLY a JSON object matching the plan generation response schema
 
 ### Requirement: Draft preview output schema is versioned (v2)
 
@@ -94,11 +103,15 @@ The `draft_preview` LLM operation MUST return a versioned JSON object. v2 extend
 - `plan_version` (int, `1`)
 - `plan_id` (string; deterministic fingerprint)
 - `rel_path` (string; job-relative artifact path)
+- `plan_source` (string enum: `llm`, `rule`, `rule_fallback`; default: `rule`)
+- `fallback_reason` (string | null; present when `plan_source=rule_fallback`)
 - `steps[]` where each step has:
   - `step_id` (string)
   - `type` (enum)
+  - `purpose` (string)
   - `params` (object)
   - `depends_on[]` (string list)
+  - `fallback_step_id` (string | null)
   - `produces[]` (artifact kind enums; aligned with `ss-job-contract`)
 
 #### Scenario: Plan freeze is idempotent

@@ -8,7 +8,13 @@ from pathlib import PurePosixPath
 from src.domain.do_template_rendering import render_do_text, template_param_specs
 from src.domain.do_template_repository import DoTemplateRepository
 from src.domain.do_template_run_support import declared_outputs, output_filename, output_kind
-from src.domain.models import ArtifactKind, LLMPlan, PlanStep, PlanStepType, is_safe_job_rel_path
+from src.domain.models import (
+    ArtifactKind,
+    LLMPlan,
+    PlanStep,
+    is_do_generation_step_type,
+    is_safe_job_rel_path,
+)
 from src.infra.exceptions import (
     DoFileInputsManifestInvalidError,
     DoFilePlanInvalidError,
@@ -55,7 +61,7 @@ def _stata_quote(value: str) -> str:
 
 def _extract_generate_step(plan: LLMPlan) -> PlanStep:
     for step in plan.steps:
-        if step.type == PlanStepType.GENERATE_STATA_DO:
+        if is_do_generation_step_type(step.type):
             return step
     raise DoFilePlanInvalidError(reason="missing_generate_step")
 

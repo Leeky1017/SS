@@ -4,38 +4,29 @@ import logging
 from typing import cast
 
 from src.domain import do_template_plan_support
-from src.domain.composition_plan import validate_composition_plan
+from src.domain import plan_contract as pc
 from src.domain.do_template_catalog import DoTemplateCatalog
 from src.domain.do_template_repository import DoTemplateRepository
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
-from src.domain.models import (
-    Job,
-    JobConfirmation,
-    JobStatus,
-    LLMPlan,
-)
-from src.domain.plan_contract import (
-    analysis_spec_from_draft,
-    apply_confirmation_effects,
-    validate_contract_columns,
-)
+from src.domain.llm_client import LLMClient
+from src.domain.models import Job, JobConfirmation, JobStatus, LLMPlan, PlanSource
 from src.domain.plan_contract_extract import missing_required_template_params
 from src.domain.plan_freeze_gate import (
     missing_draft_fields_for_plan_freeze,
     next_actions_for_plan_freeze_missing,
 )
-from src.domain.plan_id_support import build_plan_id, normalize_whitespace, sha256_hex
-from src.domain.plan_routing import choose_composition_mode
-from src.domain.plan_service_support import (
-    ensure_plan_artifact_index,
-    known_input_keys,
-    write_plan_artifact,
-)
-from src.domain.plan_steps import build_plan_steps
+from src.domain.plan_generation_llm import PlanGenerationParseError
+from src.domain.plan_id_support import build_plan_id, normalize_whitespace
+from src.domain.plan_service_confirmation import effective_confirmation
+from src.domain.plan_service_llm_builder import generate_plan_with_llm as build_llm_plan
+from src.domain.plan_service_rule_builder import build_rule_plan
+from src.domain.plan_service_support import ensure_plan_artifact_index, write_plan_artifact
 from src.domain.plan_template_contract_builder import build_plan_template_contract
+from src.infra.exceptions import LLMArtifactsWriteError, LLMCallFailedError
 from src.infra.plan_exceptions import (
     PlanAlreadyFrozenError,
+    PlanCompositionInvalidError,
     PlanFreezeMissingRequiredError,
     PlanFreezeNotAllowedError,
     PlanMissingError,
@@ -44,6 +35,9 @@ from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID
 
 logger = logging.getLogger(__name__)
+
+_DEFAULT_PLAN_GENERATION_MAX_STEPS = 8
+_LLM_FALLBACK_SSE_ERRORS = (PlanCompositionInvalidError, LLMCallFailedError, LLMArtifactsWriteError)
 
 
 class PlanService:
@@ -56,11 +50,15 @@ class PlanService:
         workspace: JobWorkspaceStore,
         do_template_catalog: DoTemplateCatalog,
         do_template_repo: DoTemplateRepository,
+        llm: LLMClient | None = None,
+        plan_generation_max_steps: int = _DEFAULT_PLAN_GENERATION_MAX_STEPS,
     ):
         self._store = store
         self._workspace = workspace
         self._do_template_catalog = do_template_catalog
         self._do_template_repo = do_template_repo
+        self._llm = llm
+        self._plan_generation_max_steps = int(plan_generation_max_steps)
 
     def _return_existing_plan_if_idempotent(
         self, *, job: Job, expected_plan_id: str
@@ -110,28 +108,23 @@ class PlanService:
     ) -> LLMPlan:
         logger.info("SS_PLAN_FREEZE_START", extra={"tenant_id": tenant_id, "job_id": job_id})
         job = self._store.load(tenant_id=tenant_id, job_id=job_id)
-        confirmation = self._effective_confirmation(job=job, confirmation=confirmation)
-        job, confirmation = apply_confirmation_effects(job=job, confirmation=confirmation)
+        confirmation = effective_confirmation(job=job, confirmation=confirmation)
+        job, confirmation = pc.apply_confirmation_effects(job=job, confirmation=confirmation)
         expected_plan_id = self._expected_plan_id(job=job, confirmation=confirmation)
-
         existing = self._return_existing_plan_if_idempotent(
-            job=job,
-            expected_plan_id=expected_plan_id,
+            job=job, expected_plan_id=expected_plan_id
         )
         if existing is not None:
             return existing
         self._ensure_freeze_allowed(job=job)
-
         self._ensure_required_inputs_present(job=job, confirmation=confirmation)
-        validate_contract_columns(workspace=self._workspace, tenant_id=tenant_id, job=job)
-        plan = self._build_plan(job=job, confirmation=confirmation, plan_id=expected_plan_id)
+        pc.validate_contract_columns(workspace=self._workspace, tenant_id=tenant_id, job=job)
+        plan = self._build_plan_with_fallback(
+            tenant_id=tenant_id, job=job, confirmation=confirmation, plan_id=expected_plan_id
+        )
         write_plan_artifact(store=self._store, tenant_id=tenant_id, job_id=job_id, plan=plan)
-
         self._persist_frozen_plan(
-            tenant_id=tenant_id,
-            job=job,
-            confirmation=confirmation,
-            plan=plan,
+            tenant_id=tenant_id, job=job, confirmation=confirmation, plan=plan
         )
         logger.info(
             "SS_PLAN_FROZEN",
@@ -150,43 +143,6 @@ class PlanService:
             raise PlanMissingError(job_id=job_id)
         return job.llm_plan
 
-    def _effective_confirmation(
-        self,
-        *,
-        job: Job,
-        confirmation: JobConfirmation,
-    ) -> JobConfirmation:
-        updates: dict[str, object] = {}
-        if confirmation.requirement is None:
-            updates["requirement"] = job.requirement
-        existing = job.confirmation
-        if existing is not None:
-            if confirmation.notes is None and existing.notes is not None:
-                updates["notes"] = existing.notes
-
-            missing_answers = len(confirmation.answers) == 0
-            existing_answers = len(existing.answers) > 0
-            if missing_answers and existing_answers:
-                updates["answers"] = dict(existing.answers)
-
-            missing_corrections = len(confirmation.variable_corrections) == 0
-            existing_corrections = len(existing.variable_corrections) > 0
-            if missing_corrections and existing_corrections:
-                updates["variable_corrections"] = dict(existing.variable_corrections)
-
-            missing_overrides = len(confirmation.default_overrides) == 0
-            existing_overrides = len(existing.default_overrides) > 0
-            if missing_overrides and existing_overrides:
-                updates["default_overrides"] = dict(existing.default_overrides)
-
-            missing_feedback = len(confirmation.expert_suggestions_feedback) == 0
-            existing_feedback = len(existing.expert_suggestions_feedback) > 0
-            if missing_feedback and existing_feedback:
-                updates["expert_suggestions_feedback"] = dict(existing.expert_suggestions_feedback)
-        if len(updates) == 0:
-            return confirmation
-        return confirmation.model_copy(update=updates)
-
     def _expected_plan_id(self, *, job: Job, confirmation: JobConfirmation) -> str:
         inputs_fingerprint = ""
         if job.inputs is not None and job.inputs.fingerprint is not None:
@@ -204,11 +160,10 @@ class PlanService:
 
     def _ensure_required_inputs_present(self, *, job: Job, confirmation: JobConfirmation) -> None:
         missing_fields = missing_draft_fields_for_plan_freeze(
-            draft=job.draft,
-            answers=confirmation.answers,
+            draft=job.draft, answers=confirmation.answers
         )
 
-        analysis_spec = analysis_spec_from_draft(job=job)
+        analysis_spec = pc.analysis_spec_from_draft(job=job)
         analysis_vars = do_template_plan_support.analysis_vars_from_analysis_spec(analysis_spec)
         template_id = self._resolve_template_id(job=job, analysis_vars=analysis_vars)
         template_params = do_template_plan_support.template_params_for(
@@ -226,9 +181,7 @@ class PlanService:
             return
 
         next_actions = next_actions_for_plan_freeze_missing(
-            job_id=job.job_id,
-            missing_fields=missing_fields,
-            missing_params=missing_params,
+            job_id=job.job_id, missing_fields=missing_fields, missing_params=missing_params
         )
         logger.info(
             "SS_PLAN_FREEZE_MISSING_REQUIRED",
@@ -263,37 +216,83 @@ class PlanService:
         job.selected_template_id = selected
         return selected
 
-    def _build_plan(self, *, job: Job, confirmation: JobConfirmation, plan_id: str) -> LLMPlan:
-        requirement = confirmation.requirement if confirmation.requirement is not None else ""
-        requirement_norm = normalize_whitespace(requirement)
-        requirement_fingerprint = sha256_hex(requirement_norm)
-        analysis_spec = analysis_spec_from_draft(job=job)
+    def _build_rule_plan(self, *, job: Job, confirmation: JobConfirmation, plan_id: str) -> LLMPlan:
+        analysis_spec = pc.analysis_spec_from_draft(job=job)
         analysis_vars = do_template_plan_support.analysis_vars_from_analysis_spec(analysis_spec)
         template_id = self._resolve_template_id(job=job, analysis_vars=analysis_vars)
-        template_params = do_template_plan_support.template_params_for(
-            template_id=template_id, analysis_vars=analysis_vars
-        )
-        contract = build_plan_template_contract(
-            repo=self._do_template_repo,
-            job_id=job.job_id,
+        return build_rule_plan(
+            job=job,
+            confirmation=confirmation,
+            plan_id=plan_id,
             template_id=template_id,
-            template_params=template_params,
+            workspace=self._workspace,
+            do_template_repo=self._do_template_repo,
         )
-        input_keys = known_input_keys(workspace=self._workspace, job=job)
-        primary_key = "primary" if "primary" in input_keys else sorted(input_keys)[0]
-        composition_mode = choose_composition_mode(
-            requirement=requirement_norm,
-            input_keys=input_keys,
+
+    def generate_plan_with_llm(
+        self,
+        *,
+        tenant_id: str,
+        job: Job,
+        confirmation: JobConfirmation,
+        plan_id: str,
+    ) -> LLMPlan:
+        llm = self._llm
+        if llm is None:
+            raise ValueError("llm dependency missing")
+        analysis_spec = pc.analysis_spec_from_draft(job=job)
+        analysis_vars = do_template_plan_support.analysis_vars_from_analysis_spec(analysis_spec)
+        primary_template_id = self._resolve_template_id(job=job, analysis_vars=analysis_vars)
+        return build_llm_plan(
+            tenant_id=tenant_id,
+            job=job,
+            confirmation=confirmation,
+            plan_id=plan_id,
+            llm=llm,
+            workspace=self._workspace,
+            do_template_repo=self._do_template_repo,
+            primary_template_id=primary_template_id,
+            max_steps=self._plan_generation_max_steps,
         )
-        steps = build_plan_steps(
-            composition_mode=composition_mode.value,
-            template_id=template_id,
-            template_params=template_params,
-            template_contract=contract,
-            primary_key=primary_key,
-            requirement_fingerprint=requirement_fingerprint,
-            analysis_spec=analysis_spec,
-        )
-        plan = LLMPlan(plan_id=plan_id, rel_path="artifacts/plan.json", steps=steps)
-        validate_composition_plan(plan=plan, known_input_keys=input_keys)
-        return plan
+
+    def _build_plan_with_fallback(
+        self,
+        *,
+        tenant_id: str,
+        job: Job,
+        confirmation: JobConfirmation,
+        plan_id: str,
+    ) -> LLMPlan:
+        if self._llm is None:
+            return self._build_rule_plan(job=job, confirmation=confirmation, plan_id=plan_id)
+        try:
+            return self.generate_plan_with_llm(
+                tenant_id=tenant_id, job=job, confirmation=confirmation, plan_id=plan_id
+            )
+        except (
+            PlanGenerationParseError,
+            PlanCompositionInvalidError,
+            LLMCallFailedError,
+            LLMArtifactsWriteError,
+            ValueError,
+        ) as e:
+            reason = f"{type(e).__name__}:{e}"
+            if isinstance(e, PlanGenerationParseError):
+                reason = f"{e.error_code}:{e}"
+            elif isinstance(e, _LLM_FALLBACK_SSE_ERRORS):
+                reason = f"{e.error_code}:{e.message}"
+            logger.warning(
+                "SS_PLAN_LLM_FALLBACK",
+                extra={
+                    "job_id": job.job_id,
+                    "fallback_reason": reason,
+                    "error_type": type(e).__name__,
+                },
+            )
+            plan = self._build_rule_plan(job=job, confirmation=confirmation, plan_id=plan_id)
+            return plan.model_copy(
+                update={
+                    "plan_source": PlanSource.RULE_FALLBACK,
+                    "fallback_reason": reason,
+                }
+            )

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from functools import partial
 
+import anyio
 from fastapi import APIRouter, Body, Depends, File, Form, Query, UploadFile
 from fastapi.responses import Response
 
@@ -150,16 +152,19 @@ async def confirm_job(
     tenant_id: str = Depends(get_tenant_id),
     svc: JobService = Depends(get_job_service),
 ) -> ConfirmJobResponse:
-    job = svc.confirm_job(
-        tenant_id=tenant_id,
-        job_id=job_id,
-        confirmed=payload.confirmed,
-        notes=payload.notes,
-        output_formats=payload.output_formats,
-        variable_corrections=payload.variable_corrections,
-        answers=payload.answers,
-        default_overrides=payload.default_overrides,
-        expert_suggestions_feedback=payload.expert_suggestions_feedback,
+    job = await anyio.to_thread.run_sync(
+        partial(
+            svc.confirm_job,
+            tenant_id=tenant_id,
+            job_id=job_id,
+            confirmed=payload.confirmed,
+            notes=payload.notes,
+            output_formats=payload.output_formats,
+            variable_corrections=payload.variable_corrections,
+            answers=payload.answers,
+            default_overrides=payload.default_overrides,
+            expert_suggestions_feedback=payload.expert_suggestions_feedback,
+        )
     )
     return ConfirmJobResponse(
         job_id=job.job_id,
@@ -176,10 +181,13 @@ async def freeze_plan(
     tenant_id: str = Depends(get_tenant_id),
     svc: PlanService = Depends(get_plan_service),
 ) -> FreezePlanResponse:
-    plan = svc.freeze_plan(
-        tenant_id=tenant_id,
-        job_id=job_id,
-        confirmation=JobConfirmation(notes=payload.notes, answers=payload.answers),
+    plan = await anyio.to_thread.run_sync(
+        partial(
+            svc.freeze_plan,
+            tenant_id=tenant_id,
+            job_id=job_id,
+            confirmation=JobConfirmation(notes=payload.notes, answers=payload.answers),
+        )
     )
     return FreezePlanResponse(
         job_id=job_id,
