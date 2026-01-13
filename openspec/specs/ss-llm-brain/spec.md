@@ -52,6 +52,38 @@ LLM outputs used for downstream behavior MUST be schema-bound (especially plans)
 - **WHEN** an LLM plan output cannot be parsed/validated
 - **THEN** the operation fails with a structured error and evidence artifacts
 
+### Requirement: Draft preview output schema is versioned (v2)
+
+The `draft_preview` LLM operation MUST return a versioned JSON object. v2 extends v1 with panel dimensions, clustering, fixed effects, interaction terms (e.g., DID), and IV instruments.
+
+#### Scenario: Draft preview output v2 is parseable
+- **WHEN** `draft_preview` returns a v2 JSON object (`schema_version=2`)
+- **THEN** SS can parse and use extracted fields including `time_var`, `entity_var`, `cluster_var`, `fixed_effects[]`, `interaction_terms[]`, `instrument_var`, and `analysis_hints[]`
+
+#### Scenario: Draft preview v1 output remains supported
+- **WHEN** `draft_preview` returns a v1 JSON object without `schema_version`
+- **THEN** SS treats it as schema v1 and defaults v2-only fields to null/empty values
+
+#### Draft preview output schema (v2)
+
+```json
+{
+  "schema_version": 2,
+  "draft_text": "string",
+  "outcome_var": "string|null",
+  "treatment_var": "string|null",
+  "controls": ["string", "..."],
+  "time_var": "string|null",
+  "entity_var": "string|null",
+  "cluster_var": "string|null",
+  "fixed_effects": ["string", "..."],
+  "interaction_terms": ["string", "..."],
+  "instrument_var": "string|null",
+  "analysis_hints": ["string", "..."],
+  "default_overrides": {}
+}
+```
+
 ### Requirement: LLMPlan is frozen and replayable
 
 `LLMPlan` MUST be a structured execution plan and MUST be persisted both:
