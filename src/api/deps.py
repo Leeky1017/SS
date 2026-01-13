@@ -210,6 +210,7 @@ def _plan_service_cached() -> PlanService:
         store=_job_store_cached(), workspace=_job_workspace_store_cached(),
         do_template_catalog=FileSystemDoTemplateCatalog(library_dir=config.do_template_library_dir),
         do_template_repo=FileSystemDoTemplateRepository(library_dir=config.do_template_library_dir),
+        llm=_llm_client_cached(),
     )
 
 

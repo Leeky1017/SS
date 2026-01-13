@@ -3,14 +3,14 @@ from __future__ import annotations
 from collections.abc import Callable
 from datetime import datetime
 
-from src.domain.models import LLMPlan, PlanStep, PlanStepType
+from src.domain.models import LLMPlan, PlanStep, is_do_generation_step_type
 from src.domain.stata_dependency_checker import StataDependency
 from src.utils.json_types import JsonObject
 
 
 def declared_stata_dependencies(*, plan: LLMPlan) -> tuple[StataDependency, ...]:
     for step in plan.steps:
-        if step.type != PlanStepType.GENERATE_STATA_DO:
+        if not is_do_generation_step_type(step.type):
             continue
         contract = step.params.get("template_contract")
         if not isinstance(contract, dict):
@@ -79,4 +79,3 @@ def dependency_error_details(*, missing: tuple[StataDependency, ...]) -> JsonObj
             {"pkg": dep.pkg, "source": dep.source, "purpose": dep.purpose} for dep in missing
         ]
     }
-

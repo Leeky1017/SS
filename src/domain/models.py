@@ -155,6 +155,25 @@ class JobConfirmation(BaseModel):
 class PlanStepType(str, Enum):
     GENERATE_STATA_DO = "generate_stata_do"
     RUN_STATA = "run_stata"
+    DESCRIPTIVE_STATS = "descriptive_stats"
+    ROBUSTNESS_CHECK = "robustness_check"
+    HETEROGENEITY_ANALYSIS = "heterogeneity_analysis"
+    DATA_VALIDATION = "data_validation"
+
+
+_DO_GENERATION_STEP_TYPES = frozenset(
+    {
+        PlanStepType.GENERATE_STATA_DO,
+        PlanStepType.DESCRIPTIVE_STATS,
+        PlanStepType.ROBUSTNESS_CHECK,
+        PlanStepType.HETEROGENEITY_ANALYSIS,
+        PlanStepType.DATA_VALIDATION,
+    }
+)
+
+
+def is_do_generation_step_type(step_type: PlanStepType) -> bool:
+    return step_type in _DO_GENERATION_STEP_TYPES
 
 
 class PlanStep(BaseModel):
@@ -162,6 +181,8 @@ class PlanStep(BaseModel):
 
     step_id: str
     type: PlanStepType
+    purpose: str = ""
+    fallback_step_id: str | None = None
     params: dict[str, JsonValue] = Field(default_factory=dict)
     depends_on: list[str] = Field(default_factory=list)
     produces: list[ArtifactKind] = Field(default_factory=list)
@@ -174,12 +195,20 @@ class PlanStep(BaseModel):
         return value
 
 
+class PlanSource(str, Enum):
+    LLM = "llm"
+    RULE = "rule"
+    RULE_FALLBACK = "rule_fallback"
+
+
 class LLMPlan(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     plan_version: int = Field(default=LLM_PLAN_VERSION_V1)
     plan_id: str
     rel_path: str
+    plan_source: PlanSource = Field(default=PlanSource.RULE)
+    fallback_reason: str | None = None
     steps: list[PlanStep] = Field(default_factory=list)
 
     @field_validator("plan_version")
@@ -207,6 +236,9 @@ class LLMPlan(BaseModel):
             for dep in step.depends_on:
                 if dep not in known:
                     raise ValueError(f"unknown dependency: {dep}")
+            fallback_step_id = step.fallback_step_id
+            if fallback_step_id is not None and fallback_step_id not in known:
+                raise ValueError(f"unknown fallback_step_id: {fallback_step_id}")
         return steps
 
 

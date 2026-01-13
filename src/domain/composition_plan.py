@@ -5,7 +5,7 @@ from typing import Mapping
 
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
-from src.domain.models import LLMPlan, PlanStep, PlanStepType
+from src.domain.models import LLMPlan, PlanStep, is_do_generation_step_type
 from src.infra.plan_exceptions import PlanCompositionInvalidError
 
 
@@ -151,7 +151,7 @@ def _product_ids(*, step_id: str, params: _CompositionParams) -> set[str]:
 
 
 def _validate_step_requirements(*, step: PlanStep, params: _CompositionParams) -> None:
-    if step.type != PlanStepType.GENERATE_STATA_DO:
+    if not is_do_generation_step_type(step.type):
         return
     template_id = params.template_id
     if template_id is None or template_id.strip() == "":

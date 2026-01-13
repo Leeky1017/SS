@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 from src.domain.do_file_generator import DoFileGenerator
-from src.domain.models import LLMPlan, PlanStep, PlanStepType
+from src.domain.models import LLMPlan, PlanStep, is_do_generation_step_type
 from src.domain.stata_runner import RunError
 from src.infra.exceptions import (
     DoFileInputsManifestInvalidError,
@@ -20,7 +20,7 @@ def generate_step_do_file_or_error(
     step: PlanStep,
     inputs_manifest: Mapping[str, object],
 ) -> str | RunError:
-    if step.type != PlanStepType.GENERATE_STATA_DO:
+    if not is_do_generation_step_type(step.type):
         raise PlanCompositionInvalidError(reason="unsupported_step_type", step_id=step.step_id)
 
     step_for_generation = step.model_copy(update={"depends_on": []})
