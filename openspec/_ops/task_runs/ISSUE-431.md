@@ -29,3 +29,7 @@
 ### 2026-01-13 12:06 coordination
 - Command: `gh pr close 430 --comment "...Superseded by Issue #431..."`
 - Key output: `Closed pull request #430 (overlapped files; failed required checks)`
+
+### 2026-01-13 12:08 ci-fix
+- Command: `.venv/bin/ruff check . && .venv/bin/mypy && .venv/bin/pytest -q`
+- Key output: `Success: no issues found in 178 source files; 272 passed`

@@ -4,7 +4,7 @@ import logging
 import os
 from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import IO
+from typing import IO, Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +28,9 @@ def _lock(file: IO[str]) -> None:
     if os.name == "nt":
         import msvcrt
 
+        win = cast(Any, msvcrt)
         file.seek(0)
-        msvcrt.locking(file.fileno(), msvcrt.LK_LOCK, 1)
+        win.locking(file.fileno(), win.LK_LOCK, 1)
         return
 
     import fcntl
@@ -41,8 +42,9 @@ def _unlock(file: IO[str]) -> None:
     if os.name == "nt":
         import msvcrt
 
+        win = cast(Any, msvcrt)
         file.seek(0)
-        msvcrt.locking(file.fileno(), msvcrt.LK_UNLCK, 1)
+        win.locking(file.fileno(), win.LK_UNLCK, 1)
         return
 
     import fcntl

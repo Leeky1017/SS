@@ -97,6 +97,7 @@ def _load_llm_settings(*, env: Mapping[str, str]) -> tuple[float, int, float, fl
 
 def load_config(env: Mapping[str, str] | None = None) -> Config:
     """Load config from environment variables with explicit defaults."""
+    e: Mapping[str, str]
     if env is None:
         load_dotenv()
         e = os.environ
