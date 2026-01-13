@@ -21,3 +21,11 @@
 ### 2026-01-13 12:05 pytest
 - Command: `.venv/bin/pytest -q`
 - Key output: `272 passed, 5 skipped`
+
+### 2026-01-13 12:06 preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+
+### 2026-01-13 12:06 coordination
+- Command: `gh pr close 430 --comment "...Superseded by Issue #431..."`
+- Key output: `Closed pull request #430 (overlapped files; failed required checks)`
