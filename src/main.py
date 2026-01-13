@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
+from starlette.types import Receive, Scope, Send
 
 from src.api.routes import admin_api_router, api_v1_router, ops_router
 from src.api.versioning import add_legacy_deprecation_headers, is_legacy_unversioned_path
@@ -27,6 +28,16 @@ from src.infra.structured_errors import StructuredSSError
 from src.infra.tracing import configure_tracing
 
 logger = logging.getLogger(__name__)
+
+
+class _FrontendStaticFiles(StaticFiles):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope.get("type") == "http":
+            method = str(scope.get("method", "")).upper()
+            if method not in {"GET", "HEAD"}:
+                await Response(status_code=404)(scope, receive, send)
+                return
+        await super().__call__(scope, receive, send)
 
 
 def _validate_production_upload_object_store(*, config: Config) -> None:
@@ -63,7 +74,7 @@ def _mount_frontend_if_present(*, app: FastAPI) -> None:
     if not dist_dir.is_dir():
         logger.info("SS_FRONTEND_DIST_NOT_FOUND", extra={"path": str(dist_dir)})
         return
-    app.mount("/", StaticFiles(directory=str(dist_dir), html=True), name="frontend")
+    app.mount("/", _FrontendStaticFiles(directory=str(dist_dir), html=True), name="frontend")
     logger.info("SS_FRONTEND_DIST_MOUNTED", extra={"path": str(dist_dir)})
 
 
