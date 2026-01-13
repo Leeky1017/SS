@@ -13,10 +13,10 @@
 - Deliver SS admin console surface (UI + HTTP) at `/admin` and `/api/admin/*`.
 
 ## Status
-- CURRENT: PR #436 auto-merge enabled but blocked by `ci` coverage gate; added admin API tests to raise coverage to >=80 and preparing push.
+- CURRENT: Coverage fix pushed to PR #436; waiting for `ci` to go green and auto-merge to complete.
 
 ## Next Actions
-- [ ] Commit + push coverage-fix tests
+- [x] Commit + push coverage-fix tests
 - [ ] Watch PR checks; confirm auto-merge completes
 - [ ] Verify merged; sync controlplane main; cleanup worktree
 
@@ -92,3 +92,9 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-13 10:22 Push coverage fix
+- Command:
+  - `git push -u origin HEAD`
+- Key output:
+  - `03c7ac1..793c296  HEAD -> task/433-admin-console`
