@@ -147,22 +147,21 @@ def _execution_step_from_llm_step(
         template_id=template_id,
         template_params=template_params,
     )
-    params = {
-        "composition_mode": ctx.composition_mode,
-        "template_id": template_id,
-        "template_params": template_params,
-        "template_contract": contract,
-        "input_bindings": {"primary_dataset": f"input:{ctx.primary_key}"},
-        "products": [],
-        "requirement_fingerprint": ctx.requirement_fingerprint,
-        "analysis_spec": ctx.analysis_spec,
-    }
     return PlanStep(
         step_id=llm_step.step_id,
         type=llm_step.type,
         purpose=llm_step.purpose,
         fallback_step_id=llm_step.fallback_step_id,
-        params=params,
+        params={
+            "composition_mode": ctx.composition_mode,
+            "template_id": template_id,
+            "template_params": template_params,
+            "template_contract": contract,
+            "input_bindings": {"primary_dataset": f"input:{ctx.primary_key}"},
+            "products": [],
+            "requirement_fingerprint": ctx.requirement_fingerprint,
+            "analysis_spec": ctx.analysis_spec,
+        },
         depends_on=list(llm_step.depends_on),
         produces=[ArtifactKind.STATA_DO],
     )
