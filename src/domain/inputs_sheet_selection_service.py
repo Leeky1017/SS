@@ -93,7 +93,7 @@ class InputsSheetSelectionService:
         header_row = inferred if isinstance(inferred, bool) else None
 
         updated = set_primary_dataset_excel_options(
-            cast(JsonObject, manifest),
+            manifest,
             sheet_name=cleaned,
             header_row=header_row,
         )

@@ -13,7 +13,7 @@ from src.infra.input_exceptions import (
     InputUnsupportedFormatError,
 )
 from src.utils.job_workspace import is_safe_path_segment
-from src.utils.json_types import JsonObject
+from src.utils.json_types import JsonObject, JsonValue
 
 INPUTS_DIR = "inputs"
 MANIFEST_REL_PATH = f"{INPUTS_DIR}/manifest.json"
@@ -260,15 +260,15 @@ def set_primary_dataset_excel_options(
             updated.pop("header_row", None)
         else:
             updated["header_row"] = header_row
-        return cast(JsonObject, updated)
+        return updated
 
     datasets_obj = manifest.get("datasets")
     if isinstance(datasets_obj, list):
-        updated_datasets: list[object] = []
+        updated_datasets: list[JsonValue] = []
         applied = False
         for raw in datasets_obj:
             if isinstance(raw, dict) and raw.get("role") == ROLE_PRIMARY_DATASET and not applied:
-                updated_datasets.append(_apply(cast(JsonObject, raw)))
+                updated_datasets.append(_apply(raw))
                 applied = True
             else:
                 updated_datasets.append(raw)
@@ -276,13 +276,13 @@ def set_primary_dataset_excel_options(
             return manifest
         out = dict(manifest)
         out["datasets"] = updated_datasets
-        return cast(JsonObject, out)
+        return out
 
     primary_obj = manifest.get("primary_dataset")
     if isinstance(primary_obj, dict):
         out = dict(manifest)
-        out["primary_dataset"] = _apply(cast(JsonObject, primary_obj))
-        return cast(JsonObject, out)
+        out["primary_dataset"] = _apply(primary_obj)
+        return out
 
     out = dict(manifest)
     if sheet_name is None:
@@ -293,4 +293,4 @@ def set_primary_dataset_excel_options(
         out.pop("primary_dataset_header_row", None)
     else:
         out["primary_dataset_header_row"] = header_row
-    return cast(JsonObject, out)
+    return out

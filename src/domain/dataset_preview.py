@@ -84,8 +84,8 @@ def excel_sheet_names(*, path: Path) -> list[str]:
     if path.suffix.lower() == ".xls":
         import xlrd
 
-        workbook = xlrd.open_workbook(path)
-        return [name for name in workbook.sheet_names() if isinstance(name, str) and name.strip()]
+        book = xlrd.open_workbook(str(path))
+        return [name for name in book.sheet_names() if isinstance(name, str) and name.strip()]
 
     import openpyxl
 
@@ -107,8 +107,8 @@ def _excel_sheet_meta(
     if path.suffix.lower() == ".xls":
         import xlrd
 
-        workbook = xlrd.open_workbook(path)
-        sheet = workbook.sheet_by_name(selected)
+        book = xlrd.open_workbook(str(path))
+        sheet = book.sheet_by_name(selected)
         first = sheet.row_values(0) if sheet.nrows >= 1 else []
         second = sheet.row_values(1) if sheet.nrows >= 2 else []
         return names, selected, sheet.nrows, sheet.ncols, list(first), list(second)
@@ -210,8 +210,8 @@ def _dta_preview(*, path: Path, rows: int, columns: int) -> JsonObject:
 
     try:
         with StataReader(path) as reader:
-            row_count = int(reader.nobs)
-            column_count = int(reader.nvar)
+            row_count = int(cast(Any, reader).nobs)
+            column_count = int(cast(Any, reader).nvar)
     except (OSError, ValueError):
         row_count = None
         column_count = None

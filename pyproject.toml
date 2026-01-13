@@ -33,7 +33,9 @@ dev = [
   "pytest-benchmark>=4.0.0",
   "pytest-repeat>=0.9.3",
   "ruff>=0.4.0",
+  "types-openpyxl",
   "types-reportlab>=4.0.0",
+  "types-xlrd",
 ]
 
 [tool.ruff]

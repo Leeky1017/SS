@@ -257,12 +257,25 @@ SS MUST index the persisted inputs as first-class artifacts:
 
 ### Requirement: Inputs preview supports Excel sheet selection and basic stats
 
-For primary datasets with `format=excel`, `GET /v1/jobs/{job_id}/inputs/preview` SHOULD:
+For primary datasets with `format=excel`, `GET /v1/jobs/{job_id}/inputs/preview` MUST:
 - return `sheet_names[]` (list of available sheets)
-- allow persisting a chosen `sheet_name` into `inputs/manifest.json` for repeatable preview/execution
+- return `selected_sheet` (string | null; the sheet used for the preview)
 
-The preview response SHOULD include basic dataset stats:
+SS MUST provide an API to persist a chosen Excel `sheet_name` into `inputs/manifest.json` for repeatable preview/execution:
+- `POST /v1/jobs/{job_id}/inputs/primary/sheet?sheet_name=<name>` (updates `datasets[].sheet_name` for `role=primary_dataset`)
+
+The preview response MUST include basic dataset stats:
 - total `row_count` and total `column_count` (best-effort, may be `null` when unavailable)
+
+#### Scenario: Previewing an Excel primary dataset returns sheets and stats
+- **WHEN** a job has a primary dataset with `format=excel` materialized into `inputs/manifest.json`
+- **THEN** `GET /v1/jobs/{job_id}/inputs/preview` returns `sheet_names[]` and `selected_sheet`
+- **AND** the response includes total `row_count` and total `column_count` (best-effort)
+
+#### Scenario: Persisting a selected sheet updates subsequent previews
+- **WHEN** a client calls `POST /v1/jobs/{job_id}/inputs/primary/sheet?sheet_name=<name>`
+- **THEN** SS persists the chosen `sheet_name` into `inputs/manifest.json` for the primary dataset
+- **AND** subsequent `GET /v1/jobs/{job_id}/inputs/preview` reflects the selected sheet in both `selected_sheet` and `sample_rows`
 
 ### Requirement: Upload endpoints require token authentication and do not expose object keys
 
