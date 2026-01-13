@@ -1,7 +1,7 @@
 # ISSUE-431
 - Issue: #431
 - Branch: task/431-windows-deploy-compat
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/432
 
 ## Plan
 - Remove Unix-only `fcntl` imports (Windows-safe file locks)
