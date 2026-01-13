@@ -48,3 +48,4 @@
 ### 2026-01-13 18:16 rulebook archive
 - Command: `rulebook task archive issue-437-mypy-missing-return-types`
 - Key output: `✅ Task issue-437-mypy-missing-return-types archived successfully`
+- Evidence: `https://github.com/Leeky1017/SS/pull/440`
