@@ -1,5 +1,7 @@
 # Spec: ss-deployment-docker-readiness
 
+NOTE: This spec is archived. SS is deployed without Docker; see `openspec/specs/ss-deployment-windows-non-docker/spec.md`.
+
 ## Purpose
 
 Define the minimum requirements and acceptance criteria for deploying SS to a remote production server via Docker, including: API + Worker services, MinIO integration, Stata provisioning strategy, supported input formats, and supported output artifacts (including a unified post-run output formatter).

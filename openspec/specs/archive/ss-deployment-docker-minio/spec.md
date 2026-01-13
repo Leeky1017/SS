@@ -1,5 +1,7 @@
 # Spec: ss-deployment-docker-minio
 
+NOTE: This spec is archived. SS is deployed without Docker; see `openspec/specs/ss-deployment-windows-non-docker/spec.md`.
+
 ## Purpose
 
 Define a production-compatible Docker deployment recipe for SS v1 upload sessions using a real S3-compatible object store (MinIO), while preserving the contract that upload bytes do not flow through the SS API server (direct/multipart presign + finalize).
