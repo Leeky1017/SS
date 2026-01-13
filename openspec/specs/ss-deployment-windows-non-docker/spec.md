@@ -40,3 +40,13 @@ When `frontend/dist` exists, the API server MUST serve it at `/` so operators ca
 #### Scenario: Root path serves the UI
 - **WHEN** an operator requests `GET /`
 - **THEN** the response serves the frontend `index.html`
+
+### Requirement: Docker deployment artifacts are archived
+
+SS MUST NOT advertise Docker as a supported deployment path.
+
+Docker-only deployment assets MUST be archived under `legacy/docker/` and Docker-only OpenSpecs MUST be archived under `openspec/specs/archive/`.
+
+#### Scenario: Repo-root does not expose Docker deployment entrypoints
+- **WHEN** an operator inspects the repository root
+- **THEN** `Dockerfile`, `docker-compose.yml`, and `.dockerignore` are not present at repo root
