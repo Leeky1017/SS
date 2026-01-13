@@ -61,6 +61,7 @@ class ArtifactKind(str, Enum):
     STATA_EXPORT_REPORT = "stata.export.report"
     STATA_EXPORT_MANIFEST = "stata.export.manifest"
     STATA_EXPORT_OTHER = "stata.export.other"
+    STATA_REPORT_INTERPRETATION = "stata.report.interpretation"
 
 
 def _is_safe_job_rel_path(value: str) -> bool:
