@@ -22,7 +22,7 @@ def test_job_store_save_when_disk_full_does_not_corrupt_and_allows_retry(
     loaded = store.load(job.job_id)
     loaded.requirement = "update"
 
-    with patch("src.infra.job_store.os.replace", side_effect=enospc_error):
+    with patch("src.infra.atomic_write.os.replace", side_effect=enospc_error):
         with pytest.raises(JobStoreIOError) as exc:
             store.save(loaded)
         assert exc.value.error_code == "JOB_STORE_IO_ERROR"

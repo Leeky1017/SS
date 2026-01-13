@@ -7,6 +7,24 @@ from pathlib import Path
 from typing import Mapping
 
 from src.infra.exceptions import LLMConfigurationError
+from src.utils.env import (
+    bool_value as _bool_value,
+)
+from src.utils.env import (
+    clamped_int as _clamped_int,
+)
+from src.utils.env import (
+    clamped_ratio as _clamped_ratio,
+)
+from src.utils.env import (
+    float_value as _float_value,
+)
+from src.utils.env import (
+    int_value as _int_value,
+)
+from src.utils.env import (
+    load_dotenv,
+)
 
 
 @dataclass(frozen=True)
@@ -62,49 +80,6 @@ class Config:
     def is_production(self) -> bool:
         return self.ss_env in {"production", "prod"}
 
-def _int_value(raw: str, *, default: int) -> int:
-    try:
-        return int(raw)
-    except (TypeError, ValueError):
-        return default
-
-def _float_value(raw: str, *, default: float) -> float:
-    try:
-        return float(raw)
-    except (TypeError, ValueError):
-        return default
-
-def _bool_value(raw: str, *, default: bool) -> bool:
-    value = str(raw).strip().lower()
-    if value in {"1", "true", "yes", "y", "on"}:
-        return True
-    if value in {"0", "false", "no", "n", "off"}:
-        return False
-    return default
-
-def _clamped_ratio(raw: str, *, default: float) -> float:
-    ratio = _float_value(raw, default=default)
-    if ratio < 0.0:
-        return 0.0
-    if ratio > 1.0:
-        return 1.0
-    return ratio
-
-
-def _clamped_int(
-    raw: str,
-    *,
-    default: int,
-    min_value: int | None = None,
-    max_value: int | None = None,
-) -> int:
-    value = _int_value(raw, default=default)
-    if min_value is not None and value < min_value:
-        return min_value
-    if max_value is not None and value > max_value:
-        return max_value
-    return value
-
 
 def _load_llm_settings(*, env: Mapping[str, str]) -> tuple[float, int, float, float]:
     timeout_seconds = _float_value(str(env.get("SS_LLM_TIMEOUT_SECONDS", "30.0")), default=30.0)
@@ -122,7 +97,11 @@ def _load_llm_settings(*, env: Mapping[str, str]) -> tuple[float, int, float, fl
 
 def load_config(env: Mapping[str, str] | None = None) -> Config:
     """Load config from environment variables with explicit defaults."""
-    e = os.environ if env is None else env
+    if env is None:
+        load_dotenv()
+        e = os.environ
+    else:
+        e = env
     ss_env = str(e.get("SS_ENV", "development")).strip().lower()
     ss_env = "development" if ss_env == "" else ss_env
     jobs_dir = Path(str(e.get("SS_JOBS_DIR", "./jobs"))).expanduser()

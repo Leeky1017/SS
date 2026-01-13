@@ -6,10 +6,12 @@ import time
 import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import cast
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
@@ -44,6 +46,15 @@ def _clear_dependency_caches() -> None:
     from src.api import deps
 
     deps.clear_dependency_caches()
+
+
+def _mount_frontend_if_present(*, app: FastAPI) -> None:
+    dist_dir = (Path(__file__).resolve().parents[1] / "frontend" / "dist").resolve()
+    if not dist_dir.is_dir():
+        logger.info("SS_FRONTEND_DIST_NOT_FOUND", extra={"path": str(dist_dir)})
+        return
+    app.mount("/", StaticFiles(directory=str(dist_dir), html=True), name="frontend")
+    logger.info("SS_FRONTEND_DIST_MOUNTED", extra={"path": str(dist_dir)})
 
 
 @asynccontextmanager
@@ -109,6 +120,7 @@ def create_app() -> FastAPI:
     app.include_router(ops_router, include_in_schema=False)
     app.add_exception_handler(SSError, _handle_ss_error)
     app.add_exception_handler(MemoryError, _handle_oom_error)
+    _mount_frontend_if_present(app=app)
     return app
 
 
