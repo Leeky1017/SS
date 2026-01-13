@@ -4,8 +4,12 @@ import logging
 from collections.abc import Mapping
 from json import JSONDecodeError
 
-from src.domain.dataset_preview import dataset_preview
-from src.domain.inputs_manifest import primary_dataset_details, read_manifest_json
+from src.domain.dataset_preview import dataset_preview_with_options
+from src.domain.inputs_manifest import (
+    primary_dataset_details,
+    primary_dataset_excel_options,
+    read_manifest_json,
+)
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.models import Draft, Job, JobConfirmation
 from src.domain.variable_corrections import (
@@ -84,9 +88,14 @@ def validate_contract_columns(*, workspace: JobWorkspaceStore, tenant_id: str, j
             job_id=job.job_id,
             rel_path=dataset_rel_path,
         )
-        preview = dataset_preview(path=dataset_path, fmt=fmt, rows=1, columns=300)
+        sheet_name, header_row = primary_dataset_excel_options(manifest)
+        preview = dataset_preview_with_options(
+            path=dataset_path, fmt=fmt, rows=1, columns=300, sheet_name=sheet_name,
+            header_row=header_row
+        )
         names = _preview_column_names(preview=preview)
-    except (FileNotFoundError, OSError, JSONDecodeError, ValueError, InputPathUnsafeError) as e:
+    except (FileNotFoundError, KeyError, OSError, JSONDecodeError, ValueError,
+            InputPathUnsafeError) as e:
         logger.warning(
             "SS_CONTRACT_COLUMNS_PREVIEW_FAILED",
             extra={

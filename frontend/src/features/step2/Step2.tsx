@@ -13,7 +13,8 @@ import {
   saveInputsPreviewSnapshot,
   saveInputsUploadSnapshot,
 } from '../../state/storage'
-import { DropZone, JobPanel, PreviewPanel, Step2Header, UploadResultPanel } from './Step2Panels'
+import { JobPanel, PreviewPanel, Step2Header, UploadResultPanel } from './Step2Panels'
+import { InputsUploadPanel } from './Step2UploadPanel'
 
 type Step2Props = { api: ApiClient }
 
@@ -42,6 +43,8 @@ export function Step2(props: Step2Props) {
   const [state, setState] = useState<Step2State>(() => loadStep2State())
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<Step2Error | null>(null)
+  const [primaryFile, setPrimaryFile] = useState<File | null>(null)
+  const [auxiliaryFiles, setAuxiliaryFiles] = useState<File[]>([])
 
   const redeem = useMemo(() => {
     return () => {
@@ -51,11 +54,14 @@ export function Step2(props: Step2Props) {
     }
   }, [])
 
+  const previewRows = 20
+  const previewCols = 10
+
   async function runPreview(jobId: string): Promise<void> {
     setActionError(null)
     setBusy(true)
     try {
-      const previewed = await props.api.previewInputs(jobId)
+      const previewed = await props.api.previewInputsWithOptions(jobId, { rows: previewRows, columns: previewCols })
       if (!previewed.ok) {
         setActionError({ error: previewed.error, retry: () => void runPreview(jobId), retryLabel: '重试预览' })
         return
@@ -67,18 +73,55 @@ export function Step2(props: Step2Props) {
     }
   }
 
-  async function runUpload(jobId: string, files: File[]): Promise<void> {
+  async function runSelectSheet(jobId: string, sheetName: string): Promise<void> {
     setActionError(null)
     setBusy(true)
     try {
-      const uploaded = await props.api.uploadInputs(jobId, files)
+      const selected = await props.api.selectPrimaryExcelSheet(jobId, sheetName, { rows: previewRows, columns: previewCols })
+      if (!selected.ok) {
+        setActionError({ error: selected.error, retry: () => void runSelectSheet(jobId, sheetName), retryLabel: '重试选择 Sheet' })
+        return
+      }
+      saveInputsPreviewSnapshot(jobId, selected.value)
+      setState((prev) => ({ ...prev, preview: selected.value }))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function runUpload(jobId: string, primary: File, auxiliary: File[]): Promise<void> {
+    setActionError(null)
+    setBusy(true)
+    try {
+      const files = [primary, ...auxiliary]
+      const roles = ['primary_dataset', ...auxiliary.map(() => 'auxiliary_data')]
+      const uploaded = await props.api.uploadInputs(jobId, files, { role: roles })
       if (!uploaded.ok) {
-        setActionError({ error: uploaded.error, retry: () => void runUpload(jobId, files), retryLabel: '重试上传' })
+        setActionError({
+          error: uploaded.error,
+          retry: () => void runUpload(jobId, primary, auxiliary),
+          retryLabel: '重试上传',
+        })
         return
       }
       saveInputsUploadSnapshot(jobId, uploaded.value)
       setState((prev) => ({ ...prev, upload: uploaded.value }))
-      await runPreview(jobId)
+
+      const previewed = await props.api.previewInputsWithOptions(jobId, { rows: previewRows, columns: previewCols })
+      if (!previewed.ok) {
+        setActionError({ error: previewed.error, retry: () => void runPreview(jobId), retryLabel: '重试预览' })
+        return
+      }
+
+      let effectivePreview = previewed.value
+      const sheetNames = effectivePreview.sheet_names ?? []
+      const selectedSheet = effectivePreview.selected_sheet ?? null
+      if (sheetNames.length > 0 && selectedSheet !== null && selectedSheet.trim() !== '') {
+        const persisted = await props.api.selectPrimaryExcelSheet(jobId, selectedSheet, { rows: previewRows, columns: previewCols })
+        if (persisted.ok) effectivePreview = persisted.value
+      }
+      saveInputsPreviewSnapshot(jobId, effectivePreview)
+      setState((prev) => ({ ...prev, preview: effectivePreview }))
     } finally {
       setBusy(false)
     }
@@ -114,9 +157,26 @@ export function Step2(props: Step2Props) {
       />
 
       <JobPanel jobId={state.jobId} tokenPresent={state.tokenPresent} />
-      <DropZone busy={busy} onPick={(files) => void runUpload(state.jobId as string, files)} />
+      <InputsUploadPanel
+        busy={busy}
+        primaryFile={primaryFile}
+        auxiliaryFiles={auxiliaryFiles}
+        onPickPrimary={(file) => setPrimaryFile(file)}
+        onClearPrimary={() => setPrimaryFile(null)}
+        onAddAuxiliary={(files) => setAuxiliaryFiles((prev) => [...prev, ...files])}
+        onRemoveAuxiliary={(index) => setAuxiliaryFiles((prev) => prev.filter((_, idx) => idx !== index))}
+        onClearAuxiliary={() => setAuxiliaryFiles([])}
+        onUpload={() => {
+          if (primaryFile === null) return
+          void runUpload(state.jobId as string, primaryFile, auxiliaryFiles)
+        }}
+      />
       <UploadResultPanel upload={state.upload} />
-      <PreviewPanel preview={state.preview} />
+      <PreviewPanel
+        preview={state.preview}
+        busy={busy}
+        onSelectSheet={(sheetName) => void runSelectSheet(state.jobId as string, sheetName)}
+      />
 
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginTop: 24 }}>
         <button className="btn btn-secondary" type="button" onClick={redeem} disabled={busy}>
@@ -142,4 +202,3 @@ export function Step2(props: Step2Props) {
     </div>
   )
 }
-

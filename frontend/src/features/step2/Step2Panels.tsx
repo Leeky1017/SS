@@ -1,4 +1,3 @@
-import { useMemo, useState } from 'react'
 import type { InputsPreviewResponse, InputsUploadResponse } from '../../api/types'
 
 function clipCell(value: unknown): string {
@@ -16,7 +15,7 @@ export function Step2Header() {
         <div className="step-tick" />
       </div>
       <h1>上传数据并预览</h1>
-      <p className="lead">支持 CSV/XLSX/DTA。上传成功后可预览列名与样本行；若失败，错误态可重试且不丢失 job。</p>
+      <p className="lead">支持 CSV/XLSX/DTA。可上传 1 个主文件 + 0~N 个辅助文件；Excel 支持 Sheet 选择并刷新预览。</p>
     </>
   )
 }
@@ -70,9 +69,13 @@ function PreviewTable(props: { preview: InputsPreviewResponse }) {
       <table className="data-table">
         <thead>
           <tr>
-            {headers.map((name) => (
-              <th key={name} className="mono">
-                {name}
+            <th className="mono">#</th>
+            {props.preview.columns.map((col) => (
+              <th key={col.name} className="mono">
+                <div>{col.name}</div>
+                <div className="inline-hint" style={{ marginTop: 4 }}>
+                  {col.inferred_type}
+                </div>
               </th>
             ))}
           </tr>
@@ -80,6 +83,9 @@ function PreviewTable(props: { preview: InputsPreviewResponse }) {
         <tbody>
           {props.preview.sample_rows.map((row, idx) => (
             <tr key={idx}>
+              <td className="mono" style={{ color: 'var(--text-muted)' }}>
+                {idx + 1}
+              </td>
               {headers.map((name) => (
                 <td key={name}>{clipCell(row[name])}</td>
               ))}
@@ -91,17 +97,48 @@ function PreviewTable(props: { preview: InputsPreviewResponse }) {
   )
 }
 
-export function PreviewPanel(props: { preview: InputsPreviewResponse | null }) {
+export function PreviewPanel(props: {
+  preview: InputsPreviewResponse | null
+  busy?: boolean
+  onSelectSheet?: (sheetName: string) => void
+}) {
   if (props.preview === null) return null
+  const sheetNames = props.preview.sheet_names ?? []
+  const selectedSheet = props.preview.selected_sheet ?? null
+  const headerRow = props.preview.header_row ?? null
+  const totalCols = props.preview.column_count ?? props.preview.columns.length
+  const showingCols = props.preview.columns.length
+  const showingRows = props.preview.sample_rows.length
   return (
     <div className="panel">
       <div className="panel-body">
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
           <span className="section-label" style={{ margin: 0 }}>
             Preview
           </span>
-          <div className="inline-hint">
-            rows: {props.preview.row_count ?? 'n/a'} · columns: {props.preview.columns.length}
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {props.onSelectSheet && sheetNames.length > 1 ? (
+              <label className="inline-hint" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                Sheet
+                <select
+                  value={selectedSheet ?? ''}
+                  disabled={props.busy}
+                  onChange={(e) => props.onSelectSheet?.(e.target.value)}
+                >
+                  {sheetNames.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : selectedSheet ? (
+              <div className="inline-hint">sheet: {selectedSheet}</div>
+            ) : null}
+            <div className="inline-hint">
+              rows: {props.preview.row_count ?? 'n/a'} · cols: {totalCols} · showing: {showingRows}×{showingCols}
+              {headerRow === null ? '' : headerRow ? ' · header: yes' : ' · header: no'}
+            </div>
           </div>
         </div>
         <PreviewTable preview={props.preview} />
@@ -109,48 +146,3 @@ export function PreviewPanel(props: { preview: InputsPreviewResponse | null }) {
     </div>
   )
 }
-
-export function DropZone(props: { busy: boolean; onPick: (files: File[]) => void }) {
-  const [dragActive, setDragActive] = useState(false)
-  const inputId = useMemo(() => `file_${Math.random().toString(16).slice(2)}`, [])
-
-  return (
-    <div
-      className={`drop-zone${dragActive ? ' drop-zone-active' : ''}`}
-      onDragOver={(e) => {
-        e.preventDefault()
-        setDragActive(true)
-      }}
-      onDragLeave={() => setDragActive(false)}
-      onDrop={(e) => {
-        e.preventDefault()
-        setDragActive(false)
-        const files = Array.from(e.dataTransfer.files)
-        if (files.length > 0) props.onPick(files)
-      }}
-    >
-      <div style={{ display: 'grid', gap: 10 }}>
-        <div style={{ fontWeight: 600 }}>拖拽文件到此处上传</div>
-        <div className="inline-hint">或点击选择文件（.csv / .xlsx / .dta）</div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <label className="btn btn-secondary" htmlFor={inputId} aria-disabled={props.busy}>
-            选择文件
-          </label>
-        </div>
-      </div>
-      <input
-        id={inputId}
-        type="file"
-        accept=".csv,.xlsx,.xls,.dta"
-        style={{ display: 'none' }}
-        disabled={props.busy}
-        onChange={(e) => {
-          const files = Array.from(e.target.files ?? [])
-          if (files.length > 0) props.onPick(files)
-          e.target.value = ''
-        }}
-      />
-    </div>
-  )
-}
-

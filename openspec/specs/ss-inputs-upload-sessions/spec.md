@@ -233,6 +233,9 @@ On successful finalize, SS MUST incorporate the uploaded file into the existing 
   - `format` (`csv` | `excel` | `dta`)
   - `uploaded_at` (ISO8601 string)
   - `content_type` (string | null)
+  - Optional (v1 extension fields):
+    - `sheet_name` (string | null; Excel only; selected sheet for preview/execution)
+    - `header_row` (bool | null; Excel only; whether to treat first row as column names)
 
 `dataset_key` generation MUST be deterministic:
 - `dataset_key = "ds_" + sha256[:16]`
@@ -251,6 +254,15 @@ SS MUST index the persisted inputs as first-class artifacts:
 #### Scenario: Finalize makes inputs preview-compatible
 - **WHEN** a primary dataset upload session is finalized successfully
 - **THEN** `GET /v1/jobs/{job_id}/inputs/preview` reads the persisted `inputs/manifest.json` primary dataset entry and returns a bounded preview
+
+### Requirement: Inputs preview supports Excel sheet selection and basic stats
+
+For primary datasets with `format=excel`, `GET /v1/jobs/{job_id}/inputs/preview` SHOULD:
+- return `sheet_names[]` (list of available sheets)
+- allow persisting a chosen `sheet_name` into `inputs/manifest.json` for repeatable preview/execution
+
+The preview response SHOULD include basic dataset stats:
+- total `row_count` and total `column_count` (best-effort, may be `null` when unavailable)
 
 ### Requirement: Upload endpoints require token authentication and do not expose object keys
 

@@ -183,10 +183,8 @@ class DraftPreviewPendingResponse(BaseModel):
     retry_after_seconds: int
     retry_until: str
 
-
 class DraftPatchRequest(BaseModel):
     field_updates: dict[str, JsonValue] = Field(default_factory=dict)
-
 
 class DraftPatchResponse(BaseModel):
     status: str = "patched"
@@ -195,10 +193,13 @@ class DraftPatchResponse(BaseModel):
     open_unknowns: list[DraftOpenUnknown] = Field(default_factory=list)
     draft_preview: dict[str, JsonValue] = Field(default_factory=dict)
 
-
 class InputsPreviewResponse(BaseModel):
     job_id: str
     row_count: int | None = None
+    column_count: int | None = None
+    sheet_names: list[str] = Field(default_factory=list)
+    selected_sheet: str | None = None
+    header_row: bool | None = None
     columns: list[InputsPreviewColumn] = Field(default_factory=list)
     sample_rows: list[dict[str, str | int | float | bool | None]] = Field(default_factory=list)
 

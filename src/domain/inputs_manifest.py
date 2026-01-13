@@ -210,3 +210,87 @@ def primary_dataset_details(manifest: Mapping[str, object]) -> tuple[str, str, s
     if not isinstance(original_name, str) or original_name.strip() == "":
         original_name = rel_path
     return rel_path, fmt, original_name
+
+
+def _sheet_name_or_none(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+    candidate = value.strip()
+    return None if candidate == "" else candidate
+
+
+def _bool_or_none(value: object) -> bool | None:
+    if isinstance(value, bool):
+        return value
+    return None
+
+
+def primary_dataset_excel_options(manifest: Mapping[str, object]) -> tuple[str | None, bool | None]:
+    datasets = manifest.get("datasets")
+    if isinstance(datasets, list):
+        for item in datasets:
+            if not isinstance(item, Mapping):
+                continue
+            if item.get("role") != ROLE_PRIMARY_DATASET:
+                continue
+            return _sheet_name_or_none(item.get("sheet_name")), _bool_or_none(
+                item.get("header_row")
+            )
+
+    primary = manifest.get("primary_dataset")
+    if isinstance(primary, Mapping):
+        return _sheet_name_or_none(primary.get("sheet_name")), _bool_or_none(
+            primary.get("header_row")
+        )
+    return _sheet_name_or_none(manifest.get("primary_dataset_sheet_name")), _bool_or_none(
+        manifest.get("primary_dataset_header_row")
+    )
+
+
+def set_primary_dataset_excel_options(
+    manifest: JsonObject, *, sheet_name: str | None, header_row: bool | None
+) -> JsonObject:
+    def _apply(item: JsonObject) -> JsonObject:
+        updated = dict(item)
+        if sheet_name is None:
+            updated.pop("sheet_name", None)
+        else:
+            updated["sheet_name"] = sheet_name
+        if header_row is None:
+            updated.pop("header_row", None)
+        else:
+            updated["header_row"] = header_row
+        return cast(JsonObject, updated)
+
+    datasets_obj = manifest.get("datasets")
+    if isinstance(datasets_obj, list):
+        updated_datasets: list[object] = []
+        applied = False
+        for raw in datasets_obj:
+            if isinstance(raw, dict) and raw.get("role") == ROLE_PRIMARY_DATASET and not applied:
+                updated_datasets.append(_apply(cast(JsonObject, raw)))
+                applied = True
+            else:
+                updated_datasets.append(raw)
+        if not applied:
+            return manifest
+        out = dict(manifest)
+        out["datasets"] = updated_datasets
+        return cast(JsonObject, out)
+
+    primary_obj = manifest.get("primary_dataset")
+    if isinstance(primary_obj, dict):
+        out = dict(manifest)
+        out["primary_dataset"] = _apply(cast(JsonObject, primary_obj))
+        return cast(JsonObject, out)
+
+    out = dict(manifest)
+    if sheet_name is None:
+        out.pop("primary_dataset_sheet_name", None)
+    else:
+        out["primary_dataset_sheet_name"] = sheet_name
+    if header_row is None:
+        out.pop("primary_dataset_header_row", None)
+    else:
+        out["primary_dataset_header_row"] = header_row
+    return cast(JsonObject, out)

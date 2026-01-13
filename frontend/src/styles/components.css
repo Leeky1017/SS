@@ -216,12 +216,13 @@ textarea {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   overflow: auto;
-  max-height: 320px;
+  max-height: 420px;
   background: var(--surface);
 }
 
 .data-table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -240,6 +241,21 @@ textarea {
   background: var(--surface);
   color: var(--text);
   font-weight: 600;
+  z-index: 1;
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--surface);
+}
+
+.data-table th:first-child {
+  z-index: 2;
+}
+
+.data-table td:first-child {
   z-index: 1;
 }
 

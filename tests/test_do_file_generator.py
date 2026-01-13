@@ -142,3 +142,44 @@ def test_generate_with_csv_manifest_uses_import_delimited(
 
     # Assert
     assert 'copy "inputs/data.csv" "data.csv", replace' in rendered
+
+
+def test_generate_with_excel_manifest_includes_sheet_and_header_row_options(
+    job_service,
+    draft_service,
+    plan_service,
+    do_template_library_dir,
+):
+    # Arrange
+    job = job_service.create_job(requirement="need a descriptive analysis")
+    asyncio.run(draft_service.preview(job_id=job.job_id))
+    plan = plan_service.freeze_plan(job_id=job.job_id, confirmation=JobConfirmation())
+    generator = DoFileGenerator(
+        do_template_repo=FileSystemDoTemplateRepository(library_dir=do_template_library_dir)
+    )
+    inputs_manifest = {
+        "schema_version": 2,
+        "datasets": [
+            {
+                "dataset_key": "ds_demo",
+                "role": "primary_dataset",
+                "rel_path": "inputs/data.xlsx",
+                "original_name": "data.xlsx",
+                "size_bytes": 1,
+                "sha256": "x",
+                "fingerprint": "sha256:x",
+                "format": "excel",
+                "uploaded_at": "2026-01-01T00:00:00Z",
+                "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "sheet_name": "Sheet2",
+                "header_row": False,
+            }
+        ],
+    }
+
+    # Act
+    rendered = generator.generate(plan=plan, inputs_manifest=inputs_manifest).do_file
+
+    # Assert
+    assert 'import excel "inputs/data.xlsx", sheet("Sheet2") clear' in rendered
+    assert 'sheet("Sheet2") firstrow clear' not in rendered
