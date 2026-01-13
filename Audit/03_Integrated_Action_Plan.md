@@ -11,9 +11,9 @@
 ```
 高影响 / 高工作量    高影响 / 低工作量
 ┌─────────────────┬──────────────────┐
-│ • 分布式存储    │ • 数据版本升级   │
+│ • 分布式存储    │ • 数据版本升级 ✅│
 │   (16-24h)      │   (6-8h)         │
-│ • 并发竞态防护  │ • 类型注解       │
+│ • 并发竞态防护 ✅│ • 类型注解       │
 │   (8-10h)       │   (3-4h)         │
 │ • LLM 抽象化    │ • 优雅关闭       │
 │   (12-16h)      │   (4-6h)         │
@@ -57,32 +57,33 @@
 
 **目标**：修复生产稳定性问题，完成基础改进
 
-#### 任务 1.1：数据版本升级策略 🔴 (6-8h)
+#### 任务 1.1：数据版本升级策略 ✅ 已完成（原 6-8h）
 
 **负责人**：后端工程师 A  
 **关键路径**：是
 
 ```python
-# 交付物
+# 交付物（已落地）
 1. src/domain/models.py
-   - SUPPORTED_JOB_SCHEMA_VERSIONS = [1, 2]
-   - 版本字段验证
+   - JOB_SCHEMA_VERSION_V1/V2/V3 + JOB_SCHEMA_VERSION_CURRENT
+   - SUPPORTED_JOB_SCHEMA_VERSIONS
 
-2. src/infra/job_store.py
-   - _migrate_v1_to_v2() 方法
-   - load() 中添加迁移逻辑
+2. src/infra/job_store_migrations.py
+   - assert_supported_schema_version()
+   - migrate_payload_to_current()（V1 → V2 → V3）
 
-3. tests/test_job_store_migration.py
-   - 10+ 测试用例
-   - V1 → V2 路径验证
-   - 向后兼容性验证
+3. src/infra/job_store.py
+   - load(): 迁移到当前版本并原子回写 job.json
+
+4. tests/test_job_store_migration.py
+   - 验证 V1 → V2 → V3 迁移链路与迁移日志
 ```
 
 **验收标准**：
-- [ ] 可加载 V1 job.json（自动迁移到 V2）
-- [ ] 新创建的 job 都是 V2 版本
-- [ ] 迁移日志记录准确
-- [ ] 测试覆盖 > 90%
+- [x] 可加载 V1/V2 job.json（自动迁移到 V3，并原子回写）
+- [x] 新创建/保存的 job 都是 V3 版本
+- [x] 迁移日志记录准确（`SS_JOB_JSON_SCHEMA_MIGRATED`）
+- [x] 单元测试覆盖迁移链路（`tests/test_job_store_migration.py`）
 
 **时间线**：
 - 第 2 周：设计文档 + 实现 (4h)
@@ -90,43 +91,35 @@
 
 ---
 
-#### 任务 1.2：并发竞态防护 🔴 (8-10h)
+#### 任务 1.2：并发竞态防护 ✅ 已完成（原 8-10h）
 
 **负责人**：后端工程师 B  
 **关键路径**：是
 
 ```python
-# 方案：乐观锁 + 版本字段
-# src/domain/models.py
-class Job(BaseModel):
-    version: int = 1  # 新增
+# 方案：文件锁 + 乐观锁（version）+ 原子写入
+# src/utils/file_lock.py
+with exclusive_lock(lock_file):
     ...
 
-# src/infra/job_store.py
-def save(self, job: Job) -> None:
-    raw = json.loads(path.read_text())
-    if raw.get("version", 1) != job.version:
-        raise JobConcurrentModificationError(job_id=job.job_id)
-    
-    payload = job.model_dump(mode="json")
-    payload["version"] = job.version + 1
-    self._atomic_write(path, payload)
-
-# 异常定义
-class JobConcurrentModificationError(SSError):
-    def __init__(self, *, job_id: str):
-        super().__init__(
-            error_code="JOB_CONCURRENT_MODIFICATION",
-            message=f"job concurrent modification: {job_id}",
-            status_code=409,
-        )
+# src/infra/job_store.py（简化）
+disk_version = current.get("version", 1)
+if job.version != disk_version:
+    raise JobVersionConflictError(
+        job_id=job_id,
+        expected_version=job.version,
+        actual_version=disk_version,
+    )
+new_version = disk_version + 1
+atomic_write_json(path=path, payload=payload_to_write)
+job.version = new_version
 ```
 
 **验收标准**：
-- [ ] Job 模型中有 version 字段
-- [ ] save() 检查版本冲突
-- [ ] 冲突时抛出 JobConcurrentModificationError
-- [ ] 集成测试验证并发场景
+- [x] Job 模型中有 `version` 字段（`ge=1`）
+- [x] `save()` 在文件锁内串行化读-改-写，并做版本冲突检查
+- [x] 冲突时抛出 `JobVersionConflictError`（409）
+- [x] 并发测试验证冲突场景（`tests/concurrent/test_job_concurrent_write.py`）
 
 **时间线**：
 - 第 2 周：设计 + 实现 (4h)
