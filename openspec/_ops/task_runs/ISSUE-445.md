@@ -2,7 +2,7 @@
 
 - Issue: #445
 - Branch: task/445-frontend-static-mount
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/446
 
 ## Goal
 - Ensure the frontend static mount does not shadow API routing semantics (unknown POST paths return 404, not 405).
