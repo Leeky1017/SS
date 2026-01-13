@@ -9,6 +9,11 @@ pip install -e ".[dev]"
 python -m src.main
 ```
 
+### Windows（PowerShell）
+
+- 一键启动（加载 `.env` + 启动 API + 后台启动 Worker）：`powershell -ExecutionPolicy Bypass -File start.ps1`
+- 若需要 UI：先构建前端生成 `frontend/dist`（存在时 API 会在 `/` 托管静态页面）
+
 ## 开发（本地检查）
 
 ```bash

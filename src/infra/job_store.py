@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-import fcntl
 import json
 import logging
-import os
-import tempfile
 from pathlib import Path
 from typing import cast
 
@@ -16,6 +13,7 @@ from src.domain.models import (
     Job,
     is_safe_job_rel_path,
 )
+from src.infra.atomic_write import atomic_write_json
 from src.infra.exceptions import (
     ArtifactPathUnsafeError,
     JobAlreadyExistsError,
@@ -30,6 +28,7 @@ from src.infra.job_store_migrations import (
     assert_supported_schema_version,
     migrate_payload_to_current,
 )
+from src.utils.file_lock import exclusive_lock
 from src.utils.job_workspace import is_safe_path_segment, shard_for_job_id
 from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID, tenant_jobs_dir
@@ -160,7 +159,8 @@ class JobStore:
             raise JobDataCorruptedError(job_id=job.job_id)
         sharded_dir.mkdir(parents=True, exist_ok=True)
         try:
-            self._atomic_write(sharded_path, cast(JsonObject, job.model_dump(mode="json")))
+            payload = cast(JsonObject, job.model_dump(mode="json"))
+            atomic_write_json(path=sharded_path, payload=payload)
         except OSError as e:
             logger.warning(
                 "SS_JOB_JSON_CREATE_FAILED",
@@ -186,7 +186,7 @@ class JobStore:
             raise JobDataCorruptedError(job_id=job_id) from e
         if migrated is not payload:
             try:
-                self._atomic_write(path, migrated)
+                atomic_write_json(path=path, payload=migrated)
             except OSError as e:
                 logger.warning(
                     "SS_JOB_JSON_MIGRATION_WRITE_FAILED",
@@ -196,62 +196,66 @@ class JobStore:
         return job
 
     def save(self, job: Job, *, tenant_id: str = DEFAULT_TENANT_ID) -> None:
-        job_dir = self._resolve_job_dir_for_existing_job(tenant_id=tenant_id, job_id=job.job_id)
+        job_id = job.job_id
+        job_dir = self._resolve_job_dir_for_existing_job(tenant_id=tenant_id, job_id=job_id)
         if job_dir is None:
-            raise JobNotFoundError(job_id=job.job_id)
+            raise JobNotFoundError(job_id=job_id)
         path = job_dir / "job.json"
         if job.schema_version != JOB_SCHEMA_VERSION_CURRENT:
             logger.warning(
                 "SS_JOB_JSON_SCHEMA_VERSION_UNSUPPORTED",
                 extra={
-                    "job_id": job.job_id,
+                    "job_id": job_id,
                     "path": str(path),
                     "schema_version": job.schema_version,
                     "expected_schema_version": JOB_SCHEMA_VERSION_CURRENT,
                 },
             )
-            raise JobDataCorruptedError(job_id=job.job_id)
-        lock_path = self._job_lock_path(tenant_id=tenant_id, job_id=job.job_id)
+            raise JobDataCorruptedError(job_id=job_id)
+        lock_path = self._job_lock_path(tenant_id=tenant_id, job_id=job_id)
         try:
             with lock_path.open("a+", encoding="utf-8") as lock_file:
-                fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
-                payload = self._read_job_payload(job_id=job.job_id, path=path)
-                assert_supported_schema_version(job_id=job.job_id, path=path, payload=payload)
-                current = migrate_payload_to_current(job_id=job.job_id, path=path, payload=payload)
-                disk_version = current.get("version", 1)
-                if not isinstance(disk_version, int) or disk_version < 1:
-                    logger.warning(
-                        "SS_JOB_JSON_CORRUPTED",
-                        extra={
-                            "job_id": job.job_id,
-                            "path": str(path),
-                            "reason": "version_invalid",
-                        },
-                    )
-                    raise JobDataCorruptedError(job_id=job.job_id)
-                if job.version != disk_version:
-                    logger.warning(
-                        "SS_JOB_JSON_VERSION_CONFLICT",
-                        extra={
-                            "job_id": job.job_id,
-                            "path": str(path),
-                            "expected_version": job.version,
-                            "actual_version": disk_version,
-                        },
-                    )
-                    raise JobVersionConflictError(
-                        job_id=job.job_id, expected_version=job.version, actual_version=disk_version
-                    )
-                new_version = disk_version + 1
-                to_write = job.model_copy(update={"version": new_version})
-                self._atomic_write(path, cast(JsonObject, to_write.model_dump(mode="json")))
-                job.version = new_version
+                with exclusive_lock(lock_file):
+                    payload = self._read_job_payload(job_id=job_id, path=path)
+                    assert_supported_schema_version(job_id=job_id, path=path, payload=payload)
+                    current = migrate_payload_to_current(job_id=job_id, path=path, payload=payload)
+                    disk_version = current.get("version", 1)
+                    if not isinstance(disk_version, int) or disk_version < 1:
+                        logger.warning(
+                            "SS_JOB_JSON_CORRUPTED",
+                            extra={
+                                "job_id": job_id,
+                                "path": str(path),
+                                "reason": "version_invalid",
+                            },
+                        )
+                        raise JobDataCorruptedError(job_id=job_id)
+                    if job.version != disk_version:
+                        logger.warning(
+                            "SS_JOB_JSON_VERSION_CONFLICT",
+                            extra={
+                                "job_id": job_id,
+                                "path": str(path),
+                                "expected_version": job.version,
+                                "actual_version": disk_version,
+                            },
+                        )
+                        raise JobVersionConflictError(
+                            job_id=job_id,
+                            expected_version=job.version,
+                            actual_version=disk_version,
+                        )
+                    new_version = disk_version + 1
+                    to_write = job.model_copy(update={"version": new_version})
+                    payload_to_write = cast(JsonObject, to_write.model_dump(mode="json"))
+                    atomic_write_json(path=path, payload=payload_to_write)
+                    job.version = new_version
         except OSError as e:
             logger.warning(
                 "SS_JOB_JSON_WRITE_FAILED",
-                extra={"tenant_id": tenant_id, "job_id": job.job_id, "path": str(path)},
+                extra={"tenant_id": tenant_id, "job_id": job_id, "path": str(path)},
             )
-            raise JobStoreIOError(operation="write", job_id=job.job_id) from e
+            raise JobStoreIOError(operation="write", job_id=job_id) from e
 
     def write_draft(self, *, job_id: str, draft: Draft, tenant_id: str = DEFAULT_TENANT_ID) -> None:
         job = self.load(job_id=job_id, tenant_id=tenant_id)
@@ -285,37 +289,10 @@ class JobStore:
             )
             raise ArtifactPathUnsafeError(job_id=job_id, rel_path=rel_path)
         try:
-            self._atomic_write(path, payload)
+            atomic_write_json(path=path, payload=payload)
         except OSError as e:
             logger.warning(
                 "SS_JOB_ARTIFACT_JSON_WRITE_FAILED",
                 extra={"tenant_id": tenant_id, "job_id": job_id, "path": str(path)},
             )
             raise JobStoreIOError(operation="artifact_write", job_id=job_id) from e
-
-    def _atomic_write(self, path: Path, payload: JsonObject) -> None:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
-        tmp: Path | None = None
-        try:
-            with tempfile.NamedTemporaryFile(
-                "w",
-                encoding="utf-8",
-                dir=str(path.parent),
-                delete=False,
-            ) as f:
-                tmp = Path(f.name)
-                f.write(data)
-                f.flush()
-                os.fsync(f.fileno())
-            os.replace(tmp, path)
-        except OSError:
-            if tmp is not None:
-                try:
-                    tmp.unlink(missing_ok=True)
-                except OSError:
-                    logger.warning(
-                        "SS_ATOMIC_WRITE_TMP_CLEANUP_FAILED",
-                        extra={"path": str(path), "tmp": str(tmp)},
-                    )
-            raise
