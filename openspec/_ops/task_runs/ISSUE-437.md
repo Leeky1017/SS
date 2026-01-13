@@ -40,3 +40,11 @@
 ### 2026-01-13 18:10 pr create
 - Command: `gh pr create ...`
 - Key output: `PR: https://github.com/Leeky1017/SS/pull/439`
+
+### 2026-01-13 18:14 merge verification
+- Command: `gh pr view 439 --json state,mergedAt`
+- Key output: `state=MERGED mergedAt=2026-01-13T10:14:51Z`
+
+### 2026-01-13 18:16 rulebook archive
+- Command: `rulebook task archive issue-437-mypy-missing-return-types`
+- Key output: `✅ Task issue-437-mypy-missing-return-types archived successfully`
