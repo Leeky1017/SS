@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import re
 from typing import Iterable, cast
@@ -8,23 +7,90 @@ from typing import Iterable, cast
 from pydantic import ValidationError
 
 from src.domain.do_template_catalog import FamilySummary, TemplateSummary
-from src.domain.do_template_selection_models import Stage1FamilySelection, Stage2TemplateSelection
+from src.domain.do_template_selection_evidence_payloads import (  # noqa: F401
+    candidates_evidence_payload,
+    selection_artifact_paths,
+    stage1_evidence_payload,
+    stage2_evidence_payload,
+)
+from src.domain.do_template_selection_models import (
+    Stage1FamilySelection,
+    Stage1FamilySelectionV2,
+    Stage2TemplateSelection,
+    Stage2TemplateSelectionV2,
+)
+from src.domain.do_template_selection_prompting_utils import (
+    estimate_tokens,
+    family_prompt_item,
+    template_prompt_item,
+)
 from src.infra.do_template_selection_exceptions import DoTemplateSelectionParseError
-from src.utils.json_types import JsonObject
 
 _WORD_RE = re.compile(r"[A-Za-z0-9_]+")
-_SELECTION_ARTIFACT_BASE = "artifacts/do_template/selection"
 
 
-def sha256_hex(value: str) -> str:
-    return hashlib.sha256(value.encode("utf-8", errors="ignore")).hexdigest()
+def _stage2_prompt_header(
+    *,
+    attempt: int,
+    selected_family_ids: tuple[str, ...],
+    analysis_sequence: tuple[str, ...],
+    requires_combination: bool,
+    combination_reason: str,
+    candidate_ids: str,
+    token_budget: int,
+    previous_error: str | None,
+) -> list[str]:
+    header = [
+        (
+            "TASK: Select a primary do-template plus optional supplementary templates "
+            "from the candidates."
+        ),
+        f"ATTEMPT: {attempt}",
+        f"SELECTED_FAMILY_IDS: {', '.join(selected_family_ids)}",
+        f"ANALYSIS_SEQUENCE: {', '.join(analysis_sequence)}",
+        f"REQUIRES_COMBINATION: {str(bool(requires_combination)).lower()}",
+        f"COMBINATION_REASON: {combination_reason.strip()}",
+        f"CANDIDATE_TEMPLATE_IDS: {candidate_ids}",
+        f"CANDIDATE_TOKEN_BUDGET: {int(token_budget)}",
+    ]
+    if previous_error is not None and previous_error.strip() != "":
+        header.append(f"PREVIOUS_ERROR: {previous_error.strip()}")
+    return header
 
 
-def estimate_tokens(text: str) -> int:
-    stripped = text.strip()
-    if stripped == "":
-        return 0
-    return max(1, len(stripped) // 4)
+def _stage2_prompt_rules(*, requirement: str, items: list[str]) -> list[str]:
+    return [
+        "RULES:",
+        "- Return JSON with schema_version=2.",
+        "- primary_template_id MUST be in CANDIDATE_TEMPLATE_IDS exactly.",
+        "- supplementary_templates[].template_id MUST be in CANDIDATE_TEMPLATE_IDS exactly.",
+        "- Do not repeat a template_id (primary vs supplementary).",
+        "- supplementary_templates[] may be empty if a single template is sufficient.",
+        "- supplementary_templates[].sequence_order MUST start at 1 and be unique.",
+        (
+            "- Use supplementary templates for multi-stage needs (e.g., descriptive stats "
+            "before regression)."
+        ),
+        "- Output JSON only (no markdown).",
+        "",
+        "OUTPUT_SCHEMA:",
+        (
+            '{"schema_version":2,'
+            '"primary_template_id":"<id>",'
+            '"primary_reason":"...",'
+            '"primary_confidence":0.7,'
+            '"supplementary_templates":['
+            '{"template_id":"<id>","purpose":"...","sequence_order":1,"confidence":0.6}'
+            "]}"
+        ),
+        "",
+        "USER_REQUIREMENT:",
+        requirement.strip(),
+        "",
+        "CANDIDATE_TEMPLATES:",
+        *[f"- {line}" for line in items],
+        "",
+    ]
 
 
 def _word_tokens(value: str) -> frozenset[str]:
@@ -62,27 +128,6 @@ def rank_templates(
     scored.sort(key=lambda x: (-x[1], x[0].template_id))
     return tuple(t for t, _ in scored)
 
-
-def family_prompt_item(family: FamilySummary) -> dict[str, object]:
-    return {
-        "family_id": family.family_id,
-        "description": family.description,
-        "capabilities": list(family.capabilities),
-        "n_templates": len(family.template_ids),
-    }
-
-
-def template_prompt_item(template: TemplateSummary) -> dict[str, object]:
-    return {
-        "template_id": template.template_id,
-        "family_id": template.family_id,
-        "name": template.name[:80],
-        "slug": template.slug[:80],
-        "placeholders": list(template.placeholders)[:8],
-        "output_types": list(template.output_types)[:8],
-    }
-
-
 def trim_templates(
     *,
     templates: tuple[TemplateSummary, ...],
@@ -116,18 +161,36 @@ def _extract_json_object(text: str) -> str:
     return value[start : end + 1]
 
 
-def parse_stage1(text: str) -> Stage1FamilySelection:
-    raw = _extract_json_object(text)
+def _loads_json_object(raw: str, *, stage: str) -> dict[str, object]:
     try:
-        return Stage1FamilySelection.model_validate_json(raw)
+        value = json.loads(raw)
+    except json.JSONDecodeError as e:
+        raise DoTemplateSelectionParseError(stage=stage, reason=f"invalid_json:{e}") from e
+    if not isinstance(value, dict):
+        raise DoTemplateSelectionParseError(stage=stage, reason="json_not_object")
+    return cast(dict[str, object], value)
+
+
+def parse_stage1(text: str) -> Stage1FamilySelection | Stage1FamilySelectionV2:
+    raw = _extract_json_object(text)
+    payload = _loads_json_object(raw, stage="stage1_json")
+    version = payload.get("schema_version")
+    try:
+        if isinstance(version, int) and version == 2:
+            return Stage1FamilySelectionV2.model_validate(payload)
+        return Stage1FamilySelection.model_validate(payload)
     except ValidationError as e:
         raise DoTemplateSelectionParseError(stage="stage1", reason=str(e)) from e
 
 
-def parse_stage2(text: str) -> Stage2TemplateSelection:
+def parse_stage2(text: str) -> Stage2TemplateSelection | Stage2TemplateSelectionV2:
     raw = _extract_json_object(text)
+    payload = _loads_json_object(raw, stage="stage2_json")
+    version = payload.get("schema_version")
     try:
-        return Stage2TemplateSelection.model_validate_json(raw)
+        if isinstance(version, int) and version == 2:
+            return Stage2TemplateSelectionV2.model_validate(payload)
+        return Stage2TemplateSelection.model_validate(payload)
     except ValidationError as e:
         raise DoTemplateSelectionParseError(stage="stage2", reason=str(e)) from e
 
@@ -151,15 +214,46 @@ def stage1_prompt(
     ]
     if previous_error is not None and previous_error.strip() != "":
         header.append(f"PREVIOUS_ERROR: {previous_error.strip()}")
-    rules = [
+    rules = _stage1_prompt_rules(
+        requirement=requirement,
+        items=items,
+        max_families=int(max_families),
+    )
+    return "\n".join([*header, "", *rules])
+
+
+_STAGE1_OUTPUT_SCHEMA = (
+    '{"schema_version":2,'
+    '"families":[{"family_id":"<id>","reason":"...","confidence":0.7}],'  # noqa: ISC003
+    '"requires_combination":true,'
+    '"combination_reason":"...",'
+    '"analysis_sequence":["<family_id_1>","<family_id_2>"]}'
+)
+
+
+def _stage1_prompt_rules(*, requirement: str, items: list[str], max_families: int) -> list[str]:
+    max_allowed = max(1, int(max_families))
+    return [
         "RULES:",
-        f"- Return JSON with schema_version=1 and families[] (max {max(1, int(max_families))}).",
-        "- Each item must include: family_id, reason, confidence (0.0-1.0).",
+        f"- Return JSON with schema_version=2 and families[] (max {max_allowed}).",
+        "- Each family item must include: family_id, reason, confidence (0.0-1.0).",
         "- family_id MUST be in CANONICAL_FAMILY_IDS exactly.",
+        (
+            "- Determine if multiple templates are required (multi-stage analysis "
+            "or multiple distinct outputs)."
+        ),
+        (
+            "- If multiple templates are required: set requires_combination=true and "
+            "explain in combination_reason."
+        ),
+        (
+            "- Always provide analysis_sequence[] as the recommended analysis order "
+            "(prefer canonical family IDs)."
+        ),
         "- Output JSON only (no markdown).",
         "",
         "OUTPUT_SCHEMA:",
-        '{"schema_version":1,"families":[{"family_id":"<id>","reason":"...","confidence":0.7}]}',
+        _STAGE1_OUTPUT_SCHEMA,
         "",
         "USER_REQUIREMENT:",
         requirement.strip(),
@@ -168,13 +262,15 @@ def stage1_prompt(
         *[f"- {line}" for line in items],
         "",
     ]
-    return "\n".join([*header, "", *rules])
 
 
 def stage2_prompt(
     *,
     requirement: str,
     selected_family_ids: tuple[str, ...],
+    analysis_sequence: tuple[str, ...] = tuple(),
+    requires_combination: bool = False,
+    combination_reason: str = "",
     candidates: tuple[TemplateSummary, ...],
     token_budget: int,
     attempt: int,
@@ -184,116 +280,15 @@ def stage2_prompt(
     items = [
         json.dumps(template_prompt_item(t), ensure_ascii=False, sort_keys=True) for t in candidates
     ]
-    header = [
-        "TASK: Select exactly one do-template template_id from the candidates.",
-        f"ATTEMPT: {attempt}",
-        f"SELECTED_FAMILY_IDS: {', '.join(selected_family_ids)}",
-        f"CANDIDATE_TEMPLATE_IDS: {candidate_ids}",
-        f"CANDIDATE_TOKEN_BUDGET: {int(token_budget)}",
-    ]
-    if previous_error is not None and previous_error.strip() != "":
-        header.append(f"PREVIOUS_ERROR: {previous_error.strip()}")
-    rules = [
-        "RULES:",
-        "- Return JSON with schema_version=1 and template_id, reason, confidence (0.0-1.0).",
-        "- template_id MUST be in CANDIDATE_TEMPLATE_IDS exactly.",
-        "- Output JSON only (no markdown).",
-        "",
-        "OUTPUT_SCHEMA:",
-        '{"schema_version":1,"template_id":"<id>","reason":"...","confidence":0.7}',
-        "",
-        "USER_REQUIREMENT:",
-        requirement.strip(),
-        "",
-        "CANDIDATE_TEMPLATES:",
-        *[f"- {line}" for line in items],
-        "",
-    ]
+    header = _stage2_prompt_header(
+        attempt=attempt,
+        selected_family_ids=selected_family_ids,
+        analysis_sequence=analysis_sequence,
+        requires_combination=requires_combination,
+        combination_reason=combination_reason,
+        candidate_ids=candidate_ids,
+        token_budget=int(token_budget),
+        previous_error=previous_error,
+    )
+    rules = _stage2_prompt_rules(requirement=requirement, items=items)
     return "\n".join([*header, "", *rules])
-
-
-def selection_artifact_paths() -> tuple[str, str, str]:
-    stage1_rel = f"{_SELECTION_ARTIFACT_BASE}/stage1.json"
-    candidates_rel = f"{_SELECTION_ARTIFACT_BASE}/candidates.json"
-    stage2_rel = f"{_SELECTION_ARTIFACT_BASE}/stage2.json"
-    return stage1_rel, candidates_rel, stage2_rel
-
-
-def _candidate_token_estimate(items: list[dict[str, object]]) -> int:
-    return sum(
-        estimate_tokens(json.dumps(item, ensure_ascii=False, sort_keys=True)) for item in items
-    )
-
-
-def stage1_evidence_payload(
-    *,
-    job_id: str,
-    requirement: str,
-    families: tuple[FamilySummary, ...],
-    stage1: Stage1FamilySelection,
-    selected_family_ids: tuple[str, ...],
-    max_families: int,
-) -> JsonObject:
-    return cast(
-        JsonObject,
-        {
-            "schema_version": 1,
-            "job_id": job_id,
-            "stage": "stage1",
-            "operation": "do_template.select_families",
-        "requirement_fingerprint": sha256_hex(requirement.strip()),
-        "max_families": int(max_families),
-        "canonical_family_ids": [f.family_id for f in families],
-            "family_summaries": [family_prompt_item(f) for f in families],
-            "selection": stage1.model_dump(mode="json"),
-            "selected_family_ids": list(selected_family_ids),
-        },
-    )
-
-
-def candidates_evidence_payload(
-    *,
-    job_id: str,
-    selected_family_ids: tuple[str, ...],
-    candidates: tuple[TemplateSummary, ...],
-    token_budget: int,
-    max_candidates: int,
-) -> JsonObject:
-    candidate_items = [template_prompt_item(t) for t in candidates]
-    return cast(
-        JsonObject,
-        {
-            "schema_version": 1,
-            "job_id": job_id,
-            "stage": "stage2_candidates",
-            "selected_family_ids": list(selected_family_ids),
-        "token_budget": int(token_budget),
-        "max_candidates": int(max_candidates),
-            "candidate_token_estimate": _candidate_token_estimate(candidate_items),
-            "candidate_template_ids": [t.template_id for t in candidates],
-            "candidates": candidate_items,
-        },
-    )
-
-
-def stage2_evidence_payload(
-    *,
-    job_id: str,
-    requirement: str,
-    candidates: tuple[TemplateSummary, ...],
-    stage2: Stage2TemplateSelection,
-    selected_template_id: str,
-) -> JsonObject:
-    return cast(
-        JsonObject,
-        {
-            "schema_version": 1,
-            "job_id": job_id,
-            "stage": "stage2",
-            "operation": "do_template.select_template",
-        "requirement_fingerprint": sha256_hex(requirement.strip()),
-            "candidate_template_ids": [t.template_id for t in candidates],
-            "selection": stage2.model_dump(mode="json"),
-            "selected_template_id": selected_template_id,
-        },
-    )

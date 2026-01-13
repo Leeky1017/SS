@@ -6,43 +6,48 @@ from datetime import datetime
 from typing import Callable
 
 from src.domain.do_template_catalog import DoTemplateCatalog, FamilySummary, TemplateSummary
+from src.domain.do_template_selection_evidence_writer import (
+    finalize_selection_for_job,
+    persist_best_effort,
+)
 from src.domain.do_template_selection_models import (
     DoTemplateSelectionResult,
     Stage1FamilySelection,
+    Stage1FamilySelectionV2,
     Stage2TemplateSelection,
+    Stage2TemplateSelectionV2,
 )
 from src.domain.do_template_selection_prompting import (
-    candidates_evidence_payload,
     parse_stage1,
     parse_stage2,
-    rank_templates,
-    selection_artifact_paths,
-    stage1_evidence_payload,
     stage1_prompt,
-    stage2_evidence_payload,
     stage2_prompt,
-    trim_templates,
+)
+from src.domain.do_template_selection_service_support import (
+    build_stage2_candidates,
+    stage1_context,
+    stage2_primary_template_id,
 )
 from src.domain.do_template_selection_validation import (
     validated_family_ids,
-    validated_template_id,
+    validated_template_selection,
 )
 from src.domain.job_store import JobStore
 from src.domain.llm_client import LLMClient
-from src.domain.models import ArtifactKind, ArtifactRef, Job
+from src.domain.models import Job
 from src.infra.do_template_selection_exceptions import (
     DoTemplateSelectionInvalidFamilyIdError,
     DoTemplateSelectionInvalidTemplateIdError,
     DoTemplateSelectionNoCandidatesError,
 )
-from src.infra.exceptions import JobStoreIOError, SSError
-from src.utils.json_types import JsonObject
+from src.infra.exceptions import SSError
 from src.utils.tenancy import DEFAULT_TENANT_ID
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
 
 _V1_SUPPORTED_TEMPLATE_IDS = frozenset({"T01", "T05", "T07", "T09", "T30", "TA14"})
+_STAGE2_OP = "do_template.select_template"
 
 
 @dataclass(frozen=True)
@@ -53,6 +58,8 @@ class DoTemplateSelectionService:
     stage1_max_families: int = 3
     stage2_max_candidates: int = 30
     stage2_token_budget: int = 2000
+    confirmation_threshold: float = 0.6
+    manual_fallback_threshold: float = 0.3
     max_attempts: int = 2
     clock: Callable[[], datetime] = utc_now
 
@@ -82,7 +89,7 @@ class DoTemplateSelectionService:
         try:
             result = await self._select_for_job(job=job)
         except SSError as e:
-            self._persist_best_effort(tenant_id=tenant_id, job=job, error=e)
+            persist_best_effort(store=self.store, tenant_id=tenant_id, job=job, error=e)
             raise
         self.store.save(tenant_id=tenant_id, job=job)
         logger.info(
@@ -105,12 +112,6 @@ class DoTemplateSelectionService:
         )
         return eligible if eligible else families
 
-    def _filter_v1_supported_templates(
-        self, *, templates: tuple[TemplateSummary, ...]
-    ) -> tuple[TemplateSummary, ...]:
-        filtered = tuple(t for t in templates if t.template_id in _V1_SUPPORTED_TEMPLATE_IDS)
-        return filtered if filtered else templates
-
     async def _select_for_job(self, *, job: Job) -> DoTemplateSelectionResult:
         requirement = job.requirement if job.requirement is not None else ""
         families = self.catalog.list_families()
@@ -121,28 +122,27 @@ class DoTemplateSelectionService:
         stage1, selected_family_ids = await self._select_families(
             job=job, requirement=requirement, families=families_for_prompt
         )
-
-        templates = self.catalog.list_templates(family_ids=selected_family_ids)
-        if not templates:
-            raise DoTemplateSelectionNoCandidatesError(stage="stage2_templates")
-
-        templates = self._filter_v1_supported_templates(templates=templates)
-        ranked = rank_templates(requirement=requirement, templates=templates)
-        candidates = trim_templates(
-            templates=ranked,
+        analysis_sequence, requires_combination, combination_reason = stage1_context(stage1=stage1)
+        candidates = build_stage2_candidates(
+            catalog=self.catalog,
+            selected_family_ids=selected_family_ids,
+            requirement=requirement,
             token_budget=int(self.stage2_token_budget),
             max_candidates=int(self.stage2_max_candidates),
+            supported_template_ids=_V1_SUPPORTED_TEMPLATE_IDS,
         )
-        if not candidates:
-            raise DoTemplateSelectionNoCandidatesError(stage="stage2_candidates")
 
-        stage2, template_id = await self._select_template(
+        stage2, llm_primary_id, llm_supplementary_ids = await self._select_template(
             job=job,
             requirement=requirement,
             selected_family_ids=selected_family_ids,
+            analysis_sequence=analysis_sequence,
+            requires_combination=requires_combination,
+            combination_reason=combination_reason,
             candidates=candidates,
         )
-        self._write_evidence(
+        return finalize_selection_for_job(
+            store=self.store,
             job=job,
             requirement=requirement,
             families=families,
@@ -150,13 +150,15 @@ class DoTemplateSelectionService:
             selected_family_ids=selected_family_ids,
             candidates=candidates,
             stage2=stage2,
-            selected_template_id=template_id,
-        )
-        job.selected_template_id = template_id
-        return DoTemplateSelectionResult(
-            selected_family_ids=selected_family_ids,
-            candidate_template_ids=tuple(t.template_id for t in candidates),
-            selected_template_id=template_id,
+            llm_primary_template_id=llm_primary_id,
+            llm_supplementary_template_ids=llm_supplementary_ids,
+            analysis_sequence=analysis_sequence,
+            requires_combination=requires_combination,
+            confirmation_threshold=float(self.confirmation_threshold),
+            manual_fallback_threshold=float(self.manual_fallback_threshold),
+            stage1_max_families=int(self.stage1_max_families),
+            stage2_token_budget=int(self.stage2_token_budget),
+            stage2_max_candidates=int(self.stage2_max_candidates),
         )
 
     async def _select_families(
@@ -165,10 +167,10 @@ class DoTemplateSelectionService:
         job: Job,
         requirement: str,
         families: tuple[FamilySummary, ...],
-    ) -> tuple[Stage1FamilySelection, tuple[str, ...]]:
+    ) -> tuple[Stage1FamilySelection | Stage1FamilySelectionV2, tuple[str, ...]]:
         canonical = frozenset(f.family_id for f in families)
         previous_error = None
-        last: Stage1FamilySelection | None = None
+        last: Stage1FamilySelection | Stage1FamilySelectionV2 | None = None
         for attempt in range(1, max(1, int(self.max_attempts)) + 1):
             prompt = stage1_prompt(
                 requirement=requirement,
@@ -208,27 +210,27 @@ class DoTemplateSelectionService:
         job: Job,
         requirement: str,
         selected_family_ids: tuple[str, ...],
+        analysis_sequence: tuple[str, ...],
+        requires_combination: bool,
+        combination_reason: str,
         candidates: tuple[TemplateSummary, ...],
-    ) -> tuple[Stage2TemplateSelection, str]:
+    ) -> tuple[Stage2TemplateSelection | Stage2TemplateSelectionV2, str, tuple[str, ...]]:
         candidate_ids = frozenset(t.template_id for t in candidates)
         previous_error = None
-        last: Stage2TemplateSelection | None = None
+        last: Stage2TemplateSelection | Stage2TemplateSelectionV2 | None = None
         for attempt in range(1, max(1, int(self.max_attempts)) + 1):
             prompt = stage2_prompt(
-                requirement=requirement,
-                selected_family_ids=selected_family_ids,
-                candidates=candidates,
-                token_budget=int(self.stage2_token_budget),
-                attempt=attempt,
+                requirement=requirement, selected_family_ids=selected_family_ids,
+                analysis_sequence=analysis_sequence, requires_combination=requires_combination,
+                combination_reason=combination_reason, candidates=candidates,
+                token_budget=int(self.stage2_token_budget), attempt=attempt,
                 previous_error=previous_error,
             )
-            text = await self.llm.complete_text(
-                job=job, operation="do_template.select_template", prompt=prompt
-            )
+            text = await self.llm.complete_text(job=job, operation=_STAGE2_OP, prompt=prompt)
             parsed = parse_stage2(text)
             last = parsed
             try:
-                template_id = validated_template_id(
+                primary_template_id, supplementary_template_ids = validated_template_selection(
                     selection=parsed,
                     candidate_template_ids=candidate_ids,
                 )
@@ -239,106 +241,13 @@ class DoTemplateSelectionService:
                 "SS_DO_TEMPLATE_SELECT_STAGE2_OK",
                 extra={
                     "job_id": job.job_id,
-                    "template_id": template_id,
+                    "template_id": primary_template_id,
+                    "n_supplementary": len(supplementary_template_ids),
                     "n_candidates": len(candidate_ids),
                 },
             )
-            return parsed, template_id
+            return parsed, primary_template_id, supplementary_template_ids
         if last is not None:
-            raise DoTemplateSelectionInvalidTemplateIdError(template_id=last.template_id)
+            bad_template_id = stage2_primary_template_id(stage2=last)
+            raise DoTemplateSelectionInvalidTemplateIdError(template_id=bad_template_id)
         raise DoTemplateSelectionNoCandidatesError(stage="stage2")
-
-    def _write_evidence(
-        self,
-        *,
-        job: Job,
-        requirement: str,
-        families: tuple[FamilySummary, ...],
-        stage1: Stage1FamilySelection,
-        selected_family_ids: tuple[str, ...],
-        candidates: tuple[TemplateSummary, ...],
-        stage2: Stage2TemplateSelection,
-        selected_template_id: str,
-    ) -> None:
-        stage1_rel, candidates_rel, stage2_rel = selection_artifact_paths()
-        self._write_artifact(
-            job=job,
-            kind=ArtifactKind.DO_TEMPLATE_SELECTION_STAGE1,
-            rel_path=stage1_rel,
-            payload=stage1_evidence_payload(
-                job_id=job.job_id,
-                requirement=requirement,
-                families=families,
-                stage1=stage1,
-                selected_family_ids=selected_family_ids,
-                max_families=int(self.stage1_max_families),
-            ),
-        )
-        self._write_artifact(
-            job=job,
-            kind=ArtifactKind.DO_TEMPLATE_SELECTION_CANDIDATES,
-            rel_path=candidates_rel,
-            payload=candidates_evidence_payload(
-                job_id=job.job_id,
-                selected_family_ids=selected_family_ids,
-                candidates=candidates,
-                token_budget=int(self.stage2_token_budget),
-                max_candidates=int(self.stage2_max_candidates),
-            ),
-        )
-        self._write_artifact(
-            job=job,
-            kind=ArtifactKind.DO_TEMPLATE_SELECTION_STAGE2,
-            rel_path=stage2_rel,
-            payload=stage2_evidence_payload(
-                job_id=job.job_id,
-                requirement=requirement,
-                candidates=candidates,
-                stage2=stage2,
-                selected_template_id=selected_template_id,
-            ),
-        )
-
-    def _write_artifact(
-        self,
-        *,
-        job: Job,
-        kind: ArtifactKind,
-        rel_path: str,
-        payload: JsonObject,
-    ) -> None:
-        self.store.write_artifact_json(
-            tenant_id=job.tenant_id,
-            job_id=job.job_id,
-            rel_path=rel_path,
-            payload=payload,
-        )
-        self._append_artifact_ref(job=job, kind=kind, rel_path=rel_path)
-
-    def _append_artifact_ref(self, *, job: Job, kind: ArtifactKind, rel_path: str) -> None:
-        if any(ref.kind == kind and ref.rel_path == rel_path for ref in job.artifacts_index):
-            return
-        job.artifacts_index.append(ArtifactRef(kind=kind, rel_path=rel_path))
-
-    def _persist_best_effort(self, *, tenant_id: str, job: Job, error: SSError) -> None:
-        logger.warning(
-            "SS_DO_TEMPLATE_SELECT_FAILED",
-            extra={
-                "tenant_id": tenant_id,
-                "job_id": job.job_id,
-                "error_code": error.error_code,
-                "error_message": error.message,
-            },
-        )
-        try:
-            self.store.save(tenant_id=tenant_id, job=job)
-        except JobStoreIOError as persist_error:
-            logger.warning(
-                "SS_DO_TEMPLATE_SELECT_PERSIST_FAILED",
-                extra={
-                    "tenant_id": tenant_id,
-                    "job_id": job.job_id,
-                    "error_code": persist_error.error_code,
-                    "error_message": persist_error.message,
-                },
-            )

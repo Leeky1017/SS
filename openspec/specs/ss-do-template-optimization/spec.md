@@ -93,6 +93,11 @@ Stage-1 output MUST be schema-bound JSON and MUST include:
   - `reason`
   - `confidence` (0.0–1.0)
 
+Stage-1 output SHOULD use `schema_version=2` and include:
+- `requires_combination` (bool): whether multiple templates are needed (e.g., multi-stage analysis)
+- `combination_reason` (string): non-empty when `requires_combination=true`
+- `analysis_sequence[]` (string list): suggested analysis order; SHOULD prefer canonical family IDs when applicable
+
 Stage-1 MUST hard-validate that every returned family ID is a member of the provided canonical family ID set; otherwise it MUST retry/fail in a bounded, structured way.
 
 #### Scenario: Stage-1 output uses canonical family IDs
@@ -100,6 +105,13 @@ Stage-1 MUST hard-validate that every returned family ID is a member of the prov
 - **WHEN** the LLM returns a stage-1 selection output
 - **THEN** every selected ID is in the canonical ID set
 - **AND** the output includes reasons + confidences per selected family
+
+#### Scenario: Stage-1 recommends combination and sequence
+- **GIVEN** a requirement like “first descriptive stats, then regression”
+- **WHEN** stage-1 selection runs
+- **THEN** `requires_combination=true`
+- **AND** `analysis_sequence[]` reflects a sensible order for the selected families
+- **AND** `combination_reason` explains why multiple templates are needed
 
 ### Requirement: Stage-2 selects a template from a token-budgeted candidate set (schema-bound)
 
@@ -114,16 +126,43 @@ Stage-2 preparation MUST:
 - deterministically trim to a topK candidate set within a configured token budget.
 
 Stage-2 output MUST be schema-bound JSON and MUST include:
-- `template_id`
-- `reason` and `confidence` (0.0–1.0)
+- primary selection:
+  - `primary_template_id`
+  - `primary_reason`
+  - `primary_confidence` (0.0–1.0)
+- supplementary selection:
+  - `supplementary_templates[]` (possibly empty), each with:
+    - `template_id`
+    - `purpose`
+    - `sequence_order` (int, 1-based)
+    - `confidence` (0.0–1.0)
 
-Stage-2 MUST hard-validate `template_id ∈ candidate_template_ids`; otherwise it MUST retry/fail in a bounded, structured way.
+Stage-2 MUST hard-validate that every selected template ID is in the candidate set (primary and supplementary); otherwise it MUST retry/fail in a bounded, structured way.
 
 #### Scenario: Stage-2 rejects out-of-candidate template IDs
 - **GIVEN** a trimmed candidate set of template IDs
-- **WHEN** the LLM returns a `template_id` not in the candidate set
+- **WHEN** the LLM returns a template ID (primary or supplementary) not in the candidate set
 - **THEN** SS retries (bounded) or fails with a structured error
-- **AND** it does not proceed with an unverified template ID
+- **AND** it does not proceed with an unverified selection
+
+#### Scenario: Stage-2 selects primary + supplementary templates
+- **GIVEN** a requirement like “descriptive stats then regression”
+- **WHEN** stage-2 selection runs
+- **THEN** the output includes a `primary_template_id`
+- **AND** `supplementary_templates[]` may include a descriptive template with `sequence_order=1`
+
+### Requirement: Confidence thresholds are enforced and recorded
+
+SS MUST enforce confidence thresholds on the stage-2 primary selection:
+- If `primary_confidence < 0.6`, SS MUST record that the selection needs user confirmation.
+- If `primary_confidence < 0.3`, SS MUST fall back to a deterministic/manual selection strategy and record the fallback decision.
+
+#### Scenario: Low-confidence selection triggers manual fallback
+- **GIVEN** a valid stage-2 selection with `primary_confidence < 0.3`
+- **WHEN** SS processes the selection
+- **THEN** SS does not accept the low-confidence choice as final
+- **AND** uses a deterministic/manual fallback selection
+- **AND** records the decision in evidence artifacts
 
 ### Requirement: Selection writes evidence artifacts (auditable + verifiable)
 
