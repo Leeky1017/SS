@@ -27,6 +27,7 @@ from src.domain.upload_bundle_service import UploadBundleService
 from src.domain.upload_sessions_service import UploadSessionsService
 from src.infra.audit_logger import LoggingAuditLogger
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
+from src.infra.file_task_code_store import FileTaskCodeStore
 from src.infra.file_upload_session_store import FileUploadSessionStore
 from src.infra.file_worker_queue import FileWorkerQueue
 from src.infra.fs_do_template_catalog import FileSystemDoTemplateCatalog
@@ -149,13 +150,9 @@ async def get_job_scheduler() -> JobScheduler:
 async def get_job_service(audit_ctx: AuditContext = Depends(get_audit_context)) -> JobService:
     return JobService(
         store=_job_store_cached(),
-        scheduler=_job_scheduler_cached(),
-        plan_service=_plan_service_cached(),
-        state_machine=_job_state_machine_cached(),
-        idempotency=_job_idempotency_cached(),
-        metrics=_metrics_cached(),
-        audit=_audit_logger_cached(),
-        audit_context=audit_ctx,
+        scheduler=_job_scheduler_cached(), plan_service=_plan_service_cached(),
+        state_machine=_job_state_machine_cached(), idempotency=_job_idempotency_cached(),
+        metrics=_metrics_cached(), audit=_audit_logger_cached(), audit_context=audit_ctx,
     )
 
 
@@ -171,10 +168,8 @@ async def get_artifacts_service() -> ArtifactsService:
 
 async def get_draft_service() -> DraftService:
     return DraftService(
-        store=_job_store_cached(),
-        llm=_llm_client_cached(),
-        state_machine=_job_state_machine_cached(),
-        workspace=_job_workspace_store_cached(),
+        store=_job_store_cached(), llm=_llm_client_cached(),
+        state_machine=_job_state_machine_cached(), workspace=_job_workspace_store_cached(),
         do_template_selection=_do_template_selection_service_cached(),
     )
 
@@ -212,8 +207,7 @@ def _job_query_service_cached() -> JobQueryService:
 def _plan_service_cached() -> PlanService:
     config = _config_cached()
     return PlanService(
-        store=_job_store_cached(),
-        workspace=_job_workspace_store_cached(),
+        store=_job_store_cached(), workspace=_job_workspace_store_cached(),
         do_template_catalog=FileSystemDoTemplateCatalog(library_dir=config.do_template_library_dir),
         do_template_repo=FileSystemDoTemplateRepository(library_dir=config.do_template_library_dir),
     )
@@ -258,11 +252,8 @@ def _upload_session_store_cached() -> FileUploadSessionStore:
 @lru_cache
 def _upload_sessions_service_cached() -> UploadSessionsService:
     return UploadSessionsService(
-        config=_config_cached(),
-        store=_job_store_cached(),
-        workspace=_job_workspace_store_cached(),
-        object_store=_object_store_cached(),
-        bundle_service=_upload_bundle_service_cached(),
+        config=_config_cached(), store=_job_store_cached(), workspace=_job_workspace_store_cached(),
+        object_store=_object_store_cached(), bundle_service=_upload_bundle_service_cached(),
         session_store=_upload_session_store_cached(),
     )
 
@@ -281,7 +272,10 @@ async def get_plan_service() -> PlanService:
 
 @lru_cache
 def _task_code_redeem_service_cached() -> TaskCodeRedeemService:
-    return TaskCodeRedeemService(store=_job_store_cached(), now=utc_now)
+    return TaskCodeRedeemService(
+        store=_job_store_cached(), now=utc_now,
+        task_codes=FileTaskCodeStore(data_dir=_config_cached().admin_data_dir),
+    )
 
 
 async def get_task_code_redeem_service() -> TaskCodeRedeemService:
@@ -289,24 +283,13 @@ async def get_task_code_redeem_service() -> TaskCodeRedeemService:
 
 
 def clear_dependency_caches() -> None:
-    _config_cached.cache_clear()
-    _job_store_cached.cache_clear()
-    _worker_queue_cached.cache_clear()
-    _llm_client_cached.cache_clear()
-    _job_state_machine_cached.cache_clear()
-    _job_idempotency_cached.cache_clear()
-    _metrics_cached.cache_clear()
-    _audit_logger_cached.cache_clear()
-    _job_scheduler_cached.cache_clear()
-    _artifacts_service_cached.cache_clear()
-    _job_workspace_store_cached.cache_clear()
-    _do_template_catalog_cached.cache_clear()
-    _do_template_selection_service_cached.cache_clear()
-    _job_inputs_service_cached.cache_clear()
-    _upload_bundle_service_cached.cache_clear()
-    _object_store_cached.cache_clear()
-    _upload_session_store_cached.cache_clear()
-    _upload_sessions_service_cached.cache_clear()
-    _job_query_service_cached.cache_clear()
-    _plan_service_cached.cache_clear()
-    _task_code_redeem_service_cached.cache_clear()
+    for cache in (
+        _config_cached, _job_store_cached, _worker_queue_cached, _llm_client_cached,
+        _job_state_machine_cached, _job_idempotency_cached, _metrics_cached, _audit_logger_cached,
+        _job_scheduler_cached, _artifacts_service_cached, _job_workspace_store_cached,
+        _do_template_catalog_cached, _do_template_selection_service_cached,
+        _job_inputs_service_cached, _upload_bundle_service_cached, _object_store_cached,
+        _upload_session_store_cached, _upload_sessions_service_cached, _job_query_service_cached,
+        _plan_service_cached, _task_code_redeem_service_cached,
+    ):
+        cache.cache_clear()

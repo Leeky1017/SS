@@ -18,6 +18,9 @@ def _test_config(*, upload_object_store_backend: str) -> Config:
         job_store_redis_url="",
         queue_dir=Path("/tmp/ss-tests/queue"),
         queue_lease_ttl_seconds=60,
+        admin_data_dir=Path("/tmp/ss-tests/jobs") / "_admin",
+        admin_username="admin",
+        admin_password="admin",
         do_template_library_dir=Path("/tmp/ss-tests/assets"),
         stata_cmd=tuple(),
         log_level="INFO",
@@ -65,4 +68,3 @@ def test_build_object_store_with_s3_backend_returns_s3_store() -> None:
     store = build_object_store(config=config)
 
     assert isinstance(store, S3ObjectStore)
-

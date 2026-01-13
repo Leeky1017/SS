@@ -16,6 +16,11 @@ export default defineConfig(({ mode }) => {
               changeOrigin: true,
               secure: false,
             },
+            '/api/admin': {
+              target: devProxyTarget,
+              changeOrigin: true,
+              secure: false,
+            },
           },
         }
       : undefined,

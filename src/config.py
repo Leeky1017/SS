@@ -35,6 +35,9 @@ class Config:
     job_store_redis_url: str
     queue_dir: Path
     queue_lease_ttl_seconds: int
+    admin_data_dir: Path
+    admin_username: str
+    admin_password: str
     do_template_library_dir: Path
     stata_cmd: tuple[str, ...]
     log_level: str
@@ -111,6 +114,12 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     job_store_redis_url = str(e.get("SS_JOB_STORE_REDIS_URL", "")).strip()
     queue_dir = Path(str(e.get("SS_QUEUE_DIR", "./queue"))).expanduser()
     queue_lease_ttl_seconds = _int_value(str(e.get("SS_QUEUE_LEASE_TTL_SECONDS", "60")), default=60)
+    admin_data_dir = Path(str(e.get("SS_ADMIN_DATA_DIR", str(jobs_dir / "_admin")))).expanduser()
+    admin_username = str(e.get("SS_ADMIN_USERNAME", "admin")).strip()
+    admin_username = "admin" if admin_username == "" else admin_username
+    admin_password = str(e.get("SS_ADMIN_PASSWORD", "")).strip()
+    if admin_password == "" and ss_env == "development":
+        admin_password = "admin"
     do_template_library_dir = Path(
         str(e.get("SS_DO_TEMPLATE_LIBRARY_DIR", "./assets/stata_do_library"))
     ).expanduser()
@@ -235,6 +244,9 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         job_store_redis_url=job_store_redis_url,
         queue_dir=queue_dir,
         queue_lease_ttl_seconds=queue_lease_ttl_seconds,
+        admin_data_dir=admin_data_dir,
+        admin_username=admin_username,
+        admin_password=admin_password,
         do_template_library_dir=do_template_library_dir,
         stata_cmd=stata_cmd,
         log_level=log_level,
