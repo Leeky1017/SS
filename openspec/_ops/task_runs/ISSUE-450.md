@@ -1,7 +1,7 @@
 # ISSUE-450
 - Issue: #450
 - Branch: task/450-draft-preview-enhance
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/453
 
 ## Goal
 - Enhance `draft_preview` LLM schema to v2 so draft extraction supports panel/DID/IV setups (time/entity/cluster/FE/interactions/instruments).
@@ -12,12 +12,12 @@
 - Add unit tests, update canonical spec, run `ruff`/`pytest`, open PR + auto-merge
 
 ## Status
-- CURRENT: Implementation + tests green; preparing PR + auto-merge.
+- CURRENT: PR opened and auto-merge enabled; waiting for required checks.
 
 ## Next Actions
-- [ ] Create PR and enable auto-merge
-- [ ] Verify required checks are green
-- [ ] Verify PR is MERGED, sync controlplane, cleanup worktree
+- [ ] Watch PR checks and verify merge (mergedAt != null)
+- [ ] Sync controlplane `main` to `origin/main`
+- [ ] Cleanup worktree
 
 ## Decisions Made
 - 2026-01-13: Keep v1 JSON parsing as fallback for backward compatibility.
@@ -62,3 +62,22 @@
   - `366 passed, 5 skipped`
 - Evidence:
   - `tests/unit/test_draft_preview_llm.py`
+
+### 2026-01-13 23:23 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - `scripts/agent_pr_preflight.sh`
+
+### 2026-01-13 23:24 PR created + auto-merge enabled
+- Command:
+  - `gh pr create --title "Draft preview variable extraction v2 (#450)" --body "Closes #450 ..."`
+  - `gh pr merge --auto --squash 453`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/453`
+  - `will be automatically merged via squash when all requirements are met`
+- Evidence:
+  - `openspec/_ops/task_runs/ISSUE-450.md`
