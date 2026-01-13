@@ -131,3 +131,11 @@
   - `Success: no issues found in 213 source files`
 - Evidence:
   - `src/domain/plan_service_llm_builder.py`
+
+### 2026-01-14 04:02 Archive Rulebook task
+- Command:
+  - `rulebook task archive issue-451-plan-generation-llm`
+- Key output:
+  - `✅ Task issue-451-plan-generation-llm archived successfully`
+- Evidence:
+  - `rulebook/tasks/archive/2026-01-13-issue-451-plan-generation-llm/`
