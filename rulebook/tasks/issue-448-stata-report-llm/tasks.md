@@ -16,5 +16,5 @@
 - [x] Run `ruff check .`
 - [x] Run `pytest -q`
 - [x] Add RUN_LOG (`openspec/_ops/task_runs/ISSUE-448.md`)
-- [ ] Run `scripts/agent_pr_preflight.sh`
-- [ ] Create PR (`Closes #448`) + enable auto-merge
+- [x] Run `scripts/agent_pr_preflight.sh`
+- [x] Create PR (`Closes #448`) + enable auto-merge

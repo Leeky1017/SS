@@ -9,6 +9,7 @@ import csv
 import re
 from io import StringIO
 from pathlib import Path
+from typing import Literal
 
 from src.domain.stata_report_models import CoefficientRow, MainResultSummary
 
@@ -207,7 +208,7 @@ def _safe_int(value: str | None) -> int | None:
         return None
 
 
-def _determine_significance(p_value: float | None) -> str:
+def _determine_significance(p_value: float | None) -> Literal["***", "**", "*", ""]:
     """Determine significance stars from p-value."""
     if p_value is None:
         return ""
