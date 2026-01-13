@@ -8,7 +8,7 @@ from src.domain.dataset_preview import dataset_preview_with_options
 from src.domain.do_template_selection_service import DoTemplateSelectionService
 from src.domain.draft_preview_llm import (
     apply_structured_fields_from_llm_text,
-    build_draft_preview_prompt,
+    build_draft_preview_prompt_v2,
 )
 from src.domain.draft_v1_contract import (
     DraftPatchResult,
@@ -171,7 +171,7 @@ class DraftService:
     def _draft_preview_prompt(self, *, tenant_id: str, job: Job) -> str:
         requirement = job.requirement if job.requirement is not None else ""
         column_candidates, _ = self._primary_dataset_columns(tenant_id=tenant_id, job_id=job.job_id)
-        return build_draft_preview_prompt(
+        return build_draft_preview_prompt_v2(
             requirement=requirement,
             column_candidates=column_candidates,
         )
