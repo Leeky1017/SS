@@ -17,9 +17,10 @@ async def test_startup_in_production_without_s3_config_raises_configuration_erro
     monkeypatch.setenv("SS_ENV", "production")
     monkeypatch.setenv("SS_JOBS_DIR", str(tmp_path / "jobs"))
     monkeypatch.setenv("SS_QUEUE_DIR", str(tmp_path / "queue"))
-    monkeypatch.delenv("SS_UPLOAD_S3_BUCKET", raising=False)
-    monkeypatch.delenv("SS_UPLOAD_S3_ACCESS_KEY_ID", raising=False)
-    monkeypatch.delenv("SS_UPLOAD_S3_SECRET_ACCESS_KEY", raising=False)
+    monkeypatch.setenv("SS_UPLOAD_OBJECT_STORE_BACKEND", "s3")
+    monkeypatch.setenv("SS_UPLOAD_S3_BUCKET", "")
+    monkeypatch.setenv("SS_UPLOAD_S3_ACCESS_KEY_ID", "")
+    monkeypatch.setenv("SS_UPLOAD_S3_SECRET_ACCESS_KEY", "")
 
     app = create_app()
 
@@ -29,4 +30,3 @@ async def test_startup_in_production_without_s3_config_raises_configuration_erro
 
     assert excinfo.value.error_code == "OBJECT_STORE_CONFIG_INVALID"
     assert "missing SS_UPLOAD_S3_BUCKET" in excinfo.value.message
-

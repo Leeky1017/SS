@@ -91,6 +91,10 @@ Auth semantics (v1):
 - A token that is not recognized MUST return HTTP `403` + `AUTH_TOKEN_INVALID`.
 - A token that is recognized but does not authorize access to the `job_id` MUST return HTTP `403` + `AUTH_TOKEN_FORBIDDEN`.
 
+#### Scenario: V1 job creation endpoint is not routable
+- **WHEN** `POST /v1/jobs` is called
+- **THEN** SS returns HTTP `404` (even when `frontend/dist` is served at `/`)
+
 #### Scenario: Missing token is rejected with a stable 401 error_code
 - **WHEN** `GET /v1/jobs/{job_id}/draft/preview` is called without `Authorization` for a redeem-created job
 - **THEN** the response is HTTP `401` with `{"error_code":"AUTH_BEARER_TOKEN_MISSING","message":"..."}`
