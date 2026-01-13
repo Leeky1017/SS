@@ -111,178 +111,42 @@ requires-python = ">=3.12"
 
 ---
 
-### 4. **缺乏数据迁移/版本升级策略** 🔴 (优先级：高)
+### 4. **缺乏数据迁移/版本升级策略** ✅ 已解决（原优先级：高）
 
-**当前状态**：
-```python
-# src/domain/models.py
-JOB_SCHEMA_VERSION_V1 = 1
-LLM_PLAN_VERSION_V1 = 1
+**状态**：✅ 已解决 —— 已实现 Job schema 的 V1 → V2 → V3 自动迁移（读兼容、写入当前版本）。
 
-# src/infra/job_store.py
-def _assert_supported_schema_version(self, *, job_id: str, path: Path, payload: dict) -> None:
-    schema_version = payload.get("schema_version")
-    if schema_version != JOB_SCHEMA_VERSION_V1:
-        raise JobDataCorruptedError(job_id=job_id)
-```
+**当前实现（代码）**：
+- `src/domain/models.py`：`JOB_SCHEMA_VERSION_V1/V2/V3`、`JOB_SCHEMA_VERSION_CURRENT`、`SUPPORTED_JOB_SCHEMA_VERSIONS`
+- `src/infra/job_store_migrations.py`：`assert_supported_schema_version()` + `migrate_payload_to_current()`（包含 `_migrate_v1_to_v2()`、`_migrate_v2_to_v3()`）
+- `src/infra/job_store.py`：`load()` 读取后迁移；若发生迁移则用 `atomic_write_json()` 原子回写到同一 `job.json`
 
-**问题**：
-- 如果未来升级到 `V2`（比如添加新字段），所有 V1 的 job.json 会立即拒绝加载
-- 无迁移路径，只有强制升级
-- 无版本兼容性矩阵，不知道哪些字段是可选的、如何逐步升级
+**行为说明**：
+- 读：允许加载 `schema_version in {1, 2, 3}`；旧版本会迁移到 `JOB_SCHEMA_VERSION_CURRENT`
+- 写：`create()`/`save()` 要求 `job.schema_version == JOB_SCHEMA_VERSION_CURRENT`，避免写出旧 schema
+- 追踪：迁移时记录 `SS_JOB_JSON_SCHEMA_MIGRATED`（含 `from_version`/`to_version`）
 
-**改进方案**：
+**补充**：迁移后的 payload 会回写到磁盘，确保后续读取不再重复迁移。
 
-**方案 A：向前兼容（推荐）**
-```python
-# src/domain/models.py
-SUPPORTED_JOB_SCHEMA_VERSIONS = [1, 2]  # 支持的版本列表
-
-# src/infra/job_store.py
-def load(self, job_id: str) -> Job:
-    ...
-    schema_version = payload.get("schema_version")
-    if schema_version not in SUPPORTED_JOB_SCHEMA_VERSIONS:
-        raise JobDataCorruptedError(job_id=job_id)
-    
-    # 如果 V1，进行迁移
-    if schema_version == 1:
-        payload = self._migrate_v1_to_v2(payload)
-    
-    return Job.model_validate(payload)
-
-def _migrate_v1_to_v2(self, payload: dict) -> dict:
-    """Add new V2 fields with defaults."""
-    payload["new_field_v2"] = payload.get("new_field_v2", "default_value")
-    payload["schema_version"] = 2
-    return payload
-```
-
-**方案 B：分离读写版本**
-```python
-# 读：支持 V1, V2, V3
-# 写：只写 V3（最新版）
-def load(self, job_id: str) -> Job:
-    schema_version = payload.get("schema_version")
-    if schema_version not in [1, 2, 3]:
-        raise JobDataCorruptedError(job_id=job_id)
-    return Job.model_validate(self._normalize_to_v3(payload))
-
-def save(self, job: Job) -> None:
-    # 总是写 V3
-    payload = job.model_dump(mode="json")
-    payload["schema_version"] = 3
-    ...
-```
-
-**添加迁移日志/追踪**：
-```python
-logger.info(
-    "SS_JOB_SCHEMA_MIGRATED",
-    extra={
-        "job_id": job_id,
-        "from_version": schema_version,
-        "to_version": CURRENT_SCHEMA_VERSION,
-    }
-)
-```
-
-**预计工作量**：6-8 小时（包括测试）
+**预计工作量**：✅ 已完成
 
 ---
 
-### 5. **缺乏并发控制与竞态条件防护** 🔴 (优先级：高，部分)
+### 5. **缺乏并发控制与竞态条件防护** ✅ 已解决（原优先级：高）
 
-**当前状态**：
-```python
-# src/infra/job_store.py
-def save(self, job: Job) -> None:
-    path = self._job_path(job.job_id)
-    if not path.exists():
-        raise JobNotFoundError(job_id=job.job_id)
-    
-    # 原子写入：tempfile + os.replace ✓ 好
-    self._atomic_write(path, job.model_dump(mode="json"))
-```
+**状态**：✅ 已解决 —— 已实现“文件锁 + 乐观锁（`version`）+ 原子写入”三层防护。
 
-**问题**：
-- 原子写入本身是安全的（tempfile + os.replace）✓
-- **但**：读取 → 修改 → 写入 的三步操作**不是原子的**（race condition）
+**当前实现（代码）**：
+- `src/utils/file_lock.py`：`exclusive_lock()`（Unix `fcntl.flock`；Windows `msvcrt.locking`）
+- `src/domain/models.py`：`Job.version`（`ge=1`）
+- `src/infra/job_store.py`：`JobStore.save()` 使用 `job.json.lock` 串行化读-改-写，并校验/递增 `version`
+- `src/infra/exceptions.py`：`JobVersionConflictError`（HTTP 409）
 
-**具体场景**：
-```
-Thread A:                          Thread B:
-1. load(job_id) → job v1
-                                   1. load(job_id) → job v1
-2. modify job (set status=X)
-                                   2. modify job (set status=Y)
-3. save(job with status=X)
-                                   3. save(job with status=Y)  ← B 覆盖 A！
-```
+**行为说明**：
+- `save()` 在持有 `job.json.lock` 时读取最新 `job.json`，并先迁移到当前 schema 后再做版本校验
+- 当 `job.version != disk_version` 时拒绝覆盖，抛出 `JobVersionConflictError`
+- 写入采用 `atomic_write_json()`（tempfile + `os.replace`），避免部分写入/文件损坏
 
-**影响**：
-- 多个 worker 或 API 服务器同时修改同一 job
-- 状态转移可能被打破（状态机中间态被覆盖）
-- `confirm_job()` 与 worker 同时运行时容易发生
-
-**改进方案**：
-
-**方案 A：乐观锁（推荐，轻量）**
-```python
-class Job(BaseModel):
-    version: int = 1  # 新增版本字段
-    ...
-
-def save(self, job: Job) -> None:
-    path = self._job_path(job.job_id)
-    raw = json.loads(path.read_text())
-    
-    # 检查版本是否改变
-    if raw.get("version", 1) != job.version:
-        raise JobConcurrentModificationError(job_id=job.job_id)
-    
-    # 递增版本
-    payload = job.model_dump(mode="json")
-    payload["version"] = job.version + 1
-    self._atomic_write(path, payload)
-```
-
-**方案 B：文件锁（重量级，但更安全）**
-```python
-import fcntl
-
-def save(self, job: Job) -> None:
-    path = self._job_path(job.job_id)
-    lock_path = path.with_suffix(".lock")
-    
-    with open(lock_path, "w") as lock_file:
-        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)  # 排他锁
-        try:
-            # 安全的读-改-写
-            self._atomic_write(path, job.model_dump(mode="json"))
-        finally:
-            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
-```
-
-**方案 C：状态机强化（最佳，配合 ensure_transition）**
-```python
-# 当前已有的 ensure_transition 检查
-if self._state_machine.ensure_transition(
-    job_id=job_id,
-    from_status=job.status,
-    to_status=new_status,
-):
-    job.status = new_status
-    self._store.save(job)
-```
-这实际上提供了一定的保护，但并不足够，因为 ensure_transition 只检查逻辑，不防止物理并发。
-
-**推荐采用方案 A + C 的组合**：
-- 在 `Job` 中添加 `version` 字段
-- 修改 `JobStore.save()` 检查版本
-- 状态机继续做逻辑检查
-
-**预计工作量**：8-10 小时
+**预计工作量**：✅ 已完成
 
 ---
 
