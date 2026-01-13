@@ -4,7 +4,7 @@ import logging
 from json import JSONDecodeError
 from typing import cast
 
-from src.domain.dataset_preview import dataset_preview
+from src.domain.dataset_preview import dataset_preview_with_options
 from src.domain.do_template_selection_service import DoTemplateSelectionService
 from src.domain.draft_preview_llm import (
     apply_structured_fields_from_llm_text,
@@ -19,7 +19,11 @@ from src.domain.draft_v1_contract import (
     pending_inputs_upload_result,
     v1_contract_fields,
 )
-from src.domain.inputs_manifest import primary_dataset_details, read_manifest_json
+from src.domain.inputs_manifest import (
+    primary_dataset_details,
+    primary_dataset_excel_options,
+    read_manifest_json,
+)
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.llm_client import LLMClient
@@ -259,8 +263,13 @@ class DraftService:
                 job_id=job_id,
                 rel_path=dataset_rel_path,
             )
-            preview = dataset_preview(path=dataset_path, fmt=fmt, rows=1, columns=300)
-        except (FileNotFoundError, OSError, JSONDecodeError, InputPathUnsafeError, ValueError) as e:
+            sheet_name, header_row = primary_dataset_excel_options(manifest)
+            preview = dataset_preview_with_options(
+                path=dataset_path, fmt=fmt, rows=1, columns=300, sheet_name=sheet_name,
+                header_row=header_row
+            )
+        except (FileNotFoundError, KeyError, OSError, JSONDecodeError,
+                InputPathUnsafeError, ValueError) as e:
             logger.warning(
                 "SS_DRAFT_PREVIEW_DATASET_PREVIEW_FAILED",
                 extra={

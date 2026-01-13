@@ -119,3 +119,22 @@ class InputMainDataSourceNotFoundError(SSError):
             message=f"main_data_source_id not found: {main_data_source_id}",
             status_code=400,
         )
+
+
+class InputExcelSheetSelectionUnsupportedError(SSError):
+    def __init__(self, *, format: str) -> None:
+        super().__init__(
+            error_code="INPUT_EXCEL_SHEET_SELECTION_UNSUPPORTED",
+            message=f"excel sheet selection unsupported for format: {format}",
+            status_code=400,
+        )
+
+
+class InputExcelSheetNotFoundError(SSError):
+    def __init__(self, *, sheet_name: str, available: list[str]) -> None:
+        hint = "" if len(available) == 0 else f" available={','.join(available[:20])}"
+        super().__init__(
+            error_code="INPUT_EXCEL_SHEET_NOT_FOUND",
+            message=f"excel sheet not found: {sheet_name}{hint}",
+            status_code=400,
+        )

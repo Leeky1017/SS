@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import logging
-import zipfile
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import cast
+from zipfile import BadZipFile
 
-from src.domain.dataset_preview import dataset_preview
+from src.domain.dataset_preview import dataset_preview_with_options
 from src.domain.inputs_manifest import (
     MANIFEST_REL_PATH,
     ROLE_PRIMARY_DATASET,
@@ -15,6 +15,7 @@ from src.domain.inputs_manifest import (
     manifest_payload,
     prepare_dataset,
     primary_dataset_details,
+    primary_dataset_excel_options,
     read_manifest_json,
 )
 from src.domain.job_store import JobStore
@@ -225,7 +226,7 @@ class JobInputsService:
 
     def _load_primary_manifest(
         self, *, tenant_id: str, job_id: str, manifest_rel_path: str
-    ) -> tuple[str, str, str]:
+    ) -> tuple[str, str, str, str | None, bool | None]:
         try:
             manifest_path = self._workspace.resolve_for_read(
                 tenant_id=tenant_id,
@@ -233,7 +234,9 @@ class JobInputsService:
                 rel_path=manifest_rel_path,
             )
             manifest = read_manifest_json(manifest_path)
-            return primary_dataset_details(manifest)
+            dataset_rel_path, fmt, original_name = primary_dataset_details(manifest)
+            sheet_name, header_row = primary_dataset_excel_options(manifest)
+            return dataset_rel_path, fmt, original_name, sheet_name, header_row
         except (FileNotFoundError, OSError, ValueError) as e:
             logger.warning(
                 "SS_INPUT_MANIFEST_READ_FAILED",
@@ -252,7 +255,7 @@ class JobInputsService:
         if manifest_rel_path is None:
             raise InputParseFailedError(filename=MANIFEST_REL_PATH, detail="manifest not set")
 
-        dataset_rel_path, fmt, original_name = self._load_primary_manifest(
+        dataset_rel_path, fmt, original_name, sheet_name, header_row = self._load_primary_manifest(
             tenant_id=tenant_id,
             job_id=job_id,
             manifest_rel_path=manifest_rel_path,
@@ -277,8 +280,11 @@ class JobInputsService:
             ) from e
 
         try:
-            preview = dataset_preview(path=dataset_path, fmt=fmt, rows=rows, columns=columns)
-        except (UnicodeDecodeError, ValueError, OSError, ImportError, zipfile.BadZipFile) as e:
+            preview = dataset_preview_with_options(
+                path=dataset_path, fmt=fmt, rows=rows, columns=columns,
+                sheet_name=sheet_name, header_row=header_row
+            )
+        except (KeyError, UnicodeDecodeError, ValueError, OSError, ImportError, BadZipFile) as e:
             logger.warning(
                 "SS_INPUT_PREVIEW_PARSE_FAILED",
                 extra={

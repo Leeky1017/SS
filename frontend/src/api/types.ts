@@ -89,6 +89,10 @@ export type InputsPreviewColumn = { name: string; inferred_type: string }
 export type InputsPreviewResponse = {
   job_id: string
   row_count: number | null
+  column_count?: number | null
+  sheet_names?: string[]
+  selected_sheet?: string | null
+  header_row?: boolean | null
   columns: InputsPreviewColumn[]
   sample_rows: Array<Record<string, string | number | boolean | null>>
 }

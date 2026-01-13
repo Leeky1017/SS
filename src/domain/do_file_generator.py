@@ -34,6 +34,8 @@ class PreparedDoTemplate:
     params: dict[str, str]
     dataset_job_rel_path: str
     dataset_format: str
+    dataset_sheet_name: str | None
+    dataset_header_row: bool | None
 
 
 @dataclass(frozen=True)
@@ -107,9 +109,26 @@ def _normalize_dataset_format(*, raw: object, rel_path: str) -> str:
     raise DoFileInputsManifestInvalidError(reason="primary_dataset_format_missing")
 
 
-def _extract_primary_dataset_info(inputs_manifest: Mapping[str, object]) -> tuple[str, str]:
+def _sheet_name_or_none(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+    candidate = value.strip()
+    return None if candidate == "" else candidate
+
+
+def _header_row_or_none(value: object) -> bool | None:
+    if isinstance(value, bool):
+        return value
+    return None
+
+
+def _extract_primary_dataset_info(
+    inputs_manifest: Mapping[str, object],
+) -> tuple[str, str, str | None, bool | None]:
     rel_path: object = ""
     fmt: object = ""
+    sheet_name: str | None = None
+    header_row: bool | None = None
     datasets = inputs_manifest.get("datasets")
     if isinstance(datasets, list):
         for item in datasets:
@@ -119,15 +138,21 @@ def _extract_primary_dataset_info(inputs_manifest: Mapping[str, object]) -> tupl
                 continue
             rel_path = item.get("rel_path", "")
             fmt = item.get("format", "")
+            sheet_name = _sheet_name_or_none(item.get("sheet_name"))
+            header_row = _header_row_or_none(item.get("header_row"))
             break
     else:
         dataset = inputs_manifest.get("primary_dataset")
         if isinstance(dataset, Mapping):
             rel_path = dataset.get("rel_path", "")
             fmt = dataset.get("format", "")
+            sheet_name = _sheet_name_or_none(dataset.get("sheet_name"))
+            header_row = _header_row_or_none(dataset.get("header_row"))
         else:
             rel_path = inputs_manifest.get("primary_dataset_rel_path", "")
             fmt = inputs_manifest.get("primary_dataset_format", "")
+            sheet_name = _sheet_name_or_none(inputs_manifest.get("primary_dataset_sheet_name"))
+            header_row = _header_row_or_none(inputs_manifest.get("primary_dataset_header_row"))
 
     if not isinstance(rel_path, str):
         raise DoFileInputsManifestInvalidError(reason="primary_dataset_rel_path_not_string")
@@ -135,12 +160,14 @@ def _extract_primary_dataset_info(inputs_manifest: Mapping[str, object]) -> tupl
         raise DoFileInputsManifestInvalidError(reason="primary_dataset_rel_path_missing")
     if not is_safe_job_rel_path(rel_path):
         raise DoFileInputsManifestInvalidError(reason="primary_dataset_rel_path_unsafe")
-    return rel_path, _normalize_dataset_format(raw=fmt, rel_path=rel_path)
+    return rel_path, _normalize_dataset_format(raw=fmt, rel_path=rel_path), sheet_name, header_row
 
 def _stage_primary_dataset_as_library_inputs(
     *,
     dataset_job_rel_path: str,
     dataset_format: str,
+    dataset_sheet_name: str | None,
+    dataset_header_row: bool | None,
 ) -> str:
     quoted_src = _stata_quote(dataset_job_rel_path)
     lines = [
@@ -156,9 +183,20 @@ def _stage_primary_dataset_as_library_inputs(
     elif dataset_format == "dta":
         lines.append(f"copy {quoted_src} \"data.dta\", replace")
     else:
+        sheet_opt = (
+            None
+            if dataset_sheet_name is None
+            else f"sheet({_stata_quote(dataset_sheet_name)})"
+        )
+        options = []
+        if sheet_opt is not None:
+            options.append(sheet_opt)
+        if dataset_header_row is not False:
+            options.append("firstrow")
+        options.append("clear")
         lines.extend(
             [
-                f"import excel {quoted_src}, firstrow clear",
+                f"import excel {quoted_src}, {' '.join(options)}",
                 "save \"data.dta\", replace",
             ]
         )
@@ -186,7 +224,9 @@ class DoFileGenerator:
     ) -> PreparedDoTemplate:
         step = _extract_generate_step(plan)
         template_id = _extract_template(step)
-        dataset_rel_path, dataset_format = _extract_primary_dataset_info(inputs_manifest)
+        dataset_rel_path, dataset_format, dataset_sheet_name, dataset_header_row = (
+            _extract_primary_dataset_info(inputs_manifest)
+        )
         params = _extract_template_params(step)
 
         repo = self.do_template_repo
@@ -203,6 +243,8 @@ class DoFileGenerator:
             params=params,
             dataset_job_rel_path=dataset_rel_path,
             dataset_format=dataset_format,
+            dataset_sheet_name=dataset_sheet_name,
+            dataset_header_row=dataset_header_row,
         )
 
     def generate_from_prepared(self, *, prepared: PreparedDoTemplate) -> GeneratedDoFile:
@@ -216,6 +258,8 @@ class DoFileGenerator:
         staged = _stage_primary_dataset_as_library_inputs(
             dataset_job_rel_path=prepared.dataset_job_rel_path,
             dataset_format=prepared.dataset_format,
+            dataset_sheet_name=prepared.dataset_sheet_name,
+            dataset_header_row=prepared.dataset_header_row,
         )
         outputs = _expected_outputs_from_meta(template_id=prepared.template_id, meta=prepared.meta)
         return GeneratedDoFile(

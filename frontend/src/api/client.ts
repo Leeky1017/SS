@@ -83,7 +83,35 @@ export class ApiClient {
   }
 
   public async previewInputs(jobId: string): Promise<ApiResult<InputsPreviewResponse>> {
-    return await this.getJson<InputsPreviewResponse>(`/jobs/${jobId}/inputs/preview`, jobId)
+    return await this.previewInputsWithOptions(jobId, {})
+  }
+
+  public async previewInputsWithOptions(
+    jobId: string,
+    options: { rows?: number; columns?: number } = {},
+  ): Promise<ApiResult<InputsPreviewResponse>> {
+    const params = new URLSearchParams()
+    if (options.rows !== undefined) params.set('rows', String(options.rows))
+    if (options.columns !== undefined) params.set('columns', String(options.columns))
+    const suffix = params.toString()
+    const path = suffix ? `/jobs/${jobId}/inputs/preview?${suffix}` : `/jobs/${jobId}/inputs/preview`
+    return await this.getJson<InputsPreviewResponse>(path, jobId)
+  }
+
+  public async selectPrimaryExcelSheet(
+    jobId: string,
+    sheetName: string,
+    options: { rows?: number; columns?: number } = {},
+  ): Promise<ApiResult<InputsPreviewResponse>> {
+    const params = new URLSearchParams()
+    params.set('sheet_name', sheetName)
+    if (options.rows !== undefined) params.set('rows', String(options.rows))
+    if (options.columns !== undefined) params.set('columns', String(options.columns))
+    return await this.request<InputsPreviewResponse>({
+      path: `/jobs/${jobId}/inputs/primary/sheet?${params.toString()}`,
+      method: 'POST',
+      jobId,
+    })
   }
 
   public async previewDraft(jobId: string): Promise<ApiResult<DraftPreviewResponse>> {
