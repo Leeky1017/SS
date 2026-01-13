@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import fcntl
 import json
 import logging
 from collections.abc import Iterator
@@ -18,6 +17,7 @@ from src.infra.upload_session_exceptions import (
     UploadSessionCorruptedError,
     UploadSessionNotFoundError,
 )
+from src.utils.file_lock import lock_file, unlock_file
 from src.utils.job_workspace import resolve_job_dir
 from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID
@@ -36,9 +36,12 @@ class FileUploadSessionStore(UploadSessionStore):
             raise JobNotFoundError(job_id=job_id)
         lock_path = job_dir / "inputs" / "upload_sessions.lock"
         lock_path.parent.mkdir(parents=True, exist_ok=True)
-        with lock_path.open("a+", encoding="utf-8") as lock_file:
-            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
-            yield
+        with lock_path.open("a+", encoding="utf-8") as lock_file_handle:
+            lock_file(lock_file_handle)
+            try:
+                yield
+            finally:
+                unlock_file(lock_file_handle)
 
     def _session_path(
         self,

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import fcntl
 import json
 import logging
 import os
@@ -30,6 +29,7 @@ from src.infra.job_store_migrations import (
     assert_supported_schema_version,
     migrate_payload_to_current,
 )
+from src.utils.file_lock import lock_file, unlock_file
 from src.utils.job_workspace import is_safe_path_segment, shard_for_job_id
 from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID, tenant_jobs_dir
@@ -213,39 +213,42 @@ class JobStore:
             raise JobDataCorruptedError(job_id=job.job_id)
         lock_path = self._job_lock_path(tenant_id=tenant_id, job_id=job.job_id)
         try:
-            with lock_path.open("a+", encoding="utf-8") as lock_file:
-                fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
-                payload = self._read_job_payload(job_id=job.job_id, path=path)
-                assert_supported_schema_version(job_id=job.job_id, path=path, payload=payload)
-                current = migrate_payload_to_current(job_id=job.job_id, path=path, payload=payload)
-                disk_version = current.get("version", 1)
-                if not isinstance(disk_version, int) or disk_version < 1:
-                    logger.warning(
-                        "SS_JOB_JSON_CORRUPTED",
-                        extra={
-                            "job_id": job.job_id,
-                            "path": str(path),
-                            "reason": "version_invalid",
-                        },
-                    )
-                    raise JobDataCorruptedError(job_id=job.job_id)
-                if job.version != disk_version:
-                    logger.warning(
-                        "SS_JOB_JSON_VERSION_CONFLICT",
-                        extra={
-                            "job_id": job.job_id,
-                            "path": str(path),
-                            "expected_version": job.version,
-                            "actual_version": disk_version,
-                        },
-                    )
-                    raise JobVersionConflictError(
-                        job_id=job.job_id, expected_version=job.version, actual_version=disk_version
-                    )
-                new_version = disk_version + 1
-                to_write = job.model_copy(update={"version": new_version})
-                self._atomic_write(path, cast(JsonObject, to_write.model_dump(mode="json")))
-                job.version = new_version
+            with lock_path.open("a+", encoding="utf-8") as lock_file_handle:
+                lock_file(lock_file_handle)
+                try:
+                    payload = self._read_job_payload(job_id=job.job_id, path=path)
+                    assert_supported_schema_version(job_id=job.job_id, path=path, payload=payload)
+                    current = migrate_payload_to_current(job_id=job.job_id, path=path, payload=payload)
+                    disk_version = current.get("version", 1)
+                    if not isinstance(disk_version, int) or disk_version < 1:
+                        logger.warning(
+                            "SS_JOB_JSON_CORRUPTED",
+                            extra={
+                                "job_id": job.job_id,
+                                "path": str(path),
+                                "reason": "version_invalid",
+                            },
+                        )
+                        raise JobDataCorruptedError(job_id=job.job_id)
+                    if job.version != disk_version:
+                        logger.warning(
+                            "SS_JOB_JSON_VERSION_CONFLICT",
+                            extra={
+                                "job_id": job.job_id,
+                                "path": str(path),
+                                "expected_version": job.version,
+                                "actual_version": disk_version,
+                            },
+                        )
+                        raise JobVersionConflictError(
+                            job_id=job.job_id, expected_version=job.version, actual_version=disk_version
+                        )
+                    new_version = disk_version + 1
+                    to_write = job.model_copy(update={"version": new_version})
+                    self._atomic_write(path, cast(JsonObject, to_write.model_dump(mode="json")))
+                    job.version = new_version
+                finally:
+                    unlock_file(lock_file_handle)
         except OSError as e:
             logger.warning(
                 "SS_JOB_JSON_WRITE_FAILED",

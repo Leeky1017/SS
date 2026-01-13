@@ -1,0 +1,4 @@
+# Generated release artifacts
+*.tar.gz
+*.zip
+ss-*/
