@@ -38,6 +38,7 @@ class AuthTokenForbiddenError(SSError):
             status_code=403,
         )
 
+
 class TaskCodeInvalidError(SSError):
     def __init__(self) -> None:
         super().__init__(
@@ -53,4 +54,22 @@ class TaskCodeRedeemConflictError(SSError):
             error_code="TASK_CODE_REDEEM_CONFLICT",
             message="task_code redemption conflicted with an existing job",
             status_code=409,
+        )
+
+
+class TaskCodeExpiredError(SSError):
+    def __init__(self) -> None:
+        super().__init__(
+            error_code="TASK_CODE_EXPIRED",
+            message="task_code is expired",
+            status_code=400,
+        )
+
+
+class TaskCodeRevokedError(SSError):
+    def __init__(self) -> None:
+        super().__init__(
+            error_code="TASK_CODE_REVOKED",
+            message="task_code is revoked",
+            status_code=400,
         )

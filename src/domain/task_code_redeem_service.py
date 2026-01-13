@@ -8,7 +8,13 @@ from datetime import datetime, timedelta
 
 from src.domain.job_store import JobStore
 from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobStatus
-from src.infra.auth_exceptions import TaskCodeInvalidError, TaskCodeRedeemConflictError
+from src.domain.task_code_store import TaskCodeRecord, TaskCodeStore
+from src.infra.auth_exceptions import (
+    TaskCodeExpiredError,
+    TaskCodeInvalidError,
+    TaskCodeRedeemConflictError,
+    TaskCodeRevokedError,
+)
 from src.infra.exceptions import JobAlreadyExistsError, JobNotFoundError
 from src.utils.tenancy import DEFAULT_TENANT_ID
 
@@ -25,9 +31,16 @@ class TaskCodeRedeemResult:
 
 
 class TaskCodeRedeemService:
-    def __init__(self, *, store: JobStore, now: Callable[[], datetime]):
+    def __init__(
+        self,
+        *,
+        store: JobStore,
+        now: Callable[[], datetime],
+        task_codes: TaskCodeStore | None = None,
+    ):
         self._store = store
         self._now = now
+        self._task_codes = task_codes
 
     def redeem(
         self,
@@ -39,8 +52,10 @@ class TaskCodeRedeemService:
         normalized_task_code = task_code.strip()
         if normalized_task_code == "":
             raise TaskCodeInvalidError()
-        job_id = _derive_job_id(task_code=normalized_task_code)
         now = self._now()
+        issued = self._load_task_code_record(tenant_id=tenant_id, task_code=normalized_task_code)
+        _validate_task_code_record_or_raise(record=issued, now=now)
+        job_id = _derive_job_id(task_code=normalized_task_code)
         expires_at = _expires_at(now=now)
 
         job, is_idempotent = self._load_or_create_job(
@@ -49,6 +64,8 @@ class TaskCodeRedeemService:
             requirement=requirement,
             now=now,
         )
+        if issued is not None and self._task_codes is not None:
+            self._task_codes.mark_used(code_id=issued.code_id, job_id=job_id, used_at=now)
         if is_idempotent:
             job.auth_expires_at = expires_at
             self._store.save(tenant_id=tenant_id, job=job)
@@ -58,6 +75,16 @@ class TaskCodeRedeemService:
             expires_at=expires_at,
             is_idempotent=is_idempotent,
         )
+
+    def _load_task_code_record(
+        self,
+        *,
+        tenant_id: str,
+        task_code: str,
+    ) -> TaskCodeRecord | None:
+        if self._task_codes is None:
+            return None
+        return self._task_codes.find_by_code(tenant_id=tenant_id, task_code=task_code)
 
     def _load_or_create_job(
         self,
@@ -127,3 +154,13 @@ def _assert_task_code_matches(*, job: Job, task_code: str) -> None:
         raise TaskCodeRedeemConflictError()
     if stored != task_code:
         raise TaskCodeRedeemConflictError()
+
+
+def _validate_task_code_record_or_raise(*, record: TaskCodeRecord | None, now: datetime) -> None:
+    if record is None:
+        return
+    status = record.status(now=now)
+    if status == "revoked":
+        raise TaskCodeRevokedError()
+    if status == "expired":
+        raise TaskCodeExpiredError()

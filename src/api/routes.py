@@ -12,6 +12,7 @@ from src.api import (
     metrics,
     task_codes,
 )
+from src.api.admin.routes import router as admin_router
 from src.api.v1_auth import enforce_v1_job_bearer_auth
 
 ops_router = APIRouter()
@@ -37,3 +38,5 @@ api_v1_router.include_router(
     dependencies=[Depends(enforce_v1_job_bearer_auth)],
 )
 api_v1_router.include_router(task_codes.router)
+
+admin_api_router = admin_router
