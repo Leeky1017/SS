@@ -109,6 +109,14 @@ def create_app() -> FastAPI:
     app.include_router(ops_router, include_in_schema=False)
     app.add_exception_handler(SSError, _handle_ss_error)
     app.add_exception_handler(MemoryError, _handle_oom_error)
+
+    # Serve frontend static files if available
+    frontend_dist = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+    if os.path.isdir(frontend_dist):
+        from fastapi.staticfiles import StaticFiles
+        app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+        logger.info("SS_FRONTEND_MOUNTED", extra={"path": frontend_dist})
+
     return app
 
 
