@@ -12,11 +12,9 @@
 - Add unit tests, update canonical spec, run `ruff`/`pytest`, open PR + auto-merge
 
 ## Status
-- CURRENT: PR opened and auto-merge enabled; waiting for required checks.
+- CURRENT: PR merged; controlplane main synced; worktree cleanup pending.
 
 ## Next Actions
-- [ ] Watch PR checks and verify merge (mergedAt != null)
-- [ ] Sync controlplane `main` to `origin/main`
 - [ ] Cleanup worktree
 
 ## Decisions Made
@@ -81,3 +79,23 @@
   - `will be automatically merged via squash when all requirements are met`
 - Evidence:
   - `openspec/_ops/task_runs/ISSUE-450.md`
+
+### 2026-01-13 23:26 Checks green + merge verified
+- Command:
+  - `gh pr checks --watch 453`
+  - `gh pr view 453 --json state,mergedAt`
+- Key output:
+  - `All checks were successful`
+  - `state=MERGED`
+  - `mergedAt=2026-01-13T15:49:30Z`
+- Evidence:
+  - https://github.com/Leeky1017/SS/pull/453
+
+### 2026-01-13 23:30 Controlplane sync after merge
+- Command:
+  - `scripts/agent_controlplane_sync.sh`
+- Key output:
+  - `Fast-forward`
+  - `Updating 0497773..601aede`
+- Evidence:
+  - `scripts/agent_controlplane_sync.sh`
