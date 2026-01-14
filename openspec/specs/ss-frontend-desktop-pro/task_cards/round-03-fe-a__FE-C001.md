@@ -9,15 +9,13 @@
   - `openspec/specs/ss-constitution/spec.md`
   - `openspec/specs/ss-api-surface/spec.md`
 - Design source of truth:
-  - `index.html`
-  - `assets/desktop_pro_theme.css`
-  - `assets/desktop_pro_layout.css`
-  - `assets/desktop_pro_components.css`
-  - `assets/desktop_pro_step3.css`
+  - `frontend/src/styles/theme.css`
+  - `frontend/src/styles/layout.css`
+  - `frontend/src/styles/components.css`
 
 ## Problem
 
-目前 SS 的 Desktop Pro 前端是单文件 `index.html`，难以演进与复用；同时仍需要保持既有 Desktop Pro 视觉体系，避免引入 Tailwind/MUI 等新体系导致风格漂移。
+早期 SS 的 Desktop Pro 前端是单文件 `index.html`，难以演进与复用；同时仍需要保持既有 Desktop Pro 视觉体系，避免引入 Tailwind/MUI 等新体系导致风格漂移。
 
 ## Goal
 
@@ -27,7 +25,7 @@
 
 - 在仓库根创建 `frontend/`（Vite + React + TypeScript）
 - Desktop Pro 样式基线：
-  - 复用/迁移 `assets/desktop_pro_*.css` 的 CSS 变量语义与 primitives（`panel/section-label/btn/data-table/mono`）
+  - 复用/迁移 Desktop Pro 的 CSS 变量语义与 primitives（当前位于 `frontend/src/styles/*.css`；`panel/section-label/btn/data-table/mono`）
   - light/dark `data-theme` 切换
   - 基础布局（header/tabs/main 宽度、标题/lead 文案风格）
 - 不引入新视觉体系（不新增 Tailwind/MUI/Antd/shadcn 等）
@@ -49,4 +47,3 @@
 - [ ] 可手工验收：`cd frontend && npm run dev` 打开后具有 Desktop Pro 基础视觉（CSS 变量 + primitives + theme toggle）
 - [ ] 未引入 Tailwind/MUI/Antd/shadcn 等新视觉体系
 - [ ] Evidence: `openspec/_ops/task_runs/ISSUE-N.md` 记录关键命令与输出
-

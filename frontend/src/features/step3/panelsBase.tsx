@@ -1,5 +1,6 @@
 import type { ConfirmLockState } from '../../state/storage'
 import type { DraftPreviewReadyResponse } from '../../api/types'
+import { zhCN } from '../../i18n/zh-CN'
 
 export function Step3Header() {
   return (
@@ -9,8 +10,8 @@ export function Step3Header() {
         <div className="step-tick done" />
         <div className="step-tick active" />
       </div>
-      <h1>分析蓝图预检</h1>
-      <p className="lead">确认变量映射、查看风险提示并完成必要澄清；确认后将锁定并进入执行阶段。</p>
+      <h1>{zhCN.step3.title}</h1>
+      <p className="lead">{zhCN.step3.lead}</p>
     </>
   )
 }
@@ -20,8 +21,10 @@ export function LockedBanner(props: { lock: ConfirmLockState | null }) {
   return (
     <div className="panel">
       <div className="panel-body">
-        <div style={{ fontWeight: 600, marginBottom: 6 }}>已锁定（已确认）</div>
-        <div className="inline-hint">confirmed_at: {props.lock.confirmedAt}</div>
+        <div style={{ fontWeight: 600, marginBottom: 6 }}>{zhCN.step3.lockedTitle}</div>
+        <div className="inline-hint">
+          {zhCN.step3.confirmedAtLabel}: {props.lock.confirmedAt}
+        </div>
       </div>
     </div>
   )
@@ -31,10 +34,10 @@ export function PendingPanel(props: { message: string | null; retryAfterSeconds:
   return (
     <div className="panel">
       <div className="panel-body">
-        <div style={{ fontWeight: 600, marginBottom: 6 }}>预处理中…</div>
-        <div className="inline-hint">{props.message ?? '后端正在生成蓝图预览，请稍后自动重试。'}</div>
+        <div style={{ fontWeight: 600, marginBottom: 6 }}>{zhCN.step3.pendingTitle}</div>
+        <div className="inline-hint">{props.message ?? zhCN.step3.pendingDefaultMessage}</div>
         <div className="mono" style={{ marginTop: 10, color: 'var(--text-muted)' }}>
-          retry_after_seconds: {props.retryAfterSeconds}
+          {zhCN.step3.retryAfterSecondsLabel}: {props.retryAfterSeconds}
         </div>
       </div>
     </div>
@@ -42,36 +45,37 @@ export function PendingPanel(props: { message: string | null; retryAfterSeconds:
 }
 
 export function VariablesTable(props: { draft: DraftPreviewReadyResponse; applyCorrection: (v: string | null) => string | null }) {
+  const placeholderDash = zhCN.common.placeholderDash
   const outcome = props.applyCorrection(props.draft.outcome_var)
   const treatment = props.applyCorrection(props.draft.treatment_var)
-  const controls = props.draft.controls.map((v) => props.applyCorrection(v) ?? '—')
+  const controls = props.draft.controls.map((v) => props.applyCorrection(v) ?? placeholderDash)
 
   return (
     <div className="panel">
       <div className="panel-body">
         <span className="section-label" style={{ margin: 0 }}>
-          Variables
+          {zhCN.variables.heading}
         </span>
         <div className="data-table-wrap" style={{ marginTop: 12 }}>
           <table className="data-table">
             <thead>
               <tr>
-                <th>Role</th>
-                <th>Variable</th>
+                <th>{zhCN.variables.headers.role}</th>
+                <th>{zhCN.variables.headers.variable}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="mono">OUTCOME</td>
-                <td>{outcome ?? '—'}</td>
+                <td className="mono">{zhCN.variables.roles.outcome}</td>
+                <td>{outcome ?? placeholderDash}</td>
               </tr>
               <tr>
-                <td className="mono">TREATMENT</td>
-                <td>{treatment ?? '—'}</td>
+                <td className="mono">{zhCN.variables.roles.treatment}</td>
+                <td>{treatment ?? placeholderDash}</td>
               </tr>
               <tr>
-                <td className="mono">CONTROLS</td>
-                <td>{controls.length > 0 ? controls.join(', ') : '—'}</td>
+                <td className="mono">{zhCN.variables.roles.controls}</td>
+                <td>{controls.length > 0 ? controls.join(', ') : placeholderDash}</td>
               </tr>
             </tbody>
           </table>
@@ -82,21 +86,22 @@ export function VariablesTable(props: { draft: DraftPreviewReadyResponse; applyC
 }
 
 export function WarningsPanel(props: { warnings: DraftPreviewReadyResponse['data_quality_warnings'] }) {
+  const placeholderDash = zhCN.common.placeholderDash
   const warnings = props.warnings
   if (warnings === undefined || warnings.length === 0) return null
   return (
     <div className="panel">
       <div className="panel-body">
         <span className="section-label" style={{ margin: 0 }}>
-          Warnings
+          {zhCN.warnings.heading}
         </span>
         <div className="data-table-wrap" style={{ marginTop: 12, maxHeight: 220 }}>
           <table className="data-table">
             <thead>
               <tr>
-                <th>Severity</th>
-                <th>Message</th>
-                <th>Suggestion</th>
+                <th>{zhCN.warnings.headers.severity}</th>
+                <th>{zhCN.warnings.headers.message}</th>
+                <th>{zhCN.warnings.headers.suggestion}</th>
               </tr>
             </thead>
             <tbody>
@@ -104,7 +109,7 @@ export function WarningsPanel(props: { warnings: DraftPreviewReadyResponse['data
                 <tr key={idx}>
                   <td className="mono">{w.severity}</td>
                   <td>{w.message}</td>
-                  <td>{w.suggestion ?? '—'}</td>
+                  <td>{w.suggestion ?? placeholderDash}</td>
                 </tr>
               ))}
             </tbody>
@@ -120,7 +125,7 @@ export function DraftTextPanel(props: { draftText: string }) {
     <div className="panel">
       <div className="panel-body">
         <span className="section-label" style={{ margin: 0 }}>
-          Draft text
+          {zhCN.draft.heading}
         </span>
         <pre className="mono pre-wrap" style={{ marginTop: 12 }}>
           {props.draftText}
@@ -129,4 +134,3 @@ export function DraftTextPanel(props: { draftText: string }) {
     </div>
   )
 }
-
