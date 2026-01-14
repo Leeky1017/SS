@@ -50,7 +50,8 @@ export class ApiClient {
     if (this.isDevMockEnabled()) {
       const suffix = (payload.task_code || payload.requirement).slice(0, 12).replaceAll(/\s+/g, '-')
       const token = `token_mock_${suffix}_${Date.now().toString(16)}`
-      return { ok: true, value: { job_id: `job_mock_${suffix}`, token }, requestId: 'mock' }
+      const expires_at = new Date(Date.now() + 60 * 60 * 1000).toISOString()
+      return { ok: true, value: { job_id: `job_mock_${suffix}`, token, expires_at, is_idempotent: true }, requestId: 'mock' }
     }
     return await this.postJson<RedeemTaskCodeResponse>('/task-codes/redeem', payload, null)
   }

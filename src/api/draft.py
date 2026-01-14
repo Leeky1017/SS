@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal, cast
+
 from fastapi import APIRouter, Body, Depends, Query, Response
 
 from src.api.deps import get_draft_service, get_tenant_id
@@ -48,11 +50,25 @@ async def draft_preview(
         if main_data_source_id not in known:
             raise InputMainDataSourceNotFoundError(main_data_source_id=main_data_source_id)
 
+    decision_raw = draft_dump.get("decision")
+    decision: Literal["auto_freeze", "require_confirm", "require_confirm_with_downgrade"]
+    if isinstance(decision_raw, str) and decision_raw in {
+        "auto_freeze",
+        "require_confirm",
+        "require_confirm_with_downgrade",
+    }:
+        decision = cast(
+            Literal["auto_freeze", "require_confirm", "require_confirm_with_downgrade"],
+            decision_raw,
+        )
+    else:
+        decision = "require_confirm"
+
     return DraftPreviewResponse(
         job_id=job_id,
         draft_text=draft.text,
         draft_id=str(draft_dump.get("draft_id", "")),
-        decision=str(draft_dump.get("decision", "require_confirm")),
+        decision=decision,
         risk_score=float(draft_dump.get("risk_score", 0.0)),
         status=str(draft_dump.get("status", "ready")),
         outcome_var=draft.outcome_var,

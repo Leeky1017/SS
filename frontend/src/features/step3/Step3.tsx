@@ -131,15 +131,14 @@ export function Step3(props: Step3Props) {
     setActionError(null)
     setBusy(true)
     try {
-      const questions = draftState.draft.stage1_questions
-      const answersPayload = questions !== undefined && questions.length > 0 ? answers : undefined
-      const defaultOverrides = draftState.draft.default_overrides ?? {}
+      const answersPayload = draftState.draft.stage1_questions.length > 0 ? answers : {}
       const result = await props.api.confirmJob(jobId, {
         confirmed: true,
         notes: null,
         variable_corrections: variableCorrections,
-        default_overrides: defaultOverrides,
-        ...(answersPayload !== undefined ? { answers: answersPayload } : {}),
+        answers: answersPayload,
+        default_overrides: draftState.draft.default_overrides,
+        expert_suggestions_feedback: {},
       })
       if (!result.ok) {
         setActionError({ error: result.error, retry: () => void doConfirm(), retryLabel: zhCN.step3.retryConfirm })

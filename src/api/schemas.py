@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
-from src.utils.json_types import JsonValue
+from src.utils.json_types import JsonScalar, JsonValue
 
 
 class HealthCheck(BaseModel):
@@ -18,13 +18,13 @@ class HealthResponse(BaseModel):
     checked_at: str
 
 class ConfirmJobRequest(BaseModel):
-    confirmed: bool = True
+    confirmed: bool
     notes: str | None = None
     output_formats: list[str] | None = None
-    variable_corrections: dict[str, str] = Field(default_factory=dict)
-    answers: dict[str, JsonValue] = Field(default_factory=dict)
-    default_overrides: dict[str, JsonValue] = Field(default_factory=dict)
-    expert_suggestions_feedback: dict[str, JsonValue] = Field(default_factory=dict)
+    variable_corrections: dict[str, str]
+    answers: dict[str, JsonValue]
+    default_overrides: dict[str, JsonValue]
+    expert_suggestions_feedback: dict[str, JsonValue]
 
 
 class ConfirmJobResponse(BaseModel):
@@ -141,14 +141,17 @@ class DraftDataQualityWarning(BaseModel):
     message: str
     suggestion: str | None = None
 
+class DraftStage1Option(BaseModel):
+    option_id: str
+    label: str
+    value: JsonScalar
 
 class DraftStage1Question(BaseModel):
     question_id: str
     question_text: str
     question_type: str
-    options: list[str] = Field(default_factory=list)
+    options: list[DraftStage1Option] = Field(default_factory=list)
     priority: int = 0
-
 
 class DraftOpenUnknown(BaseModel):
     field: str
@@ -162,7 +165,7 @@ class DraftPreviewResponse(BaseModel):
     job_id: str
     draft_text: str
     draft_id: str
-    decision: str
+    decision: Literal["auto_freeze", "require_confirm", "require_confirm_with_downgrade"]
     risk_score: float
     status: str
     outcome_var: str | None = None
@@ -187,7 +190,7 @@ class DraftPatchRequest(BaseModel):
     field_updates: dict[str, JsonValue] = Field(default_factory=dict)
 
 class DraftPatchResponse(BaseModel):
-    status: str = "patched"
+    status: Literal["patched"] = "patched"
     patched_fields: list[str] = Field(default_factory=list)
     remaining_unknowns_count: int
     open_unknowns: list[DraftOpenUnknown] = Field(default_factory=list)
@@ -256,16 +259,13 @@ class UploadSessionResponse(BaseModel):
     part_size: int | None = None
     presigned_urls: list[UploadSessionPartUrl] = Field(default_factory=list)
 
-
 class RefreshUploadUrlsRequest(BaseModel):
     part_numbers: list[int] | None = None
-
 
 class RefreshUploadUrlsResponse(BaseModel):
     upload_session_id: str
     parts: list[UploadSessionPartUrl] = Field(default_factory=list)
     expires_at: str
-
 
 class FinalizeUploadPart(BaseModel):
     part_number: int
@@ -294,6 +294,6 @@ class FinalizeUploadFailure(BaseModel):
 
 
 FinalizeUploadResponse = Annotated[
-    Union[FinalizeUploadSuccess, FinalizeUploadFailure],
+    FinalizeUploadSuccess | FinalizeUploadFailure,
     Field(discriminator="success"),
 ]
