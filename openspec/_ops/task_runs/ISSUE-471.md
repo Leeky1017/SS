@@ -1,7 +1,7 @@
 # ISSUE-471
 - Issue: #471
 - Branch: task/471-start-ps1-launcher
-- PR: <fill>
+- PR: https://github.com/Leeky1017/SS/pull/472
 
 ## Plan
 - Make `start.ps1` a reliable one-command Windows launcher (venv bootstrap + worker lifecycle).
@@ -71,3 +71,23 @@
 - Command: `scripts/agent_pr_preflight.sh`
 - Key output: `OK: no overlapping files with open PRs`
 - Evidence: `scripts/agent_pr_preflight.sh`
+
+### 2026-01-14 23:18 pr
+- Command: `scripts/agent_pr_automerge_and_sync.sh`
+- Key output: `Pull request #472 will be automatically merged via squash when all requirements are met`
+- Evidence: https://github.com/Leeky1017/SS/pull/472
+
+### 2026-01-14 23:26 merged
+- Command: `gh pr view 472 --json state,mergedAt,url`
+- Key output: `state=MERGED mergedAt=2026-01-14T16:26:40Z`
+- Evidence: https://github.com/Leeky1017/SS/pull/472
+
+### 2026-01-14 23:26 controlplane-sync
+- Command: `scripts/agent_controlplane_sync.sh`
+- Key output: `Fast-forward to f46dff0`
+- Evidence: `origin/main`
+
+### 2026-01-14 23:26 worktree-cleanup
+- Command: `scripts/agent_worktree_cleanup.sh 471 start-ps1-launcher`
+- Key output: `OK: cleaned worktree .worktrees/issue-471-start-ps1-launcher`
+- Evidence: `scripts/agent_worktree_cleanup.sh`
