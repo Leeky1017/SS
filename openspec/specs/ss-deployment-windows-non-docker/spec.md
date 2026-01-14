@@ -33,6 +33,25 @@ SS MUST load a `.env` file on process start (best-effort) so Windows shells that
 - **WHEN** running `python -m src.main`
 - **THEN** configuration validation sees `SS_LLM_PROVIDER` as set
 
+### Requirement: Operators can start SS with start.ps1
+
+SS MUST include a PowerShell launcher `start.ps1` so Windows operators can start the API and worker with one command.
+
+`start.ps1` MUST:
+- load `.env` best-effort (non-overriding)
+- start the API in the foreground and the worker in a separate background process
+- stop the worker process when the API exits (best-effort, including Ctrl+C)
+
+#### Scenario: start.ps1 starts both processes
+- **GIVEN** an operator has configured `.env`
+- **WHEN** running `powershell -ExecutionPolicy Bypass -File start.ps1`
+- **THEN** the API starts and the worker starts in a separate process
+
+#### Scenario: Ctrl+C stops the worker
+- **GIVEN** `start.ps1` is running
+- **WHEN** the operator stops the API with Ctrl+C
+- **THEN** the worker process is terminated
+
 ### Requirement: Frontend is served by the API at /
 
 When `frontend/dist` exists, the API server MUST serve it at `/` so operators can visit `http://<host>:8000/` without separately starting a frontend server.
