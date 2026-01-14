@@ -2,7 +2,7 @@
 
 - Issue: #465
 - Branch: task/465-fe-cleanup-zhcn
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/466
 
 ## Goal
 - Remove unused legacy Desktop Pro frontend artifacts at repo root.
@@ -71,3 +71,16 @@
   - `rg -n "assets/desktop_pro|desktop_pro_" src frontend/src`
 - Key output:
   - `<no matches>`
+
+### 2026-01-14 15:05 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-14 15:05 PR created
+- Command:
+  - `gh pr create --base main --head task/465-fe-cleanup-zhcn --title "Chore: remove legacy Desktop Pro frontend + zh-CN UI (#465)" --body "Closes #465 ..."`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/466`
