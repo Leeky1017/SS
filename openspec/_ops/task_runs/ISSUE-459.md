@@ -1,7 +1,7 @@
 # ISSUE-459
 - Issue: #459
 - Branch: task/459-release-zip
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/460
 
 ## Plan
 - Add a reproducible zip packaging script.
@@ -47,4 +47,24 @@
 ### 2026-01-14 08:03 PR preflight
 - Command: `scripts/agent_pr_preflight.sh`
 - Key output: `OK: no overlapping files with open PRs`
+- Evidence: N/A
+
+### 2026-01-14 08:04 PR create
+- Command: `gh pr create --title "chore: release zip packaging script (#459)" --body "..."`
+- Key output: `https://github.com/Leeky1017/SS/pull/460`
+- Evidence: N/A
+
+### 2026-01-14 08:04 Enable auto-merge
+- Command: `gh pr merge --auto --squash 460`
+- Key output: `will be automatically merged via squash when all requirements are met`
+- Evidence: N/A
+
+### 2026-01-14 08:06 Watch checks
+- Command: `gh pr checks --watch 460`
+- Key output: `All checks were successful`
+- Evidence: N/A
+
+### 2026-01-14 08:06 Verify merge completion
+- Command: `gh pr view 460 --json state,mergedAt`
+- Key output: `state=MERGED mergedAt=2026-01-14T00:06:33Z`
 - Evidence: N/A
