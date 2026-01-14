@@ -99,10 +99,10 @@ export function InputsUploadPanel(props: {
     <div className="panel">
       <div className="panel-body">
         <span className="section-label" style={{ margin: 0 }}>
-          Upload datasets
+          上传数据
         </span>
         <div className="inline-hint" style={{ marginTop: 8 }}>
-          主文件将作为分析与变量识别的基础；辅助文件会随 inputs 一起保存，供后续模板按需使用。
+          主文件将作为分析与变量识别的基础；辅助文件会一起保存，供后续按需使用。
         </div>
 
         <div style={{ display: 'grid', gap: 12, marginTop: 12 }}>

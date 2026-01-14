@@ -71,7 +71,7 @@ export function AdminTokensPage(props: AdminTokensPageProps) {
 
   const del = async (tokenId: string) => {
     if (busy) return
-    if (!window.confirm(`确认删除 token: ${tokenId} ?`)) return
+    if (!window.confirm(`确认删除该凭证（编号：${tokenId}）？`)) return
     setBusy(true)
     setError(null)
     const result = await props.api.deleteToken(tokenId)
@@ -87,17 +87,17 @@ export function AdminTokensPage(props: AdminTokensPageProps) {
 
   return (
     <div className="view-fade">
-      <h1>Admin Tokens</h1>
-      <div className="lead">登录会创建 session token；也可创建长期 token 并支持 revoke/delete。</div>
+      <h1>访问凭证管理</h1>
+      <div className="lead">登录会创建会话凭证；也可创建长期凭证，并支持撤销/删除。</div>
 
       <ErrorPanel error={error} onRetry={() => void refresh()} />
 
       <div className="panel">
         <div className="panel-body">
-          <div className="section-label">CREATE TOKEN</div>
+          <div className="section-label">创建凭证</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, alignItems: 'end' }}>
             <div>
-              <label className="section-label">name</label>
+              <label className="section-label">名称</label>
               <input type="text" value={createName} onChange={(e) => setCreateName(e.target.value)} />
             </div>
             <button className="btn btn-primary" type="button" onClick={() => void create()} disabled={busy}>
@@ -107,7 +107,7 @@ export function AdminTokensPage(props: AdminTokensPageProps) {
           {createdToken === null ? null : (
             <div className="panel inset-panel" style={{ marginTop: 16 }}>
               <div className="panel-body">
-                <div style={{ fontWeight: 600, marginBottom: 6 }}>新 token（仅显示一次）</div>
+                <div style={{ fontWeight: 600, marginBottom: 6 }}>新凭证（仅显示一次）</div>
                 <div className="mono pre-wrap">{createdToken}</div>
               </div>
             </div>
@@ -123,16 +123,16 @@ export function AdminTokensPage(props: AdminTokensPageProps) {
 
       <div className="panel">
         <div className="panel-body">
-          <div className="section-label">TOKENS</div>
+          <div className="section-label">凭证列表</div>
           <div className="data-table-wrap">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>name</th>
-                  <th>token_id</th>
-                  <th>created_at</th>
-                  <th>last_used_at</th>
-                  <th>revoked_at</th>
+                  <th>名称</th>
+                  <th>编号</th>
+                  <th>创建时间</th>
+                  <th>最近使用</th>
+                  <th>撤销时间</th>
                   <th />
                 </tr>
               </thead>
@@ -140,7 +140,7 @@ export function AdminTokensPage(props: AdminTokensPageProps) {
                 {items.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="inline-hint">
-                      暂无 token
+                      暂无凭证
                     </td>
                   </tr>
                 ) : (
@@ -159,10 +159,10 @@ export function AdminTokensPage(props: AdminTokensPageProps) {
                             disabled={busy || t.revoked_at !== null}
                             onClick={() => void revoke(t.token_id)}
                           >
-                            revoke
+                            撤销
                           </button>
                           <button className="btn btn-secondary" type="button" disabled={busy} onClick={() => void del(t.token_id)}>
-                            delete
+                            删除
                           </button>
                         </div>
                       </td>
@@ -177,4 +177,3 @@ export function AdminTokensPage(props: AdminTokensPageProps) {
     </div>
   )
 }
-

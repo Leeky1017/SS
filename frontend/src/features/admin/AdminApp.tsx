@@ -70,7 +70,7 @@ export function AdminApp() {
 
         <main className="admin-main">
           <h1>管理员登录</h1>
-          <div className="lead">使用后端配置的管理员账号密码登录（默认 development: admin/admin）。</div>
+          <div className="lead">请输入管理员账号密码登录。</div>
 
           <ErrorPanel
             error={loginError}
@@ -92,7 +92,7 @@ export function AdminApp() {
                   onChange={(e) => setLoginPassword(e.target.value)}
                 />
                 <div className="inline-hint" style={{ marginTop: 8 }}>
-                  生产环境请设置环境变量 <span className="mono">SS_ADMIN_PASSWORD</span>。
+                  如无法登录，请联系支持。
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -132,13 +132,13 @@ export function AdminApp() {
               系统状态
             </button>
             <button className={`tab${view === 'jobs' ? ' active' : ''}`} type="button" onClick={() => setView('jobs')}>
-              Jobs
+              任务
             </button>
             <button className={`tab${view === 'task-codes' ? ' active' : ''}`} type="button" onClick={() => setView('task-codes')}>
-              Task Codes
+              验证码
             </button>
             <button className={`tab${view === 'tokens' ? ' active' : ''}`} type="button" onClick={() => setView('tokens')}>
-              Tokens
+              访问凭证
             </button>
           </div>
         </div>

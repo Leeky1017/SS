@@ -1,4 +1,5 @@
 import type { AdminArtifactItem, AdminJobDetailResponse } from '../adminApiTypes'
+import { formatTaskReference } from '../../../utils/displayIds'
 
 type AdminJobDetailPanelProps = {
   detail: AdminJobDetailResponse
@@ -15,13 +16,13 @@ export function AdminJobDetailPanel(props: AdminJobDetailPanelProps) {
         <div className="panel-body">
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <div>
-              <div className="section-label">JOB</div>
+              <div className="section-label">任务</div>
               <div className="mono">
-                {job.tenant_id} / {job.job_id}
+                {job.tenant_id} / {formatTaskReference(job.job_id)}
               </div>
             </div>
             <div>
-              <div className="section-label">STATUS</div>
+              <div className="section-label">状态</div>
               <div style={{ fontWeight: 600 }}>{job.status}</div>
             </div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'end' }}>
@@ -31,23 +32,23 @@ export function AdminJobDetailPanel(props: AdminJobDetailPanelProps) {
             </div>
           </div>
           <div style={{ marginTop: 10 }} className="inline-hint">
-            created_at: <span className="mono">{job.created_at}</span>
+            创建时间：<span className="mono">{job.created_at}</span>
           </div>
         </div>
       </div>
 
       <div className="panel">
         <div className="panel-body">
-          <div className="section-label">REQUIREMENT</div>
+          <div className="section-label">需求描述</div>
           <div className="pre-wrap">{job.requirement ?? ''}</div>
         </div>
       </div>
 
       <div className="panel">
         <div className="panel-body">
-          <div className="section-label">DRAFT</div>
+          <div className="section-label">预览文本</div>
           <div className="inline-hint" style={{ marginBottom: 8 }}>
-            created_at: <span className="mono">{job.draft_created_at ?? ''}</span>
+            创建时间：<span className="mono">{job.draft_created_at ?? ''}</span>
           </div>
           <div className="pre-wrap">{job.draft_text ?? ''}</div>
         </div>
@@ -55,20 +56,20 @@ export function AdminJobDetailPanel(props: AdminJobDetailPanelProps) {
 
       <div className="panel">
         <div className="panel-body">
-          <div className="section-label">RUNS</div>
+          <div className="section-label">执行记录</div>
           {job.runs.length === 0 ? (
-            <div className="inline-hint">暂无 run 记录。</div>
+            <div className="inline-hint">暂无执行记录。</div>
           ) : (
             <div className="data-table-wrap">
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>run_id</th>
-                    <th>attempt</th>
-                    <th>status</th>
-                    <th>started_at</th>
-                    <th>ended_at</th>
-                    <th>artifacts_count</th>
+                    <th>执行编号</th>
+                    <th>尝试次数</th>
+                    <th>状态</th>
+                    <th>开始时间</th>
+                    <th>结束时间</th>
+                    <th>文件数</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -91,17 +92,17 @@ export function AdminJobDetailPanel(props: AdminJobDetailPanelProps) {
 
       <div className="panel">
         <div className="panel-body">
-          <div className="section-label">ARTIFACTS</div>
+          <div className="section-label">文件列表</div>
           {job.artifacts.length === 0 ? (
-            <div className="inline-hint">暂无产物。</div>
+            <div className="inline-hint">暂无文件。</div>
           ) : (
             <div className="data-table-wrap" style={{ maxHeight: 340 }}>
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>kind</th>
-                    <th>rel_path</th>
-                    <th>created_at</th>
+                    <th>类型</th>
+                    <th>路径</th>
+                    <th>创建时间</th>
                     <th />
                   </tr>
                 </thead>
@@ -134,4 +135,3 @@ export function AdminJobDetailPanel(props: AdminJobDetailPanelProps) {
     </>
   )
 }
-

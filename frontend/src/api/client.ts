@@ -17,8 +17,9 @@ import type {
   RedeemTaskCodeResponse,
   RunJobResponse,
 } from './types'
-import { encodePathPreservingSlashes, readErrorMessage, requestId, resolveBaseUrl, safeJson } from './utils'
+import { encodePathPreservingSlashes, readErrorCode, requestId, resolveBaseUrl, safeJson } from './utils'
 import { clearAuthToken, getAuthToken } from '../state/storage'
+import { toUserErrorMessage } from '../utils/errorCodes'
 
 type ApiClientOptions = { baseUrl?: string }
 
@@ -187,8 +188,7 @@ export class ApiClient {
     if (!fetched.ok) return fetched
 
     const { response, effectiveRequestId } = fetched.value
-    const authError = this.authErrorIfAny(response.status, args.jobId, effectiveRequestId)
-    if (authError !== null) return authError
+    if ((response.status === 401 || response.status === 403) && args.jobId !== null) clearAuthToken(args.jobId)
 
     if (!response.ok) return await this.httpError(response, effectiveRequestId)
     return await this.okResult<T>(response, effectiveRequestId, args.responseType ?? 'json')
@@ -225,22 +225,6 @@ export class ApiClient {
     return { ok: true, value: { response, effectiveRequestId }, requestId: effectiveRequestId }
   }
 
-  private authErrorIfAny(status: number, jobId: string | null, requestId: string): ApiResult<never> | null {
-    if (status !== 401 && status !== 403) return null
-    if (jobId !== null) clearAuthToken(jobId)
-    return {
-      ok: false,
-      error: {
-        kind: status === 401 ? 'unauthorized' : 'forbidden',
-        status,
-        message: 'Task Code 已失效/未授权，需要重新兑换',
-        requestId,
-        details: null,
-        action: 'redeem',
-      },
-    }
-  }
-
   private async httpError(response: Response, requestId: string): Promise<ApiResult<never>> {
     let details: unknown = null
     try {
@@ -248,8 +232,12 @@ export class ApiClient {
     } catch (err) {
       details = err
     }
-    const message = readErrorMessage(details) ?? `HTTP ${response.status}`
-    return { ok: false, error: { kind: 'http', status: response.status, message, requestId, details, action: 'retry' } }
+
+    const kind = response.status === 401 ? 'unauthorized' : response.status === 403 ? 'forbidden' : 'http'
+    const internalCode = readErrorCode(details)
+    const message = toUserErrorMessage({ internalCode, kind, status: response.status })
+    const action = kind === 'unauthorized' || kind === 'forbidden' ? 'redeem' : 'retry'
+    return { ok: false, error: { kind, status: response.status, message, requestId, details, internalCode, action } }
   }
 
   private async okResult<T>(response: Response, requestId: string, responseType: 'json' | 'blob'): Promise<ApiResult<T>> {

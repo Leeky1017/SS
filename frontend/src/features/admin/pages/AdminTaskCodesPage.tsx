@@ -3,6 +3,7 @@ import type { ApiError } from '../../../api/errors'
 import { ErrorPanel } from '../../../components/ErrorPanel'
 import type { AdminApiClient } from '../adminApi'
 import type { AdminTaskCodeItem } from '../adminApiTypes'
+import { formatTaskReference } from '../../../utils/displayIds'
 
 type AdminTaskCodesPageProps = {
   api: AdminApiClient
@@ -86,7 +87,7 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
 
   const del = async (codeId: string) => {
     if (busy) return
-    if (!window.confirm(`确认删除 task code: ${codeId} ?`)) return
+    if (!window.confirm(`确认删除该验证码（编号：${codeId}）？`)) return
     setBusy(true)
     setError(null)
     const result = await props.api.deleteTaskCode(codeId)
@@ -102,21 +103,21 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
 
   return (
     <div className="view-fade">
-      <h1>Task Codes</h1>
-      <div className="lead">批量创建 / 列表 / revoke / delete。Redeem 时会尽力标记 used。</div>
+      <h1>验证码管理</h1>
+      <div className="lead">批量创建、查看列表、撤销、删除。</div>
 
       <ErrorPanel error={error} onRetry={() => void refresh()} />
 
       <div className="panel">
         <div className="panel-body">
-          <div className="section-label">CREATE</div>
+          <div className="section-label">创建</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             <div>
-              <label className="section-label">tenant</label>
+              <label className="section-label">空间</label>
               <div className="mono">{props.tenantId}</div>
             </div>
             <div>
-              <label className="section-label">count</label>
+              <label className="section-label">数量</label>
               <input
                 type="text"
                 value={String(count)}
@@ -124,7 +125,7 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
               />
             </div>
             <div>
-              <label className="section-label">expires_in_days</label>
+              <label className="section-label">有效期（天）</label>
               <input
                 type="text"
                 value={String(expiresInDays)}
@@ -140,7 +141,7 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
           {createdCodes.length === 0 ? null : (
             <div className="panel inset-panel" style={{ marginTop: 16 }}>
               <div className="panel-body">
-                <div style={{ fontWeight: 600, marginBottom: 6 }}>新 Task Codes（可复制）</div>
+                <div style={{ fontWeight: 600, marginBottom: 6 }}>新验证码（可复制）</div>
                 <div className="mono pre-wrap">{createdCodes.join('\n')}</div>
               </div>
             </div>
@@ -150,12 +151,12 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
 
       <div className="panel">
         <div className="panel-body">
-          <div className="section-label">FILTER</div>
+          <div className="section-label">筛选</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, alignItems: 'end' }}>
             <div>
-              <label className="section-label">tenant</label>
+              <label className="section-label">空间</label>
               <select value={filterTenant} onChange={(e) => setFilterTenant(e.target.value)}>
-                <option value="">(all)</option>
+                <option value="">（全部）</option>
                 {props.tenants.map((t) => (
                   <option key={t} value={t}>
                     {t}
@@ -164,13 +165,13 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
               </select>
             </div>
             <div>
-              <label className="section-label">status</label>
+              <label className="section-label">状态</label>
               <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
-                <option value="">(all)</option>
-                <option value="unused">unused</option>
-                <option value="used">used</option>
-                <option value="expired">expired</option>
-                <option value="revoked">revoked</option>
+                <option value="">（全部）</option>
+                <option value="unused">未使用</option>
+                <option value="used">已使用</option>
+                <option value="expired">已过期</option>
+                <option value="revoked">已撤销</option>
               </select>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -184,18 +185,18 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
 
       <div className="panel">
         <div className="panel-body">
-          <div className="section-label">TASK CODES</div>
+          <div className="section-label">验证码</div>
           <div className="data-table-wrap" style={{ maxHeight: 420 }}>
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>status</th>
-                  <th>tenant</th>
-                  <th>task_code</th>
-                  <th>expires_at</th>
-                  <th>used_at</th>
-                  <th>job_id</th>
-                  <th>revoked_at</th>
+                  <th>状态</th>
+                  <th>空间</th>
+                  <th>验证码</th>
+                  <th>到期时间</th>
+                  <th>使用时间</th>
+                  <th>任务编号</th>
+                  <th>撤销时间</th>
                   <th />
                 </tr>
               </thead>
@@ -214,7 +215,7 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
                       <td className="mono">{t.task_code}</td>
                       <td className="mono">{t.expires_at}</td>
                       <td className="mono">{t.used_at ?? ''}</td>
-                      <td className="mono">{t.job_id ?? ''}</td>
+                      <td className="mono">{formatTaskReference(t.job_id)}</td>
                       <td className="mono">{t.revoked_at ?? ''}</td>
                       <td>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
@@ -224,10 +225,10 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
                             disabled={busy || t.status === 'revoked'}
                             onClick={() => void revoke(t.code_id)}
                           >
-                            revoke
+                            撤销
                           </button>
                           <button className="btn btn-secondary" type="button" disabled={busy} onClick={() => void del(t.code_id)}>
-                            delete
+                            删除
                           </button>
                         </div>
                       </td>
@@ -242,4 +243,3 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
     </div>
   )
 }
-

@@ -5,7 +5,6 @@ import type { InputsPreviewResponse, InputsUploadResponse } from '../../api/type
 import { ErrorPanel } from '../../components/ErrorPanel'
 import { zhCN } from '../../i18n/zh-CN'
 import {
-  getAuthToken,
   loadAppState,
   loadInputsPreviewSnapshot,
   loadInputsUploadSnapshot,
@@ -14,7 +13,7 @@ import {
   saveInputsPreviewSnapshot,
   saveInputsUploadSnapshot,
 } from '../../state/storage'
-import { JobPanel, PreviewPanel, Step2Header, UploadResultPanel } from './Step2Panels'
+import { PreviewPanel, Step2Header } from './Step2Panels'
 import { InputsUploadPanel } from './Step2UploadPanel'
 
 type Step2Props = { api: ApiClient }
@@ -23,7 +22,6 @@ type Step2Error = { error: ApiError; retry: () => void; retryLabel: string }
 
 type Step2State = {
   jobId: string | null
-  tokenPresent: boolean
   upload: InputsUploadResponse | null
   preview: InputsPreviewResponse | null
 }
@@ -31,10 +29,8 @@ type Step2State = {
 function loadStep2State(): Step2State {
   const app = loadAppState()
   const jobId = app.jobId
-  const tokenPresent = jobId !== null && getAuthToken(jobId) !== null
   return {
     jobId,
-    tokenPresent,
     upload: jobId === null ? null : loadInputsUploadSnapshot(jobId),
     preview: jobId === null ? null : loadInputsPreviewSnapshot(jobId),
   }
@@ -134,11 +130,11 @@ export function Step2(props: Step2Props) {
         <Step2Header />
         <div className="panel">
           <div className="panel-body">
-            <div style={{ fontWeight: 600, marginBottom: 6 }}>缺少 job_id</div>
-            <div className="inline-hint">请先完成 Step 1 兑换（或 dev fallback create job）。</div>
+            <div style={{ fontWeight: 600, marginBottom: 6 }}>缺少任务信息</div>
+            <div className="inline-hint">请先完成第一步获取任务验证码。</div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
               <button className="btn btn-primary" type="button" onClick={redeem}>
-                返回 Step 1
+                返回第一步
               </button>
             </div>
           </div>
@@ -157,7 +153,6 @@ export function Step2(props: Step2Props) {
         onRedeem={redeem}
       />
 
-      <JobPanel jobId={state.jobId} tokenPresent={state.tokenPresent} />
       <InputsUploadPanel
         busy={busy}
         primaryFile={primaryFile}
@@ -172,7 +167,6 @@ export function Step2(props: Step2Props) {
           void runUpload(state.jobId as string, primaryFile, auxiliaryFiles)
         }}
       />
-      <UploadResultPanel upload={state.upload} />
       <PreviewPanel
         preview={state.preview}
         busy={busy}
