@@ -84,3 +84,9 @@
   - `gh pr create --base main --head task/465-fe-cleanup-zhcn --title "Chore: remove legacy Desktop Pro frontend + zh-CN UI (#465)" --body "Closes #465 ..."`
 - Key output:
   - `PR: https://github.com/Leeky1017/SS/pull/466`
+
+### 2026-01-14 15:06 Enable auto-merge
+- Command:
+  - `gh pr merge --auto --squash 466`
+- Key output:
+  - `will be automatically merged via squash when all requirements are met`
