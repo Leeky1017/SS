@@ -2,10 +2,11 @@ import { toNetworkError, toParseError } from '../../api/errors'
 import type { ApiResult } from '../../api/errors'
 import {
   encodePathPreservingSlashes,
-  readErrorMessage,
+  readErrorCode,
   requestId,
   safeJson,
 } from '../../api/utils'
+import { toUserErrorMessage } from '../../utils/errorCodes'
 import { clearAdminToken, loadAdminToken } from './adminStorage'
 import type {
   AdminJobDetailResponse,
@@ -174,22 +175,6 @@ export class AdminApiClient {
     if (token !== null && token.trim() !== '') headers.set('Authorization', `Bearer ${token}`)
   }
 
-  private authErrorIfAny(status: number, requestId: string): ApiResult<never> | null {
-    if (status !== 401 && status !== 403) return null
-    clearAdminToken()
-    return {
-      ok: false,
-      error: {
-        kind: status === 401 ? 'unauthorized' : 'forbidden',
-        status,
-        message: 'Admin token 已失效/未授权，需要重新登录',
-        requestId,
-        details: null,
-        action: 'retry',
-      },
-    }
-  }
-
   private async request<T>(args: {
     path: string
     method: 'GET' | 'POST' | 'DELETE'
@@ -218,8 +203,7 @@ export class AdminApiClient {
     const effectiveRequestId =
       responseRequestId !== null && responseRequestId.trim() !== '' ? responseRequestId : rid
 
-    const authError = this.authErrorIfAny(response.status, effectiveRequestId)
-    if (authError !== null) return authError
+    if (response.status === 401 || response.status === 403) clearAdminToken()
 
     if (!response.ok) return await this.httpError(response, effectiveRequestId)
 
@@ -243,7 +227,9 @@ export class AdminApiClient {
     } catch (err) {
       details = err
     }
-    const message = readErrorMessage(details) ?? `HTTP ${response.status}`
-    return { ok: false, error: { kind: 'http', status: response.status, message, requestId, details, action: 'retry' } }
+    const kind = response.status === 401 ? 'unauthorized' : response.status === 403 ? 'forbidden' : 'http'
+    const internalCode = readErrorCode(details)
+    const message = toUserErrorMessage({ internalCode, kind, status: response.status })
+    return { ok: false, error: { kind, status: response.status, message, requestId, details, internalCode, action: 'retry' } }
   }
 }

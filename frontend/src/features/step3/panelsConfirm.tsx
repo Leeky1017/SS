@@ -199,15 +199,27 @@ function OpenUnknownCard(props: {
   onChange: (v: string) => void
 }) {
   const u = props.unknown
+  const title =
+    u.field === 'outcome_var'
+      ? zhCN.variables.roles.outcome
+      : u.field === 'treatment_var'
+        ? zhCN.variables.roles.treatment
+        : zhCN.unknowns.heading
+  const description =
+    u.field === 'outcome_var'
+      ? '请选择因变量'
+      : u.field === 'treatment_var'
+        ? '请选择处理变量'
+        : u.description
   return (
     <div className="panel inset-panel">
       <div className="panel-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-          <div style={{ fontWeight: 600 }}>{u.field}</div>
+          <div style={{ fontWeight: 600 }}>{title}</div>
           <div className="inline-hint">{isBlockingUnknown(u) ? zhCN.unknowns.blocking : zhCN.unknowns.nonBlocking}</div>
         </div>
         <div className="inline-hint" style={{ marginTop: 6 }}>
-          {u.description}
+          {description}
         </div>
         <div style={{ marginTop: 10 }}>
           <UnknownInput locked={props.locked} unknown={u} value={props.value} onChange={props.onChange} />

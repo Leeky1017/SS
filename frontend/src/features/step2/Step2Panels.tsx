@@ -1,4 +1,4 @@
-import type { InputsPreviewResponse, InputsUploadResponse } from '../../api/types'
+import type { InputsPreviewResponse } from '../../api/types'
 
 function clipCell(value: unknown): string {
   if (value === null || value === undefined) return '—'
@@ -15,50 +15,8 @@ export function Step2Header() {
         <div className="step-tick" />
       </div>
       <h1>上传数据并预览</h1>
-      <p className="lead">支持 CSV/XLSX/DTA。可上传 1 个主文件 + 0~N 个辅助文件；Excel 支持 Sheet 选择并刷新预览。</p>
+      <p className="lead">支持 CSV/XLSX/DTA。可上传 1 个主文件 + 若干辅助文件；Excel 可选择工作表并刷新预览。</p>
     </>
-  )
-}
-
-export function JobPanel(props: { jobId: string; tokenPresent: boolean }) {
-  return (
-    <div className="panel">
-      <div className="panel-body">
-        <span className="section-label" style={{ margin: 0 }}>
-          Current job
-        </span>
-        <div className="mono" style={{ marginTop: 8, color: 'var(--text-dim)' }}>
-          job_id: {props.jobId}
-        </div>
-        <div className="mono" style={{ marginTop: 8, color: 'var(--text-muted)' }}>
-          token: {props.tokenPresent ? 'present' : 'absent'}
-        </div>
-        {!props.tokenPresent ? (
-          <div className="inline-hint" style={{ marginTop: 10 }}>
-            当前 job 没有 token（可能来自 dev fallback create job）；鉴权启用后建议使用 redeem 获取 token。
-          </div>
-        ) : null}
-      </div>
-    </div>
-  )
-}
-
-export function UploadResultPanel(props: { upload: InputsUploadResponse | null }) {
-  if (props.upload === null) return null
-  return (
-    <div className="panel">
-      <div className="panel-body">
-        <span className="section-label" style={{ margin: 0 }}>
-          Upload result
-        </span>
-        <div className="mono" style={{ marginTop: 8, color: 'var(--text-dim)' }}>
-          manifest_rel_path: {props.upload.manifest_rel_path}
-        </div>
-        <div className="mono" style={{ marginTop: 8, color: 'var(--text-muted)' }}>
-          fingerprint: {props.upload.fingerprint}
-        </div>
-      </div>
-    </div>
   )
 }
 
@@ -109,17 +67,18 @@ export function PreviewPanel(props: {
   const totalCols = props.preview.column_count ?? props.preview.columns.length
   const showingCols = props.preview.columns.length
   const showingRows = props.preview.sample_rows.length
+  const rowCount = props.preview.row_count
   return (
     <div className="panel">
       <div className="panel-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
           <span className="section-label" style={{ margin: 0 }}>
-            Preview
+            预览
           </span>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             {props.onSelectSheet && sheetNames.length > 1 ? (
               <label className="inline-hint" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                Sheet
+                工作表
                 <select
                   value={selectedSheet ?? ''}
                   disabled={props.busy}
@@ -133,11 +92,11 @@ export function PreviewPanel(props: {
                 </select>
               </label>
             ) : selectedSheet ? (
-              <div className="inline-hint">sheet: {selectedSheet}</div>
+              <div className="inline-hint">工作表：{selectedSheet}</div>
             ) : null}
             <div className="inline-hint">
-              rows: {props.preview.row_count ?? 'n/a'} · cols: {totalCols} · showing: {showingRows}×{showingCols}
-              {headerRow === null ? '' : headerRow ? ' · header: yes' : ' · header: no'}
+              行数：{rowCount ?? '未知'} · 列数：{totalCols} · 已显示：{showingRows}×{showingCols}
+              {headerRow === null ? '' : headerRow ? ' · 首行为表头：是' : ' · 首行为表头：否'}
             </div>
           </div>
         </div>

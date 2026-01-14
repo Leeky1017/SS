@@ -4,6 +4,7 @@ import { ErrorPanel } from '../../../components/ErrorPanel'
 import type { AdminApiClient } from '../adminApi'
 import type { AdminArtifactItem, AdminJobDetailResponse, AdminJobListItem } from '../adminApiTypes'
 import { AdminJobDetailPanel } from './AdminJobDetailPanel'
+import { formatTaskReference } from '../../../utils/displayIds'
 
 type AdminJobsPageProps = {
   api: AdminApiClient
@@ -78,7 +79,7 @@ export function AdminJobsPage(props: AdminJobsPageProps) {
     const blobUrl = URL.createObjectURL(result.value)
     const a = document.createElement('a')
     a.href = blobUrl
-    a.download = item.rel_path.split('/').pop() ?? 'artifact'
+    a.download = item.rel_path.split('/').pop() ?? '文件'
     document.body.appendChild(a)
     a.click()
     a.remove()
@@ -103,19 +104,19 @@ export function AdminJobsPage(props: AdminJobsPageProps) {
 
   return (
     <div className="view-fade">
-      <h1>Jobs</h1>
-      <div className="lead">全量 Job 列表 / 详情 / 重试 / 下载产物。</div>
+      <h1>任务列表</h1>
+      <div className="lead">查看任务列表、查看详情、重试执行，并下载相关文件。</div>
 
       <ErrorPanel error={error} onRetry={() => void refresh()} />
 
       <div className="panel">
         <div className="panel-body">
-          <div className="section-label">FILTER</div>
+          <div className="section-label">筛选</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, alignItems: 'end' }}>
             <div>
-              <label className="section-label">tenant</label>
+              <label className="section-label">空间</label>
               <select value={filterTenant} onChange={(e) => setFilterTenant(e.target.value)}>
-                <option value="">(all)</option>
+                <option value="">（全部）</option>
                 {props.tenants.map((t) => (
                   <option key={t} value={t}>
                     {t}
@@ -124,9 +125,9 @@ export function AdminJobsPage(props: AdminJobsPageProps) {
               </select>
             </div>
             <div>
-              <label className="section-label">status</label>
+              <label className="section-label">状态</label>
               <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
-                <option value="">(all)</option>
+                <option value="">（全部）</option>
                 {statusOptions
                   .filter((s) => s !== '')
                   .map((s) => (
@@ -147,16 +148,16 @@ export function AdminJobsPage(props: AdminJobsPageProps) {
 
       <div className="panel">
         <div className="panel-body">
-          <div className="section-label">JOBS</div>
+          <div className="section-label">任务</div>
           <div className="data-table-wrap" style={{ maxHeight: 420 }}>
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>tenant</th>
-                  <th>job_id</th>
-                  <th>status</th>
-                  <th>created_at</th>
-                  <th>updated_at</th>
+                  <th>空间</th>
+                  <th>任务编号</th>
+                  <th>状态</th>
+                  <th>创建时间</th>
+                  <th>更新时间</th>
                   <th />
                 </tr>
               </thead>
@@ -171,7 +172,7 @@ export function AdminJobsPage(props: AdminJobsPageProps) {
                   items.map((j) => (
                     <tr key={`${j.tenant_id}:${j.job_id}`}>
                       <td className="mono">{j.tenant_id}</td>
-                      <td className="mono">{j.job_id}</td>
+                      <td className="mono">{formatTaskReference(j.job_id)}</td>
                       <td style={{ fontWeight: 600 }}>{j.status}</td>
                       <td className="mono">{j.created_at}</td>
                       <td className="mono">{j.updated_at ?? ''}</td>

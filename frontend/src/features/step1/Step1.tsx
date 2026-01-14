@@ -3,6 +3,7 @@ import type { ApiClient } from '../../api/client'
 import type { ApiError } from '../../api/errors'
 import { ErrorPanel } from '../../components/ErrorPanel'
 import { loadAppState, saveAppState, setAuthToken, setLastJobId } from '../../state/storage'
+import { toUserErrorMessage } from '../../utils/errorCodes'
 import { AnalysisGuidePanel } from './AnalysisGuidePanel'
 
 type Step1Props = { api: ApiClient }
@@ -18,16 +19,26 @@ type Step1Model = {
   submit: () => Promise<void>
 }
 
-function formError(message: string, requestId: string): ApiError {
-  return { kind: 'http', status: null, message, requestId, details: null, action: 'retry' }
+function formError(internalCode: string, requestId: string): ApiError {
+  const kind = 'http'
+  const status = 400
+  return {
+    kind,
+    status,
+    message: toUserErrorMessage({ internalCode, kind, status }),
+    requestId,
+    details: null,
+    internalCode,
+    action: 'retry',
+  }
 }
 
 type Step1SubmitResult = { ok: true; jobId: string; token: string | null } | { ok: false; error: ApiError }
 
 async function submitStep1(api: ApiClient, taskCode: string, requirement: string): Promise<Step1SubmitResult> {
-  if (requirement.trim() === '') return { ok: false, error: formError('请填写研究设想与需求', api.lastRequestId ?? 'n/a') }
+  if (requirement.trim() === '') return { ok: false, error: formError('MISSING_REQUIRED_FIELD', api.lastRequestId ?? 'n/a') }
   if (taskCode.trim() === '' && api.requireTaskCode()) {
-    return { ok: false, error: formError('当前环境要求必须填写 Task Code（VITE_REQUIRE_TASK_CODE=1）', api.lastRequestId ?? 'n/a') }
+    return { ok: false, error: formError('MISSING_REQUIRED_FIELD', api.lastRequestId ?? 'n/a') }
   }
 
   const trimmedRequirement = requirement.trim()
@@ -57,7 +68,7 @@ function useStep1Model(api: ApiClient): Step1Model {
 
   const hint = useMemo(() => {
     if (!import.meta.env.DEV) return null
-    if (api.isDevMockEnabled()) return 'DEV: Mock redeem 已启用（VITE_API_MOCK=0 可关闭）'
+    if (api.isDevMockEnabled()) return '开发模式：已启用模拟通道'
     return null
   }, [api])
 
@@ -110,7 +121,7 @@ function TaskCodeField(props: { value: string; busy: boolean; onChange: (v: stri
       <span className="section-label required">任务验证码</span>
       <input
         type="text"
-        placeholder="输入 Task Code"
+        placeholder="输入任务验证码"
         className="mono"
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}

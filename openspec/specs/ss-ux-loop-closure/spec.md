@@ -84,6 +84,32 @@ Inputs MUST be stored with job-relative safe paths and MUST NOT allow traversal 
 - **WHEN** the user uploads or previews the dataset
 - **THEN** SS responds with a structured error (stable `error_code`, human-readable `message`)
 
+### Requirement: User-visible messages MUST NOT expose internal technical terms
+
+User-visible messages (UI copy, alerts, and displayed errors) MUST avoid internal implementation terminology, including:
+- AI/ML terms (AI, LLM, prompt, token, embedding, inference)
+- frontend/backend terms (API, JSON, HTTP, request/response, frontend, backend)
+- internal system fields (draft, payload, schema, contract, job_id, tenant)
+- programming terms (null, undefined, stack trace, exception)
+- storage terms (database, query, cache, store, persist)
+
+#### Scenario: UI copy is implementation-agnostic
+- **WHEN** a user completes Journey A using the shipped frontend
+- **THEN** the UI does not render any of the internal technical terms above
+
+### Requirement: User-visible errors MUST be numeric-coded with friendly text
+
+User-visible errors MUST be shown as numeric codes plus a friendly hint in this format:
+- `错误代号 EXXXX：<friendly description>`
+
+User-visible errors MUST NOT directly display raw backend `message`/`detail`, stack traces, or internal `error_code` values.
+
+#### Scenario: A backend failure is shown as a numeric code
+- **GIVEN** an API call fails with a structured SS error (e.g., `error_code="LLM_CALL_FAILED"`)
+- **WHEN** the frontend renders the failure
+- **THEN** it shows a numeric-code message (e.g., `错误代号 E4001：...`)
+- **AND** it does not display the raw backend `message`/`detail` or internal `error_code`
+
 ### Requirement: Plan MUST be frozen before queueing and MUST be previewable
 
 SS MUST ensure a job has a frozen `LLMPlan` before it transitions to `queued`, because worker execution depends on `job.llm_plan`.
@@ -135,4 +161,3 @@ Current blockers (P0) live under this spec’s task cards:
 - UX-B003: worker execution wiring (DoFileGenerator + configurable runner + result artifacts)
 
 See: `openspec/specs/ss-ux-loop-closure/task_cards/`
-

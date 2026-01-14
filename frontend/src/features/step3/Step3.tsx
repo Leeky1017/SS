@@ -14,6 +14,7 @@ import {
   saveConfirmLock,
   saveDraftPreviewSnapshot,
 } from '../../state/storage'
+import { formatUserErrorMessage } from '../../utils/errorCodes'
 import { applyCorrection, blockingMissing, computeCandidates, isDraftPreviewPending } from './model'
 import { LockedBanner, PendingPanel, DraftTextPanel, Step3Header, VariablesTable, WarningsPanel } from './panelsBase'
 import { DowngradeModal, MappingPanel, OpenUnknownsPanel, Stage1QuestionsPanel } from './panelsConfirm'
@@ -28,13 +29,21 @@ type DraftState =
   | { kind: 'pending'; retryAfterSeconds: number; message: string | null }
   | { kind: 'ready'; draft: DraftPreviewReadyResponse }
 
-function pendingMessage(resp: DraftPreviewPendingResponse): string | null {
-  if (typeof resp.message === 'string' && resp.message.trim() !== '') return resp.message
+function pendingMessage(_resp: DraftPreviewPendingResponse): string | null {
   return null
 }
 
 function localValidationError(message: string, requestId: string): ApiError {
-  return { kind: 'http', status: null, message, requestId, details: null, action: 'retry' }
+  const internalCode = 'MISSING_REQUIRED_FIELD'
+  return {
+    kind: 'http',
+    status: 400,
+    message: formatUserErrorMessage('E1001', message),
+    requestId,
+    details: null,
+    internalCode,
+    action: 'retry',
+  }
 }
 
 export function Step3(props: Step3Props) {

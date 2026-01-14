@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import cast
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import RequestResponseEndpoint
@@ -140,6 +141,7 @@ def create_app() -> FastAPI:
     app.include_router(api_v1_router)
     app.include_router(admin_api_router)
     app.include_router(ops_router, include_in_schema=False)
+    app.add_exception_handler(RequestValidationError, _handle_request_validation_error)
     app.add_exception_handler(SSError, _handle_ss_error)
     app.add_exception_handler(MemoryError, _handle_oom_error)
 
@@ -151,7 +153,7 @@ def create_app() -> FastAPI:
     async def _admin_index() -> Response:
         index_html = _frontend_index_html()
         if index_html is None:
-            return JSONResponse(status_code=404, content={"detail": "admin frontend not built"})
+            return Response(status_code=404)
         return FileResponse(path=str(index_html), media_type="text/html")
 
     _mount_frontend_if_present(app=app)
@@ -164,6 +166,23 @@ async def _handle_ss_error(_request: Request, exc: Exception) -> Response:
     if isinstance(ss_error, StructuredSSError):
         payload.update(ss_error.details)
     return JSONResponse(status_code=ss_error.status_code, content=payload)
+
+
+async def _handle_request_validation_error(request: Request, exc: Exception) -> Response:
+    validation_error = cast(RequestValidationError, exc)
+    request_id = getattr(request.state, "request_id", None)
+    logger.info(
+        "SS_REQUEST_VALIDATION_FAILED",
+        extra={
+            "request_id": request_id,
+            "path": request.url.path,
+            "errors_count": len(validation_error.errors()),
+        },
+    )
+    return JSONResponse(
+        status_code=400,
+        content=SSError(error_code="INPUT_VALIDATION_FAILED", message="input is invalid").to_dict(),
+    )
 
 
 async def _handle_oom_error(request: Request, _exc: Exception) -> Response:

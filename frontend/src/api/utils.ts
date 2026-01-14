@@ -17,18 +17,12 @@ export async function safeJson(response: Response): Promise<unknown> {
   return JSON.parse(text)
 }
 
-export function readErrorMessage(details: unknown): string | null {
+export function readErrorCode(details: unknown): string | null {
   if (details === null || details === undefined) return null
-  if (typeof details === 'object') {
-    const asRecord = details as Record<string, unknown>
-    const message = asRecord.message
-    if (typeof message === 'string' && message.trim() !== '') return message
-    const detail = asRecord.detail
-    if (typeof detail === 'string' && detail.trim() !== '') return detail
-    const errorCode = asRecord.error_code
-    if (typeof errorCode === 'string' && errorCode.trim() !== '') return errorCode
-  }
-  if (typeof details === 'string') return details
+  if (typeof details !== 'object') return null
+  const asRecord = details as Record<string, unknown>
+  const errorCode = asRecord.error_code
+  if (typeof errorCode === 'string' && errorCode.trim() !== '') return errorCode
   return null
 }
 
@@ -39,4 +33,3 @@ export function encodePathPreservingSlashes(path: string): string {
     .map((segment) => encodeURIComponent(segment))
     .join('/')
 }
-
