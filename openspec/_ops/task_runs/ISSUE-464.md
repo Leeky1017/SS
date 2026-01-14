@@ -1,7 +1,7 @@
 # ISSUE-464
 - Issue: #464 https://github.com/Leeky1017/SS/issues/464
 - Branch: task/464-contract-alignment-audit
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/467
 
 ## Goal
 - Audit and fully align frontend/backend API contracts for key `/v1` endpoints; fix backend payloads to match `src/api/schemas.py`; sync frontend TS types; no compatibility if-else conversions.
@@ -74,3 +74,12 @@
   - `376 passed, 5 skipped`
 - Evidence:
   - `tests/`
+
+### 2026-01-14 github: PR
+- Command:
+  - `gh pr create ...`
+  - `gh pr edit 467 --body-file -`
+- Key output:
+  - `https://github.com/Leeky1017/SS/pull/467`
+- Evidence:
+  - https://github.com/Leeky1017/SS/pull/467
