@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Ship a standalone, maintainable SS Web frontend under `frontend/` that faithfully reproduces the existing Desktop Pro UI (`index.html` + `assets/desktop_pro_*.css`) while integrating the current `/v1` API to complete the minimum user loop: redeem (task code) → upload → preview → blueprint → confirm → status/artifacts.
+Ship a standalone, maintainable SS Web frontend under `frontend/` that faithfully reproduces the Desktop Pro UI design system (implemented in `frontend/src/styles/*.css`) while integrating the current `/v1` API to complete the minimum user loop: redeem (task code) → upload → preview → blueprint → confirm → status/artifacts.
 
 ## Related specs (normative)
 
@@ -27,8 +27,8 @@ The project MUST be buildable and runnable with:
 
 ### Requirement: Desktop Pro design primitives and CSS variables MUST be the only UI system
 
-The frontend UI MUST replicate the Desktop Pro design system used by `index.html`:
-- reuse the CSS variable semantics from `assets/desktop_pro_theme.css` (e.g., `--surface`, `--border`, `--text-dim`, `--accent`, `--success`, `--error`)
+The frontend UI MUST replicate the Desktop Pro design system:
+- reuse the CSS variable semantics defined in `frontend/src/styles/theme.css` (e.g., `--surface`, `--border`, `--text-dim`, `--accent`, `--success`, `--error`)
 - keep the primitive classnames or a traceable mapping: `panel`, `section-label`, `btn` (`btn-primary`/`btn-secondary`), `data-table`, `mono`
 - support the light/dark theme toggle using the `data-theme` attribute (`light`/`dark`)
 

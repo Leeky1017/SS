@@ -3,6 +3,7 @@ import type { ApiClient } from '../../api/client'
 import type { ApiError } from '../../api/errors'
 import type { DraftPreviewPendingResponse, DraftPreviewReadyResponse } from '../../api/types'
 import { ErrorPanel } from '../../components/ErrorPanel'
+import { zhCN } from '../../i18n/zh-CN'
 import {
   loadAppState,
   loadConfirmLock,
@@ -89,7 +90,7 @@ export function Step3(props: Step3Props) {
       const previewed = await props.api.previewDraft(jobId)
       if (!previewed.ok) {
         setDraftState({ kind: 'idle' })
-        setActionError({ error: previewed.error, retry: () => void loadDraft(), retryLabel: '重试加载蓝图' })
+        setActionError({ error: previewed.error, retry: () => void loadDraft(), retryLabel: zhCN.step3.retryLoadDraft })
         return
       }
       saveDraftPreviewSnapshot(jobId, previewed.value)
@@ -112,10 +113,10 @@ export function Step3(props: Step3Props) {
       if (!result.ok) {
         if (result.error.kind === 'http' && (result.error.status === 404 || result.error.status === 501)) {
           setPatchSupported(false)
-          setPatchDisabledReason('后端未提供 draft/patch（404/501），本面板不阻断确认。')
+          setPatchDisabledReason(zhCN.unknowns.patchNotProvided404501)
           return
         }
-        setActionError({ error: result.error, retry: () => void patchDraft(), retryLabel: '重试应用澄清' })
+        setActionError({ error: result.error, retry: () => void patchDraft(), retryLabel: zhCN.step3.retryPatchDraft })
         return
       }
       await loadDraft()
@@ -141,7 +142,7 @@ export function Step3(props: Step3Props) {
         ...(answersPayload !== undefined ? { answers: answersPayload } : {}),
       })
       if (!result.ok) {
-        setActionError({ error: result.error, retry: () => void doConfirm(), retryLabel: '重试确认' })
+        setActionError({ error: result.error, retry: () => void doConfirm(), retryLabel: zhCN.step3.retryConfirm })
         return
       }
       const confirmedAt = new Date().toISOString()
@@ -159,7 +160,7 @@ export function Step3(props: Step3Props) {
     const missing = blockingMissing(draftState.draft, answers, unknownValues)
     if (missing !== null) {
       const rid = props.api.lastRequestId ?? 'n/a'
-      setActionError({ error: localValidationError(missing, rid), retry: () => void confirm(), retryLabel: '重新检查' })
+      setActionError({ error: localValidationError(missing, rid), retry: () => void confirm(), retryLabel: zhCN.actions.recheck })
       return
     }
     if (draftState.draft.decision === 'require_confirm_with_downgrade') {
@@ -187,11 +188,11 @@ export function Step3(props: Step3Props) {
         <Step3Header />
         <div className="panel">
           <div className="panel-body">
-            <div style={{ fontWeight: 600, marginBottom: 6 }}>缺少 job_id</div>
-            <div className="inline-hint">请先完成 Step 1 / Step 2。</div>
+            <div style={{ fontWeight: 600, marginBottom: 6 }}>{zhCN.step3.missingJobIdTitle}</div>
+            <div className="inline-hint">{zhCN.step3.missingJobIdHint}</div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
               <button className="btn btn-primary" type="button" onClick={redeem}>
-                返回 Step 1
+                {zhCN.step3.backToStep1}
               </button>
             </div>
           </div>
@@ -254,14 +255,14 @@ export function Step3(props: Step3Props) {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginTop: 24 }}>
         <button className="btn btn-secondary" type="button" onClick={redeem} disabled={busy}>
-          重新兑换
+          {zhCN.actions.redeemAgain}
         </button>
         <div style={{ display: 'flex', gap: 12 }}>
           <button className="btn btn-secondary" type="button" onClick={() => void loadDraft()} disabled={busy}>
-            刷新蓝图
+            {zhCN.step3.refreshDraft}
           </button>
           <button className="btn btn-primary" type="button" onClick={() => void confirm()} disabled={busy || locked || draftState.kind !== 'ready'}>
-            确认并启动
+            {zhCN.actions.confirmAndStart}
           </button>
         </div>
       </div>

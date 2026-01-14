@@ -1,4 +1,5 @@
 import type { DraftOpenUnknown, DraftPreviewPendingResponse, DraftPreviewReadyResponse, DraftPreviewResponse } from '../../api/types'
+import { zhCN } from '../../i18n/zh-CN'
 
 export function isDraftPreviewPending(resp: DraftPreviewResponse): resp is DraftPreviewPendingResponse {
   return (resp as DraftPreviewPendingResponse).status === 'pending'
@@ -31,7 +32,7 @@ export function blockingMissing(
   if (questions !== undefined && questions.length > 0) {
     for (const q of questions) {
       const selected = answers[q.question_id]
-      if (selected === undefined || selected.length === 0) return '请完成所有 Stage 1 问题后再确认。'
+      if (selected === undefined || selected.length === 0) return zhCN.stage1.mustAnswerAllBeforeConfirm
     }
   }
 
@@ -40,9 +41,8 @@ export function blockingMissing(
     for (const u of unknowns) {
       if (!isBlockingUnknown(u)) continue
       const v = unknownValues[u.field]
-      if (v === undefined || v.trim() === '') return '请补全所有阻断项（blocking open unknowns）后再确认。'
+      if (v === undefined || v.trim() === '') return zhCN.unknowns.mustFillBlockingBeforeConfirm
     }
   }
   return null
 }
-

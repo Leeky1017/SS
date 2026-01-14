@@ -3,6 +3,7 @@ import type { ApiClient } from '../../api/client'
 import type { ApiError } from '../../api/errors'
 import type { InputsPreviewResponse, InputsUploadResponse } from '../../api/types'
 import { ErrorPanel } from '../../components/ErrorPanel'
+import { zhCN } from '../../i18n/zh-CN'
 import {
   getAuthToken,
   loadAppState,
@@ -195,7 +196,7 @@ export function Step2(props: Step2Props) {
               window.location.reload()
             }}
           >
-            继续：蓝图预检
+            {zhCN.step2.continueToStep3}
           </button>
         </div>
       </div>

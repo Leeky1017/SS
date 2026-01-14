@@ -1,4 +1,5 @@
 import type { DraftOpenUnknown, DraftPreviewReadyResponse, DraftStage1Question } from '../../api/types'
+import { controlRoleLabel, zhCN } from '../../i18n/zh-CN'
 import { isBlockingUnknown } from './model'
 
 function MappingRow(props: {
@@ -9,11 +10,12 @@ function MappingRow(props: {
   corrected: string | null
   onSet: (from: string, to: string | null) => void
 }) {
+  const placeholderDash = zhCN.common.placeholderDash
   if (props.value === null) return (
     <tr>
       <td className="mono">{props.label}</td>
-      <td className="mono">—</td>
-      <td>—</td>
+      <td className="mono">{placeholderDash}</td>
+      <td>{placeholderDash}</td>
     </tr>
   )
 
@@ -27,7 +29,7 @@ function MappingRow(props: {
           disabled={props.locked}
           onChange={(e) => props.onSet(props.value as string, e.target.value === '' ? null : e.target.value)}
         >
-          <option value="">（不修正）</option>
+          <option value="">{zhCN.mapping.optionNoCorrection}</option>
           {props.candidates.map((c) => (
             <option key={c} value={c}>
               {c}
@@ -50,9 +52,9 @@ export function MappingPanel(props: {
   if (props.candidates === null || props.candidates.length === 0) return null
   const candidates = props.candidates
   const allVars: Array<{ label: string; value: string | null }> = [
-    { label: 'OUTCOME', value: props.draft.outcome_var },
-    { label: 'TREATMENT', value: props.draft.treatment_var },
-    ...props.draft.controls.map((v, idx) => ({ label: `CONTROL ${idx + 1}`, value: v })),
+    { label: zhCN.variables.roles.outcome, value: props.draft.outcome_var },
+    { label: zhCN.variables.roles.treatment, value: props.draft.treatment_var },
+    ...props.draft.controls.map((v, idx) => ({ label: controlRoleLabel(idx + 1), value: v })),
   ]
 
   return (
@@ -60,19 +62,19 @@ export function MappingPanel(props: {
       <div className="panel-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
           <span className="section-label" style={{ margin: 0 }}>
-            修正变量映射
+            {zhCN.mapping.heading}
           </span>
           <button className="btn btn-secondary" type="button" onClick={props.onClearAll} disabled={props.locked}>
-            清除修正
+            {zhCN.mapping.clearAll}
           </button>
         </div>
         <div className="data-table-wrap" style={{ marginTop: 12, maxHeight: 280 }}>
           <table className="data-table">
             <thead>
               <tr>
-                <th>Role</th>
-                <th>Original</th>
-                <th>Corrected</th>
+                <th>{zhCN.mapping.headers.role}</th>
+                <th>{zhCN.mapping.headers.original}</th>
+                <th>{zhCN.mapping.headers.corrected}</th>
               </tr>
             </thead>
             <tbody>
@@ -91,7 +93,7 @@ export function MappingPanel(props: {
           </table>
         </div>
         <div className="inline-hint" style={{ marginTop: 10 }}>
-          显示变量时只应用修正映射，不会修改原始 draft payload。
+          {zhCN.mapping.hint}
         </div>
       </div>
     </div>
@@ -146,7 +148,7 @@ export function Stage1QuestionsPanel(props: {
     <div className="panel">
       <div className="panel-body">
         <span className="section-label" style={{ margin: 0 }}>
-          澄清问题（Stage 1）
+          {zhCN.stage1.heading}
         </span>
         <div style={{ display: 'grid', gap: 16, marginTop: 12 }}>
           {props.questions.map((q) => (
@@ -169,7 +171,7 @@ function UnknownInput(props: { locked: boolean; unknown: DraftOpenUnknown; value
   if (u.candidates !== undefined && u.candidates.length > 0) {
     return (
       <select value={props.value} disabled={props.locked} onChange={(e) => props.onChange(e.target.value)}>
-        <option value="">请选择…</option>
+        <option value="">{zhCN.common.selectPlaceholder}</option>
         {u.candidates.map((c) => (
           <option key={c} value={c}>
             {c}
@@ -184,7 +186,7 @@ function UnknownInput(props: { locked: boolean; unknown: DraftOpenUnknown; value
       value={props.value}
       className="mono"
       disabled={props.locked}
-      placeholder="填写澄清值"
+      placeholder={zhCN.unknowns.placeholderValue}
       onChange={(e) => props.onChange(e.target.value)}
     />
   )
@@ -202,7 +204,7 @@ function OpenUnknownCard(props: {
       <div className="panel-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
           <div style={{ fontWeight: 600 }}>{u.field}</div>
-          <div className="inline-hint">{isBlockingUnknown(u) ? 'blocking' : 'non-blocking'}</div>
+          <div className="inline-hint">{isBlockingUnknown(u) ? zhCN.unknowns.blocking : zhCN.unknowns.nonBlocking}</div>
         </div>
         <div className="inline-hint" style={{ marginTop: 6 }}>
           {u.description}
@@ -231,9 +233,9 @@ export function OpenUnknownsPanel(props: {
       <div className="panel-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
           <span className="section-label" style={{ margin: 0 }}>
-            澄清门控（Open unknowns）
+            {zhCN.unknowns.heading}
           </span>
-          {hasBlocking ? <span className="inline-hint">包含阻断项，确认前必须补全</span> : null}
+          {hasBlocking ? <span className="inline-hint">{zhCN.unknowns.hasBlockingHint}</span> : null}
         </div>
         <div style={{ display: 'grid', gap: 14, marginTop: 12 }}>
           {props.unknowns.map((u) => (
@@ -249,12 +251,12 @@ export function OpenUnknownsPanel(props: {
         {props.patchSupported ? (
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14 }}>
             <button className="btn btn-secondary" type="button" onClick={props.onPatch} disabled={props.locked}>
-              应用澄清并刷新预览
+              {zhCN.unknowns.applyAndRefresh}
             </button>
           </div>
         ) : (
           <div className="inline-hint" style={{ marginTop: 12 }}>
-            {props.patchDisabledReason ?? '后端暂不支持 draft/patch，本面板仅作为提示，不阻断确认。'}
+            {props.patchDisabledReason ?? zhCN.unknowns.patchUnsupported}
           </div>
         )}
       </div>
@@ -267,18 +269,17 @@ export function DowngradeModal(props: { open: boolean; onCancel: () => void; onC
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
       <div className="modal">
-        <div style={{ fontWeight: 700, marginBottom: 6 }}>需要降级确认</div>
-        <div className="inline-hint">当前蓝图存在风险项，确认后将以降级策略继续执行。是否继续？</div>
+        <div style={{ fontWeight: 700, marginBottom: 6 }}>{zhCN.downgrade.title}</div>
+        <div className="inline-hint">{zhCN.downgrade.message}</div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 16 }}>
           <button className="btn btn-secondary" type="button" onClick={props.onCancel}>
-            取消
+            {zhCN.actions.cancel}
           </button>
           <button className="btn btn-primary" type="button" onClick={props.onConfirm}>
-            继续确认
+            {zhCN.actions.continueConfirm}
           </button>
         </div>
       </div>
     </div>
   )
 }
-
