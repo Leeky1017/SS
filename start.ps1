@@ -1,28 +1,28 @@
+[CmdletBinding()]
+param(
+    [string]$EnvFile = ".env",
+    [switch]$NoWorker,
+    [switch]$SkipInstall,
+    [switch]$ForceInstall,
+    [string]$VenvDir = "",
+    [string]$WorkerLogPath = "worker.log"
+)
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $Root
 
-function Enable-VenvIfPresent {
-    $candidates = @(".venv", "venv")
-    foreach ($venv in $candidates) {
-        $activate = Join-Path $Root $venv "Scripts" "Activate.ps1"
-        if (Test-Path $activate) {
-            . $activate
-            Write-Host "Activated venv: $venv"
-            return
-        }
-    }
-    Write-Host "No venv found (.venv/venv). Continuing with system Python."
-}
-
 function Import-DotEnvIfPresent {
-    $envPath = Join-Path $Root ".env"
+    param([string]$RootDir, [string]$EnvFilePath)
+
+    $envPath = Join-Path $RootDir $EnvFilePath
     if (-not (Test-Path $envPath)) {
-        Write-Host "No .env file found. Continuing."
+        Write-Host "No .env file found at: $envPath (continuing)"
         return
     }
+
     Get-Content $envPath | ForEach-Object {
         $line = $_.Trim()
         if ($line -eq "" -or $line.StartsWith("#")) { return }
@@ -46,17 +46,117 @@ function Import-DotEnvIfPresent {
             Set-Item -Path ("Env:" + $key) -Value $value
         }
     }
+
     Write-Host "Loaded .env into process environment (non-overriding)."
 }
 
-Enable-VenvIfPresent
-Import-DotEnvIfPresent
+function Resolve-VenvDir {
+    param([string]$RootDir, [string]$PreferredVenvDir)
 
-$python = (Get-Command python -ErrorAction Stop).Source
+    if (-not [string]::IsNullOrWhiteSpace($PreferredVenvDir)) {
+        return $PreferredVenvDir
+    }
 
-$workerLog = Join-Path $Root "worker.log"
-Write-Host "Starting worker: python -m src.worker (logs: $workerLog)"
-Start-Process -FilePath $python -ArgumentList @("-m", "src.worker") -WorkingDirectory $Root -RedirectStandardOutput $workerLog -RedirectStandardError $workerLog
+    foreach ($candidate in @(".venv", "venv")) {
+        if (Test-Path (Join-Path $RootDir $candidate)) {
+            return $candidate
+        }
+    }
 
-Write-Host "Starting API: python -m src.main"
-& $python -m src.main
+    return ".venv"
+}
+
+function Resolve-PythonBootstrap {
+    $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
+    if ($pythonCmd) {
+        return @{ kind = "python"; exe = $pythonCmd.Source; args = @() }
+    }
+
+    $pyCmd = Get-Command py -ErrorAction SilentlyContinue
+    if ($pyCmd) {
+        return @{ kind = "py"; exe = $pyCmd.Source; args = @("-3") }
+    }
+
+    throw "Python not found. Install Python 3.x or ensure 'python'/'py' is in PATH."
+}
+
+function Ensure-VenvPython {
+    param([string]$RootDir, [string]$ResolvedVenvDir, [switch]$SkipInstallDeps, [switch]$AlwaysInstallDeps)
+
+    $venvPath = Join-Path $RootDir $ResolvedVenvDir
+    $venvPython = Join-Path $venvPath "Scripts" "python.exe"
+    $created = $false
+
+    if (-not (Test-Path $venvPython)) {
+        $bootstrap = Resolve-PythonBootstrap
+        $bootstrapArgs = $bootstrap.args + @("-m", "venv", $venvPath)
+        Write-Host "Creating venv: $venvPath"
+        & $bootstrap.exe @bootstrapArgs
+        $created = $true
+    }
+
+    if (-not (Test-Path $venvPython)) {
+        throw "Venv python not found after creation attempt: $venvPython"
+    }
+
+    if (-not $SkipInstallDeps -and ($created -or $AlwaysInstallDeps)) {
+        Write-Host "Installing runtime deps into venv (editable): pip install -e ."
+        & $venvPython -m pip install -e .
+    }
+
+    return $venvPython
+}
+
+Import-DotEnvIfPresent -RootDir $Root -EnvFilePath $EnvFile
+
+$resolvedVenvDir = Resolve-VenvDir -RootDir $Root -PreferredVenvDir $VenvDir
+$python = Ensure-VenvPython -RootDir $Root -ResolvedVenvDir $resolvedVenvDir -SkipInstallDeps:$SkipInstall -AlwaysInstallDeps:$ForceInstall
+Write-Host "Using python: $python"
+
+$workerProc = $null
+$workerLog = Join-Path $Root $WorkerLogPath
+$workerLogDir = Split-Path -Parent $workerLog
+if (-not [string]::IsNullOrWhiteSpace($workerLogDir) -and -not (Test-Path $workerLogDir)) {
+    New-Item -ItemType Directory -Force -Path $workerLogDir | Out-Null
+}
+
+if (-not $NoWorker) {
+    Write-Host "Starting worker: $python -m src.worker (logs: $workerLog)"
+    $workerProc = Start-Process `
+        -FilePath $python `
+        -ArgumentList @("-m", "src.worker") `
+        -WorkingDirectory $Root `
+        -RedirectStandardOutput $workerLog `
+        -RedirectStandardError $workerLog `
+        -PassThru
+
+    Start-Sleep -Seconds 1
+    if ($workerProc.HasExited) {
+        Write-Host "Worker exited early (exit code: $($workerProc.ExitCode)). Tail of log:"
+        if (Test-Path $workerLog) {
+            Get-Content -Path $workerLog -Tail 80
+        }
+        throw "Worker failed to start."
+    }
+
+    Write-Host "Worker PID: $($workerProc.Id)"
+}
+
+$apiExitCode = 0
+try {
+    Write-Host "Starting API: $python -m src.main (Ctrl+C to stop)"
+    & $python -m src.main
+    $apiExitCode = $LASTEXITCODE
+} finally {
+    if ($workerProc -ne $null) {
+        try {
+            $p = Get-Process -Id $workerProc.Id -ErrorAction Stop
+            Write-Host "Stopping worker PID: $($p.Id)"
+            Stop-Process -Id $p.Id -Force -ErrorAction Stop
+        } catch [System.ArgumentException] {
+            Write-Host "Worker already stopped."
+        }
+    }
+}
+
+exit $apiExitCode
