@@ -20,6 +20,7 @@
 
 ## Errors Encountered
 - 2026-01-14 `scripts/agent_controlplane_sync.sh` failed because controlplane worktree became dirty after creating Rulebook task on `main` → reset changes and recreated task in worktree.
+- 2026-01-14 CI `mypy` failed on `DraftPreviewResponse.decision` (Literal vs `str`) → normalized decision in `src/api/draft.py`.
 
 ## Runs
 ### 2026-01-14 bootstrap: auth + issue
@@ -83,3 +84,12 @@
   - `https://github.com/Leeky1017/SS/pull/467`
 - Evidence:
   - https://github.com/Leeky1017/SS/pull/467
+
+### 2026-01-14 ci: mypy fix
+- Command:
+  - `gh run view 20985822538 --log-failed`
+  - `git commit -m "fix: normalize preview decision literal (#464)"`
+- Key output:
+  - `mypy: src/api/draft.py decision arg-type`
+- Evidence:
+  - `src/api/draft.py`
