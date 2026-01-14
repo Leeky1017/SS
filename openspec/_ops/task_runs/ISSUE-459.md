@@ -68,3 +68,13 @@
 - Command: `gh pr view 460 --json state,mergedAt`
 - Key output: `state=MERGED mergedAt=2026-01-14T00:06:33Z`
 - Evidence: N/A
+
+### 2026-01-14 08:14 Rulebook: archive task
+- Command: `rulebook task archive issue-459-release-zip`
+- Key output: `✅ Task issue-459-release-zip archived successfully`
+- Evidence: `rulebook/tasks/archive/2026-01-14-issue-459-release-zip/`
+
+### 2026-01-14 08:14 PR preflight (Rulebook archive)
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+- Evidence: N/A
