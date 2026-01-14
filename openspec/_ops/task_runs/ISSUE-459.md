@@ -28,3 +28,23 @@
 - Command: `scripts/ss_release_zip.sh`
 - Key output: `Wrote: release/SS-20260114-000123-gf10bbdf.zip`
 - Evidence: `release/SS-20260114-000123-gf10bbdf.zip`
+
+### 2026-01-14 08:02 Lint
+- Command: `/home/leeky/work/SS/.venv/bin/ruff check .`
+- Key output: `All checks passed!`
+- Evidence: N/A
+
+### 2026-01-14 08:02 Tests
+- Command: `/home/leeky/work/SS/.venv/bin/pytest -q`
+- Key output: `376 passed, 5 skipped in 11.65s`
+- Evidence: N/A
+
+### 2026-01-14 08:03 OpenSpec strict validation
+- Command: `openspec validate --specs --strict --no-interactive`
+- Key output: `Totals: 29 passed, 0 failed (29 items)`
+- Evidence: N/A
+
+### 2026-01-14 08:03 PR preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+- Evidence: N/A
