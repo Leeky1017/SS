@@ -65,7 +65,10 @@ def v1_contract_fields(*, job: Job, draft: Draft, candidates: list[str]) -> dict
                 "question_id": "analysis_goal",
                 "question_text": "What is your analysis goal?",
                 "question_type": "single_choice",
-                "options": ["descriptive", "causal"],
+                "options": [
+                    {"option_id": "descriptive", "label": "Descriptive", "value": "descriptive"},
+                    {"option_id": "causal", "label": "Causal", "value": "causal"},
+                ],
                 "priority": 1,
             }
         ]

@@ -62,6 +62,19 @@ def test_tokenized_step3_journey_with_patch_and_confirm_succeeds(
     assert isinstance(preview_payload["data_quality_warnings"], list)
     assert isinstance(preview_payload["stage1_questions"], list)
     assert isinstance(preview_payload["open_unknowns"], list)
+    assert len(preview_payload["stage1_questions"]) > 0
+    first_question = preview_payload["stage1_questions"][0]
+    assert isinstance(first_question, dict)
+    options = first_question.get("options")
+    assert isinstance(options, list)
+    assert len(options) > 0
+    assert all(isinstance(opt, dict) for opt in options)
+    assert all(
+        isinstance(opt.get("option_id"), str)
+        and isinstance(opt.get("label"), str)
+        and "value" in opt
+        for opt in options
+    )
 
     job = journey_test_client.get(f"/v1/jobs/{job_id}", headers=headers)
     assert job.status_code == 200

@@ -1,5 +1,8 @@
 export type SSJobStatus = string
 
+export type JsonScalar = string | number | boolean | null
+export type JsonValue = JsonScalar | JsonValue[] | { [key: string]: JsonValue }
+
 export type RedeemTaskCodeRequest = {
   task_code: string
   requirement: string
@@ -8,21 +11,25 @@ export type RedeemTaskCodeRequest = {
 export type RedeemTaskCodeResponse = {
   job_id: string
   token: string
+  expires_at: string
+  is_idempotent: boolean
 }
 
 export type ConfirmJobRequest = {
   confirmed: boolean
-  notes: string | null
+  notes?: string | null
+  output_formats?: string[] | null
   variable_corrections: Record<string, string>
-  default_overrides: Record<string, unknown>
-  answers?: Record<string, string[]>
-  expert_suggestions_feedback?: Record<string, unknown>
+  answers: Record<string, JsonValue>
+  default_overrides: Record<string, JsonValue>
+  expert_suggestions_feedback: Record<string, JsonValue>
 }
 
 export type ConfirmJobResponse = {
   job_id: string
   status: SSJobStatus
   scheduled_at: string | null
+  message: string
 }
 
 export type PlanStepResponse = {
@@ -89,10 +96,10 @@ export type InputsPreviewColumn = { name: string; inferred_type: string }
 export type InputsPreviewResponse = {
   job_id: string
   row_count: number | null
-  column_count?: number | null
-  sheet_names?: string[]
-  selected_sheet?: string | null
-  header_row?: boolean | null
+  column_count: number | null
+  sheet_names: string[]
+  selected_sheet: string | null
+  header_row: boolean | null
   columns: InputsPreviewColumn[]
   sample_rows: Array<Record<string, string | number | boolean | null>>
 }
@@ -108,16 +115,16 @@ export type DraftPreviewDecision = 'auto_freeze' | 'require_confirm' | 'require_
 
 export type DraftPreviewPendingResponse = {
   status: 'pending'
-  message?: string
+  message: string
   retry_after_seconds: number
-  retry_until?: string
+  retry_until: string
 }
 
 export type DraftQualityWarning = {
   type: string
   severity: string
   message: string
-  suggestion?: string
+  suggestion: string | null
 }
 
 export type DraftStage1Option = {
@@ -131,46 +138,46 @@ export type DraftStage1Question = {
   question_text: string
   question_type: string
   options: DraftStage1Option[]
-  priority?: number
+  priority: number
 }
 
 export type DraftOpenUnknown = {
   field: string
   description: string
-  impact?: string
-  blocking?: boolean
-  candidates?: string[]
+  impact: string
+  blocking: boolean | null
+  candidates: string[]
 }
 
 export type DraftPreviewReadyResponse = {
   job_id: string
   draft_text: string
-  draft_id?: string
-  status?: string
-  decision?: DraftPreviewDecision
-  risk_score?: number
+  draft_id: string
+  status: string
+  decision: DraftPreviewDecision
+  risk_score: number
   outcome_var: string | null
   treatment_var: string | null
   controls: string[]
-  column_candidates?: string[]
-  variable_types?: InputsPreviewColumn[]
-  data_sources?: DraftPreviewDataSource[]
-  data_quality_warnings?: DraftQualityWarning[]
-  stage1_questions?: DraftStage1Question[]
-  open_unknowns?: DraftOpenUnknown[]
-  default_overrides?: Record<string, unknown>
+  column_candidates: string[]
+  variable_types: InputsPreviewColumn[]
+  data_sources: DraftPreviewDataSource[]
+  data_quality_warnings: DraftQualityWarning[]
+  stage1_questions: DraftStage1Question[]
+  open_unknowns: DraftOpenUnknown[]
+  default_overrides: Record<string, JsonValue>
 }
 
 export type DraftPreviewResponse = DraftPreviewPendingResponse | DraftPreviewReadyResponse
 
-export type DraftPatchRequest = { field_updates: Record<string, string> }
+export type DraftPatchRequest = { field_updates: Record<string, JsonValue> }
 
 export type DraftPatchResponse = {
-  status: string
-  patched_fields?: string[]
-  remaining_unknowns_count?: number
-  open_unknowns?: DraftOpenUnknown[]
-  draft_preview?: Partial<DraftPreviewReadyResponse>
+  status: 'patched'
+  patched_fields: string[]
+  remaining_unknowns_count: number
+  open_unknowns: DraftOpenUnknown[]
+  draft_preview: Record<string, JsonValue>
 }
 
 export type RunJobResponse = { job_id: string; status: SSJobStatus; scheduled_at: string | null }

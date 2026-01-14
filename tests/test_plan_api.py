@@ -97,7 +97,16 @@ async def test_confirm_auto_freezes_plan_before_queueing(
         preview = await client.get(f"/v1/jobs/{job_id}/draft/preview")
         assert preview.status_code == 200
 
-        confirmed = await client.post(f"/v1/jobs/{job_id}/confirm", json={"confirmed": True})
+        confirmed = await client.post(
+            f"/v1/jobs/{job_id}/confirm",
+            json={
+                "confirmed": True,
+                "variable_corrections": {},
+                "answers": {},
+                "default_overrides": {},
+                "expert_suggestions_feedback": {},
+            },
+        )
         assert confirmed.status_code == 200
         assert confirmed.json()["status"] == "queued"
 

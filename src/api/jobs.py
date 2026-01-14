@@ -148,7 +148,7 @@ async def run_job(
 @router.post("/jobs/{job_id}/confirm", response_model=ConfirmJobResponse)
 async def confirm_job(
     job_id: str,
-    payload: ConfirmJobRequest = Body(default_factory=ConfirmJobRequest),
+    payload: ConfirmJobRequest = Body(...),
     tenant_id: str = Depends(get_tenant_id),
     svc: JobService = Depends(get_job_service),
 ) -> ConfirmJobResponse:
