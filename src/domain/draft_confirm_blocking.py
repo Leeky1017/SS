@@ -21,15 +21,12 @@ def _missing_stage1_answers(
 ) -> list[str]:
     if draft is None:
         return []
-    raw = draft.model_dump().get("stage1_questions")
-    if not isinstance(raw, list) or len(raw) == 0:
+    if len(draft.stage1_questions) == 0:
         return []
     missing: list[str] = []
-    for item in raw:
-        if not isinstance(item, dict):
-            continue
-        question_id = item.get("question_id")
-        if not isinstance(question_id, str) or question_id.strip() == "":
+    for question in draft.stage1_questions:
+        question_id = question.question_id
+        if question_id.strip() == "":
             continue
         if not _has_selected_answer(answers.get(question_id)):
             missing.append(question_id)
@@ -39,18 +36,15 @@ def _missing_stage1_answers(
 def _blocking_unknown_fields(*, draft: Draft | None) -> list[str]:
     if draft is None:
         return []
-    raw = draft.model_dump().get("open_unknowns")
-    if not isinstance(raw, list) or len(raw) == 0:
+    if len(draft.open_unknowns) == 0:
         return []
     fields: list[str] = []
-    for item in raw:
-        if not isinstance(item, dict):
+    for item in draft.open_unknowns:
+        field = item.field
+        if field.strip() == "":
             continue
-        field = item.get("field")
-        if not isinstance(field, str) or field.strip() == "":
-            continue
-        impact = item.get("impact")
-        blocking = item.get("blocking")
+        impact = item.impact
+        blocking = item.blocking
         is_blocking = blocking is True or impact in {"high", "critical"}
         if is_blocking:
             fields.append(field)
@@ -65,4 +59,3 @@ def _has_selected_answer(value: JsonValue | None) -> bool:
     if isinstance(value, list):
         return any(_has_selected_answer(item) for item in value)
     return True
-

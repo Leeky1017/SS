@@ -5,6 +5,7 @@ from pathlib import PurePosixPath
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from src.domain.draft_v1_models import DraftOpenUnknown, DraftStage1Question
 from src.utils.job_workspace import is_safe_path_segment
 from src.utils.json_types import JsonValue
 from src.utils.tenancy import DEFAULT_TENANT_ID
@@ -136,6 +137,8 @@ class Draft(BaseModel):
     treatment_var: str | None = None
     controls: list[str] = Field(default_factory=list)
     column_candidates: list[str] = Field(default_factory=list)
+    stage1_questions: list[DraftStage1Question] = Field(default_factory=list)
+    open_unknowns: list[DraftOpenUnknown] = Field(default_factory=list)
     variable_types: list[DraftVariableType] = Field(default_factory=list)
     data_sources: list[DraftDataSource] = Field(default_factory=list)
     default_overrides: dict[str, JsonValue] = Field(default_factory=dict)

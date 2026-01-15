@@ -27,7 +27,11 @@ def _bundle_payload(bundle: Bundle) -> dict[str, object]:
     }
 
 
-@router.post("/jobs/{job_id}/inputs/bundle", response_model=BundleResponse)
+@router.post(
+    "/jobs/{job_id}/inputs/bundle",
+    response_model=BundleResponse,
+    openapi_extra={"x-internal": True},
+)
 async def create_bundle(
     job_id: str,
     payload: CreateBundleRequest = Body(...),
@@ -50,7 +54,11 @@ async def create_bundle(
     return BundleResponse.model_validate(_bundle_payload(bundle))
 
 
-@router.get("/jobs/{job_id}/inputs/bundle", response_model=BundleResponse)
+@router.get(
+    "/jobs/{job_id}/inputs/bundle",
+    response_model=BundleResponse,
+    openapi_extra={"x-internal": True},
+)
 async def get_bundle(
     job_id: str,
     tenant_id: str = Depends(get_tenant_id),
