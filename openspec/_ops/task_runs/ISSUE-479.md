@@ -1,7 +1,8 @@
 # ISSUE-479
 - Issue: #479
 - Branch: task/479-api-contract-sync
-- PR: https://github.com/Leeky1017/SS/pull/480
+- PR: https://github.com/Leeky1017/SS/pull/481
+- Previous PR: https://github.com/Leeky1017/SS/pull/480 (merged)
 
 ## Plan
 - Add backend OpenAPI export + frontend types generator
