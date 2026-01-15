@@ -7,6 +7,15 @@
 - 项目权威文档（开发圣旨）在 `openspec/specs/`，尤其是 `openspec/specs/ss-constitution/spec.md`。
 - `docs/` 仅保留指针/入口，避免形成第二套文档体系。
 
+## API 契约优先（强制护栏）
+
+- `frontend/src/api/types.ts` 与 `frontend/src/features/admin/adminApiTypes.ts` 为**自动生成**文件，禁止手动编辑。
+- 任何 API 变更必须遵循顺序：**后端 schema/route 先改 → 生成前端 types → 再改前端调用/页面**。
+- 禁止反向流程：**前端先改 types、后端再跟**（会造成漂移；CI 会失败）。
+- 本地生成与校验：
+  - 生成：`scripts/contract_sync.sh generate`
+  - 校验：`scripts/contract_sync.sh check`
+
 ## 代码原则（硬约束）
 
 - YAGNI：不需要的不写；先把最小链路跑通再扩展。
