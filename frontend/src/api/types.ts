@@ -35,7 +35,7 @@ export type ConfirmJobResponse = {
 export type PlanStepResponse = {
   step_id: string
   type: string
-  params: Record<string, unknown>
+  params: Record<string, JsonValue>
   depends_on: string[]
   produces: string[]
 }
@@ -47,7 +47,7 @@ export type LLMPlanResponse = {
   steps: PlanStepResponse[]
 }
 
-export type FreezePlanRequest = { notes: string | null }
+export type FreezePlanRequest = { notes?: string | null; answers?: Record<string, JsonValue> }
 export type FreezePlanResponse = { job_id: string; plan: LLMPlanResponse }
 export type GetPlanResponse = { job_id: string; plan: LLMPlanResponse }
 
@@ -70,6 +70,7 @@ export type GetJobResponse = {
   job_id: string
   trace_id: string | null
   status: SSJobStatus
+  selected_template_id: string | null
   timestamps: JobTimestamps
   draft: DraftSummary | null
   artifacts: ArtifactsSummary
@@ -153,7 +154,7 @@ export type DraftPreviewReadyResponse = {
   job_id: string
   draft_text: string
   draft_id: string
-  status: string
+  status: 'ready'
   decision: DraftPreviewDecision
   risk_score: number
   outcome_var: string | null

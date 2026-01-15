@@ -6,14 +6,18 @@ from fastapi import APIRouter, Body, Depends, Query, Response
 
 from src.api.deps import get_draft_service, get_tenant_id
 from src.api.schemas import (
+    DraftDataQualityWarning,
+    DraftOpenUnknown,
     DraftPatchRequest,
     DraftPatchResponse,
     DraftPreviewDataSource,
     DraftPreviewPendingResponse,
     DraftPreviewResponse,
+    DraftStage1Question,
     InputsPreviewColumn,
 )
 from src.domain.draft_service import DraftService
+from src.domain.draft_v1_contract import list_of_dicts
 from src.infra.input_exceptions import InputMainDataSourceNotFoundError
 
 router = APIRouter(tags=["draft"])
@@ -70,14 +74,19 @@ async def draft_preview(
         draft_id=str(draft_dump.get("draft_id", "")),
         decision=decision,
         risk_score=float(draft_dump.get("risk_score", 0.0)),
-        status=str(draft_dump.get("status", "ready")),
         outcome_var=draft.outcome_var,
         treatment_var=draft.treatment_var,
         controls=list(draft.controls),
         column_candidates=list(draft.column_candidates),
-        data_quality_warnings=list(draft_dump.get("data_quality_warnings", [])),
-        stage1_questions=list(draft_dump.get("stage1_questions", [])),
-        open_unknowns=list(draft_dump.get("open_unknowns", [])),
+        data_quality_warnings=cast(
+            list[DraftDataQualityWarning],
+            list_of_dicts(draft_dump.get("data_quality_warnings")),
+        ),
+        stage1_questions=cast(
+            list[DraftStage1Question],
+            list_of_dicts(draft_dump.get("stage1_questions")),
+        ),
+        open_unknowns=cast(list[DraftOpenUnknown], list_of_dicts(draft_dump.get("open_unknowns"))),
         variable_types=[
             InputsPreviewColumn(name=item.name, inferred_type=item.inferred_type)
             for item in draft.variable_types
