@@ -167,7 +167,7 @@ class DraftPreviewResponse(BaseModel):
     draft_id: str
     decision: Literal["auto_freeze", "require_confirm", "require_confirm_with_downgrade"]
     risk_score: float
-    status: str
+    status: Literal["ready"] = "ready"
     outcome_var: str | None = None
     treatment_var: str | None = None
     controls: list[str] = Field(default_factory=list)
@@ -181,7 +181,7 @@ class DraftPreviewResponse(BaseModel):
 
 
 class DraftPreviewPendingResponse(BaseModel):
-    status: str = "pending"
+    status: Literal["pending"] = "pending"
     message: str
     retry_after_seconds: int
     retry_until: str
