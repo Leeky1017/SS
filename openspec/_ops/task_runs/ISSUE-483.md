@@ -2,7 +2,7 @@
 
 - Issue: #483
 - Branch: task/483-p1-e2e-tests
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/486
 
 ## Goal
 - Build a system-level E2E test suite (`tests/e2e/`) that covers API → input processing → LLM resilience → confirmation/idempotency → execution → state management, with explicit expected outcomes for boundary cases.
@@ -82,3 +82,36 @@
   - `.venv/bin/pytest -q`
 - Key output:
   - `422 passed, 7 skipped`
+
+### 2026-01-16 02:40 Push branch (worktree)
+- Command:
+  - `git push -u origin HEAD`
+- Key output:
+  - `task/483-p1-e2e-tests -> task/483-p1-e2e-tests`
+
+### 2026-01-16 02:41 PR preflight (worktree)
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-16 02:42 Create PR (worktree)
+- Command:
+  - `gh pr create ...`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/486`
+
+### 2026-01-16 02:43 Enable auto-merge (worktree)
+- Command:
+  - `gh pr merge --auto --squash 486`
+- Key output:
+  - `auto-merge: enabled`
+
+### 2026-01-16 02:46 Rebase onto origin/main (worktree)
+- Command:
+  - `git fetch origin main`
+  - `git rebase origin/main`
+  - `git push --force-with-lease`
+- Key output:
+  - `mergeStateStatus: BEHIND -> rebase`
