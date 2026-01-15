@@ -1,7 +1,7 @@
 # ISSUE-477
 - Issue: #477
 - Branch: task/477-api-contract-alignment
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/478
 
 ## Plan
 - Align frontend/back API contract types per audit report
@@ -48,3 +48,13 @@
 - Command: `openspec validate --specs --strict --no-interactive`
 - Key output: `Totals: 29 passed, 0 failed (29 items)`
 - Evidence: `openspec/specs/`
+
+### 2026-01-15 20:42 PR preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+- Evidence: none
+
+### 2026-01-15 20:42 PR create
+- Command: `gh pr create --base main --head task/477-api-contract-alignment --title "fix: align API contracts (#477)" --body "Closes #477 ..."`
+- Key output: `https://github.com/Leeky1017/SS/pull/478`
+- Evidence: none
