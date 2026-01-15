@@ -24,3 +24,7 @@
 - Key output: `14`
 - Evidence: `Audit/api_contract_audit_report.md`
 
+### 2026-01-15 11:49 pr-preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+- Evidence: `Audit/api_contract_audit_report.md`
