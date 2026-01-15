@@ -42,3 +42,8 @@
 - Command: `n/a (code change)`
 - Key output: `Marked bundle + upload-sessions operations with OpenAPI x-internal: true (unused by current frontend client)`
 - Evidence: `src/api/inputs_bundle.py`, `src/api/inputs_upload_sessions.py`
+
+### 2026-01-16 01:20 Rulebook archive
+- Command: `rulebook task archive issue-482-implicit-contract-risk`
+- Key output: `Moved task to rulebook/tasks/archive/2026-01-15-issue-482-implicit-contract-risk`
+- Evidence: https://github.com/Leeky1017/SS/pull/485
