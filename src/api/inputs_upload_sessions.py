@@ -19,7 +19,11 @@ from src.domain.upload_sessions_service import UploadSessionsService
 router = APIRouter(tags=["inputs"])
 
 
-@router.post("/jobs/{job_id}/inputs/upload-sessions", response_model=UploadSessionResponse)
+@router.post(
+    "/jobs/{job_id}/inputs/upload-sessions",
+    response_model=UploadSessionResponse,
+    openapi_extra={"x-internal": True},
+)
 async def create_upload_session(
     job_id: str,
     payload: CreateUploadSessionRequest = Body(...),
@@ -39,6 +43,7 @@ async def create_upload_session(
     "/upload-sessions/{upload_session_id}/refresh-urls",
     response_model=RefreshUploadUrlsResponse,
     dependencies=[Depends(enforce_v1_upload_session_bearer_auth)],
+    openapi_extra={"x-internal": True},
 )
 async def refresh_upload_urls(
     upload_session_id: str,
@@ -58,6 +63,7 @@ async def refresh_upload_urls(
     "/upload-sessions/{upload_session_id}/finalize",
     response_model=FinalizeUploadResponse,
     dependencies=[Depends(enforce_v1_upload_session_bearer_auth)],
+    openapi_extra={"x-internal": True},
 )
 async def finalize_upload_session(
     upload_session_id: str,

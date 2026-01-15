@@ -3,10 +3,9 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import cast
 
+from src.domain.draft_v1_models import DraftOpenUnknown, DraftStage1Option, DraftStage1Question
 from src.domain.models import Draft, Job
-from src.utils.json_types import JsonValue
 from src.utils.time import utc_now
 
 
@@ -56,21 +55,25 @@ def pending_inputs_upload_result() -> DraftPreviewResult:
     )
 
 
-def v1_contract_fields(*, job: Job, draft: Draft, candidates: list[str]) -> dict[str, JsonValue]:
-    stage1_questions: list[JsonValue]
-    unknowns: list[JsonValue]
+def v1_contract_fields(*, job: Job, draft: Draft, candidates: list[str]) -> dict[str, object]:
+    stage1_questions: list[DraftStage1Question]
+    unknowns: list[DraftOpenUnknown]
     if is_v1_redeem_job(job.job_id):
         stage1_questions = [
-            {
-                "question_id": "analysis_goal",
-                "question_text": "What is your analysis goal?",
-                "question_type": "single_choice",
-                "options": [
-                    {"option_id": "descriptive", "label": "Descriptive", "value": "descriptive"},
-                    {"option_id": "causal", "label": "Causal", "value": "causal"},
+            DraftStage1Question(
+                question_id="analysis_goal",
+                question_text="What is your analysis goal?",
+                question_type="single_choice",
+                options=[
+                    DraftStage1Option(
+                        option_id="descriptive",
+                        label="Descriptive",
+                        value="descriptive",
+                    ),
+                    DraftStage1Option(option_id="causal", label="Causal", value="causal"),
                 ],
-                "priority": 1,
-            }
+                priority=1,
+            )
         ]
         unknowns = _v1_open_unknowns(draft=draft, candidates=candidates)
     else:
@@ -104,32 +107,31 @@ def list_of_dicts(value: object) -> list[dict[str, object]]:
     return items
 
 
-def _v1_open_unknowns(*, draft: Draft, candidates: list[str]) -> list[JsonValue]:
-    unknowns: list[JsonValue] = []
+def _v1_open_unknowns(*, draft: Draft, candidates: list[str]) -> list[DraftOpenUnknown]:
+    unknowns: list[DraftOpenUnknown] = []
     candidate_list = candidates[:20]
-    candidate_values = [cast(JsonValue, item) for item in candidate_list]
     if draft.outcome_var is None or (
         isinstance(draft.outcome_var, str) and draft.outcome_var == ""
     ):
         unknowns.append(
-            {
-                "field": "outcome_var",
-                "description": "Select outcome variable",
-                "impact": "high",
-                "blocking": True,
-                "candidates": candidate_values,
-            }
+            DraftOpenUnknown(
+                field="outcome_var",
+                description="Select outcome variable",
+                impact="high",
+                blocking=True,
+                candidates=candidate_list,
+            )
         )
     if draft.treatment_var is None or (
         isinstance(draft.treatment_var, str) and draft.treatment_var == ""
     ):
         unknowns.append(
-            {
-                "field": "treatment_var",
-                "description": "Select treatment variable",
-                "impact": "high",
-                "blocking": True,
-                "candidates": candidate_values,
-            }
+            DraftOpenUnknown(
+                field="treatment_var",
+                description="Select treatment variable",
+                impact="high",
+                blocking=True,
+                candidates=candidate_list,
+            )
         )
     return unknowns

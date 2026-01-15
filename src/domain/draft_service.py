@@ -15,7 +15,6 @@ from src.domain.draft_v1_contract import (
     DraftPreviewResult,
     has_inputs,
     is_v1_redeem_job,
-    list_of_dicts,
     pending_inputs_upload_result,
     v1_contract_fields,
 )
@@ -118,11 +117,10 @@ class DraftService:
             draft = draft.model_copy(update=updates)
         job.draft = self._enrich_draft(tenant_id=tenant_id, job=job, draft=draft)
         self._store.save(tenant_id=tenant_id, job=job)
-        open_unknowns = list_of_dicts(job.draft.model_dump().get("open_unknowns"))
         return DraftPatchResult(
             draft=job.draft,
             patched_fields=tuple(patched),
-            remaining_unknowns_count=len(open_unknowns),
+            remaining_unknowns_count=len(job.draft.open_unknowns),
         )
 
     async def _preview_for_loaded_job(self, *, tenant_id: str, job: Job) -> Draft:
