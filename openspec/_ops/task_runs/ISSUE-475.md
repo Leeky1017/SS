@@ -1,7 +1,7 @@
 # ISSUE-475
 - Issue: #475
 - Branch: task/475-align-audit-r001
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/476
 
 ## Plan
 - Inventory backend endpoints
