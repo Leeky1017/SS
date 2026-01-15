@@ -1,7 +1,7 @@
 # ISSUE-482
 - Issue: #482
 - Branch: task/482-implicit-contract-risk
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/484
 
 ## Plan
 - Make `Draft.stage1_questions` + `Draft.open_unknowns` explicit typed fields
