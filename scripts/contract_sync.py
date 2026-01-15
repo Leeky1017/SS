@@ -16,95 +16,39 @@ ADMIN_TYPES_OUT = Path("frontend/src/features/admin/adminApiTypes.ts")
 
 OPENAPI_TYPESCRIPT_VERSION = "7.9.1"
 
-PUBLIC_EXPORTS: list[str] = [
-    "SSJobStatus",
-    "JsonScalar",
-    "JsonValue",
-    "RedeemTaskCodeRequest",
-    "RedeemTaskCodeResponse",
-    "ConfirmJobRequest",
-    "ConfirmJobResponse",
-    "PlanStepResponse",
-    "LLMPlanResponse",
-    "FreezePlanRequest",
-    "FreezePlanResponse",
-    "GetPlanResponse",
-    "JobTimestamps",
-    "DraftSummary",
-    "ArtifactsSummary",
-    "RunAttemptSummary",
-    "GetJobResponse",
-    "ArtifactIndexItem",
-    "ArtifactsIndexResponse",
-    "InputsUploadResponse",
-    "InputsPreviewColumn",
-    "InputsPreviewResponse",
-    "DraftPreviewDataSource",
-    "DraftPreviewDecision",
-    "DraftPreviewPendingResponse",
-    "DraftQualityWarning",
-    "DraftStage1Option",
-    "DraftStage1Question",
-    "DraftOpenUnknown",
-    "DraftPreviewReadyResponse",
-    "DraftPreviewResponse",
-    "DraftPatchRequest",
-    "DraftPatchResponse",
-    "RunJobResponse",
-]
+PUBLIC_EXPORTS = """
+SSJobStatus JsonScalar JsonValue RedeemTaskCodeRequest RedeemTaskCodeResponse
+ConfirmJobRequest ConfirmJobResponse PlanStepResponse LLMPlanResponse
+FreezePlanRequest FreezePlanResponse GetPlanResponse JobTimestamps
+DraftSummary ArtifactsSummary RunAttemptSummary GetJobResponse
+ArtifactIndexItem ArtifactsIndexResponse InputsUploadResponse
+InputsPreviewColumn InputsPreviewResponse DraftPreviewDataSource
+DraftPreviewDecision DraftPreviewPendingResponse DraftQualityWarning
+DraftStage1Option DraftStage1Question DraftOpenUnknown
+DraftPreviewReadyResponse DraftPreviewResponse DraftPatchRequest DraftPatchResponse
+RunJobResponse
+""".split()
 
-ADMIN_EXPORTS: list[str] = [
-    "AdminLoginRequest",
-    "AdminLoginResponse",
-    "AdminLogoutResponse",
-    "AdminTokenItem",
-    "AdminTokenListResponse",
-    "AdminTokenCreateRequest",
-    "AdminTokenCreateResponse",
-    "AdminTaskCodeItem",
-    "AdminTaskCodeCreateRequest",
-    "AdminTaskCodeListResponse",
-    "AdminJobListItem",
-    "AdminJobListResponse",
-    "AdminArtifactItem",
-    "AdminRunAttemptItem",
-    "AdminJobDetailResponse",
-    "AdminJobRetryResponse",
-    "AdminTenantListResponse",
-    "AdminSystemStatusResponse",
-]
+ADMIN_EXPORTS = """
+AdminLoginRequest AdminLoginResponse AdminLogoutResponse AdminTokenItem AdminTokenListResponse
+AdminTokenCreateRequest AdminTokenCreateResponse AdminTaskCodeItem AdminTaskCodeCreateRequest
+AdminTaskCodeListResponse AdminJobListItem AdminJobListResponse
+AdminArtifactItem AdminRunAttemptItem
+AdminJobDetailResponse AdminJobRetryResponse AdminTenantListResponse AdminSystemStatusResponse
+""".split()
 
-PUBLIC_SCHEMA_ROOTS: set[str] = {
-    "ArtifactIndexItem",
-    "ArtifactsIndexResponse",
-    "ArtifactsSummary",
-    "ConfirmJobRequest",
-    "ConfirmJobResponse",
-    "DraftDataQualityWarning",
-    "DraftOpenUnknown",
-    "DraftPatchRequest",
-    "DraftPatchResponse",
-    "DraftPreviewDataSource",
-    "DraftPreviewPendingResponse",
-    "DraftPreviewResponse",
-    "DraftStage1Option",
-    "DraftStage1Question",
-    "DraftSummary",
-    "FreezePlanRequest",
-    "FreezePlanResponse",
-    "GetJobResponse",
-    "GetPlanResponse",
-    "InputsPreviewColumn",
-    "InputsPreviewResponse",
-    "InputsUploadResponse",
-    "JobTimestamps",
-    "LLMPlanResponse",
-    "PlanStepResponse",
-    "RunAttemptSummary",
-    "RunJobResponse",
-    "TaskCodeRedeemRequest",
-    "TaskCodeRedeemResponse",
-}
+PUBLIC_SCHEMA_ROOTS = set(
+    """
+    ArtifactIndexItem ArtifactsIndexResponse ArtifactsSummary ConfirmJobRequest ConfirmJobResponse
+    DraftDataQualityWarning DraftOpenUnknown DraftPatchRequest DraftPatchResponse
+    DraftPreviewDataSource DraftPreviewPendingResponse DraftPreviewResponse DraftStage1Option
+    DraftStage1Question DraftSummary
+    FreezePlanRequest FreezePlanResponse GetJobResponse GetPlanResponse InputsPreviewColumn
+    InputsPreviewResponse InputsUploadResponse JobTimestamps LLMPlanResponse PlanStepResponse
+    RunAttemptSummary RunJobResponse
+    TaskCodeRedeemRequest TaskCodeRedeemResponse
+    """.split()
+)
 
 
 def _ensure_minimal_env_for_openapi_export() -> None:

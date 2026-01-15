@@ -33,3 +33,8 @@
 - Command: `.venv/bin/mypy`
 - Key output: `Success: no issues found`
 - Evidence: `src/`
+
+### 2026-01-15 00:30 Follow-up: keep generator within repo limits
+- Command: `.venv/bin/ruff check scripts/contract_sync.py`
+- Key output: `All checks passed!`
+- Evidence: `scripts/contract_sync.py`
