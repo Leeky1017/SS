@@ -31,6 +31,7 @@ from src.domain.state_machine import JobStateMachine
 from src.infra.do_template_selection_exceptions import DoTemplateSelectionNotWiredError
 from src.infra.exceptions import JobStoreIOError, LLMArtifactsWriteError, LLMCallFailedError
 from src.infra.input_exceptions import InputPathUnsafeError
+from src.infra.job_lock_exceptions import JobLockedError
 from src.utils.json_types import JsonValue
 from src.utils.tenancy import DEFAULT_TENANT_ID
 from src.utils.time import utc_now
@@ -77,7 +78,6 @@ class DraftService:
                 raise DoTemplateSelectionNotWiredError()
             await selector.select_template_id(tenant_id=tenant_id, job_id=job_id)
         return DraftPreviewResult(draft=draft, pending=None)
-
     def patch_v1(
         self,
         *,
@@ -86,33 +86,33 @@ class DraftService:
         field_updates: dict[str, JsonValue],
     ) -> DraftPatchResult:
         job = self._store.load(tenant_id=tenant_id, job_id=job_id)
+        if job.status in {
+            JobStatus.CONFIRMED, JobStatus.QUEUED, JobStatus.RUNNING,
+            JobStatus.SUCCEEDED, JobStatus.FAILED,
+        }:
+            raise JobLockedError(job_id=job_id, status=job.status.value, operation="draft.patch")
         draft = job.draft
         if draft is None:
             draft = Draft(text="", created_at=utc_now().isoformat())
         updates: dict[str, object] = {}
         patched: list[str] = []
-
         outcome_var = field_updates.get("outcome_var")
         if isinstance(outcome_var, str):
             updates["outcome_var"] = outcome_var if outcome_var.strip() != "" else None
             patched.append("outcome_var")
-
         treatment_var = field_updates.get("treatment_var")
         if isinstance(treatment_var, str):
             updates["treatment_var"] = treatment_var if treatment_var.strip() != "" else None
             patched.append("treatment_var")
-
         controls = field_updates.get("controls")
         if isinstance(controls, list) and all(isinstance(item, str) for item in controls):
             controls_str = cast(list[str], controls)
             updates["controls"] = [item for item in controls_str if item.strip() != ""]
             patched.append("controls")
-
         default_overrides = field_updates.get("default_overrides")
         if isinstance(default_overrides, dict):
             updates["default_overrides"] = dict(default_overrides)
             patched.append("default_overrides")
-
         if len(updates) > 0:
             draft = draft.model_copy(update=updates)
         job.draft = self._enrich_draft(tenant_id=tenant_id, job=job, draft=draft)

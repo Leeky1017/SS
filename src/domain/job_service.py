@@ -15,7 +15,7 @@ from src.domain.models import JOB_SCHEMA_VERSION_CURRENT, Job, JobInputs, JobSta
 from src.domain.output_formats import normalize_output_formats
 from src.domain.plan_service import PlanService
 from src.domain.state_machine import JobStateMachine
-from src.infra.exceptions import JobAlreadyExistsError
+from src.infra.exceptions import JobAlreadyExistsError, JobVersionConflictError
 from src.utils.json_types import JsonObject, JsonValue
 from src.utils.tenancy import DEFAULT_TENANT_ID
 from src.utils.time import utc_now
@@ -148,39 +148,35 @@ class JobService:
         default_overrides: dict[str, JsonValue] | None = None,
         expert_suggestions_feedback: dict[str, JsonValue] | None = None,
     ) -> Job:
-        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
-        if job.status in {JobStatus.QUEUED, JobStatus.RUNNING, JobStatus.SUCCEEDED}:
-            return self._run_idempotent_noop(job=job, tenant_id=tenant_id)
-        if job.status == JobStatus.FAILED:
-            return retry_failed_job(
-                store=self._store,
-                scheduler=self._scheduler,
-                state_machine=self._state_machine,
-                audit=self._audit,
-                audit_context=self._audit_context,
-                tenant_id=tenant_id,
-                job=job,
-                output_formats=output_formats,
-            )
-        job.output_formats = list(normalize_output_formats(output_formats))
-        self._store.save(tenant_id=tenant_id, job=job)
-        self._state_machine.ensure_transition(
-            job_id=job_id,
-            from_status=job.status,
-            to_status=JobStatus.CONFIRMED,
-        )
-        freeze_plan_for_run(
-            plan_service=self._plan_service,
-            tenant_id=tenant_id,
-            job_id=job_id,
-            notes=notes,
-            variable_corrections=variable_corrections,
-            default_overrides=default_overrides,
-            answers=answers,
-            expert_suggestions_feedback=expert_suggestions_feedback,
-        )
-        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
-        return self._queue_run(job=job, tenant_id=tenant_id)
+        for attempt in range(3):
+            job = self._store.load(tenant_id=tenant_id, job_id=job_id)
+            if job.status in {JobStatus.QUEUED, JobStatus.RUNNING, JobStatus.SUCCEEDED}:
+                return self._run_idempotent_noop(job=job, tenant_id=tenant_id)
+            if job.status == JobStatus.FAILED:
+                return retry_failed_job(
+                    store=self._store, scheduler=self._scheduler, state_machine=self._state_machine,
+                    audit=self._audit, audit_context=self._audit_context, tenant_id=tenant_id,
+                    job=job, output_formats=output_formats,
+                )
+            try:
+                job.output_formats = list(normalize_output_formats(output_formats))
+                self._state_machine.ensure_transition(
+                    job_id=job_id, from_status=job.status, to_status=JobStatus.CONFIRMED
+                )
+                freeze_plan_for_run(
+                    plan_service=self._plan_service, tenant_id=tenant_id, job_id=job_id,
+                    notes=notes, variable_corrections=variable_corrections,
+                    default_overrides=default_overrides, answers=answers,
+                    expert_suggestions_feedback=expert_suggestions_feedback,
+                )
+                return self._queue_run(job=job, tenant_id=tenant_id)
+            except JobVersionConflictError:
+                latest = self._store.load(tenant_id=tenant_id, job_id=job_id)
+                if latest.status in {JobStatus.QUEUED, JobStatus.RUNNING, JobStatus.SUCCEEDED}:
+                    return latest
+                if attempt >= 2:
+                    raise
+        raise RuntimeError("unreachable")
 
     def _build_job(
         self,
