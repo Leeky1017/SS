@@ -122,7 +122,7 @@ class FakeStataRunner(StataRunner):
                 duration_ms=0,
                 error=None,
             )
-        error = RunError(error_code="FAKE_STATA_ERROR", message="fake stata failure")
+        error = RunError(error_code="STATA_DEPENDENCY_MISSING", message="fake stata failure")
         return Execution(
             stdout_text="fake stdout\n",
             stderr_text=error.message,

@@ -20,7 +20,7 @@ from src.domain.inputs_manifest import (
 )
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
-from src.domain.models import ArtifactKind, ArtifactRef, Job, JobInputs
+from src.domain.models import ArtifactKind, ArtifactRef, Job, JobInputs, JobStatus
 from src.infra.exceptions import JobStoreIOError
 from src.infra.input_exceptions import (
     InputDatasetKeyConflictError,
@@ -30,6 +30,7 @@ from src.infra.input_exceptions import (
     InputPrimaryDatasetMultipleError,
     InputStorageFailedError,
 )
+from src.infra.job_lock_exceptions import JobLockedError
 from src.utils.json_types import JsonObject
 from src.utils.tenancy import DEFAULT_TENANT_ID
 from src.utils.time import utc_now
@@ -196,6 +197,13 @@ class JobInputsService:
         if len(uploads) == 0:
             raise InputParseFailedError(filename=MANIFEST_REL_PATH, detail="no datasets uploaded")
 
+        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
+        if job.status in {
+            JobStatus.CONFIRMED, JobStatus.QUEUED, JobStatus.RUNNING,
+            JobStatus.SUCCEEDED, JobStatus.FAILED,
+        }:
+            raise JobLockedError(job_id=job_id, status=job.status.value, operation="inputs.upload")
+
         prepared = self._prepare_datasets(tenant_id=tenant_id, job_id=job_id, uploads=uploads)
         self._validate_dataset_set(datasets=prepared)
         fingerprint = inputs_fingerprint(datasets=prepared)
@@ -209,7 +217,6 @@ class JobInputsService:
             },
         )
 
-        job = self._store.load(tenant_id=tenant_id, job_id=job_id)
         self._persist_datasets(tenant_id=tenant_id, job_id=job_id, datasets=prepared)
         self._save_job_inputs(
             tenant_id=tenant_id,
@@ -254,7 +261,6 @@ class JobInputsService:
         manifest_rel_path = None if job.inputs is None else job.inputs.manifest_rel_path
         if manifest_rel_path is None:
             raise InputParseFailedError(filename=MANIFEST_REL_PATH, detail="manifest not set")
-
         dataset_rel_path, fmt, original_name, sheet_name, header_row = self._load_primary_manifest(
             tenant_id=tenant_id,
             job_id=job_id,
@@ -269,15 +275,9 @@ class JobInputsService:
             if dataset_path.stat().st_size == 0:
                 raise InputEmptyFileError()
         except FileNotFoundError as e:
-            raise InputParseFailedError(
-                filename=original_name,
-                detail="dataset not found",
-            ) from e
+            raise InputParseFailedError(filename=original_name, detail="dataset not found") from e
         except OSError as e:
-            raise InputParseFailedError(
-                filename=original_name,
-                detail="dataset not readable",
-            ) from e
+            raise InputParseFailedError(filename=original_name, detail="dataset unreadable") from e
 
         try:
             preview = dataset_preview_with_options(
