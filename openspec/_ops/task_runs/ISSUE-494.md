@@ -70,3 +70,22 @@
   - `.venv/bin/pytest -q`
 - Key output:
   - `432 passed, 7 skipped`
+
+### 2026-01-16 Rebase
+- Command:
+  - `git fetch origin`
+  - `git rebase origin/main`
+- Key output:
+  - `Successfully rebased and updated refs/heads/task/494-e2e-boundary-coverage.`
+
+### 2026-01-16 Lint (post-rebase)
+- Command:
+  - `.venv/bin/ruff check .`
+- Key output:
+  - `All checks passed!`
+
+### 2026-01-16 Tests (E2E post-rebase)
+- Command:
+  - `.venv/bin/pytest -q tests/e2e`
+- Key output:
+  - `56 passed, 2 skipped`
