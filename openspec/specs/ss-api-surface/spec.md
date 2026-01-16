@@ -14,6 +14,22 @@ The API layer MUST only perform input validation, dependency injection, and resp
 - **WHEN** reviewing `src/api/`
 - **THEN** it does not implement state-machine rules or runner execution
 
+### Requirement: API failures return structured errors (no stack traces)
+
+All non-2xx API responses MUST return a stable structured error payload with:
+- `error_code` (stable, machine-readable)
+- `message` (human-readable, safe)
+
+The API MUST NOT expose stack traces or internal exception types in responses.
+
+Error codes MUST be stable, UPPER_SNAKE_CASE, and use a domain prefix consistent with current practice (examples: `INPUT_*`, `UPLOAD_*`, `AUTH_*`, `TASK_CODE_*`, `JOB_*`, `DRAFT_*`, `PLAN_*`, `LLM_*`, `STATA_*`).
+
+When adding/changing error codes, the inventory in `ERROR_CODES.md` MUST be kept in sync (internal index; not user-facing).
+
+#### Scenario: Request validation errors are stable
+- **WHEN** a request is missing required fields
+- **THEN** the response is HTTP `400` with `{"error_code":"INPUT_VALIDATION_FAILED","message":"..."}`
+
 ### Requirement: Stable API is served under an explicit version prefix
 
 SS MUST serve the stable HTTP API under a major version prefix (at least `/v1`) to allow breaking changes to be introduced as `/v2`, `/v3`, etc.

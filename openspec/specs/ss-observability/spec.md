@@ -14,6 +14,22 @@ SS MUST define stable event codes (e.g., `SS_XXX_YYY`) and SS MUST include requi
 - **WHEN** reading `openspec/specs/ss-observability/README.md`
 - **THEN** it lists the event code convention and required fields
 
+### Requirement: Critical operations emit structured logs
+
+SS MUST emit structured logs (stable event code + context fields) for critical operations, at minimum:
+- API request/response (access logs) and request validation failures
+- job lifecycle events, especially status transitions and idempotent no-ops
+- LLM calls (including failover) and Stata execution attempts/outcomes
+
+Log levels MUST be used consistently:
+- `INFO`: normal lifecycle events and successful operations
+- `WARNING`: recoverable anomalies, retries, and conflicts
+- `ERROR`: non-recoverable failures and startup/production gates
+
+#### Scenario: README enumerates required log points and levels
+- **WHEN** reading `openspec/specs/ss-observability/README.md`
+- **THEN** it lists the required log points and level expectations
+
 ### Requirement: Log level is configured via src/config.py
 
 SS MUST configure log level from `src/config.py` and MUST NOT scatter direct environment variable reads across the codebase.
