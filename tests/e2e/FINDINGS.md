@@ -19,10 +19,15 @@ This file records issues discovered while building the suite (when the expected 
   - Fix: make the E2E fake runner emit a non-retriable error code (`STATA_DEPENDENCY_MISSING`) so jobs fail fast and the explicit user retry path is testable.
   - Evidence: `tests/e2e/layer5_execution/test_execution_and_retry.py`
 
+- Input preview boundary cases:
+  - Symptoms: hidden sheets were listed; formula cells could produce NaN and crash JSON serialization; password-protected `.xlsx` surfaced as a generic parse error.
+  - Fix: filter `sheet_names` to visible sheets; render formulas as raw strings and coerce NaN/Inf to `null`; detect encrypted `.xlsx` containers and return a user-friendly `INPUT_PARSE_FAILED` message.
+  - Evidence: `tests/e2e/layer2_inputs/test_input_processing_boundaries.py`
+
+- LLM malformed output handling:
+  - Symptoms: non-JSON/empty structured output could slip through and advance job state.
+  - Fix: validate draft-preview structured output strictly; invalid/empty output returns `502 LLM_RESPONSE_INVALID` without advancing status.
+  - Evidence: `tests/e2e/layer3_llm/test_llm_output_validation.py`
+
 ## Follow-ups (not fixed here)
-
-- Expand input corpus coverage:
-  - password-protected Excel, hidden sheets, formula-heavy sheets, extremely large datasets, and pathological column names/encodings.
-
-- Expand LLM malformed-output coverage:
-  - invalid JSON payloads, structurally empty drafts, and partial structured fields (beyond provider exception/timeout).
+- None tracked in this change (see `tests/e2e/COVERAGE.md` for remaining known gaps).

@@ -147,10 +147,16 @@ def build_draft_preview_prompt_v2(*, requirement: str, column_candidates: list[s
     )
 
 
-def apply_structured_fields_from_llm_text(*, draft: Draft) -> tuple[Draft, bool]:
+def apply_structured_fields_from_llm_text(
+    *,
+    draft: Draft,
+    strict: bool = False,
+) -> tuple[Draft, bool]:
     try:
         parsed = parse_draft_preview_v2(draft.text)
     except DraftPreviewParseError:
+        if strict:
+            raise
         return draft, False
     updates = _draft_updates_from_output_v2(parsed)
     return draft.model_copy(update=updates), True

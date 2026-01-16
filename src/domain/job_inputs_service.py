@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import cast
 from zipfile import BadZipFile
 
@@ -36,6 +37,20 @@ from src.utils.tenancy import DEFAULT_TENANT_ID
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
+
+_OLE_SIGNATURE = bytes.fromhex("D0CF11E0A1B11AE1")
+
+
+def _looks_like_encrypted_xlsx(path: Path) -> bool:
+    if path.suffix.lower() != ".xlsx":
+        return False
+    try:
+        with path.open("rb") as handle:
+            header = handle.read(len(_OLE_SIGNATURE))
+    except OSError:
+        return False
+    return header == _OLE_SIGNATURE
+
 
 @dataclass(frozen=True)
 class DatasetUpload:
@@ -278,6 +293,12 @@ class JobInputsService:
             raise InputParseFailedError(filename=original_name, detail="dataset not found") from e
         except OSError as e:
             raise InputParseFailedError(filename=original_name, detail="dataset unreadable") from e
+
+        if fmt == "excel" and _looks_like_encrypted_xlsx(dataset_path):
+            raise InputParseFailedError(
+                filename=original_name,
+                detail="password-protected/encrypted Excel files are not supported",
+            )
 
         try:
             preview = dataset_preview_with_options(
