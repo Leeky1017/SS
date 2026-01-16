@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import re
 from datetime import date, datetime
 from pathlib import Path
@@ -14,6 +15,8 @@ def _jsonable_value(value: Any) -> str | int | float | bool | None:
     if value is None:
         return None
     if isinstance(value, (str, int, float, bool)):
+        if isinstance(value, float) and (math.isnan(value) or math.isinf(value)):
+            return None
         return value
     if isinstance(value, (datetime, date)):
         return value.isoformat()
@@ -91,7 +94,14 @@ def excel_sheet_names(*, path: Path) -> list[str]:
 
     workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
     try:
-        return [name for name in workbook.sheetnames if isinstance(name, str) and name.strip()]
+        visible: list[str] = []
+        for ws in workbook.worksheets:
+            if getattr(ws, "sheet_state", "visible") != "visible":
+                continue
+            name = getattr(ws, "title", None)
+            if isinstance(name, str) and name.strip():
+                visible.append(name)
+        return visible
     finally:
         workbook.close()
 
@@ -181,12 +191,16 @@ def _excel_preview(
     )
     header: int | None = 0 if effective_header else None
     engine: Literal["xlrd", "openpyxl"] = "xlrd" if path.suffix.lower() == ".xls" else "openpyxl"
+    engine_kwargs: dict[str, object] | None = None
+    if engine == "openpyxl":
+        engine_kwargs = {"data_only": False}
     df = pd.read_excel(
         path,
         nrows=rows,
         sheet_name=selected,
         engine=engine,
         header=header,
+        engine_kwargs=engine_kwargs,
     )
     df = _apply_normalized_columns(df=df)
     row_count = None if raw_rows is None else max(int(raw_rows) - (1 if effective_header else 0), 0)

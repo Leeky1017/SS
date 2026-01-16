@@ -29,11 +29,12 @@ from src.infra.fs_do_template_repository import FileSystemDoTemplateRepository
 from src.infra.job_store import JobStore
 from src.infra.llm_tracing import TracedLLMClient
 from src.infra.queue_job_scheduler import QueueJobScheduler
+from src.infra.stata_run_support import Execution
 from src.main import create_app
 from tests.asgi_client import asgi_client
 from tests.async_overrides import async_override
 from tests.fakes.fake_llm_client import FakeLLMClient
-from tests.fakes.fake_stata_runner import FakeStataRunner
+from tests.fakes.scripted_stata_runner import ScriptedStataRunner
 
 
 @pytest.fixture
@@ -215,8 +216,16 @@ def e2e_worker_service_factory(
     e2e_state_machine: JobStateMachine,
     e2e_do_template_library_dir: Path,
 ) -> Callable[..., WorkerService]:
-    def _make(*, scripted_ok: list[bool] | None = None) -> WorkerService:
-        runner = FakeStataRunner(jobs_dir=e2e_jobs_dir, scripted_ok=scripted_ok)
+    def _make(
+        *,
+        scripted_ok: list[bool] | None = None,
+        scripted_executions: list[Execution] | None = None,
+    ) -> WorkerService:
+        runner = ScriptedStataRunner(
+            jobs_dir=e2e_jobs_dir,
+            scripted_ok=scripted_ok,
+            scripted_executions=scripted_executions,
+        )
         return WorkerService(
             store=e2e_store,
             queue=e2e_queue,

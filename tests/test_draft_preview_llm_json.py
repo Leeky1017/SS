@@ -3,10 +3,13 @@ from __future__ import annotations
 import asyncio
 import json
 
+import pytest
+
 from src.domain.draft_service import DraftService
 from src.domain.llm_client import LLMClient
 from src.domain.models import Draft, Job
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
+from src.infra.llm_output_exceptions import LLMResponseInvalidError
 from src.utils.time import utc_now
 
 
@@ -48,7 +51,7 @@ def test_draft_preview_with_json_output_populates_structured_fields(
     assert loaded.draft.outcome_var == "y"
 
 
-def test_draft_preview_with_non_json_output_keeps_text(
+def test_draft_preview_with_non_json_output_raises_llm_response_invalid_error(
     job_service,
     store,
     state_machine,
@@ -67,9 +70,8 @@ def test_draft_preview_with_non_json_output_keeps_text(
 
     job = job_service.create_job(requirement="hello")
 
-    draft = asyncio.run(svc.preview(job_id=job.job_id))
-    assert draft.text == "plain text draft"
-    assert draft.outcome_var is None
-    assert draft.treatment_var is None
-    assert draft.controls == []
-
+    with pytest.raises(LLMResponseInvalidError):
+        asyncio.run(svc.preview(job_id=job.job_id))
+    loaded = store.load(job.job_id)
+    assert loaded.status.value == "created"
+    assert loaded.draft is None

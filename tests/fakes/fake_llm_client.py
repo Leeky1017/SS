@@ -20,8 +20,23 @@ class FakeLLMClient(LLMClient):
     async def draft_preview(self, *, job: Job, prompt: str) -> Draft:
         seed = f"{job.job_id}:{prompt}".encode("utf-8", errors="ignore")
         digest = hashlib.sha256(seed).hexdigest()[:12]
-        text = f"[fake-draft:{digest}] {prompt or 'No requirement provided.'}"
-        return Draft(text=text, created_at=utc_now().isoformat())
+        draft_text = f"[fake-draft:{digest}] {prompt or 'No requirement provided.'}"
+        payload: dict[str, object] = {
+            "schema_version": 2,
+            "draft_text": draft_text,
+            "outcome_var": None,
+            "treatment_var": None,
+            "controls": [],
+            "time_var": None,
+            "entity_var": None,
+            "cluster_var": None,
+            "fixed_effects": [],
+            "interaction_terms": [],
+            "instrument_var": None,
+            "analysis_hints": [],
+            "default_overrides": {},
+        }
+        return Draft(text=_json_dumps(payload), created_at=utc_now().isoformat())
 
     def _select_family_ids(self, prompt: str) -> str:
         family_ids = _first_csv_line_value(prompt, key="CANONICAL_FAMILY_IDS")

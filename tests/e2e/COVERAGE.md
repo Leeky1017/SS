@@ -27,19 +27,31 @@ This file is the human-readable index of what `tests/e2e/` covers and what it in
   - ✅ header-only CSV has `row_count == 0`
   - ✅ multi-sheet Excel: list sheets + switch selected sheet
   - ✅ corrupted `.xlsx` returns `400 INPUT_PARSE_FAILED`
+  - ✅ password-protected / encrypted `.xlsx` returns `400 INPUT_PARSE_FAILED` with a user-friendly message
+  - ✅ hidden Excel sheets are excluded from `sheet_names` (visible-only strategy)
+  - ✅ formula cells return raw formula strings (no NaN JSON failures)
+  - ✅ “large” CSV preview succeeds (CI-scale performance coverage)
+  - ✅ pathological column names (long/newlines/numeric headers) are normalized safely
   - ✅ non-UTF8 (GBK) CSV returns `400 INPUT_PARSE_FAILED`
   - ✅ empty file returns `400 INPUT_EMPTY_FILE`
   - ✅ unsupported formats (`.txt`, `.zip`, `.png`) return `400 INPUT_UNSUPPORTED_FORMAT`
-- Files: `tests/e2e/layer2_inputs/test_input_processing.py`
+- Files:
+  - `tests/e2e/layer2_inputs/test_input_processing.py`
+  - `tests/e2e/layer2_inputs/test_input_processing_boundaries.py`
 
 ## Layer 3 — LLM resilience
 - Provider failure behavior:
   - ✅ LLM provider error surfaces as `502 LLM_CALL_FAILED`
+  - ✅ malformed LLM output surfaces as `502 LLM_RESPONSE_INVALID`
+  - ✅ empty `draft_text` is rejected as `502 LLM_RESPONSE_INVALID`
+  - ✅ missing optional structured fields default to empty values
   - ✅ job status does not advance on LLM failure (remains `created`)
   - ✅ inputs remain accessible after LLM failure (no destructive state change)
 - Recovery:
   - ✅ retrying draft preview after a transient LLM error succeeds without re-upload
-- Files: `tests/e2e/layer3_llm/test_llm_resilience.py`
+- Files:
+  - `tests/e2e/layer3_llm/test_llm_resilience.py`
+  - `tests/e2e/layer3_llm/test_llm_output_validation.py`
 
 ## Layer 4 — Confirm & correction
 - Confirm validation:
@@ -56,6 +68,7 @@ This file is the human-readable index of what `tests/e2e/` covers and what it in
   - ✅ queued job processed by worker transitions to `succeeded`
   - ✅ artifacts are indexed and downloadable
   - ✅ failure then user-triggered retry (`POST /run`) requeues and can succeed
+  - ✅ timeout/nonzero-exit failures surface as `failed` with traceable `run.error.json`
 - Real Stata smoke:
   - ✅ auto-skips when Stata is unavailable
 - Files:
@@ -75,8 +88,6 @@ This file is the human-readable index of what `tests/e2e/` covers and what it in
 
 ## Known gaps / follow-ups
 - Inputs:
-  - password-protected Excel, hidden sheets, formulas, “huge” datasets (performance), pathological column names
-- LLM:
-  - malformed/empty structured output (beyond provider timeout/exception)
+  - explicit upload/preview hard limits for extremely large datasets (beyond CI-scale) are not pinned yet
 - Execution:
-  - explicit Stata timeout paths (current suite focuses on deterministic fake-runner outcomes)
+  - real-Stata timeout/syntax error paths (suite remains fake-runner focused; see `test_real_stata_smoke.py`)

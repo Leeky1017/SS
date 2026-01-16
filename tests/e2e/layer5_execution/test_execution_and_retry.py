@@ -3,6 +3,8 @@ from __future__ import annotations
 import httpx
 import pytest
 
+from src.domain.stata_runner import RunError
+from src.infra.stata_run_support import Execution
 from tests.v1_redeem import redeem_job
 
 pytestmark = pytest.mark.anyio
@@ -84,3 +86,70 @@ async def test_execution_failure_then_retry_from_failed_requeues_and_succeeds(
     assert done.status_code == 200
     assert done.json()["status"] == "succeeded"
 
+
+async def test_execution_timeout_marks_job_failed_and_records_error_artifact(
+    e2e_client: httpx.AsyncClient,
+    e2e_worker_service_factory,
+) -> None:
+    job_id = await _confirm_ready_job(client=e2e_client, task_code="tc_e2e_exec_timeout")
+    timeout = Execution(
+        stdout_text="",
+        stderr_text="timeout",
+        exit_code=None,
+        timed_out=True,
+        duration_ms=0,
+        error=RunError(error_code="STATA_TIMEOUT", message="stata execution timed out"),
+    )
+    worker = e2e_worker_service_factory(scripted_executions=[timeout])
+    assert worker.process_next(worker_id="worker_e2e") is True
+
+    job = await e2e_client.get(f"/v1/jobs/{job_id}")
+    assert job.status_code == 200
+    assert job.json()["status"] == "failed"
+
+    artifacts = await e2e_client.get(f"/v1/jobs/{job_id}/artifacts")
+    assert artifacts.status_code == 200
+    error_items = [
+        item for item in artifacts.json()["artifacts"] if item["kind"] == "run.error.json"
+    ]
+    assert error_items
+    error_rel = error_items[-1]["rel_path"]
+    error = await e2e_client.get(f"/v1/jobs/{job_id}/artifacts/{error_rel}")
+    assert error.status_code == 200
+    payload = error.json()
+    assert payload["error_code"] == "STATA_TIMEOUT"
+    assert payload["timed_out"] is True
+
+
+async def test_execution_nonzero_exit_marks_job_failed_and_records_error_artifact(
+    e2e_client: httpx.AsyncClient,
+    e2e_worker_service_factory,
+) -> None:
+    job_id = await _confirm_ready_job(client=e2e_client, task_code="tc_e2e_exec_nonzero_exit")
+    failed = Execution(
+        stdout_text="fake stdout\n",
+        stderr_text="syntax error",
+        exit_code=198,
+        timed_out=False,
+        duration_ms=0,
+        error=RunError(error_code="STATA_NONZERO_EXIT", message="stata exited with code 198"),
+    )
+    worker = e2e_worker_service_factory(scripted_executions=[failed])
+    assert worker.process_next(worker_id="worker_e2e") is True
+
+    job = await e2e_client.get(f"/v1/jobs/{job_id}")
+    assert job.status_code == 200
+    assert job.json()["status"] == "failed"
+
+    artifacts = await e2e_client.get(f"/v1/jobs/{job_id}/artifacts")
+    assert artifacts.status_code == 200
+    error_items = [
+        item for item in artifacts.json()["artifacts"] if item["kind"] == "run.error.json"
+    ]
+    assert error_items
+    error_rel = error_items[-1]["rel_path"]
+    error = await e2e_client.get(f"/v1/jobs/{job_id}/artifacts/{error_rel}")
+    assert error.status_code == 200
+    payload = error.json()
+    assert payload["error_code"] == "STATA_NONZERO_EXIT"
+    assert payload["exit_code"] == 198
