@@ -42,6 +42,9 @@
 | E1006 | INPUT_VALIDATION_FAILED | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |
 | E1006 | JOB_ID_UNSAFE | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |
 | E1006 | TENANT_ID_UNSAFE | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |
+| E1006 | API_HTTP_ERROR | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |
+| E1006 | API_METHOD_NOT_ALLOWED | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |
+| E1006 | API_NOT_FOUND | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |
 | E1007 | UPLOAD_FILE_SIZE_LIMIT_EXCEEDED | 错误代号 E1007：文件过大，请更换文件后重试 | 文件大小超出限制 |
 | E1008 | INPUT_UNSUPPORTED_FORMAT | 错误代号 E1008：文件格式不支持，请更换文件后重试 | 文件格式不支持 |
 | E1009 | INPUT_EMPTY_FILE | 错误代号 E1009：文件为空，请检查后重试 | 文件为空 |
@@ -156,7 +159,9 @@
 | E4004 | CLIENT_RENDER_ERROR | 错误代号 E4004：系统异常，请稍后重试 | 页面渲染异常 |
 | E4004 | JOB_ALREADY_EXISTS | 错误代号 E4004：系统异常，请稍后重试 | 未分类系统异常 |
 | E4004 | JOB_ILLEGAL_TRANSITION | 错误代号 E4004：系统异常，请稍后重试 | 未分类系统异常 |
+| E4004 | JOB_LOCKED | 错误代号 E4004：系统异常，请稍后重试 | 未分类系统异常 |
 | E4004 | JOB_VERSION_CONFLICT | 错误代号 E4004：系统异常，请稍后重试 | 未分类系统异常 |
+| E4004 | SERVICE_INTERNAL_ERROR | 错误代号 E4004：系统异常，请稍后重试 | 未分类系统异常 |
 | E4004 | SMOKE_SUITE_FIXTURE_COPY_FAILED | 错误代号 E4004：系统异常，请稍后重试 | 未分类系统异常 |
 | E4004 | SMOKE_SUITE_FIXTURE_NOT_FOUND | 错误代号 E4004：系统异常，请稍后重试 | 未分类系统异常 |
 | E4004 | SMOKE_SUITE_MANIFEST_INVALID | 错误代号 E4004：系统异常，请稍后重试 | 未分类系统异常 |
