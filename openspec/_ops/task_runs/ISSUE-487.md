@@ -1,7 +1,7 @@
 # ISSUE-487
 - Issue: #487
 - Branch: task/487-p3-frontend-routing
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/492
 
 ## Plan
 - Introduce React Router routes and URL-driven navigation
@@ -39,3 +39,12 @@
 - Key output: `✓ built in 899ms`
 - Evidence: `frontend/dist/`
 
+### 2026-01-16 11:11 preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+- Evidence: `openspec/_ops/task_runs/ISSUE-487.md`
+
+### 2026-01-16 11:11 pr
+- Command: `gh pr create ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/492`
+- Evidence: `openspec/_ops/task_runs/ISSUE-487.md`
