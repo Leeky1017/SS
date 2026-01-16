@@ -1,7 +1,7 @@
 # ISSUE-493
 - Issue: #493
 - Branch: task/493-frontend-dev-spec
-- PR: <fill>
+- PR: https://github.com/Leeky1017/SS/pull/495
 
 ## Plan
 - Add frontend routing/state/navigation development spec (OpenSpec)
@@ -43,3 +43,18 @@
 - Command: `cd frontend && npm run build`
 - Key output: `✓ built in 864ms`
 - Evidence: `frontend/dist/`
+
+### 2026-01-16 12:09 preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `retry: gh pr list EOF → OK: no overlapping files with open PRs`
+- Evidence: `openspec/_ops/task_runs/ISSUE-493.md`
+
+### 2026-01-16 12:12 pr
+- Command: `gh pr create --title "docs(openspec): frontend architecture spec (#493)" --body "..."`
+- Key output: `https://github.com/Leeky1017/SS/pull/495`
+- Evidence: `openspec/_ops/task_runs/ISSUE-493.md`
+
+### 2026-01-16 12:12 pr-fix-body
+- Command: `gh pr edit 495 --body-file /tmp/pr-493-body.md`
+- Key output: `body updated`
+- Evidence: `openspec/_ops/task_runs/ISSUE-493.md`
