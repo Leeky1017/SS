@@ -1,7 +1,7 @@
 # ISSUE-499
 - Issue: #499
 - Branch: task/499-p4-backend-quality
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/500
 
 ## Plan
 - 审计错误处理与日志一致性
@@ -45,3 +45,28 @@
 - Command: `.venv/bin/pytest tests/e2e/ -q`
 - Key output: `56 passed, 2 skipped`
 - Evidence: `tests/e2e/`
+
+### 2026-01-16 19:36 pr: preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs; OK: no hard dependencies found`
+- Evidence: `scripts/agent_pr_preflight.sh`
+
+### 2026-01-16 19:36 pr: create
+- Command: `gh pr create ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/500`
+- Evidence: `openspec/_ops/task_runs/ISSUE-499.md`
+
+### 2026-01-16 19:37 pr: enable auto-merge
+- Command: `gh pr merge --auto --squash 500`
+- Key output: `auto-merge enabled`
+- Evidence: `https://github.com/Leeky1017/SS/pull/500`
+
+### 2026-01-16 19:38 pr: required checks
+- Command: `gh pr checks --watch 500`
+- Key output: `ci/pass; merge-serial/pass; openspec-log-guard/pass`
+- Evidence: `https://github.com/Leeky1017/SS/pull/500/checks`
+
+### 2026-01-16 19:39 pr: merged
+- Command: `gh pr view 500 --json mergedAt,state,mergeStateStatus`
+- Key output: `{\"state\":\"MERGED\",\"mergedAt\":\"2026-01-16T11:38:54Z\"}`
+- Evidence: `https://github.com/Leeky1017/SS/pull/500`
