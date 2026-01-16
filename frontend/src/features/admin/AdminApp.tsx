@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import type { ApiError } from '../../api/errors'
 import { ErrorPanel } from '../../components/ErrorPanel'
 import { useTheme } from '../../state/theme'
@@ -11,12 +12,23 @@ import { AdminTokensPage } from './pages/AdminTokensPage'
 
 type AdminView = 'system' | 'jobs' | 'task-codes' | 'tokens'
 
+function adminViewFromPathname(pathname: string): AdminView {
+  const trimmed = pathname.replace(/^\/admin\/?/, '')
+  const first = trimmed.split('/').filter((p) => p.trim() !== '')[0] ?? ''
+  if (first === 'jobs') return 'jobs'
+  if (first === 'task-codes') return 'task-codes'
+  if (first === 'tokens') return 'tokens'
+  return 'system'
+}
+
 export function AdminApp() {
   const api = useMemo(() => new AdminApiClient(), [])
   const { theme, toggleTheme } = useTheme()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const [token, setToken] = useState<string | null>(() => loadAdminToken())
-  const [view, setView] = useState<AdminView>('system')
+  const view = useMemo(() => adminViewFromPathname(location.pathname), [location.pathname])
   const [tenantId, setTenantId] = useState<string>(() => loadAdminTenantId())
   const [tenants, setTenants] = useState<string[]>([tenantId])
 
@@ -38,7 +50,7 @@ export function AdminApp() {
         if (result.error.kind === 'unauthorized' || result.error.kind === 'forbidden') onAuthInvalid()
         return
       }
-      const items = result.value.tenants
+      const items = result.value.tenants ?? []
       setTenants(items.length > 0 ? items : ['default'])
     }
     void run()
@@ -128,16 +140,16 @@ export function AdminApp() {
         </div>
         <div className="tabs-container">
           <div className="tabs">
-            <button className={`tab${view === 'system' ? ' active' : ''}`} type="button" onClick={() => setView('system')}>
+            <button className={`tab${view === 'system' ? ' active' : ''}`} type="button" onClick={() => navigate('/admin/system')}>
               系统状态
             </button>
-            <button className={`tab${view === 'jobs' ? ' active' : ''}`} type="button" onClick={() => setView('jobs')}>
+            <button className={`tab${view === 'jobs' ? ' active' : ''}`} type="button" onClick={() => navigate('/admin/jobs')}>
               任务
             </button>
-            <button className={`tab${view === 'task-codes' ? ' active' : ''}`} type="button" onClick={() => setView('task-codes')}>
+            <button className={`tab${view === 'task-codes' ? ' active' : ''}`} type="button" onClick={() => navigate('/admin/task-codes')}>
               验证码
             </button>
-            <button className={`tab${view === 'tokens' ? ' active' : ''}`} type="button" onClick={() => setView('tokens')}>
+            <button className={`tab${view === 'tokens' ? ' active' : ''}`} type="button" onClick={() => navigate('/admin/tokens')}>
               访问凭证
             </button>
           </div>

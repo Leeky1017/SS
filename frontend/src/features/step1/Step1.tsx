@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { ApiClient } from '../../api/client'
 import type { ApiError } from '../../api/errors'
 import { ErrorPanel } from '../../components/ErrorPanel'
-import { loadAppState, saveAppState, setAuthToken, setLastJobId } from '../../state/storage'
+import { loadAppState, saveAppState, setAuthToken } from '../../state/storage'
 import { toUserErrorMessage } from '../../utils/errorCodes'
 import { AnalysisGuidePanel } from './AnalysisGuidePanel'
 
@@ -62,6 +63,7 @@ function useStep1Fields(): Pick<Step1Model, 'taskCode' | 'requirement' | 'setTas
 }
 
 function useStep1Model(api: ApiClient): Step1Model {
+  const navigate = useNavigate()
   const fields = useStep1Fields()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<ApiError | null>(null)
@@ -78,10 +80,8 @@ function useStep1Model(api: ApiClient): Step1Model {
     try {
       const result = await submitStep1(api, fields.taskCode, fields.requirement)
       if (!result.ok) return setError(result.error)
-      setLastJobId(result.jobId)
       if (result.token !== null) setAuthToken(result.jobId, result.token)
-      saveAppState({ view: 'step2', jobId: result.jobId })
-      return window.location.reload()
+      navigate(`/jobs/${encodeURIComponent(result.jobId)}/upload`)
     } finally {
       setBusy(false)
     }

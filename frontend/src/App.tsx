@@ -1,17 +1,21 @@
-import { useMemo } from 'react'
-import { ApiClient } from './api/client'
-import { Step1 } from './features/step1/Step1'
-import { Step2 } from './features/step2/Step2'
-import { Step3 } from './features/step3/Step3'
-import { Status } from './features/status/Status'
+import { Outlet, useMatch, useNavigate, useParams } from 'react-router-dom'
 import { useTheme } from './state/theme'
-import { loadAppState, saveAppState } from './state/storage'
+
+function normalizeJobId(value: string | undefined): string | null {
+  if (value === undefined) return null
+  const trimmed = value.trim()
+  return trimmed !== '' ? trimmed : null
+}
+
+function jobPath(jobId: string, suffix: string): string {
+  return `/jobs/${encodeURIComponent(jobId)}/${suffix}`
+}
 
 function App() {
   const { theme, toggleTheme } = useTheme()
-  const state = loadAppState()
-  const api = useMemo(() => new ApiClient(), [])
-  const isStatusView = state.view === 'status'
+  const navigate = useNavigate()
+  const jobId = normalizeJobId(useParams().jobId)
+  const isStatusView = useMatch('/jobs/:jobId/status') !== null
 
   return (
     <div className="app-container">
@@ -26,9 +30,8 @@ function App() {
               className={`tab${!isStatusView ? ' active' : ''}`}
               type="button"
               onClick={() => {
-                const next = state.jobId !== null ? 'step2' : 'step1'
-                saveAppState({ view: next })
-                window.location.reload()
+                if (jobId === null) navigate('/new')
+                else navigate(jobPath(jobId, 'upload'))
               }}
             >
               分析任务
@@ -37,8 +40,8 @@ function App() {
               className={`tab${isStatusView ? ' active' : ''}`}
               type="button"
               onClick={() => {
-                saveAppState({ view: 'status' })
-                window.location.reload()
+                if (jobId === null) navigate('/new')
+                else navigate(jobPath(jobId, 'status'))
               }}
             >
               执行查询
@@ -67,15 +70,7 @@ function App() {
       </header>
 
       <main>
-        {state.view === 'status' ? (
-          <Status api={api} />
-        ) : state.view === 'step2' ? (
-          <Step2 api={api} />
-        ) : state.view === 'step3' ? (
-          <Step3 api={api} />
-        ) : (
-          <Step1 api={api} />
-        )}
+        <Outlet />
       </main>
     </div>
   )

@@ -4,5 +4,4 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-python3 scripts/contract_sync.py "$@"
-
+PYTHONPATH="$ROOT_DIR" python3 scripts/contract_sync.py "$@"

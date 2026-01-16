@@ -29,7 +29,7 @@ export function AdminTokensPage(props: AdminTokensPageProps) {
       setError(result.error)
       return
     }
-    setItems(result.value.tokens)
+    setItems(result.value.tokens ?? [])
   }
 
   useEffect(() => {

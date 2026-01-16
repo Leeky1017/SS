@@ -11,6 +11,8 @@ from collections import deque
 from pathlib import Path
 from typing import Any
 
+from contract_sync_postprocess import patch_recursive_jsonvalue_schemas
+
 PUBLIC_TYPES_OUT = Path("frontend/src/api/types.ts")
 ADMIN_TYPES_OUT = Path("frontend/src/features/admin/adminApiTypes.ts")
 
@@ -156,9 +158,10 @@ def _filter_unneeded_exports(text: str) -> str:
 def _format_public_exports() -> str:
     lines: list[str] = [
         "export type JsonScalar = components['schemas']['JsonScalar'];",
-        "type JsonValueInput = components['schemas']['JsonValue-Input'];",
-        "type JsonValueOutput = components['schemas']['JsonValue-Output'];",
-        "export type JsonValue = JsonValueInput | JsonValueOutput;",
+        "type JsonValueIO = JsonScalar | JsonValueIO[] | { [key: string]: JsonValueIO };",
+        "type JsonValueInput = JsonValueIO;",
+        "type JsonValueOutput = JsonValueIO;",
+        "export type JsonValue = JsonValueIO;",
         "export type RedeemTaskCodeRequest = components['schemas']['TaskCodeRedeemRequest'];",
         "export type RedeemTaskCodeResponse = components['schemas']['TaskCodeRedeemResponse'];",
         "export type ConfirmJobRequest = components['schemas']['ConfirmJobRequest'];",
@@ -209,7 +212,6 @@ def _format_admin_exports() -> str:
     lines = [f"export type {name} = components['schemas']['{name}'];" for name in ADMIN_EXPORTS]
     return "\n".join(lines) + "\n"
 
-
 def _generate_types_file(*, spec: dict[str, Any], roots: set[str], exports_block: str) -> str:
     schemas = dict(spec.get("components", {}).get("schemas", {}))
     needed = _schema_dependency_closure(schemas=schemas, roots=roots)
@@ -230,6 +232,7 @@ def _generate_types_file(*, spec: dict[str, Any], roots: set[str], exports_block
     base = _strip_jsdoc_comments(base)
     base = _filter_unneeded_exports(base)
     base = _strip_blank_lines(base)
+    base = patch_recursive_jsonvalue_schemas(base)
 
     header = (
         "// GENERATED FILE - DO NOT EDIT.\n"
@@ -257,11 +260,9 @@ def _write_or_check(*, out_path: Path, content: str, mode: str) -> bool:
     existing = out_path.read_text(encoding="utf-8") if out_path.exists() else ""
     if existing == content:
         return True
-
     if mode == "check":
         print(_unified_diff(old=existing, new=content, path=out_path))
         return False
-
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(content, encoding="utf-8")
     return True

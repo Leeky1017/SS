@@ -41,7 +41,7 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
       setError(result.error)
       return
     }
-    setItems(result.value.task_codes)
+    setItems(result.value.task_codes ?? [])
   }
 
   useEffect(() => {
@@ -66,7 +66,8 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
       setError(result.error)
       return
     }
-    setCreatedCodes(result.value.task_codes.map((t) => t.task_code))
+    const created = result.value.task_codes ?? []
+    setCreatedCodes(created.map((t) => t.task_code))
     await refresh()
   }
 
@@ -215,7 +216,7 @@ export function AdminTaskCodesPage(props: AdminTaskCodesPageProps) {
                       <td className="mono">{t.task_code}</td>
                       <td className="mono">{t.expires_at}</td>
                       <td className="mono">{t.used_at ?? ''}</td>
-                      <td className="mono">{formatTaskReference(t.job_id)}</td>
+                      <td className="mono">{formatTaskReference(t.job_id ?? null)}</td>
                       <td className="mono">{t.revoked_at ?? ''}</td>
                       <td>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>

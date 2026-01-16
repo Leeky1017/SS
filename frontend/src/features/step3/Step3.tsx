@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import type { ApiClient } from '../../api/client'
 import type { ApiError } from '../../api/errors'
 import type { DraftPreviewPendingResponse, DraftPreviewReadyResponse } from '../../api/types'
 import { ErrorPanel } from '../../components/ErrorPanel'
 import { zhCN } from '../../i18n/zh-CN'
 import {
-  loadAppState,
   loadConfirmLock,
   loadDraftPreviewSnapshot,
   loadInputsPreviewSnapshot,
   resetToStep1,
-  saveAppState,
   saveConfirmLock,
   saveDraftPreviewSnapshot,
 } from '../../state/storage'
@@ -47,7 +46,8 @@ function localValidationError(message: string, requestId: string): ApiError {
 }
 
 export function Step3(props: Step3Props) {
-  const { jobId } = loadAppState()
+  const navigate = useNavigate()
+  const jobId = useParams().jobId ?? null
 
   const [draftState, setDraftState] = useState<DraftState>(() => {
     if (jobId === null) return { kind: 'idle' }
@@ -69,16 +69,15 @@ export function Step3(props: Step3Props) {
 
   const redeem = useMemo(() => {
     return () => {
-      resetToStep1()
-      saveAppState({ view: 'step1' })
-      window.location.reload()
+      resetToStep1(jobId)
+      navigate('/new')
     }
-  }, [])
+  }, [jobId, navigate])
 
   const fallbackCandidates = useMemo(() => {
     if (jobId === null) return []
     const preview = loadInputsPreviewSnapshot(jobId)
-    return preview?.columns.map((c) => c.name) ?? []
+    return preview?.columns?.map((c) => c.name) ?? []
   }, [jobId])
 
   const candidates = useMemo(() => {
@@ -140,13 +139,14 @@ export function Step3(props: Step3Props) {
     setActionError(null)
     setBusy(true)
     try {
-      const answersPayload = draftState.draft.stage1_questions.length > 0 ? answers : {}
+      const stage1Questions = draftState.draft.stage1_questions ?? []
+      const answersPayload = stage1Questions.length > 0 ? answers : {}
       const result = await props.api.confirmJob(jobId, {
         confirmed: true,
         notes: null,
         variable_corrections: variableCorrections,
         answers: answersPayload,
-        default_overrides: draftState.draft.default_overrides,
+        default_overrides: draftState.draft.default_overrides ?? {},
         expert_suggestions_feedback: {},
       })
       if (!result.ok) {
@@ -156,8 +156,7 @@ export function Step3(props: Step3Props) {
       const confirmedAt = new Date().toISOString()
       saveConfirmLock(jobId, confirmedAt)
       setLock({ confirmedAt })
-      saveAppState({ view: 'status' })
-      window.location.reload()
+      navigate(`/jobs/${encodeURIComponent(jobId)}/status`)
     } finally {
       setBusy(false)
     }

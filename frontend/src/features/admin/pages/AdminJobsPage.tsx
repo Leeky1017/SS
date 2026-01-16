@@ -40,7 +40,7 @@ export function AdminJobsPage(props: AdminJobsPageProps) {
       setError(result.error)
       return
     }
-    setItems(result.value.jobs)
+    setItems(result.value.jobs ?? [])
   }
 
   const loadDetail = async (job: AdminJobListItem) => {

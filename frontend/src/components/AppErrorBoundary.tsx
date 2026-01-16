@@ -32,6 +32,6 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorB
 
   render() {
     if (this.state.error === null) return this.props.children
-    return <ErrorPanel error={this.state.error} onRetry={() => window.location.reload()} retryLabel="刷新页面" />
+    return <ErrorPanel error={this.state.error} onRetry={() => this.setState({ error: null })} retryLabel="重试" />
   }
 }

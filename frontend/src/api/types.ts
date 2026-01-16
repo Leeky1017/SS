@@ -170,12 +170,8 @@ export interface components {
             scheduled_at?: string | null;
         };
         JsonScalar: string | number | boolean | null;
-        "JsonValue-Input": components["schemas"]["JsonScalar"] | components["schemas"]["JsonValue-Input"][] | {
-            [key: string]: components["schemas"]["JsonValue-Input"];
-        };
-        "JsonValue-Output": components["schemas"]["JsonScalar"] | components["schemas"]["JsonValue-Output"][] | {
-            [key: string]: components["schemas"]["JsonValue-Output"];
-        };
+        "JsonValue-Input": JsonValueInput;
+        "JsonValue-Output": JsonValueOutput;
         LLMPlanResponse: {
             plan_id: string;
             plan_version: number;
@@ -225,9 +221,10 @@ export type $defs = Record<string, never>;
 export type operations = Record<string, never>;
 
 export type JsonScalar = components['schemas']['JsonScalar'];
-type JsonValueInput = components['schemas']['JsonValue-Input'];
-type JsonValueOutput = components['schemas']['JsonValue-Output'];
-export type JsonValue = JsonValueInput | JsonValueOutput;
+type JsonValueIO = JsonScalar | JsonValueIO[] | { [key: string]: JsonValueIO };
+type JsonValueInput = JsonValueIO;
+type JsonValueOutput = JsonValueIO;
+export type JsonValue = JsonValueIO;
 export type RedeemTaskCodeRequest = components['schemas']['TaskCodeRedeemRequest'];
 export type RedeemTaskCodeResponse = components['schemas']['TaskCodeRedeemResponse'];
 export type ConfirmJobRequest = components['schemas']['ConfirmJobRequest'];

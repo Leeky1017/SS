@@ -52,9 +52,9 @@ export function MappingPanel(props: {
   if (props.candidates === null || props.candidates.length === 0) return null
   const candidates = props.candidates
   const allVars: Array<{ label: string; value: string | null }> = [
-    { label: zhCN.variables.roles.outcome, value: props.draft.outcome_var },
-    { label: zhCN.variables.roles.treatment, value: props.draft.treatment_var },
-    ...props.draft.controls.map((v, idx) => ({ label: controlRoleLabel(idx + 1), value: v })),
+    { label: zhCN.variables.roles.outcome, value: props.draft.outcome_var ?? null },
+    { label: zhCN.variables.roles.treatment, value: props.draft.treatment_var ?? null },
+    ...(props.draft.controls ?? []).map((v, idx) => ({ label: controlRoleLabel(idx + 1), value: v })),
   ]
 
   return (
@@ -108,12 +108,13 @@ function Stage1QuestionCard(props: {
 }) {
   const q = props.question
   const isMulti = q.question_type === 'multi_choice'
+  const options = q.options ?? []
   return (
     <div className="panel inset-panel">
       <div className="panel-body">
         <div style={{ fontWeight: 600, marginBottom: 10 }}>{q.question_text}</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          {q.options.map((opt) => {
+          {options.map((opt) => {
             const active = props.selected.includes(opt.option_id)
             return (
               <button

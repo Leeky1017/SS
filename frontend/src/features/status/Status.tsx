@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import type { ApiClient } from '../../api/client'
 import type { ApiError } from '../../api/errors'
 import type { ArtifactIndexItem, ArtifactsIndexResponse, GetJobResponse } from '../../api/types'
 import { ErrorPanel } from '../../components/ErrorPanel'
-import { loadAppState, resetToStep1, saveAppState } from '../../state/storage'
+import { resetToStep1 } from '../../state/storage'
 
 type StatusProps = { api: ApiClient }
 
@@ -26,7 +27,7 @@ function StepStatusHeader() {
 
 function JobSummaryPanel(props: { job: GetJobResponse | null; lastRefreshedAt: string | null }) {
   if (props.job === null) return null
-  const latestRun = props.job.latest_run
+  const latestRun = props.job.latest_run ?? null
   const statusLabel =
     props.job.status === 'succeeded'
       ? '已完成'
@@ -61,6 +62,7 @@ function JobSummaryPanel(props: { job: GetJobResponse | null; lastRefreshedAt: s
 
 function ArtifactsPanel(props: { artifacts: ArtifactsIndexResponse | null; onDownload: (item: ArtifactIndexItem) => void }) {
   if (props.artifacts === null) return null
+  const items = props.artifacts.artifacts ?? []
   return (
     <div className="panel">
       <div className="panel-body">
@@ -76,7 +78,7 @@ function ArtifactsPanel(props: { artifacts: ArtifactsIndexResponse | null; onDow
               </tr>
             </thead>
             <tbody>
-              {props.artifacts.artifacts.map((a, idx) => (
+              {items.map((a, idx) => (
                 <tr key={`${a.kind}_${a.rel_path}_${idx}`}>
                   <td className="mono">{filenameFromRelPath(a.rel_path)}</td>
                   <td style={{ width: 120, whiteSpace: 'nowrap' }}>
@@ -86,7 +88,7 @@ function ArtifactsPanel(props: { artifacts: ArtifactsIndexResponse | null; onDow
                   </td>
                 </tr>
               ))}
-              {props.artifacts.artifacts.length === 0 ? (
+              {items.length === 0 ? (
                 <tr>
                   <td colSpan={2} className="inline-hint">
                     暂无可下载文件
@@ -102,8 +104,8 @@ function ArtifactsPanel(props: { artifacts: ArtifactsIndexResponse | null; onDow
 }
 
 export function Status(props: StatusProps) {
-  const app = loadAppState()
-  const jobId = app.jobId
+  const navigate = useNavigate()
+  const jobId = useParams().jobId ?? null
   const [busy, setBusy] = useState(false)
   const [autoRefresh, setAutoRefresh] = useState(false)
   const [job, setJob] = useState<GetJobResponse | null>(null)
@@ -113,11 +115,10 @@ export function Status(props: StatusProps) {
 
   const redeem = useMemo(() => {
     return () => {
-      resetToStep1()
-      saveAppState({ view: 'step1' })
-      window.location.reload()
+      resetToStep1(jobId)
+      navigate('/new')
     }
-  }, [])
+  }, [jobId, navigate])
 
   async function refreshOnce(): Promise<void> {
     if (jobId === null || jobId.trim() === '') return
@@ -174,10 +175,12 @@ export function Status(props: StatusProps) {
   }, [autoRefresh, jobId])
 
   useEffect(() => {
+    setJob(null)
+    setArtifacts(null)
+    setLastRefreshedAt(null)
     if (jobId === null || jobId.trim() === '') return
     void refreshOnce()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [jobId])
 
   const currentError = actionError?.error ?? null
 
