@@ -70,3 +70,8 @@
 - Command: `gh pr view 500 --json mergedAt,state,mergeStateStatus`
 - Key output: `{\"state\":\"MERGED\",\"mergedAt\":\"2026-01-16T11:38:54Z\"}`
 - Evidence: `https://github.com/Leeky1017/SS/pull/500`
+
+### 2026-01-16 20:00 rulebook: archive
+- Command: `rulebook_task_archive issue-499-p4-backend-quality`
+- Key output: `archived to rulebook/tasks/archive/2026-01-16-issue-499-p4-backend-quality`
+- Evidence: `https://github.com/Leeky1017/SS/pull/502`
