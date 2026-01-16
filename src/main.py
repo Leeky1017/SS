@@ -13,6 +13,7 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
@@ -132,6 +133,18 @@ def create_app() -> FastAPI:
                 status_code=response.status_code,
                 duration_seconds=duration,
             )
+            logger.info(
+                "SS_API_REQUEST",
+                extra={
+                    "request_id": request_id,
+                    "method": request.method,
+                    "path": request.url.path,
+                    "route": str(route),
+                    "status_code": response.status_code,
+                    "duration_ms": int(duration * 1000),
+                    "client_ip": None if request.client is None else request.client.host,
+                },
+            )
 
         if is_legacy_unversioned_path(request.url.path):
             add_legacy_deprecation_headers(response)
@@ -144,6 +157,8 @@ def create_app() -> FastAPI:
     app.add_exception_handler(RequestValidationError, _handle_request_validation_error)
     app.add_exception_handler(SSError, _handle_ss_error)
     app.add_exception_handler(MemoryError, _handle_oom_error)
+    app.add_exception_handler(StarletteHTTPException, _handle_starlette_http_error)
+    app.add_exception_handler(Exception, _handle_unhandled_exception)
 
     @app.get("/admin", include_in_schema=False)
     async def _redirect_admin() -> Response:
@@ -160,12 +175,80 @@ def create_app() -> FastAPI:
     return app
 
 
-async def _handle_ss_error(_request: Request, exc: Exception) -> Response:
+async def _handle_ss_error(request: Request, exc: Exception) -> Response:
     ss_error = cast(SSError, exc)
+    request_id = getattr(request.state, "request_id", None)
+    log_context = {
+        "request_id": request_id,
+        "method": request.method,
+        "path": request.url.path,
+        "status_code": ss_error.status_code,
+        "error_code": ss_error.error_code,
+        "error_message": ss_error.message,
+    }
+    if ss_error.status_code >= 500:
+        logger.error("SS_API_ERROR_RESPONSE", extra=log_context)
+    elif ss_error.status_code == 409:
+        logger.warning("SS_API_ERROR_RESPONSE", extra=log_context)
+    else:
+        logger.info("SS_API_ERROR_RESPONSE", extra=log_context)
     payload: dict[str, object] = dict(ss_error.to_dict())
     if isinstance(ss_error, StructuredSSError):
         payload.update(ss_error.details)
+    if ss_error.status_code >= 500:
+        message = payload.get("message", "")
+        if isinstance(message, str) and (
+            "Traceback" in message or "/" in message or "\\" in message
+        ):
+            payload["message"] = "internal server error"
     return JSONResponse(status_code=ss_error.status_code, content=payload)
+
+
+async def _handle_starlette_http_error(request: Request, exc: Exception) -> Response:
+    http_error = cast(StarletteHTTPException, exc)
+    status_code = int(getattr(http_error, "status_code", 500))
+    if status_code == 404:
+        error_code = "API_NOT_FOUND"
+        message = "route not found"
+    elif status_code == 405:
+        error_code = "API_METHOD_NOT_ALLOWED"
+        message = "method not allowed"
+    else:
+        error_code = "API_HTTP_ERROR"
+        message = "http error"
+
+    request_id = getattr(request.state, "request_id", None)
+    logger.info(
+        "SS_API_HTTP_EXCEPTION",
+        extra={
+            "request_id": request_id,
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": status_code,
+            "error_code": error_code,
+        },
+    )
+    return JSONResponse(
+        status_code=status_code,
+        content={"error_code": error_code, "message": message},
+    )
+
+
+async def _handle_unhandled_exception(request: Request, exc: Exception) -> Response:
+    request_id = getattr(request.state, "request_id", None)
+    logger.error(
+        "SS_API_UNHANDLED_EXCEPTION",
+        extra={
+            "request_id": request_id,
+            "method": request.method,
+            "path": request.url.path,
+        },
+        exc_info=(type(exc), exc, exc.__traceback__),
+    )
+    return JSONResponse(
+        status_code=500,
+        content={"error_code": "SERVICE_INTERNAL_ERROR", "message": "internal server error"},
+    )
 
 
 async def _handle_request_validation_error(request: Request, exc: Exception) -> Response:

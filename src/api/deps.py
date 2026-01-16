@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from fastapi import Depends, Header, HTTPException
+from fastapi import Depends, Header
 
 from src.api.audit_context import get_audit_context
 from src.config import Config, load_config
@@ -26,6 +26,7 @@ from src.domain.task_code_redeem_service import TaskCodeRedeemService
 from src.domain.upload_bundle_service import UploadBundleService
 from src.domain.upload_sessions_service import UploadSessionsService
 from src.infra.audit_logger import LoggingAuditLogger
+from src.infra.exceptions import SSError, TenantIdUnsafeError
 from src.infra.file_job_workspace_store import FileJobWorkspaceStore
 from src.infra.file_task_code_store import FileTaskCodeStore
 from src.infra.file_upload_session_store import FileUploadSessionStore
@@ -57,9 +58,11 @@ async def get_tenant_id(
         return DEFAULT_TENANT_ID
     tenant_id = x_ss_tenant_id.strip()
     if tenant_id == "":
-        raise HTTPException(status_code=400, detail="X-SS-Tenant-ID must not be empty")
+        raise SSError(
+            error_code="INPUT_VALIDATION_FAILED", message="tenant id empty", status_code=400
+        )
     if not is_safe_tenant_id(tenant_id):
-        raise HTTPException(status_code=400, detail="X-SS-Tenant-ID is not a safe path segment")
+        raise TenantIdUnsafeError(tenant_id=tenant_id)
     return tenant_id
 
 
