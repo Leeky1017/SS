@@ -35,6 +35,14 @@
 - 只捕获**具体异常类型**，并记录结构化日志（事件码 + 上下文）。
 - 默认值必须显式：`data.get("key", "")`；不要用 `or ""` 破坏 `0/False/[]` 语义。
 
+## 后端/通用规范补充（P2a）
+
+- 错误响应：API 失败必须返回 `{"error_code":"...","message":"..."}`；禁止向用户暴露堆栈/内部异常信息（见 `openspec/specs/ss-api-surface/spec.md`）。
+- 错误码：统一大写下划线 + 领域前缀（如 `INPUT_*`/`JOB_*`/`LLM_*`/`STATA_*`）；新增/变更必须同步 `ERROR_CODES.md`（内部索引）。
+- 日志：统一结构化 JSON（`event=SS_...` + `extra` 上下文）；必须覆盖 API 请求、状态变更、LLM 调用、Stata 执行（见 `openspec/specs/ss-observability/README.md`）。
+- 状态机：Job 状态流转必须走 domain 状态机；变更需校验前置条件；并发写用 job `version` 乐观锁（见 `openspec/specs/ss-state-machine/spec.md` 与 `openspec/specs/ss-job-store/spec.md`）。
+- 测试（边界/E2E）：新增边界行为优先补 `tests/e2e/`，断言稳定 `error_code`/状态流转（见 `openspec/specs/ss-testing-strategy/README.md`）。
+
 ## 分层边界（保持链路最短）
 
 - `src/api/`：HTTP 薄层（参数校验/响应组装），不要写业务。

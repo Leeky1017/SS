@@ -2,6 +2,15 @@
 
 本目录定义 SS 的可观测性基线（结构化日志 + 必带字段）。
 
+## 日志格式（JSON line）
+
+SS 结构化日志以 JSON line 输出（实现：`src/infra/logging_config.py`），核心字段：
+- `ts` / `level` / `logger` / `event`
+- `job_id`（如适用）/ `run_id`（执行期）/ `step`（按需）
+- `trace_id` / `span_id`（启用 tracing 时）
+
+业务上下文必须通过 `logger.<level>(..., extra={...})` 提供，避免把上下文拼进 `event` 字符串里。
+
 ## 事件码（建议）
 
 - 事件码格式：`SS_<AREA>_<ACTION>`（示例：`SS_JOB_CREATE`、`SS_RUN_START`、`SS_RUN_FAIL`）
@@ -10,6 +19,19 @@
   - `run_id`（执行期）
   - `step`（按需）
   - `trace_id` / `span_id`（启用分布式追踪时，用于与 traces 关联）
+
+## 必须记录的事件（最小集合）
+
+- API：每个请求的 access log；请求校验失败（400）必须有事件码日志（含 `request_id`/`path`）。
+- 状态变更：Job `status` 变更（含 from/to）；幂等 no-op；非法迁移/锁冲突/版本冲突。
+- LLM：调用开始/结束；失败与 failover 决策（含 `job_id` + `llm_call_id`/provider/model 等可用字段）。
+- Stata：执行尝试开始/结束；失败原因（含 `job_id` + `run_id` + `attempt` + `error_code`）。
+
+## 日志级别（约定）
+
+- `INFO`：正常生命周期事件（start/done）、状态推进、幂等 no-op。
+- `WARNING`：可恢复异常（重试、回退、冲突、数据异常被识别但可继续）。
+- `ERROR`：不可恢复失败（导致 5xx/启动门禁失败/Job 终态失败）。
 
 ## 配置来源（硬约束）
 

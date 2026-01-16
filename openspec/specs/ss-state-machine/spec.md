@@ -66,3 +66,23 @@ Idempotency keys MUST include at least `inputs.fingerprint` and a normalized `re
 #### Scenario: Repeating the same transition is a no-op
 - **WHEN** a request would transition a job to its current status
 - **THEN** the operation succeeds without changing persisted state
+
+### Requirement: Transition preconditions are explicit and validated
+
+Each transition MUST have explicit preconditions (documented in `openspec/specs/ss-state-machine/state_machines.md`) and domain services MUST validate them before mutating state or enqueuing work.
+
+When preconditions fail, the operation MUST fail with a structured error and MUST NOT partially advance job state.
+
+#### Scenario: Failed validation does not partially advance state
+- **WHEN** a transition fails validation (e.g., plan freeze blocked)
+- **THEN** the job status is not advanced to `queued`
+
+### Requirement: Transitions are concurrency-safe (optimistic versioning)
+
+Job mutations MUST be persisted using the JobStore optimistic concurrency semantic (`job.version`), rejecting stale writes with a structured conflict (`error_code="JOB_VERSION_CONFLICT"`). See `openspec/specs/ss-job-store/spec.md`.
+
+Domain services SHOULD treat version conflicts as recoverable by reloading and returning an idempotent response when the job already advanced.
+
+#### Scenario: Concurrent transitions do not corrupt state
+- **WHEN** two clients trigger the same transition concurrently
+- **THEN** at most one write wins and the loser receives a structured conflict or the latest state
