@@ -1,7 +1,7 @@
 # ISSUE-488
 - Issue: #488
 - Branch: task/488-p2a-backend-norms
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/489
 
 ## Plan
 - Audit existing error/log/state practices
@@ -37,4 +37,9 @@
 ### 2026-01-16 10:39 preflight
 - Command: `scripts/agent_pr_preflight.sh`
 - Key output: `OK: no overlapping files with open PRs; OK: no hard dependencies found`
+- Evidence: N/A
+
+### 2026-01-16 10:41 pr-create
+- Command: `gh pr create --title "docs: backend norms for errors/logging/state (#488)" --body "Closes #488 ..."`
+- Key output: `https://github.com/Leeky1017/SS/pull/489`
 - Evidence: N/A
