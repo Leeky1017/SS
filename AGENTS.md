@@ -5,6 +5,7 @@
 ## 文档权威（必须遵守）
 
 - 项目权威文档（开发圣旨）在 `openspec/specs/`，尤其是 `openspec/specs/ss-constitution/spec.md`。
+- 前端开发规范：`openspec/specs/ss-frontend-architecture/spec.md`。
 - `docs/` 仅保留指针/入口，避免形成第二套文档体系。
 
 ## API 契约优先（强制护栏）
