@@ -111,3 +111,12 @@
   - `.venv/bin/pytest -q tests/e2e`
 - Key output:
   - `56 passed, 2 skipped`
+
+### 2026-01-16 Rulebook task archived
+- Command:
+  - `rulebook_task_archive issue-494-e2e-boundary-coverage`
+- Key output:
+  - `Archived: rulebook/tasks/archive/2026-01-16-issue-494-e2e-boundary-coverage/`
+- Evidence:
+  - `rulebook/tasks/archive/2026-01-16-issue-494-e2e-boundary-coverage/`
+  - `PR: https://github.com/Leeky1017/SS/pull/498`
