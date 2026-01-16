@@ -86,6 +86,8 @@
 tests/
 ├── conftest.py
 ├── fixtures/
+├── e2e/
+├── fakes/
 ├── unit/
 ├── integration/
 ├── user_journeys/
@@ -95,9 +97,16 @@ tests/
 └── monitoring/
 ```
 
+## E2E（System-level）补充规范
+
+- `tests/e2e/` 用于锁定跨层行为（API → domain → infra），尤其是：稳定 `error_code`、状态机流转、幂等与并发冲突处理。
+- E2E 测试必须可重复、无外网依赖；LLM/Stata/对象存储等外部依赖默认使用 fake（必要时再做可选的“真依赖”测试并自动 skip）。
+- 新增边界行为/回归修复时，优先补一条对应的 E2E 场景，并同步更新相关 OpenSpec 场景描述（spec-first）。
+
 ## 运行命令（建议）
 
 ```bash
+pytest tests/e2e/ -v
 pytest tests/unit/ -v --tb=short
 pytest tests/integration/ -v
 pytest tests/user_journeys/ -v --timeout=300
