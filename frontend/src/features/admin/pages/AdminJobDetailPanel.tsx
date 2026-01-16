@@ -10,6 +10,8 @@ type AdminJobDetailPanelProps = {
 
 export function AdminJobDetailPanel(props: AdminJobDetailPanelProps) {
   const job = props.detail
+  const runs = job.runs ?? []
+  const artifacts = job.artifacts ?? []
   return (
     <>
       <div className="panel">
@@ -57,7 +59,7 @@ export function AdminJobDetailPanel(props: AdminJobDetailPanelProps) {
       <div className="panel">
         <div className="panel-body">
           <div className="section-label">执行记录</div>
-          {job.runs.length === 0 ? (
+          {runs.length === 0 ? (
             <div className="inline-hint">暂无执行记录。</div>
           ) : (
             <div className="data-table-wrap">
@@ -73,7 +75,7 @@ export function AdminJobDetailPanel(props: AdminJobDetailPanelProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {job.runs.map((r) => (
+                  {runs.map((r) => (
                     <tr key={`${r.run_id}:${r.attempt}`}>
                       <td className="mono">{r.run_id}</td>
                       <td className="mono">{r.attempt}</td>
@@ -93,7 +95,7 @@ export function AdminJobDetailPanel(props: AdminJobDetailPanelProps) {
       <div className="panel">
         <div className="panel-body">
           <div className="section-label">文件列表</div>
-          {job.artifacts.length === 0 ? (
+          {artifacts.length === 0 ? (
             <div className="inline-hint">暂无文件。</div>
           ) : (
             <div className="data-table-wrap" style={{ maxHeight: 340 }}>
@@ -107,7 +109,7 @@ export function AdminJobDetailPanel(props: AdminJobDetailPanelProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {job.artifacts.map((a) => (
+                  {artifacts.map((a) => (
                     <tr key={`${a.kind}:${a.rel_path}`}>
                       <td className="mono">{a.kind}</td>
                       <td className="mono">{a.rel_path}</td>

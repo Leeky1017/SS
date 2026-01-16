@@ -46,9 +46,9 @@ export function PendingPanel(props: { message: string | null; retryAfterSeconds:
 
 export function VariablesTable(props: { draft: DraftPreviewReadyResponse; applyCorrection: (v: string | null) => string | null }) {
   const placeholderDash = zhCN.common.placeholderDash
-  const outcome = props.applyCorrection(props.draft.outcome_var)
-  const treatment = props.applyCorrection(props.draft.treatment_var)
-  const controls = props.draft.controls.map((v) => props.applyCorrection(v) ?? placeholderDash)
+  const outcome = props.applyCorrection(props.draft.outcome_var ?? null)
+  const treatment = props.applyCorrection(props.draft.treatment_var ?? null)
+  const controls = (props.draft.controls ?? []).map((v) => props.applyCorrection(v) ?? placeholderDash)
 
   return (
     <div className="panel">

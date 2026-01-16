@@ -1,15 +1,14 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import type { ApiClient } from '../../api/client'
 import type { ApiError } from '../../api/errors'
 import type { InputsPreviewResponse, InputsUploadResponse } from '../../api/types'
 import { ErrorPanel } from '../../components/ErrorPanel'
 import { zhCN } from '../../i18n/zh-CN'
 import {
-  loadAppState,
   loadInputsPreviewSnapshot,
   loadInputsUploadSnapshot,
   resetToStep1,
-  saveAppState,
   saveInputsPreviewSnapshot,
   saveInputsUploadSnapshot,
 } from '../../state/storage'
@@ -21,35 +20,40 @@ type Step2Props = { api: ApiClient }
 type Step2Error = { error: ApiError; retry: () => void; retryLabel: string }
 
 type Step2State = {
-  jobId: string | null
   upload: InputsUploadResponse | null
   preview: InputsPreviewResponse | null
 }
 
-function loadStep2State(): Step2State {
-  const app = loadAppState()
-  const jobId = app.jobId
+function loadStep2State(jobId: string): Step2State {
   return {
-    jobId,
-    upload: jobId === null ? null : loadInputsUploadSnapshot(jobId),
-    preview: jobId === null ? null : loadInputsPreviewSnapshot(jobId),
+    upload: loadInputsUploadSnapshot(jobId),
+    preview: loadInputsPreviewSnapshot(jobId),
   }
 }
 
 export function Step2(props: Step2Props) {
-  const [state, setState] = useState<Step2State>(() => loadStep2State())
+  const navigate = useNavigate()
+  const jobId = useParams().jobId ?? null
+  const [state, setState] = useState<Step2State>(() => (jobId === null ? { upload: null, preview: null } : loadStep2State(jobId)))
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<Step2Error | null>(null)
   const [primaryFile, setPrimaryFile] = useState<File | null>(null)
   const [auxiliaryFiles, setAuxiliaryFiles] = useState<File[]>([])
 
+  useEffect(() => {
+    setActionError(null)
+    setPrimaryFile(null)
+    setAuxiliaryFiles([])
+    if (jobId === null) return
+    setState(loadStep2State(jobId))
+  }, [jobId])
+
   const redeem = useMemo(() => {
     return () => {
-      resetToStep1()
-      saveAppState({ view: 'step1' })
-      window.location.reload()
+      resetToStep1(jobId)
+      navigate('/new')
     }
-  }, [])
+  }, [jobId, navigate])
 
   const previewRows = 20
   const previewCols = 10
@@ -124,7 +128,7 @@ export function Step2(props: Step2Props) {
     }
   }
 
-  if (state.jobId === null) {
+  if (jobId === null) {
     return (
       <div className="view-fade">
         <Step2Header />
@@ -164,13 +168,13 @@ export function Step2(props: Step2Props) {
         onClearAuxiliary={() => setAuxiliaryFiles([])}
         onUpload={() => {
           if (primaryFile === null) return
-          void runUpload(state.jobId as string, primaryFile, auxiliaryFiles)
+          void runUpload(jobId, primaryFile, auxiliaryFiles)
         }}
       />
       <PreviewPanel
         preview={state.preview}
         busy={busy}
-        onSelectSheet={(sheetName) => void runSelectSheet(state.jobId as string, sheetName)}
+        onSelectSheet={(sheetName) => void runSelectSheet(jobId, sheetName)}
       />
 
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginTop: 24 }}>
@@ -178,7 +182,7 @@ export function Step2(props: Step2Props) {
           重新兑换
         </button>
         <div style={{ display: 'flex', gap: 12 }}>
-          <button className="btn btn-secondary" type="button" disabled={busy} onClick={() => void runPreview(state.jobId as string)}>
+          <button className="btn btn-secondary" type="button" disabled={busy} onClick={() => void runPreview(jobId)}>
             刷新预览
           </button>
           <button
@@ -186,8 +190,7 @@ export function Step2(props: Step2Props) {
             type="button"
             disabled={busy || state.upload === null}
             onClick={() => {
-              saveAppState({ view: 'step3' })
-              window.location.reload()
+              navigate(`/jobs/${encodeURIComponent(jobId)}/preview`)
             }}
           >
             {zhCN.step2.continueToStep3}

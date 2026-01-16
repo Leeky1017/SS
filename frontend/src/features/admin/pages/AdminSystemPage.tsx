@@ -9,7 +9,7 @@ type AdminSystemPageProps = {
   onAuthInvalid: () => void
 }
 
-type HealthCheckItem = AdminSystemStatusResponse['health']['checks'][string]
+type HealthCheckItem = NonNullable<AdminSystemStatusResponse['health']['checks']>[string]
 
 function healthStatusLabel(status: string): string {
   return status === 'ok' ? '正常' : '异常'
@@ -31,7 +31,7 @@ function checkLabel(name: string): string {
 
 function checkDetail(name: string, item: HealthCheckItem): string {
   if (item.ok) {
-    if (name === 'production_mode' && item.detail !== null && item.detail.trim() !== '') {
+    if (name === 'production_mode' && item.detail != null && item.detail.trim() !== '') {
       return item.detail === 'production' ? '生产环境' : '非生产环境'
     }
     if (name === 'shutting_down') return '运行中'
@@ -50,6 +50,8 @@ export function AdminSystemPage(props: AdminSystemPageProps) {
   const [busy, setBusy] = useState<boolean>(false)
   const [error, setError] = useState<ApiError | null>(null)
   const [data, setData] = useState<AdminSystemStatusResponse | null>(null)
+  const checks: Record<string, HealthCheckItem> = data?.health.checks ?? {}
+  const workers = data?.workers ?? []
 
   const refresh = async () => {
     if (busy) return
@@ -120,7 +122,7 @@ export function AdminSystemPage(props: AdminSystemPageProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {Object.entries(data.health.checks).map(([name, item]) => (
+                    {Object.entries(checks).map(([name, item]) => (
                       <tr key={name}>
                         <td>{checkLabel(name)}</td>
                         <td style={{ fontWeight: 600, color: item.ok ? 'var(--success)' : 'var(--error)' }}>
@@ -138,7 +140,7 @@ export function AdminSystemPage(props: AdminSystemPageProps) {
           <div className="panel">
             <div className="panel-body">
               <div className="section-label">执行进程</div>
-              {data.workers.length === 0 ? (
+              {workers.length === 0 ? (
                 <div className="inline-hint">暂无活跃记录。</div>
               ) : (
                 <div className="data-table-wrap">
@@ -152,7 +154,7 @@ export function AdminSystemPage(props: AdminSystemPageProps) {
                       </tr>
                     </thead>
                     <tbody>
-                      {data.workers.map((w) => (
+                      {workers.map((w) => (
                         <tr key={w.worker_id}>
                           <td className="mono">{w.worker_id}</td>
                           <td className="mono">{w.active_claims}</td>

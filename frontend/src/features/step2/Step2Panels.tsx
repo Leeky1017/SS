@@ -21,14 +21,16 @@ export function Step2Header() {
 }
 
 function PreviewTable(props: { preview: InputsPreviewResponse }) {
-  const headers = props.preview.columns.map((col) => col.name)
+  const columns = props.preview.columns ?? []
+  const sampleRows = props.preview.sample_rows ?? []
+  const headers = columns.map((col) => col.name)
   return (
     <div className="data-table-wrap" style={{ marginTop: 12 }}>
       <table className="data-table">
         <thead>
           <tr>
             <th className="mono">#</th>
-            {props.preview.columns.map((col) => (
+            {columns.map((col) => (
               <th key={col.name} className="mono">
                 <div>{col.name}</div>
                 <div className="inline-hint" style={{ marginTop: 4 }}>
@@ -39,7 +41,7 @@ function PreviewTable(props: { preview: InputsPreviewResponse }) {
           </tr>
         </thead>
         <tbody>
-          {props.preview.sample_rows.map((row, idx) => (
+          {sampleRows.map((row, idx) => (
             <tr key={idx}>
               <td className="mono" style={{ color: 'var(--text-muted)' }}>
                 {idx + 1}
@@ -64,9 +66,11 @@ export function PreviewPanel(props: {
   const sheetNames = props.preview.sheet_names ?? []
   const selectedSheet = props.preview.selected_sheet ?? null
   const headerRow = props.preview.header_row ?? null
-  const totalCols = props.preview.column_count ?? props.preview.columns.length
-  const showingCols = props.preview.columns.length
-  const showingRows = props.preview.sample_rows.length
+  const columns = props.preview.columns ?? []
+  const sampleRows = props.preview.sample_rows ?? []
+  const totalCols = props.preview.column_count ?? columns.length
+  const showingCols = columns.length
+  const showingRows = sampleRows.length
   const rowCount = props.preview.row_count
   return (
     <div className="panel">
