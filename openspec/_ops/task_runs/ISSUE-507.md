@@ -1,7 +1,7 @@
 # ISSUE-507
 - Issue: #507 https://github.com/Leeky1017/SS/issues/507
 - Branch: task/507-audit-gaps-505
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/508
 
 ## Plan
 - 更新 `ISSUE-505` run log（合并态 + 去除过期 next steps）
