@@ -7,13 +7,13 @@
 - 将 Windows 47.98 真实环境 E2E 升级为“审计级全覆盖”：plan/freeze + run + artifacts 证据断言 + 重启恢复验证；并作为 release gate 唯一门禁。
 
 ## Status
-- CURRENT: local checks green; 47.98 gate pass is recorded; next: open PR + enable auto-merge
+- CURRENT: PR merged (#506); follow-up cleanup tracked in #507.
 
 ## Next Actions
 - [x] 修改 `scripts/ss_ssh_e2e/flow.py`（endpoint 覆盖 + 负例 + artifacts 强断言）
 - [x] 修改 `scripts/ss_windows_release_gate.py`（restart recoverability + rollback 证据）
 - [x] 跑 `ruff` / `pytest` + 47.98 实跑 gate 并记录证据路径
-- [ ] 创建 PR → auto-merge → 合并验证
+- [x] 创建 PR → auto-merge → 合并验证（PR #506 已合并）
 
 ## Decisions Made
 - 2026-01-17: 以 `/plan/freeze` + `/plan` + `/run` 替换旧 `/confirm` 驱动链路（不保留可选开关），确保审计路径唯一且可追责。

@@ -12,4 +12,3 @@ Windows 47.98 真实环境的 repo-native E2E runner 仍在走旧的 `/confirm` 
 - Affected code: `scripts/ss_ssh_e2e/*`, `scripts/ss_windows_release_gate.py`
 - Breaking change: YES（移除 confirm 驱动链路作为可选路径）
 - User benefit: 生产发布门禁具备可审计证据与可恢复性验证
-
