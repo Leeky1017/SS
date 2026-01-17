@@ -8,6 +8,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from ss_ssh_e2e.errors import E2EError
+from ss_windows_release_gate_support import recoverability_check, restart_remote_runtime
+
 DEFAULT_HOST = "47.98.174.3"
 DEFAULT_PORT = 22
 DEFAULT_USER = "Administrator"
@@ -108,6 +111,8 @@ def _init_result(*, out_dir: Path) -> dict[str, Any]:
         "out_dir": str(out_dir),
         "deploy": {"ok": False},
         "e2e": {"ok": False},
+        "restart": {"attempted": False, "ok": None},
+        "recoverability": {"attempted": False, "ok": None},
         "rollback": {"attempted": False, "ok": None},
     }
 
@@ -167,14 +172,58 @@ def _resolve_out_dir(value: str) -> Path:
     return out_dir
 
 
-def main(argv: list[str]) -> int:
-    args = _build_parser().parse_args(argv)
-
-    repo_root = _repo_root()
+def _validate_gate_inputs(*, args: argparse.Namespace, repo_root: Path) -> Path:
     deploy_script = Path(args.deploy_script)
     _require_file(deploy_script, label="deploy script")
     _require_file(Path(args.identity_file), label="ssh identity file")
     _require_file(repo_root / "scripts" / "ss_ssh_e2e.py", label="repo e2e runner")
+    return deploy_script
+
+
+def _run_restart_and_recoverability(
+    *,
+    result: dict[str, Any],
+    out_dir: Path,
+    args: argparse.Namespace,
+    e2e_payload: dict[str, Any],
+) -> bool:
+    try:
+        result["restart"] = restart_remote_runtime(
+            out_dir=out_dir,
+            user=str(args.user),
+            host=str(args.host),
+            port=int(args.port),
+            identity_file=str(args.identity_file),
+        )
+    except (E2EError, OSError, RuntimeError) as e:
+        result["restart"] = {"attempted": True, "ok": False, "error": str(e)}
+        return False
+
+    if not bool(result["restart"].get("ok")):
+        return False
+    try:
+        result["recoverability"] = recoverability_check(
+            out_dir=out_dir,
+            user=str(args.user),
+            host=str(args.host),
+            port=int(args.port),
+            identity_file=str(args.identity_file),
+            tenant_id=str(args.tenant_id),
+            task_code=str(e2e_payload.get("task_code", "")),
+            expected_job_id=str(e2e_payload.get("job_id", "")),
+            expected_terminal_status=str(e2e_payload.get("status", "")),
+        )
+    except (E2EError, OSError, RuntimeError) as e:
+        result["recoverability"] = {"attempted": True, "ok": False, "error": str(e)}
+        return False
+    return bool(result["recoverability"].get("ok"))
+
+
+def main(argv: list[str]) -> int:
+    args = _build_parser().parse_args(argv)
+
+    repo_root = _repo_root()
+    deploy_script = _validate_gate_inputs(args=args, repo_root=repo_root)
 
     out_dir = _resolve_out_dir(args.out_dir)
     result = _init_result(out_dir=out_dir)
@@ -193,10 +242,19 @@ def main(argv: list[str]) -> int:
     e2e, e2e_payload = _run_e2e(repo_root=repo_root, out_dir=out_dir, args=args)
     result["e2e"] = {"ok": e2e.returncode == 0, "returncode": e2e.returncode, "result": e2e_payload}
 
-    if e2e.returncode == 0:
-        result["ok"] = True
-        _write_result(out_dir=out_dir, result=result)
-        return 0
+    if e2e.returncode == 0 and isinstance(e2e_payload, dict):
+        if _run_restart_and_recoverability(
+            result=result,
+            out_dir=out_dir,
+            args=args,
+            e2e_payload=e2e_payload,
+        ):
+            result["ok"] = True
+            _write_result(out_dir=out_dir, result=result)
+            return 0
+    if e2e.returncode == 0 and not isinstance(e2e_payload, dict):
+        result["e2e"]["ok"] = False
+        result["e2e"]["error"] = "missing_e2e_payload_json"
 
     result["rollback"]["attempted"] = True
     rollback = _run_rollback(

@@ -77,7 +77,9 @@ def run(*, args: argparse.Namespace, out_dir: Path) -> tuple[dict[str, Any], int
     base_url = f"http://127.0.0.1:{local_port}"
 
     task_code = args.task_code or f"tc_real_e2e_{utc_ts()}"
-    requirement = args.requirement or "real e2e: upload->draft->confirm->run->artifacts"
+    requirement = args.requirement or (
+        "real e2e audit: upload->preview->draft->patch->plan/freeze->run->artifacts"
+    )
 
     with ssh_tunnel(
         user=args.user,
