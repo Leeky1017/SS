@@ -10,12 +10,12 @@
 - Validate specs and ship via PR + auto-merge
 
 ## Status
-- CURRENT: PR merged; doing post-merge bookkeeping (rulebook archive + sync + cleanup)
+- CURRENT: COMPLETED (PRs merged, rulebook archived, controlplane synced, worktree cleaned)
 
 ## Next Actions
-- [ ] Archive Rulebook task `issue-513-ss-ux-remediation`
-- [ ] Sync controlplane `main` to `origin/main`
-- [ ] Clean up worktree `.worktrees/issue-513-ss-ux-remediation`
+- [x] Archive Rulebook task `issue-513-ss-ux-remediation`
+- [x] Sync controlplane `main` to `origin/main`
+- [x] Clean up worktree `.worktrees/issue-513-ss-ux-remediation`
 
 ## Runs
 ### 2026-01-18 00:09 Task start
@@ -117,3 +117,16 @@
   - `openspec validate --specs --strict --no-interactive`
 - Key output:
   - `Totals: 31 passed, 0 failed (31 items)`
+
+### 2026-01-18 01:10 Controlplane sync
+- Command:
+  - `scripts/agent_controlplane_sync.sh`
+- Key output:
+  - `Fast-forward`
+  - `Updating 1c69d44..e9b74ae`
+
+### 2026-01-18 01:10 Worktree cleanup
+- Command:
+  - `scripts/agent_worktree_cleanup.sh 513 ss-ux-remediation`
+- Key output:
+  - `OK: cleaned worktree .worktrees/issue-513-ss-ux-remediation and local branch task/513-ss-ux-remediation`
