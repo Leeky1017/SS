@@ -2,7 +2,7 @@
 
 - Issue: #513
 - Branch: task/513-ss-ux-remediation
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/514
 
 ## Plan
 - Remove legacy `ss-frontend-ux-audit` spec folder
@@ -10,12 +10,12 @@
 - Validate specs and ship via PR + auto-merge
 
 ## Status
-- CURRENT: Local validation complete; ready to commit and open PR
+- CURRENT: PR merged; doing post-merge bookkeeping (rulebook archive + sync + cleanup)
 
 ## Next Actions
-- [ ] Commit changes with `(#513)`
-- [ ] Push branch and open PR (body includes `Closes #513`)
-- [ ] Enable auto-merge and verify merge completion
+- [ ] Archive Rulebook task `issue-513-ss-ux-remediation`
+- [ ] Sync controlplane `main` to `origin/main`
+- [ ] Clean up worktree `.worktrees/issue-513-ss-ux-remediation`
 
 ## Runs
 ### 2026-01-18 00:09 Task start
@@ -78,3 +78,42 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+
+### 2026-01-18 00:56 PR created
+- Command:
+  - `gh pr create --title "[UX-REMEDIATION] ss-ux-remediation spec + task cards (#513)" --body "Closes #513 ..."`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/514`
+
+### 2026-01-18 00:57 Enable auto-merge
+- Command:
+  - `gh pr merge --auto --squash 514`
+- Key output:
+  - `autoMerge=true`
+
+### 2026-01-18 00:58 Watch checks
+- Command:
+  - `gh pr checks 514 --watch`
+- Key output:
+  - `ci: pass`
+  - `openspec-log-guard: pass`
+  - `merge-serial: pass`
+
+### 2026-01-18 00:59 Merge verification
+- Command:
+  - `gh pr view 514 --json state,mergedAt,mergeStateStatus,reviewDecision`
+- Key output:
+  - `state=MERGED`
+  - `mergedAt=2026-01-17T16:58:10Z`
+
+### 2026-01-18 01:01 Rulebook archive
+- Command:
+  - `rulebook task archive issue-513-ss-ux-remediation`
+- Key output:
+  - `✅ Task issue-513-ss-ux-remediation archived successfully`
+
+### 2026-01-18 01:02 OpenSpec strict validation (post-merge)
+- Command:
+  - `openspec validate --specs --strict --no-interactive`
+- Key output:
+  - `Totals: 31 passed, 0 failed (31 items)`
