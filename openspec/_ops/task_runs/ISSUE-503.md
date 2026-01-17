@@ -1,7 +1,7 @@
 # ISSUE-503
 - Issue: #503
 - Branch: task/503-real-stata-e2e-gate
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/504
 
 ## Goal
 - Replace “post-deploy /health/ready only” with a real, black-box v1 E2E gate against the Windows runtime (real server + real worker + real Stata), verifying artifacts and collecting diagnosable evidence on failure.
