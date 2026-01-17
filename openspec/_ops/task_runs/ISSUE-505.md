@@ -1,7 +1,7 @@
 # ISSUE-505
 - Issue: #505 https://github.com/Leeky1017/SS/issues/505
 - Branch: task/505-real-e2e-audit-gate
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/506
 
 ## Goal
 - 将 Windows 47.98 真实环境 E2E 升级为“审计级全覆盖”：plan/freeze + run + artifacts 证据断言 + 重启恢复验证；并作为 release gate 唯一门禁。
