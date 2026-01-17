@@ -1,18 +1,18 @@
 # ISSUE-511
 - Issue: #511
 - Branch: task/511-frontend-ux-audit-spec
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/512
 
 ## Goal
 - Add a canonical frontend UX audit spec + task cards (no runtime code changes).
 
 ## Status
-- CURRENT: OpenSpec validation + preflight passed; ready to push and open PR.
+- CURRENT: PR opened; auto-merge pending.
 
 ## Next Actions
-- [ ] Push branch `task/511-frontend-ux-audit-spec`
-- [ ] Create PR (body includes `Closes #511`) and backfill PR link here
-- [ ] Enable auto-merge and watch required checks
+- [ ] Enable auto-merge (squash) and watch required checks
+- [ ] Confirm PR is MERGED (`mergedAt != null`)
+- [ ] Controlplane sync + worktree cleanup after merge
 
 ## Decisions Made
 - 2026-01-17: Keep this issue doc-only (OpenSpec + task cards) to prepare subsequent implementation agents.
@@ -44,5 +44,14 @@
 - Key output:
   - `OK: no overlapping files with open PRs`
   - `OK: no hard dependencies found in execution plan`
+- Evidence:
+  - (stdout)
+
+### 2026-01-17 23:23 PR
+- Command:
+  - `git push -u origin HEAD`
+  - `gh pr create ...`
+- Key output:
+  - `PR: https://github.com/Leeky1017/SS/pull/512`
 - Evidence:
   - (stdout)
