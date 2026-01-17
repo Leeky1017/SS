@@ -1,0 +1,80 @@
+# ISSUE-513
+
+- Issue: #513
+- Branch: task/513-ss-ux-remediation
+- PR: <fill-after-created>
+
+## Plan
+- Remove legacy `ss-frontend-ux-audit` spec folder
+- Add `ss-ux-remediation` spec + design docs + task cards
+- Validate specs and ship via PR + auto-merge
+
+## Status
+- CURRENT: Local validation complete; ready to commit and open PR
+
+## Next Actions
+- [ ] Commit changes with `(#513)`
+- [ ] Push branch and open PR (body includes `Closes #513`)
+- [ ] Enable auto-merge and verify merge completion
+
+## Runs
+### 2026-01-18 00:09 Task start
+- Command:
+  - `gh auth status`
+  - `git remote -v`
+  - `gh issue create -t "[UX-REMEDIATION] SS-UX-REMEDIATION: 重建 OpenSpec + task cards" -b "<...>"`
+  - `scripts/agent_controlplane_sync.sh`
+  - `scripts/agent_worktree_setup.sh 513 ss-ux-remediation`
+- Key output:
+  - `Issue: https://github.com/Leeky1017/SS/issues/513`
+  - `Worktree created: .worktrees/issue-513-ss-ux-remediation`
+  - `Branch: task/513-ss-ux-remediation`
+
+### 2026-01-18 00:12 Delete legacy spec (ss-frontend-ux-audit)
+- Command:
+  - `find openspec/specs -name '*ux-audit*'`
+- Key output:
+  - (no output; legacy UX audit spec removed)
+
+### 2026-01-18 00:47 Create ss-ux-remediation spec + task cards
+- Command:
+  - `mkdir -p openspec/specs/ss-ux-remediation/{design,task_cards}`
+  - `python3 (generate FE/BE/E2E task cards)`
+- Key output:
+  - `openspec/specs/ss-ux-remediation/spec.md`
+  - `openspec/specs/ss-ux-remediation/design/*.md`
+  - `openspec/specs/ss-ux-remediation/task_cards/` (74 cards + README)
+
+### 2026-01-18 00:49 OpenSpec strict validation
+- Command:
+  - `openspec validate --specs --strict --no-interactive`
+- Key output:
+  - `Totals: 31 passed, 0 failed (31 items)`
+
+### 2026-01-18 00:52 Local Python tooling
+- Command:
+  - `python3 -m venv .venv`
+  - `.venv/bin/python -m pip install -U pip`
+  - `.venv/bin/python -m pip install -e '.[dev]'`
+- Key output:
+  - `Successfully installed pip-25.3`
+  - `Successfully installed ... pytest ... ruff ...`
+
+### 2026-01-18 00:52 Lint
+- Command:
+  - `.venv/bin/ruff check .`
+- Key output:
+  - `All checks passed!`
+
+### 2026-01-18 00:52 Tests
+- Command:
+  - `.venv/bin/pytest -q`
+- Key output:
+  - `432 passed, 7 skipped`
+
+### 2026-01-18 00:53 PR preflight
+- Command:
+  - `scripts/agent_pr_preflight.sh`
+- Key output:
+  - `OK: no overlapping files with open PRs`
+  - `OK: no hard dependencies found in execution plan`
