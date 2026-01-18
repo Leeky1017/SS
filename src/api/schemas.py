@@ -4,6 +4,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
+from src.api.column_normalization_schemas import DraftColumnNameNormalization
 from src.api.draft_column_candidate_schemas import DraftColumnCandidateV2
 from src.utils.json_types import JsonScalar, JsonValue
 
@@ -160,7 +161,6 @@ class DraftOpenUnknown(BaseModel):
     blocking: bool | None = None
     candidates: list[str] = Field(default_factory=list)
 
-
 class DraftPreviewResponse(BaseModel):
     job_id: str
     draft_text: str
@@ -173,13 +173,13 @@ class DraftPreviewResponse(BaseModel):
     controls: list[str] = Field(default_factory=list)
     column_candidates: list[str] = Field(default_factory=list)
     column_candidates_v2: list[DraftColumnCandidateV2] = Field(default_factory=list)
+    column_name_normalizations: list[DraftColumnNameNormalization] = Field(default_factory=list)
     data_quality_warnings: list[DraftDataQualityWarning] = Field(default_factory=list)
     stage1_questions: list[DraftStage1Question] = Field(default_factory=list)
     open_unknowns: list[DraftOpenUnknown] = Field(default_factory=list)
     variable_types: list[InputsPreviewColumn] = Field(default_factory=list)
     data_sources: list[DraftPreviewDataSource] = Field(default_factory=list)
     default_overrides: dict[str, JsonValue] = Field(default_factory=dict)
-
 
 class DraftPreviewPendingResponse(BaseModel):
     status: Literal["pending"] = "pending"
