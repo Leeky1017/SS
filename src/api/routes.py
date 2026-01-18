@@ -6,6 +6,7 @@ from src.api import (
     draft,
     health,
     inputs_bundle,
+    inputs_dataset_sheet,
     inputs_primary_sheet,
     inputs_upload_sessions,
     jobs,
@@ -31,6 +32,10 @@ api_v1_router.include_router(
 )
 api_v1_router.include_router(
     inputs_primary_sheet.router,
+    dependencies=[Depends(enforce_v1_job_bearer_auth)],
+)
+api_v1_router.include_router(
+    inputs_dataset_sheet.router,
     dependencies=[Depends(enforce_v1_job_bearer_auth)],
 )
 api_v1_router.include_router(

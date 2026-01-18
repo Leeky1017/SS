@@ -31,7 +31,8 @@ from src.api.schemas import (
 )
 from src.domain.artifacts_service import ArtifactsService
 from src.domain.inputs_manifest import ROLE_PRIMARY_DATASET, ROLE_SECONDARY_DATASET
-from src.domain.job_inputs_service import DatasetUpload, JobInputsService
+from src.domain.job_inputs_models import DatasetUpload
+from src.domain.job_inputs_service import JobInputsService
 from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobService
 from src.domain.models import JobConfirmation

@@ -170,9 +170,19 @@ export interface components {
             inferred_type: string;
             name: string;
         };
+        InputsPreviewDataset: {
+            dataset_key: string;
+            format: string;
+            header_row?: boolean | null;
+            original_name: string;
+            role: string;
+            selected_sheet?: string | null;
+            sheet_names?: string[];
+        };
         InputsPreviewResponse: {
             column_count?: number | null;
             columns?: components["schemas"]["InputsPreviewColumn"][];
+            datasets?: components["schemas"]["InputsPreviewDataset"][];
             header_row?: boolean | null;
             job_id: string;
             row_count?: number | null;

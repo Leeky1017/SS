@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from src.api.column_normalization_schemas import DraftColumnNameNormalization
 from src.api.draft_column_candidate_schemas import DraftColumnCandidateV2
+from src.api.inputs_preview_schemas import InputsPreviewColumn, InputsPreviewResponse  # noqa: F401
 from src.api.required_variable_schemas import DraftRequiredVariable
 from src.utils.json_types import JsonScalar, JsonValue
 
@@ -123,12 +124,6 @@ class InputsUploadResponse(BaseModel):
     manifest_rel_path: str
     fingerprint: str
 
-
-class InputsPreviewColumn(BaseModel):
-    name: str
-    inferred_type: str
-
-
 class DraftPreviewDataSource(BaseModel):
     dataset_key: str
     role: str
@@ -197,16 +192,6 @@ class DraftPatchResponse(BaseModel):
     remaining_unknowns_count: int
     open_unknowns: list[DraftOpenUnknown] = Field(default_factory=list)
     draft_preview: dict[str, JsonValue] = Field(default_factory=dict)
-
-class InputsPreviewResponse(BaseModel):
-    job_id: str
-    row_count: int | None = None
-    column_count: int | None = None
-    sheet_names: list[str] = Field(default_factory=list)
-    selected_sheet: str | None = None
-    header_row: bool | None = None
-    columns: list[InputsPreviewColumn] = Field(default_factory=list)
-    sample_rows: list[dict[str, str | int | float | bool | None]] = Field(default_factory=list)
 
 class TaskCodeRedeemRequest(BaseModel):
     task_code: str = Field(description="Task code to redeem", min_length=1)
