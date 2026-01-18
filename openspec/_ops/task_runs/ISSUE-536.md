@@ -1,7 +1,7 @@
 # ISSUE-536
 - Issue: #536
 - Branch: task/536-wave-2-core-ux
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/537
 
 ## Plan
 - Implement Wave 2 core UX fixes (CSS/layout + interaction feedback + persistence)
