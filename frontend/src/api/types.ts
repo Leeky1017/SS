@@ -45,6 +45,11 @@ export interface components {
             scheduled_at?: string | null;
             status: string;
         };
+        DraftColumnCandidateV2: {
+            dataset_key: string;
+            name: string;
+            role: string;
+        };
         DraftDataQualityWarning: {
             message: string;
             severity: string;
@@ -86,6 +91,7 @@ export interface components {
         };
         DraftPreviewResponse: {
             column_candidates?: string[];
+            column_candidates_v2?: components["schemas"]["DraftColumnCandidateV2"][];
             controls?: string[];
             data_quality_warnings?: components["schemas"]["DraftDataQualityWarning"][];
             data_sources?: components["schemas"]["DraftPreviewDataSource"][];

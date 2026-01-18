@@ -6,6 +6,7 @@ from fastapi import APIRouter, Body, Depends, Query, Response
 
 from src.api.deps import get_draft_service, get_tenant_id
 from src.api.schemas import (
+    DraftColumnCandidateV2,
     DraftDataQualityWarning,
     DraftOpenUnknown,
     DraftPatchRequest,
@@ -78,6 +79,10 @@ async def draft_preview(
         treatment_var=draft.treatment_var,
         controls=list(draft.controls),
         column_candidates=list(draft.column_candidates),
+        column_candidates_v2=[
+            DraftColumnCandidateV2(dataset_key=item.dataset_key, role=item.role, name=item.name)
+            for item in draft.column_candidates_v2
+        ],
         data_quality_warnings=cast(
             list[DraftDataQualityWarning],
             list_of_dicts(draft_dump.get("data_quality_warnings")),

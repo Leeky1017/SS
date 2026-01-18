@@ -4,6 +4,7 @@ import logging
 from typing import cast
 
 from src.domain.do_template_selection_service import DoTemplateSelectionService
+from src.domain.draft_column_candidates_v2 import column_candidates_v2
 from src.domain.draft_inputs_introspection import draft_data_sources, primary_dataset_columns
 from src.domain.draft_preview_llm import (
     DraftPreviewParseError,
@@ -21,7 +22,7 @@ from src.domain.draft_v1_contract import (
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.llm_client import LLMClient
-from src.domain.models import ArtifactKind, Draft, Job, JobStatus
+from src.domain.models import ArtifactKind, Draft, DraftColumnCandidateV2, Job, JobStatus
 from src.domain.state_machine import JobStateMachine
 from src.infra.do_template_selection_exceptions import DoTemplateSelectionNotWiredError
 from src.infra.exceptions import JobStoreIOError, LLMArtifactsWriteError, LLMCallFailedError
@@ -32,6 +33,21 @@ from src.utils.tenancy import DEFAULT_TENANT_ID
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
+
+def _merge_column_candidates(
+    primary: list[str], v2: list[DraftColumnCandidateV2]
+) -> list[str]:
+    out = list(primary)
+    seen = {name for name in out if name.strip() != ""}
+    for item in v2:
+        name = item.name
+        if name.strip() == "" or name in seen:
+            continue
+        out.append(name)
+        seen.add(name)
+        if len(out) >= 300:
+            break
+    return out[:300]
 
 
 class DraftService:
@@ -194,15 +210,23 @@ class DraftService:
 
     def _draft_preview_prompt(self, *, tenant_id: str, job: Job) -> str:
         requirement = job.requirement if job.requirement is not None else ""
-        column_candidates, _ = primary_dataset_columns(
+        primary_candidates, _types = primary_dataset_columns(
             tenant_id=tenant_id,
             job_id=job.job_id,
             store=self._store,
             workspace=self._workspace,
         )
+        candidates_v2 = column_candidates_v2(
+            tenant_id=tenant_id,
+            job_id=job.job_id,
+            store=self._store,
+            workspace=self._workspace,
+            primary_candidates=primary_candidates,
+        )
+        merged_candidates = _merge_column_candidates(primary_candidates, candidates_v2)
         return build_draft_preview_prompt_v2(
             requirement=requirement,
-            column_candidates=column_candidates,
+            column_candidates=merged_candidates,
         )
 
     def _enrich_draft(self, *, tenant_id: str, job: Job, draft: Draft) -> Draft:
@@ -212,17 +236,26 @@ class DraftService:
             store=self._store,
             workspace=self._workspace,
         )
-        candidates, types = primary_dataset_columns(
+        primary_candidates, types = primary_dataset_columns(
             tenant_id=tenant_id,
             job_id=job.job_id,
             store=self._store,
             workspace=self._workspace,
         )
-        v1_fields = v1_contract_fields(job=job, draft=draft, candidates=candidates)
+        candidates_v2 = column_candidates_v2(
+            tenant_id=tenant_id,
+            job_id=job.job_id,
+            store=self._store,
+            workspace=self._workspace,
+            primary_candidates=primary_candidates,
+        )
+        merged_candidates = _merge_column_candidates(primary_candidates, candidates_v2)
+        v1_fields = v1_contract_fields(job=job, draft=draft, candidates=merged_candidates)
         return draft.model_copy(
             update={
                 "data_sources": sources,
-                "column_candidates": candidates,
+                "column_candidates": merged_candidates,
+                "column_candidates_v2": candidates_v2,
                 "variable_types": types,
                 **v1_fields,
             }
