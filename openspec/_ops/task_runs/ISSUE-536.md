@@ -53,3 +53,23 @@
 - Command: `/tmp/ss-venv/bin/python -m pytest -q`
 - Key output: `439 passed, 7 skipped`
 - Evidence: N/A
+
+### 2026-01-18 github
+- Command: `gh pr view 537 --json state,mergedAt,mergeStateStatus,reviewDecision,url`
+- Key output: `state=MERGED mergedAt=2026-01-18T13:44:01Z url=https://github.com/Leeky1017/SS/pull/537`
+- Evidence: N/A
+
+### 2026-01-18 github
+- Command: `gh pr checks 537`
+- Key output: `ci pass; merge-serial pass; openspec-log-guard pass`
+- Evidence: N/A
+
+### 2026-01-18 controlplane
+- Command: `scripts/agent_controlplane_sync.sh`
+- Key output: `Updating f46bd50..59b6963 (Fast-forward)`
+- Evidence: N/A
+
+### 2026-01-18 rulebook
+- Command: `rulebook task archive issue-536-wave-2-core-ux`
+- Key output: `✅ Task issue-536-wave-2-core-ux archived successfully`
+- Evidence: `rulebook/tasks/archive/2026-01-18-issue-536-wave-2-core-ux/`
