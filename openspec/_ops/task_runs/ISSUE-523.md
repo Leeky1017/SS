@@ -1,7 +1,7 @@
 # ISSUE-523
 - Issue: #523
 - Branch: task/523-be-007-column-name-normalization
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/525
 
 ## Plan
 - Add stable Stata-safe column normalization
