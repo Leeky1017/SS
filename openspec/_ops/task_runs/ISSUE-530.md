@@ -39,3 +39,7 @@
 ### 2026-01-18 contract
 - Command: `PATH=/home/leeky/work/SS/.venv/bin:$PATH scripts/contract_sync.sh check`
 - Key output: `exit 0`
+
+### 2026-01-18 pr-preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
