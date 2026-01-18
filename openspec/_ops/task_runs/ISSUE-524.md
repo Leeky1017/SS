@@ -2,7 +2,7 @@
 
 - Issue: #524
 - Branch: task/524-ss-full-auto-orchestration
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/526
 
 ## Plan
 
@@ -53,3 +53,8 @@
 - Key output: `All checks passed!`
 - Evidence: `openspec/specs/ss-full-auto-orchestration/`
 
+### 2026-01-18 Create PR
+
+- Command: `gh pr create --base main --head task/524-ss-full-auto-orchestration ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/526`
+- Evidence: https://github.com/Leeky1017/SS/pull/526
