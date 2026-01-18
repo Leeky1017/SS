@@ -28,4 +28,4 @@
 
 ## Dependencies
 
-- 依赖后端 BE-003（分页 API）
+- `BE-003__pagination-api.md` (后端分页查询 API)

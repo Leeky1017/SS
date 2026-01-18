@@ -29,4 +29,4 @@
 
 ## Dependencies
 
-- 依赖后端 BE-002（zip 下载端点）
+- `BE-002__zip-download-endpoint.md` (后端 zip 打包下载端点)

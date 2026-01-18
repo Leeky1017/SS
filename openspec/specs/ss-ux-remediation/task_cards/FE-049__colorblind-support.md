@@ -12,9 +12,15 @@
 
 ## 技术分析
 
-- 影响：用户对系统状态（正在加载/已完成/失败）缺乏可感知反馈，或在关键交互上产生误操作/困惑。
+- 现状：
+  - 成功/错误/完成等状态主要依赖颜色表达：例如 stepper 的完成态使用 `--success`，错误面板使用红色边框/底色；对色觉缺陷用户不友好。
+  - 状态缺少一致的冗余表达（图标/文本标签）：即使颜色不可区分，也应能通过图标或明确文案区分“成功/失败/进行中”。
+- 影响：在色盲模式、低对比显示器或强光环境下，用户更容易误判状态并做出错误操作。
 - 代码定位锚点（仅用于快速开始；以实际实现为准）：
-- `frontend/src/styles/theme.css`
+  - `frontend/src/styles/theme.css`
+  - `frontend/src/styles/components.css`
+  - `frontend/src/components/ErrorPanel.tsx`
+  - `frontend/src/features/status/Status.tsx`
 
 ## 解决方案
 

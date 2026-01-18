@@ -29,4 +29,4 @@
 
 ## Dependencies
 
-- 无
+- `BE-004__draft-max-retry.md` (后端草稿生成 max retries / 上限)

@@ -41,4 +41,8 @@
 
 ## Dependencies
 
-- 无
+- `BE-005__auxiliary-file-sheets.md` (辅助文件 Sheet 选择)
+- `BE-006__auxiliary-column-candidates.md` (辅助文件列纳入候选)
+- `BE-008__id-time-var-selection.md` (ID/Time 变量选择)
+- `BE-009__plan-freeze-error-detail.md` (Plan freeze 错误结构化)
+- `FE-043__actionable-errors.md` (可操作错误信息)

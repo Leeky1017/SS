@@ -1,6 +1,6 @@
 # Task Card: FE-059 Privacy notice
 
-- Priority: P1-HIGH
+- Priority: P2-MEDIUM
 - Area: Frontend / Privacy
 - Design refs:
   - `openspec/specs/ss-ux-remediation/design/ux-patterns.md`
@@ -12,9 +12,15 @@
 
 ## 技术分析
 
-- 影响：用户对系统状态（正在加载/已完成/失败）缺乏可感知反馈，或在关键交互上产生误操作/困惑。
+- 现状：
+  - UI 缺少隐私政策/数据处理说明入口：header/主流程页面没有可点击的“隐私说明”链接或弹窗，用户无法主动查看数据如何被使用与保存。
+  - 未明确告知数据处理边界：上传的数据、生成产物（artifacts）、运行日志等是否会持久化、保留多久、如何删除/撤回，在 UI 中没有说明。
+  - 认证 token 会写入本地存储，但用户未被提示其含义、有效期与清除方式，造成“不透明”的数据/权限风险感知。
+- 影响：用户无法评估数据风险与合规性，降低信任并可能触发合规阻断（尤其是机构用户）。
 - 代码定位锚点（仅用于快速开始；以实际实现为准）：
-- `frontend/src/App.tsx`
+  - `frontend/src/App.tsx`
+  - `frontend/src/features/step1/Step1.tsx`
+  - `frontend/src/state/storage.ts`
 
 ## 解决方案
 
