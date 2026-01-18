@@ -50,6 +50,12 @@ export interface components {
             name: string;
             role: string;
         };
+        DraftColumnNameNormalization: {
+            dataset_key: string;
+            normalized_name: string;
+            original_name: string;
+            role: string;
+        };
         DraftDataQualityWarning: {
             message: string;
             severity: string;
@@ -92,6 +98,7 @@ export interface components {
         DraftPreviewResponse: {
             column_candidates?: string[];
             column_candidates_v2?: components["schemas"]["DraftColumnCandidateV2"][];
+            column_name_normalizations?: components["schemas"]["DraftColumnNameNormalization"][];
             controls?: string[];
             data_quality_warnings?: components["schemas"]["DraftDataQualityWarning"][];
             data_sources?: components["schemas"]["DraftPreviewDataSource"][];

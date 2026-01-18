@@ -4,6 +4,7 @@ from typing import Literal, cast
 
 from fastapi import APIRouter, Body, Depends, Query, Response
 
+from src.api.column_normalization_schemas import DraftColumnNameNormalization
 from src.api.deps import get_draft_service, get_tenant_id
 from src.api.draft_column_candidate_schemas import DraftColumnCandidateV2
 from src.api.schemas import (
@@ -82,6 +83,15 @@ async def draft_preview(
         column_candidates_v2=[
             DraftColumnCandidateV2(dataset_key=item.dataset_key, role=item.role, name=item.name)
             for item in draft.column_candidates_v2
+        ],
+        column_name_normalizations=[
+            DraftColumnNameNormalization(
+                dataset_key=item.dataset_key,
+                role=item.role,
+                original_name=item.original_name,
+                normalized_name=item.normalized_name,
+            )
+            for item in draft.column_name_normalizations
         ],
         data_quality_warnings=cast(
             list[DraftDataQualityWarning],

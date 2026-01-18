@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from typing import cast
 
+from src.domain.column_normalizer import build_draft_column_name_normalizations
 from src.domain.do_template_selection_service import DoTemplateSelectionService
 from src.domain.draft_column_candidate_models import DraftColumnCandidateV2
 from src.domain.draft_column_candidates_v2 import column_candidates_v2
@@ -251,12 +252,14 @@ class DraftService:
             primary_candidates=primary_candidates,
         )
         merged_candidates = _merge_column_candidates(primary_candidates, candidates_v2)
+        normalizations = build_draft_column_name_normalizations(candidates_v2)
         v1_fields = v1_contract_fields(job=job, draft=draft, candidates=merged_candidates)
         return draft.model_copy(
             update={
                 "data_sources": sources,
                 "column_candidates": merged_candidates,
                 "column_candidates_v2": candidates_v2,
+                "column_name_normalizations": normalizations,
                 "variable_types": types,
                 **v1_fields,
             }
