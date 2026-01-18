@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { ApiClient } from '../../api/client'
 import type { ApiError } from '../../api/errors'
-import type { DraftPreviewPendingResponse, DraftPreviewReadyResponse } from '../../api/types'
+import type { DraftPreviewReadyResponse } from '../../api/types'
 import { ErrorPanel } from '../../components/ErrorPanel'
 import { zhCN } from '../../i18n/zh-CN'
 import {
@@ -17,6 +17,9 @@ import { formatUserErrorMessage } from '../../utils/errorCodes'
 import { applyCorrection, blockingMissing, computeCandidates, isDraftPreviewPending } from './model'
 import { LockedBanner, PendingPanel, DraftTextPanel, Step3Header, VariablesTable, WarningsPanel } from './panelsBase'
 import { DowngradeModal, MappingPanel, OpenUnknownsPanel, Stage1QuestionsPanel } from './panelsConfirm'
+import { PlanFreezeMissingRequiredPanel } from './PlanFreezeMissingRequiredPanel'
+import { parsePlanFreezeMissingRequiredDetails, VARIABLE_SELECTION_PARAMS } from './planFreezeMissingRequired'
+import { Step3MissingJobId } from './Step3MissingJobId'
 
 type Step3Props = { api: ApiClient }
 
@@ -28,7 +31,7 @@ type DraftState =
   | { kind: 'pending'; retryAfterSeconds: number; message: string | null }
   | { kind: 'ready'; draft: DraftPreviewReadyResponse }
 
-function pendingMessage(_resp: DraftPreviewPendingResponse): string | null {
+function pendingMessage(): string | null {
   return null
 }
 
@@ -85,9 +88,29 @@ export function Step3(props: Step3Props) {
     return computeCandidates(draftState.draft, fallbackCandidates)
   }, [draftState, fallbackCandidates])
 
+  function setCorrection(from: string, to: string | null): void {
+    setVariableCorrections((prev) => {
+      const next = { ...prev }
+      if (to === null) delete next[from]
+      else next[from] = to
+      return next
+    })
+  }
+
   const apply = useMemo(() => {
     return (v: string | null) => applyCorrection(variableCorrections, v)
   }, [variableCorrections])
+
+  const planFreezeMissingDetails = useMemo(() => {
+    if (actionError === null) return null
+    if (actionError.error.internalCode !== 'PLAN_FREEZE_MISSING_REQUIRED') return null
+    return parsePlanFreezeMissingRequiredDetails(actionError.error.details)
+  }, [actionError])
+
+  const needsPlanFreezeVariableSelection = useMemo(() => {
+    if (planFreezeMissingDetails === null) return false
+    return planFreezeMissingDetails.missingParamsDetail.some((item) => VARIABLE_SELECTION_PARAMS.has(item.param))
+  }, [planFreezeMissingDetails])
 
   async function loadDraft(): Promise<void> {
     if (jobId === null) return
@@ -103,7 +126,7 @@ export function Step3(props: Step3Props) {
       }
       saveDraftPreviewSnapshot(jobId, previewed.value)
       if (isDraftPreviewPending(previewed.value)) {
-        setDraftState({ kind: 'pending', retryAfterSeconds: previewed.value.retry_after_seconds, message: pendingMessage(previewed.value) })
+        setDraftState({ kind: 'pending', retryAfterSeconds: previewed.value.retry_after_seconds, message: pendingMessage() })
         return
       }
       setDraftState({ kind: 'ready', draft: previewed.value })
@@ -190,28 +213,29 @@ export function Step3(props: Step3Props) {
   }, [draftState, jobId])
 
   if (jobId === null) {
-    return (
-      <div className="view-fade">
-        <Step3Header />
-        <div className="panel">
-          <div className="panel-body">
-            <div style={{ fontWeight: 600, marginBottom: 6 }}>{zhCN.step3.missingJobIdTitle}</div>
-            <div className="inline-hint">{zhCN.step3.missingJobIdHint}</div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
-              <button className="btn btn-primary" type="button" onClick={redeem}>
-                {zhCN.step3.backToStep1}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <Step3MissingJobId onRedeem={redeem} />
   }
 
   return (
     <div className="view-fade">
       <Step3Header />
-      <ErrorPanel error={actionError?.error ?? null} onRetry={actionError?.retry} retryLabel={actionError?.retryLabel} onRedeem={redeem} />
+      <ErrorPanel
+        error={actionError?.error ?? null}
+        onRetry={needsPlanFreezeVariableSelection ? undefined : actionError?.retry}
+        retryLabel={needsPlanFreezeVariableSelection ? undefined : actionError?.retryLabel}
+        onRedeem={redeem}
+      />
+      {planFreezeMissingDetails !== null && actionError !== null ? (
+        <PlanFreezeMissingRequiredPanel
+          details={planFreezeMissingDetails}
+          busy={busy}
+          locked={locked}
+          variableCorrections={variableCorrections}
+          fallbackCandidates={candidates}
+          onSetCorrection={setCorrection}
+          onRetry={actionError.retry}
+        />
+      ) : null}
       <LockedBanner lock={lock} />
 
       {draftState.kind === 'pending' ? (
@@ -227,14 +251,7 @@ export function Step3(props: Step3Props) {
             draft={draftState.draft}
             candidates={candidates}
             variableCorrections={variableCorrections}
-            onSet={(from, to) =>
-              setVariableCorrections((prev) => {
-                const next = { ...prev }
-                if (to === null) delete next[from]
-                else next[from] = to
-                return next
-              })
-            }
+            onSet={setCorrection}
             onClearAll={() => setVariableCorrections({})}
           />
           {draftState.draft.stage1_questions !== undefined ? (
