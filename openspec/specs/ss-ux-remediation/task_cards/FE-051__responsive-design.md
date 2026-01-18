@@ -12,9 +12,17 @@
 
 ## 技术分析
 
-- 影响：用户对系统状态（正在加载/已完成/失败）缺乏可感知反馈，或在关键交互上产生误操作/困惑。
+- 现状：
+  - 样式缺少 `@media` 断点：header 使用三列 grid + 固定 padding，窄屏下容易挤压导致溢出或换行错位。
+  - 主内容区采用固定 padding 与桌面宽度假设（例如 `main` 的 padding/max-width），在移动端会导致可视区域浪费或内容拥挤。
+  - 表格容器与 sticky 列（`overflow: auto` + `position: sticky`）在小屏下更依赖横向滚动，若无断点优化会出现“看不全/点不到”的问题。
+- 影响：≤768px 的窄屏设备上主流程布局崩坏，影响上传、预览与状态下载等关键操作。
 - 代码定位锚点（仅用于快速开始；以实际实现为准）：
-- `frontend/src/styles/layout.css`
+  - `frontend/src/styles/layout.css`
+  - `frontend/src/styles/components.css`
+  - `frontend/src/features/step2/Step2Panels.tsx`
+  - `frontend/src/features/step3/panelsBase.tsx`
+  - `frontend/src/features/status/Status.tsx`
 
 ## 解决方案
 

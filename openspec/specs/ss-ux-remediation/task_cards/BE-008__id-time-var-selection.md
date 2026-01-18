@@ -36,4 +36,5 @@
 
 ## Dependencies
 
-- 无
+- `BE-006__auxiliary-column-candidates.md` (辅助文件列纳入候选)
+- `BE-007__column-name-normalization.md` (列名标准化)

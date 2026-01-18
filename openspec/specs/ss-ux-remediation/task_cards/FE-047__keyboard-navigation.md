@@ -1,6 +1,6 @@
 # Task Card: FE-047 Keyboard navigation
 
-- Priority: P1-HIGH
+- Priority: P2-MEDIUM
 - Area: Frontend / Accessibility
 - Design refs:
   - `openspec/specs/ss-ux-remediation/design/ux-patterns.md`
@@ -12,9 +12,18 @@
 
 ## 技术分析
 
-- 影响：用户对系统状态（正在加载/已完成/失败）缺乏可感知反馈，或在关键交互上产生误操作/困惑。
+- 现状：
+  - Tab 顺序未针对“主流程”优化：页面缺少 “跳到主内容（skip link）”，键盘用户需要先穿过 header 才能到达核心表单/按钮。
+  - Focus 样式缺失：全局禁用 `outline`，且 `.btn`/`input`/`select` 未提供清晰的 `:focus-visible` 样式，导致无法判断当前焦点位置。
+  - 交互元素可达性不一致：存在用 `label` 伪装按钮触发文件选择等模式，默认不一定可聚焦，Enter/Space 行为也容易和预期不一致。
+  - 弹窗缺少焦点管理：打开时未自动聚焦首个可交互控件，关闭时未回到触发点，易造成“迷失焦点”。
+- 影响：无法仅用键盘稳定完成“领取 → 上传 → 预览 → 确认 → 状态/下载”，且误操作概率上升。
 - 代码定位锚点（仅用于快速开始；以实际实现为准）：
-- `frontend/src`
+  - `frontend/src/styles/theme.css`
+  - `frontend/src/styles/components.css`
+  - `frontend/src/App.tsx`
+  - `frontend/src/features/step2/Step2UploadPanel.tsx`
+  - `frontend/src/features/step3/panelsConfirm.tsx`
 
 ## 解决方案
 

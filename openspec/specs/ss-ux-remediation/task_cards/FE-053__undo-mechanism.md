@@ -12,9 +12,14 @@
 
 ## 技术分析
 
-- 影响：用户对系统状态（正在加载/已完成/失败）缺乏可感知反馈，或在关键交互上产生误操作/困惑。
+- 现状：
+  - 变量修正直接写入 `variableCorrections` state，没有“上一步”历史栈；任何误点都只能手动改回或逐项重选。
+  - “清除修正/清空”属于一次性全清操作，不等价于撤销上一步（Undo last action），且缺少撤销提示与可恢复路径。
+  - 在确认锁定后（confirmed lock）不可逆，用户对误操作的心理成本更高。
+- 影响：误操作代价高，用户需要重复劳动修复输入，降低效率与信任感。
 - 代码定位锚点（仅用于快速开始；以实际实现为准）：
-- `frontend/src/features/step3/Step3.tsx`
+  - `frontend/src/features/step3/Step3.tsx`
+  - `frontend/src/features/step3/panelsConfirm.tsx`
 
 ## 解决方案
 

@@ -28,4 +28,4 @@
 
 ## Dependencies
 
-- 无
+- `BE-001__chunked-upload.md` (后端分块上传支持)
