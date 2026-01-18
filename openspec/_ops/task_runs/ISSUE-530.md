@@ -1,7 +1,7 @@
 # ISSUE-530
 - Issue: #530
 - Branch: task/530-be-009-plan-freeze-error-detail
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/531
 
 ## Plan
 - Add detail fields for `PLAN_FREEZE_MISSING_REQUIRED`
