@@ -78,6 +78,7 @@ class _StepBuildContext:
     requirement_fingerprint: str
     analysis_spec: JsonObject
     analysis_vars: list[str]
+    variable_corrections: dict[str, str]
     default_template_id: str
     do_template_repo: DoTemplateRepository
 
@@ -139,7 +140,9 @@ def _execution_step_from_llm_step(
     if isinstance(raw_template_id, str) and raw_template_id.strip() != "":
         template_id = raw_template_id
     template_params = do_template_plan_support.template_params_for(
-        template_id=template_id, analysis_vars=ctx.analysis_vars
+        template_id=template_id,
+        analysis_spec=ctx.analysis_spec,
+        variable_corrections=ctx.variable_corrections,
     )
     contract = build_plan_template_contract(
         repo=ctx.do_template_repo,
@@ -201,6 +204,7 @@ def generate_plan_with_llm(
         requirement_fingerprint=llm_result.requirement_fingerprint,
         analysis_spec=llm_result.analysis_spec,
         analysis_vars=llm_result.analysis_vars,
+        variable_corrections=dict(confirmation.variable_corrections),
         default_template_id=primary_template_id,
         do_template_repo=do_template_repo,
     )

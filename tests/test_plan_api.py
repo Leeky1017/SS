@@ -203,3 +203,42 @@ async def test_freeze_plan_when_required_template_params_missing_returns_structu
 
         fixed = await client.post(f"/v1/jobs/{job_id}/plan/freeze", json={})
         assert fixed.status_code == 200
+
+
+async def test_freeze_plan_when_template_requires_id_time_accepts_variable_corrections(
+    job_service, draft_service, store, jobs_dir, do_template_library_dir
+) -> None:
+    app = _test_app(
+        job_service=job_service,
+        draft_service=draft_service,
+        store=store,
+        jobs_dir=jobs_dir,
+        do_template_library_dir=do_template_library_dir,
+    )
+    async with asgi_client(app=app) as client:
+        job_id = job_service.create_job(requirement="hello").job_id
+
+        preview = await client.get(f"/v1/jobs/{job_id}/draft/preview")
+        assert preview.status_code == 200
+
+        loaded = store.load(job_id)
+        loaded.selected_template_id = "T30"
+        store.save(loaded)
+
+        missing = await client.post(f"/v1/jobs/{job_id}/plan/freeze", json={})
+        assert missing.status_code == 400
+        payload = missing.json()
+        assert payload["error_code"] == "PLAN_FREEZE_MISSING_REQUIRED"
+        assert "__ID_VAR__" in payload.get("missing_params", [])
+        assert "__TIME_VAR__" in payload.get("missing_params", [])
+
+        fixed = await client.post(
+            f"/v1/jobs/{job_id}/plan/freeze",
+            json={
+                "variable_corrections": {"__ID_VAR__": "id", "__TIME_VAR__": "year"},
+            },
+        )
+        assert fixed.status_code == 200
+        template_params = fixed.json()["plan"]["steps"][0]["params"]["template_params"]
+        assert template_params["__ID_VAR__"] == "id"
+        assert template_params["__TIME_VAR__"] == "year"

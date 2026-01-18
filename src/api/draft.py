@@ -7,6 +7,7 @@ from fastapi import APIRouter, Body, Depends, Query, Response
 from src.api.column_normalization_schemas import DraftColumnNameNormalization
 from src.api.deps import get_draft_service, get_tenant_id
 from src.api.draft_column_candidate_schemas import DraftColumnCandidateV2
+from src.api.required_variable_schemas import DraftRequiredVariable
 from src.api.schemas import (
     DraftDataQualityWarning,
     DraftOpenUnknown,
@@ -20,9 +21,32 @@ from src.api.schemas import (
 )
 from src.domain.draft_service import DraftService
 from src.domain.draft_v1_contract import list_of_dicts
+from src.domain.models import Draft
 from src.infra.input_exceptions import InputMainDataSourceNotFoundError
 
 router = APIRouter(tags=["draft"])
+
+def _dedupe_candidates(values: list[str], *, limit: int = 300) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for value in values:
+        if value.strip() == "" or value in seen:
+            continue
+        out.append(value)
+        seen.add(value)
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _required_variable_candidates(*, draft: Draft) -> list[str]:
+    primary = [
+        item.name for item in draft.column_candidates_v2 if item.role == "primary_dataset"
+    ]
+    candidates = _dedupe_candidates(primary)
+    if len(candidates) == 0:
+        candidates = _dedupe_candidates(list(draft.column_candidates))
+    return candidates
 
 
 @router.get(
@@ -70,6 +94,7 @@ async def draft_preview(
     else:
         decision = "require_confirm"
 
+    required_candidates = _required_variable_candidates(draft=draft)
     return DraftPreviewResponse(
         job_id=job_id,
         draft_text=draft.text,
@@ -92,6 +117,18 @@ async def draft_preview(
                 normalized_name=item.normalized_name,
             )
             for item in draft.column_name_normalizations
+        ],
+        required_variables=[
+            DraftRequiredVariable(
+                field="__ID_VAR__",
+                description="个体标识变量 (ID)",
+                candidates=required_candidates,
+            ),
+            DraftRequiredVariable(
+                field="__TIME_VAR__",
+                description="时间变量 (Time)",
+                candidates=required_candidates,
+            ),
         ],
         data_quality_warnings=cast(
             list[DraftDataQualityWarning],

@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from src.api.column_normalization_schemas import DraftColumnNameNormalization
 from src.api.draft_column_candidate_schemas import DraftColumnCandidateV2
+from src.api.required_variable_schemas import DraftRequiredVariable
 from src.utils.json_types import JsonScalar, JsonValue
 
 
@@ -27,13 +28,11 @@ class ConfirmJobRequest(BaseModel):
     default_overrides: dict[str, JsonValue]
     expert_suggestions_feedback: dict[str, JsonValue]
 
-
 class ConfirmJobResponse(BaseModel):
     job_id: str
     status: str
     scheduled_at: str | None = None
     message: str
-
 
 class PlanStepResponse(BaseModel):
     step_id: str
@@ -53,6 +52,7 @@ class LLMPlanResponse(BaseModel):
 class FreezePlanRequest(BaseModel):
     notes: str | None = None
     answers: dict[str, JsonValue] = Field(default_factory=dict)
+    variable_corrections: dict[str, str] = Field(default_factory=dict)
 
 
 class FreezePlanResponse(BaseModel):
@@ -174,6 +174,7 @@ class DraftPreviewResponse(BaseModel):
     column_candidates: list[str] = Field(default_factory=list)
     column_candidates_v2: list[DraftColumnCandidateV2] = Field(default_factory=list)
     column_name_normalizations: list[DraftColumnNameNormalization] = Field(default_factory=list)
+    required_variables: list[DraftRequiredVariable] = Field(default_factory=list)
     data_quality_warnings: list[DraftDataQualityWarning] = Field(default_factory=list)
     stage1_questions: list[DraftStage1Question] = Field(default_factory=list)
     open_unknowns: list[DraftOpenUnknown] = Field(default_factory=list)
@@ -238,8 +239,6 @@ class BundleResponse(BaseModel):
     bundle_id: str
     job_id: str
     files: list[BundleFileResponse] = Field(default_factory=list)
-
-
 class CreateUploadSessionRequest(BaseModel):
     bundle_id: str
     file_id: str

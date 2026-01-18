@@ -162,12 +162,13 @@ class PlanService:
         missing_fields = missing_draft_fields_for_plan_freeze(
             draft=job.draft, answers=confirmation.answers
         )
-
         analysis_spec = pc.analysis_spec_from_draft(job=job)
         analysis_vars = do_template_plan_support.analysis_vars_from_analysis_spec(analysis_spec)
         template_id = self._resolve_template_id(job=job, analysis_vars=analysis_vars)
         template_params = do_template_plan_support.template_params_for(
-            template_id=template_id, analysis_vars=analysis_vars
+            template_id=template_id,
+            analysis_spec=analysis_spec,
+            variable_corrections=confirmation.variable_corrections,
         )
         template_contract = build_plan_template_contract(
             repo=self._do_template_repo,
