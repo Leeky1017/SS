@@ -29,6 +29,7 @@
 | E1006 | ARTIFACT_PATH_UNSAFE | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |
 | E1006 | CONTRACT_COLUMN_NOT_FOUND | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |
 | E1006 | INPUT_DATASET_KEY_CONFLICT | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |
+| E1006 | INPUT_DATASET_NOT_FOUND | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |
 | E1006 | INPUT_EXCEL_SHEET_NOT_FOUND | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |
 | E1006 | INPUT_EXCEL_SHEET_SELECTION_UNSUPPORTED | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |
 | E1006 | INPUT_FILENAME_COUNT_MISMATCH | 错误代号 E1006：选择项无效，请重新选择后继续 | 选择项无效或输入不符合要求 |

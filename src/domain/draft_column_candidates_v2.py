@@ -6,7 +6,8 @@ from typing import Sequence, cast
 from src.domain.dataset_preview import dataset_preview_with_options
 from src.domain.draft_column_candidate_models import DraftColumnCandidateV2
 from src.domain.draft_inputs_introspection import _load_inputs_manifest
-from src.domain.inputs_manifest import ROLE_PRIMARY_DATASET, primary_dataset_excel_options
+from src.domain.inputs_manifest import ROLE_PRIMARY_DATASET
+from src.domain.inputs_manifest_dataset_options import primary_dataset_excel_options
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.infra.input_exceptions import InputPathUnsafeError

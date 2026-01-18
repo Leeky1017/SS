@@ -31,6 +31,20 @@ def _xlsx_bytes() -> bytes:
     return bio.getvalue()
 
 
+def _xlsx_bytes_alt() -> bytes:
+    wb = Workbook()
+    sheet1 = wb.active
+    sheet1.title = "Sheet1"
+    sheet1.append(["c", "d"])
+    sheet1.append([1, 2])
+    sheet2 = wb.create_sheet("Sheet2")
+    sheet2.append(["u", "v"])
+    sheet2.append([3, 4])
+    bio = BytesIO()
+    wb.save(bio)
+    return bio.getvalue()
+
+
 def _svc(*, store, jobs_dir) -> JobInputsService:
     return JobInputsService(store=store, workspace=FileJobWorkspaceStore(jobs_dir=jobs_dir))
 
@@ -88,3 +102,75 @@ async def test_select_primary_excel_sheet_persists_to_manifest_and_updates_previ
     assert isinstance(primary, dict)
     assert primary.get("sheet_name") == "Sheet2"
     assert primary.get("header_row") is True
+
+
+async def test_select_dataset_excel_sheet_persists_to_manifest_and_updates_preview_datasets(
+    job_service, store, jobs_dir
+) -> None:
+    # Arrange
+    job = job_service.create_job(requirement="hello")
+    app = _app(svc=_svc(store=store, jobs_dir=jobs_dir), store=store, jobs_dir=jobs_dir)
+    primary_bytes = _xlsx_bytes()
+    auxiliary_bytes = _xlsx_bytes_alt()
+
+    # Act
+    async with asgi_client(app=app) as client:
+        uploaded = await client.post(
+            f"/v1/jobs/{job.job_id}/inputs/upload",
+            files=[
+                (
+                    "file",
+                    (
+                        "main.xlsx",
+                        primary_bytes,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    ),
+                ),
+                (
+                    "file",
+                    (
+                        "aux.xlsx",
+                        auxiliary_bytes,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    ),
+                ),
+            ],
+            data={"role": ["primary_dataset", "auxiliary_data"]},
+        )
+        assert uploaded.status_code == 200
+
+        job_dir = resolve_job_dir(jobs_dir=jobs_dir, job_id=job.job_id)
+        assert job_dir is not None
+        manifest = json.loads((job_dir / "inputs" / "manifest.json").read_text(encoding="utf-8"))
+        datasets = manifest.get("datasets", [])
+        assert isinstance(datasets, list)
+        auxiliary = next((d for d in datasets if d.get("role") == "auxiliary_data"), None)
+        assert isinstance(auxiliary, dict)
+        dataset_key = auxiliary.get("dataset_key")
+        assert isinstance(dataset_key, str) and dataset_key.strip() != ""
+
+        selected = await client.post(
+            f"/v1/jobs/{job.job_id}/inputs/datasets/{dataset_key}/sheet",
+            params={"sheet_name": "Sheet2", "rows": 20, "columns": 10},
+        )
+
+    # Assert
+    assert selected.status_code == 200
+    payload = selected.json()
+    dataset_previews = payload.get("datasets", [])
+    assert isinstance(dataset_previews, list)
+    preview = next((d for d in dataset_previews if d.get("dataset_key") == dataset_key), None)
+    assert isinstance(preview, dict)
+    assert preview.get("selected_sheet") == "Sheet2"
+    assert "Sheet1" in preview.get("sheet_names", [])
+    assert "Sheet2" in preview.get("sheet_names", [])
+
+    updated_manifest = json.loads(
+        (job_dir / "inputs" / "manifest.json").read_text(encoding="utf-8")
+    )
+    updated_datasets = updated_manifest.get("datasets", [])
+    assert isinstance(updated_datasets, list)
+    updated_aux = next((d for d in updated_datasets if d.get("dataset_key") == dataset_key), None)
+    assert isinstance(updated_aux, dict)
+    assert updated_aux.get("sheet_name") == "Sheet2"
+    assert updated_aux.get("header_row") is True

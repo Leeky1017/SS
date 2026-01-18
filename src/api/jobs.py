@@ -15,6 +15,7 @@ from src.api.deps import (
     get_plan_service,
     get_tenant_id,
 )
+from src.api.inputs_preview_schemas import InputsPreviewResponse
 from src.api.schemas import (
     ArtifactIndexItem,
     ArtifactsIndexResponse,
@@ -24,14 +25,14 @@ from src.api.schemas import (
     FreezePlanResponse,
     GetJobResponse,
     GetPlanResponse,
-    InputsPreviewResponse,
     InputsUploadResponse,
     LLMPlanResponse,
     RunJobResponse,
 )
 from src.domain.artifacts_service import ArtifactsService
 from src.domain.inputs_manifest import ROLE_PRIMARY_DATASET, ROLE_SECONDARY_DATASET
-from src.domain.job_inputs_service import DatasetUpload, JobInputsService
+from src.domain.job_inputs_models import DatasetUpload
+from src.domain.job_inputs_service import JobInputsService
 from src.domain.job_query_service import JobQueryService
 from src.domain.job_service import JobService
 from src.domain.models import JobConfirmation

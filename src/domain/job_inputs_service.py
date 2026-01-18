@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Sequence
-from dataclasses import dataclass
-from pathlib import Path
 from typing import cast
 from zipfile import BadZipFile
 
 from src.domain.dataset_preview import dataset_preview_with_options
+from src.domain.excel_file_checks import looks_like_encrypted_xlsx
 from src.domain.inputs_manifest import (
     MANIFEST_REL_PATH,
     ROLE_PRIMARY_DATASET,
@@ -16,9 +15,11 @@ from src.domain.inputs_manifest import (
     manifest_payload,
     prepare_dataset,
     primary_dataset_details,
-    primary_dataset_excel_options,
     read_manifest_json,
 )
+from src.domain.inputs_manifest_dataset_options import primary_dataset_excel_options
+from src.domain.inputs_preview_datasets import datasets_preview_payload
+from src.domain.job_inputs_models import DatasetUpload
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.models import ArtifactKind, ArtifactRef, Job, JobInputs, JobStatus
@@ -37,28 +38,6 @@ from src.utils.tenancy import DEFAULT_TENANT_ID
 from src.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
-
-_OLE_SIGNATURE = bytes.fromhex("D0CF11E0A1B11AE1")
-
-
-def _looks_like_encrypted_xlsx(path: Path) -> bool:
-    if path.suffix.lower() != ".xlsx":
-        return False
-    try:
-        with path.open("rb") as handle:
-            header = handle.read(len(_OLE_SIGNATURE))
-    except OSError:
-        return False
-    return header == _OLE_SIGNATURE
-
-
-@dataclass(frozen=True)
-class DatasetUpload:
-    role: str
-    data: bytes
-    original_name: str | None
-    filename_override: str | None
-    content_type: str | None
 
 
 class JobInputsService:
@@ -248,7 +227,7 @@ class JobInputsService:
 
     def _load_primary_manifest(
         self, *, tenant_id: str, job_id: str, manifest_rel_path: str
-    ) -> tuple[str, str, str, str | None, bool | None]:
+    ) -> tuple[str, str, str, str | None, bool | None, JsonObject]:
         try:
             manifest_path = self._workspace.resolve_for_read(
                 tenant_id=tenant_id,
@@ -258,7 +237,7 @@ class JobInputsService:
             manifest = read_manifest_json(manifest_path)
             dataset_rel_path, fmt, original_name = primary_dataset_details(manifest)
             sheet_name, header_row = primary_dataset_excel_options(manifest)
-            return dataset_rel_path, fmt, original_name, sheet_name, header_row
+            return dataset_rel_path, fmt, original_name, sheet_name, header_row, manifest
         except (FileNotFoundError, OSError, ValueError) as e:
             logger.warning(
                 "SS_INPUT_MANIFEST_READ_FAILED",
@@ -276,10 +255,10 @@ class JobInputsService:
         manifest_rel_path = None if job.inputs is None else job.inputs.manifest_rel_path
         if manifest_rel_path is None:
             raise InputParseFailedError(filename=MANIFEST_REL_PATH, detail="manifest not set")
-        dataset_rel_path, fmt, original_name, sheet_name, header_row = self._load_primary_manifest(
-            tenant_id=tenant_id,
-            job_id=job_id,
-            manifest_rel_path=manifest_rel_path,
+        dataset_rel_path, fmt, original_name, sheet_name, header_row, manifest = (
+            self._load_primary_manifest(
+                tenant_id=tenant_id, job_id=job_id, manifest_rel_path=manifest_rel_path
+            )
         )
         try:
             dataset_path = self._workspace.resolve_for_read(
@@ -293,13 +272,11 @@ class JobInputsService:
             raise InputParseFailedError(filename=original_name, detail="dataset not found") from e
         except OSError as e:
             raise InputParseFailedError(filename=original_name, detail="dataset unreadable") from e
-
-        if fmt == "excel" and _looks_like_encrypted_xlsx(dataset_path):
+        if fmt == "excel" and looks_like_encrypted_xlsx(dataset_path):
             raise InputParseFailedError(
                 filename=original_name,
                 detail="password-protected/encrypted Excel files are not supported",
             )
-
         try:
             preview = dataset_preview_with_options(
                 path=dataset_path, fmt=fmt, rows=rows, columns=columns,
@@ -316,5 +293,7 @@ class JobInputsService:
                 },
             )
             raise InputParseFailedError(filename=original_name) from e
-
-        return cast(JsonObject, {"job_id": job_id, **preview})
+        datasets = datasets_preview_payload(tenant_id=tenant_id, job_id=job_id,
+            manifest_rel_path=manifest_rel_path, manifest=manifest, workspace=self._workspace,
+        )
+        return cast(JsonObject, {"job_id": job_id, **preview, "datasets": datasets})

@@ -5,11 +5,8 @@ from json import JSONDecodeError
 from typing import cast
 
 from src.domain.dataset_preview import dataset_preview_with_options
-from src.domain.inputs_manifest import (
-    primary_dataset_details,
-    primary_dataset_excel_options,
-    read_manifest_json,
-)
+from src.domain.inputs_manifest import primary_dataset_details, read_manifest_json
+from src.domain.inputs_manifest_dataset_options import primary_dataset_excel_options
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.models import DraftDataSource, DraftVariableType

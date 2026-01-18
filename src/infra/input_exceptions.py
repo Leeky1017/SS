@@ -66,6 +66,15 @@ class InputDatasetKeyConflictError(SSError):
         )
 
 
+class InputDatasetNotFoundError(SSError):
+    def __init__(self, *, dataset_key: str) -> None:
+        super().__init__(
+            error_code="INPUT_DATASET_NOT_FOUND",
+            message=f"dataset not found: {dataset_key}",
+            status_code=400,
+        )
+
+
 class InputPrimaryDatasetMissingError(SSError):
     def __init__(self) -> None:
         super().__init__(

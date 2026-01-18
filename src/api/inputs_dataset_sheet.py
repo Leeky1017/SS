@@ -17,9 +17,13 @@ from src.domain.job_workspace_store import JobWorkspaceStore
 router = APIRouter(tags=["inputs"])
 
 
-@router.post("/jobs/{job_id}/inputs/primary/sheet", response_model=InputsPreviewResponse)
-async def select_primary_excel_sheet(
+@router.post(
+    "/jobs/{job_id}/inputs/datasets/{dataset_key}/sheet",
+    response_model=InputsPreviewResponse,
+)
+async def select_dataset_excel_sheet(
     job_id: str,
+    dataset_key: str,
     sheet_name: str = Query(..., min_length=1),
     rows: int = Query(default=20, ge=1, le=200),
     columns: int = Query(default=50, ge=1, le=200),
@@ -28,9 +32,10 @@ async def select_primary_excel_sheet(
     workspace: JobWorkspaceStore = Depends(get_job_workspace_store),
     inputs_svc: JobInputsService = Depends(get_job_inputs_service),
 ) -> InputsPreviewResponse:
-    InputsSheetSelectionService(store=store, workspace=workspace).select_primary_excel_sheet(
+    InputsSheetSelectionService(store=store, workspace=workspace).select_dataset_excel_sheet(
         tenant_id=tenant_id,
         job_id=job_id,
+        dataset_key=dataset_key,
         sheet_name=sheet_name,
     )
     payload = inputs_svc.preview_primary_dataset(
