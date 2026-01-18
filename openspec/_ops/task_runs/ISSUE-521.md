@@ -41,3 +41,8 @@
 
 - Command: `PATH=/home/leeky/work/SS/.venv/bin:$PATH pytest -q`
 - Key output: `433 passed, 7 skipped`
+
+### 2026-01-18 ci-fix
+- Note: CI mypy runs with `--no-implicit-reexport`, so imports were updated to avoid relying on re-export from `src.domain.models` / `src.api.schemas`.
+- Command: `PATH=/home/leeky/work/SS/.venv/bin:$PATH mypy`
+- Key output: `Success: no issues found in 220 source files`

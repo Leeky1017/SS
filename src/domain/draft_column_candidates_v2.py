@@ -4,11 +4,11 @@ import logging
 from typing import Sequence, cast
 
 from src.domain.dataset_preview import dataset_preview_with_options
+from src.domain.draft_column_candidate_models import DraftColumnCandidateV2
 from src.domain.draft_inputs_introspection import _load_inputs_manifest
 from src.domain.inputs_manifest import ROLE_PRIMARY_DATASET, primary_dataset_excel_options
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
-from src.domain.models import DraftColumnCandidateV2
 from src.infra.input_exceptions import InputPathUnsafeError
 from src.utils.tenancy import DEFAULT_TENANT_ID
 

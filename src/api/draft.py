@@ -5,8 +5,8 @@ from typing import Literal, cast
 from fastapi import APIRouter, Body, Depends, Query, Response
 
 from src.api.deps import get_draft_service, get_tenant_id
+from src.api.draft_column_candidate_schemas import DraftColumnCandidateV2
 from src.api.schemas import (
-    DraftColumnCandidateV2,
     DraftDataQualityWarning,
     DraftOpenUnknown,
     DraftPatchRequest,

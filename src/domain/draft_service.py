@@ -4,6 +4,7 @@ import logging
 from typing import cast
 
 from src.domain.do_template_selection_service import DoTemplateSelectionService
+from src.domain.draft_column_candidate_models import DraftColumnCandidateV2
 from src.domain.draft_column_candidates_v2 import column_candidates_v2
 from src.domain.draft_inputs_introspection import draft_data_sources, primary_dataset_columns
 from src.domain.draft_preview_llm import (
@@ -22,7 +23,7 @@ from src.domain.draft_v1_contract import (
 from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.llm_client import LLMClient
-from src.domain.models import ArtifactKind, Draft, DraftColumnCandidateV2, Job, JobStatus
+from src.domain.models import ArtifactKind, Draft, Job, JobStatus
 from src.domain.state_machine import JobStateMachine
 from src.infra.do_template_selection_exceptions import DoTemplateSelectionNotWiredError
 from src.infra.exceptions import JobStoreIOError, LLMArtifactsWriteError, LLMCallFailedError
