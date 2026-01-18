@@ -58,3 +58,9 @@
 - Command: `gh pr create --base main --head task/524-ss-full-auto-orchestration ...`
 - Key output: `https://github.com/Leeky1017/SS/pull/526`
 - Evidence: https://github.com/Leeky1017/SS/pull/526
+
+### 2026-01-18 PR preflight
+
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+- Evidence: `scripts/agent_pr_preflight.py`
