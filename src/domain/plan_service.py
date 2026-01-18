@@ -11,23 +11,17 @@ from src.domain.job_store import JobStore
 from src.domain.job_workspace_store import JobWorkspaceStore
 from src.domain.llm_client import LLMClient
 from src.domain.models import Job, JobConfirmation, JobStatus, LLMPlan, PlanSource
-from src.domain.plan_contract_extract import missing_required_template_params
-from src.domain.plan_freeze_gate import (
-    missing_draft_fields_for_plan_freeze,
-    next_actions_for_plan_freeze_missing,
-)
+from src.domain.plan_freeze_required_inputs import ensure_plan_freeze_required_inputs_present
 from src.domain.plan_generation_llm import PlanGenerationParseError
 from src.domain.plan_id_support import build_plan_id, normalize_whitespace
 from src.domain.plan_service_confirmation import effective_confirmation
 from src.domain.plan_service_llm_builder import generate_plan_with_llm as build_llm_plan
 from src.domain.plan_service_rule_builder import build_rule_plan
 from src.domain.plan_service_support import ensure_plan_artifact_index, write_plan_artifact
-from src.domain.plan_template_contract_builder import build_plan_template_contract
 from src.infra.exceptions import LLMArtifactsWriteError, LLMCallFailedError
 from src.infra.plan_exceptions import (
     PlanAlreadyFrozenError,
     PlanCompositionInvalidError,
-    PlanFreezeMissingRequiredError,
     PlanFreezeNotAllowedError,
     PlanMissingError,
 )
@@ -117,7 +111,16 @@ class PlanService:
         if existing is not None:
             return existing
         self._ensure_freeze_allowed(job=job)
-        self._ensure_required_inputs_present(job=job, confirmation=confirmation)
+        analysis_spec = pc.analysis_spec_from_draft(job=job)
+        analysis_vars = do_template_plan_support.analysis_vars_from_analysis_spec(analysis_spec)
+        template_id = self._resolve_template_id(job=job, analysis_vars=analysis_vars)
+        ensure_plan_freeze_required_inputs_present(
+            job=job,
+            confirmation=confirmation,
+            template_id=template_id,
+            analysis_spec=analysis_spec,
+            do_template_repo=self._do_template_repo,
+        )
         pc.validate_contract_columns(workspace=self._workspace, tenant_id=tenant_id, job=job)
         plan = self._build_plan_with_fallback(
             tenant_id=tenant_id, job=job, confirmation=confirmation, plan_id=expected_plan_id
@@ -156,49 +159,6 @@ class PlanService:
             inputs_fingerprint=inputs_fingerprint,
             requirement=requirement_norm,
             confirmation=confirmation_payload,
-        )
-
-    def _ensure_required_inputs_present(self, *, job: Job, confirmation: JobConfirmation) -> None:
-        missing_fields = missing_draft_fields_for_plan_freeze(
-            draft=job.draft, answers=confirmation.answers
-        )
-        analysis_spec = pc.analysis_spec_from_draft(job=job)
-        analysis_vars = do_template_plan_support.analysis_vars_from_analysis_spec(analysis_spec)
-        template_id = self._resolve_template_id(job=job, analysis_vars=analysis_vars)
-        template_params = do_template_plan_support.template_params_for(
-            template_id=template_id,
-            analysis_spec=analysis_spec,
-            variable_corrections=confirmation.variable_corrections,
-        )
-        template_contract = build_plan_template_contract(
-            repo=self._do_template_repo,
-            job_id=job.job_id,
-            template_id=template_id,
-            template_params=template_params,
-        )
-        missing_params = missing_required_template_params(template_contract=template_contract)
-
-        if len(missing_fields) == 0 and len(missing_params) == 0:
-            return
-
-        next_actions = next_actions_for_plan_freeze_missing(
-            job_id=job.job_id, missing_fields=missing_fields, missing_params=missing_params
-        )
-        logger.info(
-            "SS_PLAN_FREEZE_MISSING_REQUIRED",
-            extra={
-                "job_id": job.job_id,
-                "template_id": template_id,
-                "missing_fields": ",".join(missing_fields),
-                "missing_params": ",".join(missing_params),
-            },
-        )
-        raise PlanFreezeMissingRequiredError(
-            job_id=job.job_id,
-            template_id=template_id,
-            missing_fields=missing_fields,
-            missing_params=missing_params,
-            next_actions=next_actions,
         )
 
     def _resolve_template_id(self, *, job: Job, analysis_vars: list[str]) -> str:

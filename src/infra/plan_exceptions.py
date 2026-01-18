@@ -108,8 +108,11 @@ class PlanFreezeMissingRequiredError(StructuredSSError):
         job_id: str,
         template_id: str,
         missing_fields: list[str],
+        missing_fields_detail: list[dict[str, object]] | None = None,
         missing_params: list[str],
+        missing_params_detail: list[dict[str, object]] | None = None,
         next_actions: list[dict[str, object]],
+        action: str = "",
     ) -> None:
         super().__init__(
             error_code="PLAN_FREEZE_MISSING_REQUIRED",
@@ -119,8 +122,14 @@ class PlanFreezeMissingRequiredError(StructuredSSError):
                 "job_id": job_id,
                 "template_id": template_id,
                 "missing_fields": sorted(set(missing_fields)),
+                "missing_fields_detail": []
+                if missing_fields_detail is None
+                else list(missing_fields_detail),
                 "missing_params": sorted(set(missing_params)),
+                "missing_params_detail": []
+                if missing_params_detail is None
+                else list(missing_params_detail),
                 "next_actions": list(next_actions),
+                "action": action,
             },
         )
-
