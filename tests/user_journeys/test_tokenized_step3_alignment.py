@@ -161,6 +161,17 @@ def test_tokenized_plan_freeze_when_missing_inputs_returns_structured_error(
     assert "open_unknowns.outcome_var" in payload.get("missing_fields", [])
     assert "open_unknowns.treatment_var" in payload.get("missing_fields", [])
     assert isinstance(payload.get("next_actions"), list)
+    assert isinstance(payload.get("missing_fields_detail"), list)
+    assert isinstance(payload.get("missing_params_detail"), list)
+    assert isinstance(payload.get("action"), str)
+    assert any(
+        item.get("field") == "stage1_questions.analysis_goal"
+        for item in payload.get("missing_fields_detail", [])
+    )
+    assert any(
+        item.get("field") == "open_unknowns.outcome_var"
+        for item in payload.get("missing_fields_detail", [])
+    )
 
     patched = journey_test_client.post(
         f"/v1/jobs/{job_id}/draft/patch",

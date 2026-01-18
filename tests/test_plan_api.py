@@ -195,6 +195,14 @@ async def test_freeze_plan_when_required_template_params_missing_returns_structu
         assert payload["error_code"] == "PLAN_FREEZE_MISSING_REQUIRED"
         assert "__NUMERIC_VARS__" in payload.get("missing_params", [])
         assert isinstance(payload.get("next_actions"), list)
+        assert isinstance(payload.get("missing_fields_detail"), list)
+        assert isinstance(payload.get("missing_params_detail"), list)
+        assert isinstance(payload.get("action"), str)
+        assert any(
+            item.get("param") == "__NUMERIC_VARS__"
+            for item in payload.get("missing_params_detail", [])
+        )
+        assert any(item.get("action") == "patch_draft" for item in payload.get("next_actions", []))
 
         loaded = store.load(job_id)
         assert loaded.draft is not None
@@ -231,6 +239,16 @@ async def test_freeze_plan_when_template_requires_id_time_accepts_variable_corre
         assert payload["error_code"] == "PLAN_FREEZE_MISSING_REQUIRED"
         assert "__ID_VAR__" in payload.get("missing_params", [])
         assert "__TIME_VAR__" in payload.get("missing_params", [])
+        assert any(
+            item.get("param") == "__ID_VAR__" for item in payload.get("missing_params_detail", [])
+        )
+        assert any(
+            item.get("param") == "__TIME_VAR__" for item in payload.get("missing_params_detail", [])
+        )
+        assert any(
+            item.get("action") == "provide_variable_corrections"
+            for item in payload.get("next_actions", [])
+        )
 
         fixed = await client.post(
             f"/v1/jobs/{job_id}/plan/freeze",
