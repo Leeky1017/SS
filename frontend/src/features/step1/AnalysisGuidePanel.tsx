@@ -24,7 +24,14 @@ function CategoryCard(props: {
     <button
       type="button"
       className={`panel inset-panel${props.active ? ' btn-pill-active' : ''}`}
-      style={{ padding: 0, textAlign: 'left', width: '100%', cursor: props.disabled ? 'not-allowed' : 'pointer' }}
+      style={{
+        padding: 0,
+        textAlign: 'left',
+        width: '100%',
+        height: '100%',
+        minHeight: 112,
+        cursor: props.disabled ? 'not-allowed' : 'pointer',
+      }}
       disabled={props.disabled}
       onClick={() => props.onSelect(props.categoryId)}
     >

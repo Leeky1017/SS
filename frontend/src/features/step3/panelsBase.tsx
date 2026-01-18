@@ -1,15 +1,18 @@
 import type { ConfirmLockState } from '../../state/storage'
 import type { DraftPreviewReadyResponse } from '../../api/types'
+import { Stepper } from '../../components/Stepper'
 import { zhCN } from '../../i18n/zh-CN'
 
-export function Step3Header() {
+export function Step3Header(props: { onGoToStep2?: () => void } = {}) {
   return (
     <>
-      <div className="stepper">
-        <div className="step-tick done" />
-        <div className="step-tick done" />
-        <div className="step-tick active" />
-      </div>
+      <Stepper
+        steps={[
+          { label: '填写需求', state: 'done' },
+          { label: '上传预览', state: 'done', onClick: props.onGoToStep2 },
+          { label: '确认执行', state: 'active' },
+        ]}
+      />
       <h1>{zhCN.step3.title}</h1>
       <p className="lead">{zhCN.step3.lead}</p>
     </>
@@ -38,6 +41,23 @@ export function PendingPanel(props: { message: string | null; retryAfterSeconds:
         <div className="inline-hint">{props.message ?? zhCN.step3.pendingDefaultMessage}</div>
         <div className="mono" style={{ marginTop: 10, color: 'var(--text-muted)' }}>
           {zhCN.step3.retryAfterSecondsLabel}: {props.retryAfterSeconds}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function DraftSkeletonPanel() {
+  return (
+    <div className="panel">
+      <div className="panel-body">
+        <span className="section-label" style={{ margin: 0 }}>
+          {zhCN.step3.title}
+        </span>
+        <div style={{ display: 'grid', gap: 10, marginTop: 12 }}>
+          <div className="skeleton" style={{ height: 12, width: '45%' }} />
+          <div className="skeleton" style={{ height: 140, borderRadius: 8 }} />
+          <div className="skeleton" style={{ height: 220, borderRadius: 8 }} />
         </div>
       </div>
     </div>

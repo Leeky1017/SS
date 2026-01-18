@@ -12,7 +12,7 @@ type AppErrorBoundaryState = { error: ApiError | null }
 export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorBoundaryState> {
   state: AppErrorBoundaryState = { error: null }
 
-  componentDidCatch(_error: Error) {
+  componentDidCatch() {
     const internalCode = 'CLIENT_RENDER_ERROR'
     const kind = 'http'
     const status = null

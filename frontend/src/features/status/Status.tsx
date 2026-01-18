@@ -69,7 +69,7 @@ function ArtifactsPanel(props: { artifacts: ArtifactsIndexResponse | null; onDow
         <span className="section-label" style={{ margin: 0 }}>
           下载文件
         </span>
-        <div className="data-table-wrap" style={{ marginTop: 12, maxHeight: 360 }}>
+        <div className="data-table-wrap" style={{ marginTop: 12 }}>
           <table className="data-table">
             <thead>
               <tr>

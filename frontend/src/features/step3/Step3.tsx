@@ -6,6 +6,7 @@ import type { DraftPreviewReadyResponse } from '../../api/types'
 import { ErrorPanel } from '../../components/ErrorPanel'
 import { zhCN } from '../../i18n/zh-CN'
 import {
+  clearJobAfterConfirm,
   loadConfirmLock,
   loadDraftPreviewSnapshot,
   loadInputsPreviewSnapshot,
@@ -13,13 +14,14 @@ import {
   saveConfirmLock,
   saveDraftPreviewSnapshot,
 } from '../../state/storage'
-import { formatUserErrorMessage } from '../../utils/errorCodes'
 import { applyCorrection, blockingMissing, computeCandidates, isDraftPreviewPending } from './model'
-import { LockedBanner, PendingPanel, DraftTextPanel, Step3Header, VariablesTable, WarningsPanel } from './panelsBase'
+import { DraftSkeletonPanel, LockedBanner, PendingPanel, DraftTextPanel, Step3Header, VariablesTable, WarningsPanel } from './panelsBase'
 import { DowngradeModal, MappingPanel, OpenUnknownsPanel, Stage1QuestionsPanel } from './panelsConfirm'
 import { PlanFreezeMissingRequiredPanel } from './PlanFreezeMissingRequiredPanel'
 import { parsePlanFreezeMissingRequiredDetails, VARIABLE_SELECTION_PARAMS } from './planFreezeMissingRequired'
 import { Step3MissingJobId } from './Step3MissingJobId'
+import { useStep3FormDraft } from './useStep3FormDraft'
+import { localValidationError } from './step3Validation'
 
 type Step3Props = { api: ApiClient }
 
@@ -30,23 +32,6 @@ type DraftState =
   | { kind: 'loading' }
   | { kind: 'pending'; retryAfterSeconds: number; message: string | null }
   | { kind: 'ready'; draft: DraftPreviewReadyResponse }
-
-function pendingMessage(): string | null {
-  return null
-}
-
-function localValidationError(message: string, requestId: string): ApiError {
-  const internalCode = 'MISSING_REQUIRED_FIELD'
-  return {
-    kind: 'http',
-    status: 400,
-    message: formatUserErrorMessage('E1001', message),
-    requestId,
-    details: null,
-    internalCode,
-    action: 'retry',
-  }
-}
 
 export function Step3(props: Step3Props) {
   const navigate = useNavigate()
@@ -61,14 +46,13 @@ export function Step3(props: Step3Props) {
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<Step3Error | null>(null)
   const [lock, setLock] = useState(() => (jobId === null ? null : loadConfirmLock(jobId)))
-  const [variableCorrections, setVariableCorrections] = useState<Record<string, string>>({})
-  const [answers, setAnswers] = useState<Record<string, string[]>>({})
   const [unknownValues, setUnknownValues] = useState<Record<string, string>>({})
   const [patchSupported, setPatchSupported] = useState(true)
   const [patchDisabledReason, setPatchDisabledReason] = useState<string | null>(null)
   const [downgradeModalOpen, setDowngradeModalOpen] = useState(false)
 
   const locked = lock !== null
+  const { variableCorrections, setVariableCorrections, answers, setAnswers, restoredNotice, clear: clearFormDraft } = useStep3FormDraft(jobId, locked, actionError === null || (actionError.error.kind !== 'unauthorized' && actionError.error.kind !== 'forbidden'))
 
   const redeem = useMemo(() => {
     return () => {
@@ -126,7 +110,7 @@ export function Step3(props: Step3Props) {
       }
       saveDraftPreviewSnapshot(jobId, previewed.value)
       if (isDraftPreviewPending(previewed.value)) {
-        setDraftState({ kind: 'pending', retryAfterSeconds: previewed.value.retry_after_seconds, message: pendingMessage() })
+        setDraftState({ kind: 'pending', retryAfterSeconds: previewed.value.retry_after_seconds, message: null })
         return
       }
       setDraftState({ kind: 'ready', draft: previewed.value })
@@ -176,6 +160,8 @@ export function Step3(props: Step3Props) {
         setActionError({ error: result.error, retry: () => void doConfirm(), retryLabel: zhCN.step3.retryConfirm })
         return
       }
+      clearJobAfterConfirm(jobId)
+      clearFormDraft()
       const confirmedAt = new Date().toISOString()
       saveConfirmLock(jobId, confirmedAt)
       setLock({ confirmedAt })
@@ -201,7 +187,16 @@ export function Step3(props: Step3Props) {
   }
 
   useEffect(() => {
-    if (jobId === null) return
+    setActionError(null)
+    setUnknownValues({})
+    setPatchSupported(true)
+    setPatchDisabledReason(null)
+    setDowngradeModalOpen(false)
+    setLock(jobId === null ? null : loadConfirmLock(jobId))
+    if (jobId === null) {
+      setDraftState({ kind: 'idle' })
+      return
+    }
     void loadDraft()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId])
@@ -218,13 +213,20 @@ export function Step3(props: Step3Props) {
 
   return (
     <div className="view-fade">
-      <Step3Header />
+      <Step3Header onGoToStep2={() => navigate(`/jobs/${encodeURIComponent(jobId)}/upload`)} />
       <ErrorPanel
         error={actionError?.error ?? null}
         onRetry={needsPlanFreezeVariableSelection ? undefined : actionError?.retry}
         retryLabel={needsPlanFreezeVariableSelection ? undefined : actionError?.retryLabel}
         onRedeem={redeem}
       />
+      {restoredNotice ? (
+        <div className="panel">
+          <div className="panel-body">
+            <div className="inline-hint">{restoredNotice}</div>
+          </div>
+        </div>
+      ) : null}
       {planFreezeMissingDetails !== null && actionError !== null ? (
         <PlanFreezeMissingRequiredPanel
           details={planFreezeMissingDetails}
@@ -238,9 +240,7 @@ export function Step3(props: Step3Props) {
       ) : null}
       <LockedBanner lock={lock} />
 
-      {draftState.kind === 'pending' ? (
-        <PendingPanel message={draftState.message} retryAfterSeconds={draftState.retryAfterSeconds} />
-      ) : null}
+      {draftState.kind === 'pending' ? <PendingPanel message={draftState.message} retryAfterSeconds={draftState.retryAfterSeconds} /> : draftState.kind === 'loading' ? <DraftSkeletonPanel /> : null}
 
       {draftState.kind === 'ready' ? (
         <>
