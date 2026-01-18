@@ -5,6 +5,8 @@ export const zhCN = {
   },
   actions: {
     retry: '重试',
+    copy: '复制',
+    copied: '已复制',
     redeemAgain: '重新兑换',
     refreshPreview: '刷新预览',
     cancel: '取消',
@@ -92,6 +94,17 @@ export const zhCN = {
     unauthorizedTitle: '验证失效',
     requestFailedTitle: '操作失败',
     requestIdLabel: '参考编号',
+    technicalDetailsLabel: '技术详情',
+    planFreezeMissingTitle: '需要补全缺失变量',
+    planFreezeMissingHint: '请选择缺失变量后重试确认。',
+    planFreezeMissingCandidatesHint: '未获取到列候选，请返回第二步刷新预览后重试。',
+    planFreezeApplyAndRetry: '补全并重试确认',
+    planFreezeParamLabels: {
+      idVar: 'ID 变量',
+      timeVar: 'Time 变量',
+      panelVar: 'Panel 变量',
+      clusterVar: 'Cluster 变量',
+    },
   },
 } as const
 
