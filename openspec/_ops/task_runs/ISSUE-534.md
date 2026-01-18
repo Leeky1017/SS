@@ -1,7 +1,7 @@
 # ISSUE-534
 - Issue: #534
 - Branch: task/534-fe-043-actionable-errors
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/535
 
 ## Plan
 - Make error panels actionable (request_id copy + known-error actions)
@@ -46,3 +46,13 @@
 
 - Command: `PATH=/home/leeky/work/SS/.venv/bin:$PATH pytest -q`
 - Key output: `439 passed, 7 skipped`
+
+### 2026-01-18 pr
+- Command: `git push -u origin HEAD`
+- Key output: `https://github.com/Leeky1017/SS/pull/535`
+
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
+
+- Command: `gh pr create ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/535`
