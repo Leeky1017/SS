@@ -18,7 +18,7 @@ import type {
   RunJobResponse,
 } from './types'
 import { encodePathPreservingSlashes, readErrorCode, requestId, resolveBaseUrl, safeJson } from './utils'
-import { clearAuthToken, getAuthToken } from '../state/storage'
+import { clearJobOnAuthInvalid, getAuthToken } from '../state/storage'
 import { toUserErrorMessage } from '../utils/errorCodes'
 
 type ApiClientOptions = { baseUrl?: string }
@@ -34,9 +34,20 @@ function requireTaskCode(): boolean {
 export class ApiClient {
   private readonly baseUrl: string
   public lastRequestId: string | null = null
+  private inFlight = 0
+  private readonly inFlightListeners = new Set<() => void>()
 
   constructor(options: ApiClientOptions = {}) {
     this.baseUrl = resolveBaseUrl(options.baseUrl)
+  }
+
+  public getInFlightCount(): number {
+    return this.inFlight
+  }
+
+  public subscribeInFlight(listener: () => void): () => void {
+    this.inFlightListeners.add(listener)
+    return () => this.inFlightListeners.delete(listener)
   }
 
   public isDevMockEnabled(): boolean {
@@ -180,18 +191,28 @@ export class ApiClient {
     headers?: Record<string, string>
     responseType?: 'json' | 'blob'
   }): Promise<ApiResult<T>> {
+    this.bumpInFlight(1)
     const rid = requestId()
     this.lastRequestId = rid
 
-    const headers = this.buildHeaders(args, rid)
-    const fetched = await this.fetchResponse(args, headers, rid)
-    if (!fetched.ok) return fetched
+    try {
+      const headers = this.buildHeaders(args, rid)
+      const fetched = await this.fetchResponse(args, headers, rid)
+      if (!fetched.ok) return fetched
 
-    const { response, effectiveRequestId } = fetched.value
-    if ((response.status === 401 || response.status === 403) && args.jobId !== null) clearAuthToken(args.jobId)
+      const { response, effectiveRequestId } = fetched.value
+      if ((response.status === 401 || response.status === 403) && args.jobId !== null) clearJobOnAuthInvalid(args.jobId)
 
-    if (!response.ok) return await this.httpError(response, effectiveRequestId)
-    return await this.okResult<T>(response, effectiveRequestId, args.responseType ?? 'json')
+      if (!response.ok) return await this.httpError(response, effectiveRequestId)
+      return await this.okResult<T>(response, effectiveRequestId, args.responseType ?? 'json')
+    } finally {
+      this.bumpInFlight(-1)
+    }
+  }
+
+  private bumpInFlight(delta: number): void {
+    this.inFlight = Math.max(0, this.inFlight + delta)
+    for (const listener of this.inFlightListeners) listener()
   }
 
   private buildHeaders(

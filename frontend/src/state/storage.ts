@@ -20,6 +20,21 @@ function snapshotKey(jobId: string, name: string): string {
   return `ss.frontend.v1.snapshot.${jobId}.${name}`
 }
 
+const SNAPSHOT_NAMES = [
+  'inputs_upload',
+  'inputs_preview',
+  'inputs_primary_sheet',
+  'draft_preview',
+  'confirm_lock',
+  'step3_form',
+] as const
+
+type SnapshotName = (typeof SNAPSHOT_NAMES)[number]
+
+function clearSnapshot(jobId: string, name: SnapshotName): void {
+  localStorage.removeItem(snapshotKey(jobId, name))
+}
+
 export function loadAppState(): AppState {
   const fallback: AppState = { taskCode: '', requirement: '' }
   const raw = localStorage.getItem(APP_STATE_KEY)
@@ -66,6 +81,19 @@ export function saveInputsPreviewSnapshot(jobId: string, snapshot: InputsPreview
   localStorage.setItem(snapshotKey(jobId, 'inputs_preview'), JSON.stringify(snapshot))
 }
 
+export function loadInputsPrimarySheetSelection(jobId: string): string | null {
+  const parsed = readJson<unknown>(localStorage.getItem(snapshotKey(jobId, 'inputs_primary_sheet')))
+  return typeof parsed === 'string' && parsed.trim() !== '' ? parsed : null
+}
+
+export function saveInputsPrimarySheetSelection(jobId: string, sheetName: string): void {
+  localStorage.setItem(snapshotKey(jobId, 'inputs_primary_sheet'), JSON.stringify(sheetName))
+}
+
+export function clearInputsPrimarySheetSelection(jobId: string): void {
+  clearSnapshot(jobId, 'inputs_primary_sheet')
+}
+
 export function loadDraftPreviewSnapshot(jobId: string): DraftPreviewResponse | null {
   return readJson<DraftPreviewResponse>(localStorage.getItem(snapshotKey(jobId, 'draft_preview')))
 }
@@ -84,7 +112,69 @@ export function saveConfirmLock(jobId: string, confirmedAt: string): void {
   localStorage.setItem(snapshotKey(jobId, 'confirm_lock'), JSON.stringify({ confirmedAt }))
 }
 
+export type Step3FormState = {
+  variableCorrections: Record<string, string>
+  answers: Record<string, string[]>
+}
+
+function isStringRecord(value: unknown): value is Record<string, string> {
+  if (value === null || typeof value !== 'object') return false
+  for (const entry of Object.entries(value)) {
+    if (typeof entry[0] !== 'string') return false
+    if (typeof entry[1] !== 'string') return false
+  }
+  return true
+}
+
+function isAnswersRecord(value: unknown): value is Record<string, string[]> {
+  if (value === null || typeof value !== 'object') return false
+  for (const entry of Object.entries(value)) {
+    if (typeof entry[0] !== 'string') return false
+    if (!Array.isArray(entry[1])) return false
+    if (!entry[1].every((v) => typeof v === 'string')) return false
+  }
+  return true
+}
+
+export function loadStep3FormState(jobId: string): Step3FormState | null {
+  const parsed = readJson<unknown>(localStorage.getItem(snapshotKey(jobId, 'step3_form')))
+  if (parsed === null || typeof parsed !== 'object') return null
+  if (!('variableCorrections' in parsed) || !('answers' in parsed)) return null
+
+  const variableCorrections = (parsed as { variableCorrections: unknown }).variableCorrections
+  const answers = (parsed as { answers: unknown }).answers
+  if (!isStringRecord(variableCorrections)) return null
+  if (!isAnswersRecord(answers)) return null
+
+  return { variableCorrections, answers }
+}
+
+export function saveStep3FormState(jobId: string, snapshot: Step3FormState): void {
+  localStorage.setItem(snapshotKey(jobId, 'step3_form'), JSON.stringify(snapshot))
+}
+
+export function clearStep3FormState(jobId: string): void {
+  clearSnapshot(jobId, 'step3_form')
+}
+
+export function clearJobSnapshots(jobId: string): void {
+  for (const name of SNAPSHOT_NAMES) clearSnapshot(jobId, name)
+}
+
+export function clearJobOnAuthInvalid(jobId: string): void {
+  clearAuthToken(jobId)
+  clearJobSnapshots(jobId)
+}
+
+export function clearJobAfterConfirm(jobId: string): void {
+  clearInputsPrimarySheetSelection(jobId)
+  clearStep3FormState(jobId)
+}
+
 export function resetToStep1(jobId: string | null): void {
-  if (jobId !== null) clearAuthToken(jobId)
+  if (jobId !== null) {
+    clearAuthToken(jobId)
+    clearJobSnapshots(jobId)
+  }
   localStorage.removeItem(APP_STATE_KEY)
 }

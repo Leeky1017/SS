@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import type { ApiClient } from '../../api/client'
 import type { ApiError } from '../../api/errors'
 import { ErrorPanel } from '../../components/ErrorPanel'
+import { Stepper } from '../../components/Stepper'
 import { loadAppState, saveAppState, setAuthToken } from '../../state/storage'
 import { toUserErrorMessage } from '../../utils/errorCodes'
 import { AnalysisGuidePanel } from './AnalysisGuidePanel'
@@ -93,11 +94,13 @@ function useStep1Model(api: ApiClient): Step1Model {
 function Step1Header() {
   return (
     <>
-      <div className="stepper">
-        <div className="step-tick active" />
-        <div className="step-tick" />
-        <div className="step-tick" />
-      </div>
+      <Stepper
+        steps={[
+          { label: '填写需求', state: 'active' },
+          { label: '上传预览', state: 'upcoming' },
+          { label: '确认执行', state: 'upcoming' },
+        ]}
+      />
       <h1>开启智能化分析</h1>
       <p className="lead">Stata 18 MP 分析引擎将自动为您构建全量实证模型并生成可执行脚本。完成以下必要信息即可开始。</p>
     </>

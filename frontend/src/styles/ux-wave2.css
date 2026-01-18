@@ -1,0 +1,199 @@
+/* Wave 2 core UX improvements */
+
+/* Global busy indicator (shown after ~300ms) */
+header.busy::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-size: 220% 100%;
+  animation: global-busy-bar 1.1s linear infinite;
+}
+
+@keyframes global-busy-bar {
+  0% {
+    background-position: 220% 0;
+  }
+  100% {
+    background-position: -220% 0;
+  }
+}
+
+.tab-busy-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  display: inline-block;
+  vertical-align: -1px;
+  margin-left: 8px;
+  animation: tab-busy-spin 0.8s linear infinite;
+}
+
+@keyframes tab-busy-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Stepper (labeled + clickable for done steps) */
+.ss-stepper {
+  margin-bottom: 40px;
+}
+
+.ss-stepper-track {
+  display: flex;
+  gap: 8px;
+}
+
+.ss-stepper-tick {
+  height: 2px;
+  flex: 1;
+  background: var(--border);
+  border-radius: 1px;
+}
+
+.ss-stepper-tick.active {
+  background: var(--text-dim);
+}
+
+.ss-stepper-tick.done {
+  background: var(--success);
+  opacity: 0.65;
+}
+
+.ss-stepper-labels {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.ss-stepper-label {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  text-align: center;
+  user-select: none;
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: -0.01em;
+}
+
+.ss-stepper-label.active {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.ss-stepper-label.done {
+  color: var(--text-dim);
+}
+
+.ss-stepper-label.clickable {
+  cursor: pointer;
+}
+
+.ss-stepper-label.clickable:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.ss-stepper-label.clickable:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.35);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Skeleton loading */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-hover);
+  border-radius: 6px;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  animation: skeleton-shimmer 1.2s var(--ease) infinite;
+}
+
+[data-theme='dark'] .skeleton::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+}
+
+@keyframes skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Tables: stronger hover/focus affordance */
+.data-table tbody tr:hover td {
+  background: rgba(59, 130, 246, 0.07);
+}
+
+[data-theme='dark'] .data-table tbody tr:hover td {
+  background: rgba(59, 130, 246, 0.16);
+}
+
+.data-table tbody tr:focus-within td {
+  background: rgba(59, 130, 246, 0.09);
+}
+
+[data-theme='dark'] .data-table tbody tr:focus-within td {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.data-table tbody tr:focus-within td:first-child {
+  box-shadow: inset 2px 0 0 rgba(59, 130, 246, 0.35);
+}
+
+/* Select: consistent arrow and spacing */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 34px;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%),
+    linear-gradient(to right, var(--border), var(--border));
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%, calc(100% - 2.5em) 50%;
+  background-size: 5px 5px, 5px 5px, 1px 1.5em;
+  background-repeat: no-repeat;
+}
+
+select:focus {
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%),
+    linear-gradient(to right, var(--border), var(--border));
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%, calc(100% - 2.5em) 50%;
+  background-size: 5px 5px, 5px 5px, 1px 1.5em;
+  background-repeat: no-repeat;
+}
+
+select:disabled {
+  color: var(--text-muted);
+}
+
+/* Buttons: more explicit disabled affordance */
+.btn:disabled {
+  opacity: 0.7;
+}
+
+.btn-primary:disabled {
+  background: var(--surface-hover);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.btn-secondary:disabled {
+  color: var(--text-muted);
+  border-color: var(--border);
+}

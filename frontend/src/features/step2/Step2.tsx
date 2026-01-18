@@ -6,10 +6,13 @@ import type { InputsPreviewResponse, InputsUploadResponse } from '../../api/type
 import { ErrorPanel } from '../../components/ErrorPanel'
 import { zhCN } from '../../i18n/zh-CN'
 import {
+  clearInputsPrimarySheetSelection,
   loadInputsPreviewSnapshot,
+  loadInputsPrimarySheetSelection,
   loadInputsUploadSnapshot,
   resetToStep1,
   saveInputsPreviewSnapshot,
+  saveInputsPrimarySheetSelection,
   saveInputsUploadSnapshot,
 } from '../../state/storage'
 import { PreviewPanel, Step2Header } from './Step2Panels'
@@ -22,6 +25,11 @@ type Step2Error = { error: ApiError; retry: () => void; retryLabel: string }
 type Step2State = {
   upload: InputsUploadResponse | null
   preview: InputsPreviewResponse | null
+}
+
+function shouldFallbackFromSheetSelection(error: ApiError): boolean {
+  if (error.kind !== 'http') return false
+  return error.status === 400 || error.status === 404
 }
 
 function loadStep2State(jobId: string): Step2State {
@@ -37,6 +45,9 @@ export function Step2(props: Step2Props) {
   const [state, setState] = useState<Step2State>(() => (jobId === null ? { upload: null, preview: null } : loadStep2State(jobId)))
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<Step2Error | null>(null)
+  const [rememberedSheet, setRememberedSheet] = useState<string | null>(() =>
+    jobId === null ? null : loadInputsPrimarySheetSelection(jobId),
+  )
   const [primaryFile, setPrimaryFile] = useState<File | null>(null)
   const [auxiliaryFiles, setAuxiliaryFiles] = useState<File[]>([])
 
@@ -44,6 +55,7 @@ export function Step2(props: Step2Props) {
     setActionError(null)
     setPrimaryFile(null)
     setAuxiliaryFiles([])
+    setRememberedSheet(jobId === null ? null : loadInputsPrimarySheetSelection(jobId))
     if (jobId === null) return
     setState(loadStep2State(jobId))
   }, [jobId])
@@ -62,6 +74,23 @@ export function Step2(props: Step2Props) {
     setActionError(null)
     setBusy(true)
     try {
+      if (rememberedSheet !== null) {
+        const selected = await props.api.selectPrimaryExcelSheet(jobId, rememberedSheet, { rows: previewRows, columns: previewCols })
+        if (selected.ok) {
+          saveInputsPreviewSnapshot(jobId, selected.value)
+          setState((prev) => ({ ...prev, preview: selected.value }))
+          return
+        }
+        if (shouldFallbackFromSheetSelection(selected.error)) {
+          clearInputsPrimarySheetSelection(jobId)
+          setRememberedSheet(null)
+        }
+        else {
+          setActionError({ error: selected.error, retry: () => void runPreview(jobId), retryLabel: '重试预览' })
+          return
+        }
+      }
+
       const previewed = await props.api.previewInputsWithOptions(jobId, { rows: previewRows, columns: previewCols })
       if (!previewed.ok) {
         setActionError({ error: previewed.error, retry: () => void runPreview(jobId), retryLabel: '重试预览' })
@@ -83,6 +112,8 @@ export function Step2(props: Step2Props) {
         setActionError({ error: selected.error, retry: () => void runSelectSheet(jobId, sheetName), retryLabel: '重试选择 Sheet' })
         return
       }
+      saveInputsPrimarySheetSelection(jobId, sheetName)
+      setRememberedSheet(sheetName)
       saveInputsPreviewSnapshot(jobId, selected.value)
       setState((prev) => ({ ...prev, preview: selected.value }))
     } finally {
@@ -108,21 +139,30 @@ export function Step2(props: Step2Props) {
       saveInputsUploadSnapshot(jobId, uploaded.value)
       setState((prev) => ({ ...prev, upload: uploaded.value }))
 
+      if (rememberedSheet !== null) {
+        const selected = await props.api.selectPrimaryExcelSheet(jobId, rememberedSheet, { rows: previewRows, columns: previewCols })
+        if (selected.ok) {
+          saveInputsPreviewSnapshot(jobId, selected.value)
+          setState((prev) => ({ ...prev, preview: selected.value }))
+          return
+        }
+        if (shouldFallbackFromSheetSelection(selected.error)) {
+          clearInputsPrimarySheetSelection(jobId)
+          setRememberedSheet(null)
+        }
+        else {
+          setActionError({ error: selected.error, retry: () => void runPreview(jobId), retryLabel: '重试预览' })
+          return
+        }
+      }
+
       const previewed = await props.api.previewInputsWithOptions(jobId, { rows: previewRows, columns: previewCols })
       if (!previewed.ok) {
         setActionError({ error: previewed.error, retry: () => void runPreview(jobId), retryLabel: '重试预览' })
         return
       }
-
-      let effectivePreview = previewed.value
-      const sheetNames = effectivePreview.sheet_names ?? []
-      const selectedSheet = effectivePreview.selected_sheet ?? null
-      if (sheetNames.length > 0 && selectedSheet !== null && selectedSheet.trim() !== '') {
-        const persisted = await props.api.selectPrimaryExcelSheet(jobId, selectedSheet, { rows: previewRows, columns: previewCols })
-        if (persisted.ok) effectivePreview = persisted.value
-      }
-      saveInputsPreviewSnapshot(jobId, effectivePreview)
-      setState((prev) => ({ ...prev, preview: effectivePreview }))
+      saveInputsPreviewSnapshot(jobId, previewed.value)
+      setState((prev) => ({ ...prev, preview: previewed.value }))
     } finally {
       setBusy(false)
     }
@@ -174,6 +214,7 @@ export function Step2(props: Step2Props) {
       <PreviewPanel
         preview={state.preview}
         busy={busy}
+        rememberedSheet={rememberedSheet}
         onSelectSheet={(sheetName) => void runSelectSheet(jobId, sheetName)}
       />
 

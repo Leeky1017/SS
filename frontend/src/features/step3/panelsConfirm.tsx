@@ -68,7 +68,7 @@ export function MappingPanel(props: {
             {zhCN.mapping.clearAll}
           </button>
         </div>
-        <div className="data-table-wrap" style={{ marginTop: 12, maxHeight: 280 }}>
+        <div className="data-table-wrap" style={{ marginTop: 12 }}>
           <table className="data-table">
             <thead>
               <tr>

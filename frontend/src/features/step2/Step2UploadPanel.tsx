@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useId, useState } from 'react'
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -37,7 +37,7 @@ function FileDropArea(props: {
   onFiles: (files: File[]) => void
 }) {
   const [dragActive, setDragActive] = useState(false)
-  const inputId = useMemo(() => `file_${Math.random().toString(16).slice(2)}`, [])
+  const inputId = useId()
 
   return (
     <div
