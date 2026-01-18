@@ -15,6 +15,7 @@ from src.api.deps import (
     get_plan_service,
     get_tenant_id,
 )
+from src.api.inputs_preview_schemas import InputsPreviewResponse
 from src.api.schemas import (
     ArtifactIndexItem,
     ArtifactsIndexResponse,
@@ -24,7 +25,6 @@ from src.api.schemas import (
     FreezePlanResponse,
     GetJobResponse,
     GetPlanResponse,
-    InputsPreviewResponse,
     InputsUploadResponse,
     LLMPlanResponse,
     RunJobResponse,

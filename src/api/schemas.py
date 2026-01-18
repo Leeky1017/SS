@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from src.api.column_normalization_schemas import DraftColumnNameNormalization
 from src.api.draft_column_candidate_schemas import DraftColumnCandidateV2
-from src.api.inputs_preview_schemas import InputsPreviewColumn, InputsPreviewResponse  # noqa: F401
+from src.api.inputs_preview_schemas import InputsPreviewColumn
 from src.api.required_variable_schemas import DraftRequiredVariable
 from src.utils.json_types import JsonScalar, JsonValue
 

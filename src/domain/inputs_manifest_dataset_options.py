@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import cast
 
 from src.utils.json_types import JsonObject, JsonValue
 
@@ -119,7 +118,7 @@ def set_dataset_excel_options(
 
     out = dict(manifest)
     out["datasets"] = updated_datasets
-    return cast(JsonObject, out)
+    return out
 
 
 def primary_dataset_excel_options(manifest: Mapping[str, object]) -> tuple[str | None, bool | None]:
@@ -165,7 +164,7 @@ def set_primary_dataset_excel_options(
             return manifest
         out = dict(manifest)
         out["datasets"] = updated_datasets
-        return cast(JsonObject, out)
+        return out
 
     primary_obj = manifest.get("primary_dataset")
     if isinstance(primary_obj, dict):
@@ -186,4 +185,4 @@ def set_primary_dataset_excel_options(
         out.pop("primary_dataset_header_row", None)
     else:
         out["primary_dataset_header_row"] = header_row
-    return cast(JsonObject, out)
+    return out

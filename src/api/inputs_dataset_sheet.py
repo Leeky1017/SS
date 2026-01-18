@@ -8,7 +8,7 @@ from src.api.deps import (
     get_job_workspace_store,
     get_tenant_id,
 )
-from src.api.schemas import InputsPreviewResponse
+from src.api.inputs_preview_schemas import InputsPreviewResponse
 from src.domain.inputs_sheet_selection_service import InputsSheetSelectionService
 from src.domain.job_inputs_service import JobInputsService
 from src.domain.job_store import JobStore
@@ -45,4 +45,3 @@ async def select_dataset_excel_sheet(
         columns=columns,
     )
     return InputsPreviewResponse.model_validate(payload)
-

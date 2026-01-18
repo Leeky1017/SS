@@ -7,6 +7,7 @@ from fastapi import APIRouter, Body, Depends, Query, Response
 from src.api.column_normalization_schemas import DraftColumnNameNormalization
 from src.api.deps import get_draft_service, get_tenant_id
 from src.api.draft_column_candidate_schemas import DraftColumnCandidateV2
+from src.api.inputs_preview_schemas import InputsPreviewColumn
 from src.api.required_variable_schemas import DraftRequiredVariable
 from src.api.schemas import (
     DraftDataQualityWarning,
@@ -17,7 +18,6 @@ from src.api.schemas import (
     DraftPreviewPendingResponse,
     DraftPreviewResponse,
     DraftStage1Question,
-    InputsPreviewColumn,
 )
 from src.domain.draft_service import DraftService
 from src.domain.draft_v1_contract import list_of_dicts
