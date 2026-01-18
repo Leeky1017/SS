@@ -1,7 +1,7 @@
 # ISSUE-527
 - Issue: #527
 - Branch: task/527-be-008-id-time-var-selection
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/528
 
 ## Plan
 - Expose required ID/TIME variables in draft preview
@@ -45,3 +45,7 @@
 
 - Command: `PATH=/home/leeky/work/SS/.venv/bin:$PATH scripts/contract_sync.sh check`
 - Key output: `exit 0`
+
+### 2026-01-18 pr-preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs`
