@@ -26,9 +26,10 @@ def build_rule_plan(
     requirement_norm = normalize_whitespace(requirement)
     requirement_fingerprint = sha256_hex(requirement_norm)
     analysis_spec = analysis_spec_from_draft(job=job)
-    analysis_vars = do_template_plan_support.analysis_vars_from_analysis_spec(analysis_spec)
     template_params = do_template_plan_support.template_params_for(
-        template_id=template_id, analysis_vars=analysis_vars
+        template_id=template_id,
+        analysis_spec=analysis_spec,
+        variable_corrections=confirmation.variable_corrections,
     )
     contract = build_plan_template_contract(
         repo=do_template_repo,
@@ -51,4 +52,3 @@ def build_rule_plan(
     plan = LLMPlan(plan_id=plan_id, rel_path="artifacts/plan.json", steps=steps)
     validate_composition_plan(plan=plan, known_input_keys=input_keys)
     return plan
-

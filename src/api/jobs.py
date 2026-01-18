@@ -186,7 +186,11 @@ async def freeze_plan(
             svc.freeze_plan,
             tenant_id=tenant_id,
             job_id=job_id,
-            confirmation=JobConfirmation(notes=payload.notes, answers=payload.answers),
+            confirmation=JobConfirmation(
+                notes=payload.notes,
+                answers=payload.answers,
+                variable_corrections=payload.variable_corrections,
+            ),
         )
     )
     return FreezePlanResponse(

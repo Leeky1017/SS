@@ -111,11 +111,17 @@ export interface components {
             job_id: string;
             open_unknowns?: components["schemas"]["DraftOpenUnknown"][];
             outcome_var?: string | null;
+            required_variables?: components["schemas"]["DraftRequiredVariable"][];
             risk_score: number;
             stage1_questions?: components["schemas"]["DraftStage1Question"][];
             status: "ready";
             treatment_var?: string | null;
             variable_types?: components["schemas"]["InputsPreviewColumn"][];
+        };
+        DraftRequiredVariable: {
+            candidates?: string[];
+            description: string;
+            field: string;
         };
         DraftStage1Option: {
             label: string;
@@ -138,6 +144,9 @@ export interface components {
                 [key: string]: components["schemas"]["JsonValue-Input"];
             };
             notes?: string | null;
+            variable_corrections?: {
+                [key: string]: string;
+            };
         };
         FreezePlanResponse: {
             job_id: string;
