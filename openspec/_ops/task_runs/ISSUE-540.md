@@ -1,7 +1,7 @@
 # ISSUE-540
 - Issue: #540
 - Branch: task/540-doc-plan-001
-- PR: <fill-after-created>
+- PR: https://github.com/Leeky1017/SS/pull/541
 
 ## Plan
 - Persist the SS full-chain audit plan under `.cursor/plans/` for shared remediation planning.
@@ -42,4 +42,14 @@
 - Command: `scripts/agent_pr_preflight.sh`
 - Key output: `OK: no overlapping files with open PRs; OK: no hard dependencies found in execution plan`
 - Evidence: (none)
+
+### 2026-01-27 git-push
+- Command: `git push -u origin HEAD`
+- Key output: `new branch -> task/540-doc-plan-001`
+- Evidence: https://github.com/Leeky1017/SS/pull/new/task/540-doc-plan-001
+
+### 2026-01-27 pr-create
+- Command: `gh pr create ...`
+- Key output: `https://github.com/Leeky1017/SS/pull/541`
+- Evidence: https://github.com/Leeky1017/SS/pull/541
 
