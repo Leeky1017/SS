@@ -38,3 +38,8 @@
 - Key output: `ModuleNotFoundError: No module named 'pydantic' (local env); will rely on CI`
 - Evidence: (none)
 
+### 2026-01-27 pr-preflight
+- Command: `scripts/agent_pr_preflight.sh`
+- Key output: `OK: no overlapping files with open PRs; OK: no hard dependencies found in execution plan`
+- Evidence: (none)
+
